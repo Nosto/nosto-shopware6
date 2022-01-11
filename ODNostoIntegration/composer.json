@@ -1,0 +1,29 @@
+{
+  "name": "od/nosto-integration",
+  "description": "OD Nosto Integration",
+  "version": "v1.0.0",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "od-dev-team",
+      "homepage": "https://overdose.digital/"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "OD\\NostoIntegration\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "OD\\NostoIntegration\\ODNostoIntegration",
+    "label": {
+      "de-DE": "OD Nosto Integration",
+      "en-GB": "OD Nosto Integration"
+    },
+    "description": {
+      "de-DE": "OD Nosto Integration",
+      "en-GB": "OD Nosto Integration"
+    }
+  }
+}
