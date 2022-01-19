@@ -7,6 +7,11 @@
     <services>
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
+            <argument type="service" id="product.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Operation\ProductSyncHandler">
+            <tag name="od.job_handler" code="od-nosto-product-sync"/>
+            <argument type="service" id="product.repository"/>
         </service>
     </services>
 </container>
