@@ -8,5 +8,9 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
         </service>
+        <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
+            <argument type="service" id="order.repository"/>
+            <tag name="od.job_handler" code="od-nosto-order-sync"/>
+        </service>
     </services>
 </container>
