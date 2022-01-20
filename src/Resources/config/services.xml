@@ -8,5 +8,8 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
         </service>
+        <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
+            <argument type="service" id="newsletter_recipient.repository"/>
+        </service>
     </services>
 </container>
