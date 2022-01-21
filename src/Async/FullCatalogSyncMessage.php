@@ -3,24 +3,10 @@
 namespace Od\NostoIntegration\Async;
 
 use Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler;
-use Od\Scheduler\Async\JobMessageInterface;
 
-class FullCatalogSyncMessage implements JobMessageInterface
+class FullCatalogSyncMessage extends AbstractMessage
 {
-    private string $jobId;
-
-    /**
-     * @param string $jobId
-     */
-    public function __construct(string $jobId)
-    {
-        $this->jobId = $jobId;
-    }
-
-    public function getJobId(): string
-    {
-        return $this->jobId;
-    }
+    protected static string $defaultName = 'Full Catalog Sync Operation';
 
     public function getHandlerCode(): string
     {
