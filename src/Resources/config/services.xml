@@ -8,5 +8,18 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
         </service>
+        <!-- Entity Definition -->
+        <service id="Od\NostoIntegration\Entity\Changelog\ChangelogDefinition">
+            <tag name="shopware.entity.definition" entity="od_nosto_entity_changelog"/>
+        </service>
+        <!-- /Entity Definition -->
+        <!-- Event Listeners -->
+        <service id="Od\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="Od\NostoIntegration\EventListener\OrderStateChangedEventListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <!-- /Event Listeners -->
     </services>
 </container>
