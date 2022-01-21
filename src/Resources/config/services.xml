@@ -13,5 +13,9 @@
             <tag name="od.job_handler" code="od-nosto-product-sync"/>
             <argument type="service" id="product.repository"/>
         </service>
+        <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
+            <argument type="service" id="order.repository"/>
+            <tag name="od.job_handler" code="od-nosto-order-sync"/>
+        </service>
     </services>
 </container>
