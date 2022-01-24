@@ -7,6 +7,28 @@
     <services>
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
+            <argument type="service" id="product.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Operation\ProductSyncHandler">
+            <tag name="od.job_handler" code="od-nosto-product-sync"/>
+            <argument type="service" id="product.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
+            <argument type="service" id="order.repository"/>
+            <tag name="od.job_handler" code="od-nosto-order-sync"/>
+        </service>
+
+        <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <tag name="messenger.message_handler"/>
+            <argument type="service" id="od_scheduler_job.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
+            <argument type="service" id="newsletter_recipient.repository"/>
         </service>
         <service id="Od\NostoIntegration\Async\EventsWriter">
             <argument type="service" id="od_nosto_entity_changelog.repository"/>
