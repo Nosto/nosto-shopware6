@@ -8,6 +8,9 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
         </service>
+        <service id="Od\NostoIntegration\Async\EventsWriter">
+            <argument type="service" id="od_nosto_entity_changelog.repository"/>
+        </service>
         <!-- Entity Definition -->
         <service id="Od\NostoIntegration\Entity\Changelog\ChangelogDefinition">
             <tag name="shopware.entity.definition" entity="od_nosto_entity_changelog"/>
@@ -16,9 +19,15 @@
         <!-- Event Listeners -->
         <service id="Od\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
         </service>
-        <service id="Od\NostoIntegration\EventListener\OrderStateChangedEventListener">
+        <service id="Od\NostoIntegration\EventListener\OrderWrittenEventListener">
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
+        </service>
+        <service id="Od\NostoIntegration\EventListener\NewsletterEventListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
         </service>
         <!-- /Event Listeners -->
     </services>
