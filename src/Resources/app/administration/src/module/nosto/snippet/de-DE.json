@@ -1,0 +1,9 @@
+{
+    "nosto": {
+        "title": "Nosto",
+        "description": "Nosto integration",
+        "menu": {
+            "title": "Nosto configuration"
+        }
+    }
+}

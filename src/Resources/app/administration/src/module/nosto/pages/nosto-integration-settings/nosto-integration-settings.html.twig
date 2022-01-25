@@ -1,0 +1,64 @@
+{% block nosto_integration %}
+    <sw-page class="nosto-integration-settings">
+        {% block nostointegration_header %}
+            <template #smart-bar-header>
+                <h2>
+                    {{ $tc('sw-settings.index.title') }}
+                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                    {{ $tc('nosto.configuration.title') }}
+                </h2>
+            </template>
+        {% endblock %}
+        {% block nosto_integration_actions %}
+            <template #smart-bar-actions>
+                {% block nosto_integration_actions_save %}
+                    <sw-button-process v-model="isSaveSuccessful"
+                                       class="sw-settings-login-registration__save-action"
+                                       variant="primary"
+                                       :isLoading="isLoading"
+                                       :disabled="isLoading"
+                                       @click="onSave">
+                        {{ $tc('global.default.save') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+        {% block nosto_integration_content %}
+            <template #content>
+                {% block nosto_integration_content_card %}
+                    <sw-card-view>
+                        {% block nosto_integration_content_card_channel_config %}
+                            <sw-sales-channel-config v-model="config"
+                                                     ref="configComponent"
+                                                     domain="NostoIntegration.settings">
+                                {% block nosto_integration_content_card_channel_config_sales_channel %}
+                                    <template #select="{ onInput, selectedSalesChannelId }">
+                                        {% block nosto_integration_content_card_channel_config_sales_channel_card %}
+                                            <sw-card class="sw-card--grid"
+                                                     :title="$tc('global.entities.sales_channel', 2)">
+                                                <div class="card-container">
+                                                    {% block nosto_integration_content_card_channel_config_sales_channel_card_title %}
+                                                        <sw-single-select v-model="selectedSalesChannelId"
+                                                                          labelProperty="translated.name"
+                                                                          valueProperty="id"
+                                                                          :isLoading="isLoading"
+                                                                          :options="salesChannels"
+                                                                          @change="onInput">
+                                                        </sw-single-select>
+                                                    {% endblock %}
+                                                </div>
+                                            </sw-card>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </sw-sales-channel-config>
+                        {% endblock %}
+                        {% block styla_cmsintegration_content_card_loading %}
+                            <sw-loader v-if="isLoading"></sw-loader>
+                        {% endblock %}
+                    </sw-card-view>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}
