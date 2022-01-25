@@ -8,7 +8,7 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
         </service>
-        <service id="Od\NostoIntegration\Async\EventsWriter">
+        <service id="Od\NostoIntegration\Async\EventsWriter" lazy="true">
             <argument type="service" id="od_nosto_entity_changelog.repository"/>
         </service>
         <!-- Entity Definition -->

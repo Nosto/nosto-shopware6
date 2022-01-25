@@ -27,11 +27,19 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
 
     public function onProductWritten(EntityWrittenEvent $event)
     {
-       $this->eventsWriter->writeEvent($event->getEntityName(), $event->getIds()[0], $event->getContext());
+        $this->eventsWriter->writeEvent(
+            $event->getEntityName(),
+            $event->getIds()[0],
+            $event->getContext()
+        );
     }
 
     public function onProductDeleted(EntityDeletedEvent $event)
     {
-        $this->eventsWriter->writeEvent($event->getEntityName(), $event->getIds()[0], $event->getContext());
+        $this->eventsWriter->writeEvent(
+            $event->getEntityName(),
+            $event->getIds()[0],
+            $event->getContext()
+        );
     }
 }

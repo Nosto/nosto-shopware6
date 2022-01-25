@@ -11,8 +11,6 @@ class NewsletterEventListener implements EventSubscriberInterface
 {
     private EventsWriter $eventsWriter;
 
-    private const NEWSLETTER_ENTITY_NAME = 'newsletter';
-
     public function __construct(EventsWriter $eventsWriter)
     {
         $this->eventsWriter = $eventsWriter;
@@ -29,17 +27,18 @@ class NewsletterEventListener implements EventSubscriberInterface
     public function onNewsletterConfirm(NewsletterConfirmEvent $event)
     {
         $this->eventsWriter->writeEvent(
-            self::NEWSLETTER_ENTITY_NAME,
+            $this->eventsWriter::NEWSLETTER_ENTITY_NAME,
             $event->getNewsletterRecipient()->getId(),
-            $event->getContext());
-
+            $event->getContext()
+        );
     }
 
     public function onNewsletterUnsubscribe(NewsletterUnsubscribeEvent $event)
     {
         $this->eventsWriter->writeEvent(
-            self::NEWSLETTER_ENTITY_NAME,
+            $this->eventsWriter::NEWSLETTER_ENTITY_NAME,
             $event->getNewsletterRecipient()->getId(),
-            $event->getContext());
+            $event->getContext()
+        );
     }
 }
