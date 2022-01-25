@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Od\NostoIntegration\Service\ScheduledTask;
 
-use Od\NostoIntegration\Async\ChangelogSyncMessage;
+use Od\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implements GeneratingHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-entity-changelog-sync';
     private JobScheduler $jobScheduler;
 
     public function __construct(
@@ -31,7 +30,7 @@ class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implement
 
     public function run(): void
     {
-        $jobMessage = new ChangelogSyncMessage(Uuid::randomHex());
+        $jobMessage = new EntityChangelogSyncMessage(Uuid::randomHex());
         $this->jobScheduler->schedule($jobMessage);
     }
 }

@@ -10,6 +10,7 @@ class EventsWriter
     private EntityRepositoryInterface $changelogRepository;
     public const ORDER_ENTITY_NAME = 'order';
     public const NEWSLETTER_ENTITY_NAME = 'newsletter';
+    public const PRODUCT_ENTITY_NAME = 'product';
 
     public function __construct(EntityRepositoryInterface $changelogRepository)
     {
