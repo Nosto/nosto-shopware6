@@ -11,7 +11,7 @@
     }
   ],
   "require": {
-      "shopware/core": "~6.4.0",
+    "shopware/core": "~6.4.0",
     "od/sw6-job-scheduler": "v1.0.0"
   },
   "autoload": {
