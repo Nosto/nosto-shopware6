@@ -1,33 +1,35 @@
 {
-  "name": "od/nosto-integration",
-  "description": "Od Nosto Integration",
-  "version": "v1.0.0",
-  "type": "shopware-platform-plugin",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "od-dev-team",
-      "homepage": "https://overdose.digital/"
-    }
-  ],
-  "require": {
-    "shopware/core": "~6.4.0",
-    "od/sw6-job-scheduler": "v1.0.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Od\\NostoIntegration\\": "src/"
-    }
-  },
-  "extra": {
-    "shopware-plugin-class": "Od\\NostoIntegration\\OdNostoIntegration",
-    "label": {
-      "de-DE": "Od Nosto Integration",
-      "en-GB": "Od Nosto Integration"
+    "name": "od/nosto-integration",
+    "description": "Overdose Nosto Integration",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "od-dev-team",
+            "homepage": "https://overdose.digital/"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.4.0",
+        "od/sw6-job-scheduler": "^1.0.0",
+        "od/sw6-base-plugin": "^1.0.0",
+        "nosto/php-sdk": "^5.5.0"
     },
-    "description": {
-      "de-DE": "Od Nosto Integration",
-      "en-GB": "Od Nosto Integration"
+    "autoload": {
+        "psr-4": {
+            "Od\\NostoIntegration\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Od\\NostoIntegration\\OdNostoIntegration",
+        "label": {
+            "de-DE": "Od Nosto Integration",
+            "en-GB": "Od Nosto Integration"
+        },
+        "description": {
+            "de-DE": "Od Nosto Integration",
+            "en-GB": "Od Nosto Integration"
+        }
     }
-  }
 }
