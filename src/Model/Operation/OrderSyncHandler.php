@@ -28,7 +28,6 @@ class OrderSyncHandler implements JobHandlerInterface
 
     public function execute(object $message): JobResult
     {
-
         $orderIds = $message->getOrderIds();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
