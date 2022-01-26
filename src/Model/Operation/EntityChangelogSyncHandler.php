@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -43,24 +43,39 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     public function execute(object $message): JobResult
     {
         $context = Context::createDefaultContext();
-        $this->processNewsletterSubscriberEvents($context, $message->getJobId());
-        $this->processOrderEvents($context, $message->getJobId());
-        $this->processProductEvents($context, $message->getJobId());
+        $this->processEvents(
+            $context,
+            $message->getJobId(),
+            EventsWriter::NEWSLETTER_ENTITY_NAME,
+            MarketingPermissionSyncMessage::class
+        );
+        $this->processEvents(
+            $context,
+            $message->getJobId(),
+            EventsWriter::ORDER_ENTITY_NAME,
+            OrderSyncMessage::class
+        );
+        $this->processEvents(
+            $context,
+            $message->getJobId(),
+            EventsWriter::PRODUCT_ENTITY_NAME,
+            ProductSyncMessage::class
+        );
 
         return new JobResult();
     }
 
-    private function processOrderEvents(Context $context, string $parentJobId)
+    private function processEvents(Context $context, string $parentJobId, string $entityName, $message)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('entity_type', [EventsWriter::ORDER_ENTITY_NAME]));
+        $criteria->addFilter(new EqualsFilter('entity_type', $entityName));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
         $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
 
         while (($events = $iterator->fetch()) !== null) {
-            $orderIds = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new OrderSyncMessage(Uuid::randomHex(), $parentJobId, $orderIds);
+            $ids = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
+            $jobMessage = new $message(Uuid::randomHex(), $parentJobId, $ids);
             $this->jobScheduler->schedule($jobMessage);
             $deleteDataSet = array_map(function ($id) {
                 return ['id' => $id];
@@ -69,41 +84,5 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
     }
 
-    private function processNewsletterSubscriberEvents(Context $context, string $parentJobId)
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('entity_type', [EventsWriter::NEWSLETTER_ENTITY_NAME]));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
 
-        while (($events = $iterator->fetch()) !== null) {
-            $newsletterSubscriberIds = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new MarketingPermissionSyncMessage(Uuid::randomHex(), $parentJobId, $newsletterSubscriberIds);
-            $this->jobScheduler->schedule($jobMessage);
-            $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
-            }, array_values($events->getIds()));
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
-        }
-    }
-
-    private function processProductEvents(Context $context, string $parentJobId)
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('entity_type', [EventsWriter::PRODUCT_ENTITY_NAME]));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
-
-        while (($events = $iterator->fetch()) !== null) {
-            $productIds = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds);
-            $this->jobScheduler->schedule($jobMessage);
-            $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
-            }, array_values($events->getIds()));
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
-        }
-    }
 }
