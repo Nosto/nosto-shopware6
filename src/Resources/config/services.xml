@@ -19,7 +19,7 @@
             <argument type="service" id="order.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
-            <tag name="od.job_handler" code="od-nosto-order-sync"/>
+            <tag name="od.job_handler" code="od-nosto-entity-changelog-sync"/>
             <argument type="service" id="od_nosto_entity_changelog.repository"/>
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>

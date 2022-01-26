@@ -68,7 +68,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private function processEvents(Context $context, string $parentJobId, string $entityName, $message)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entity_type', $entityName));
+        $criteria->addFilter(new EqualsFilter('entityType', $entityName));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
         $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
@@ -83,6 +83,4 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $this->entityChangelogRepository->delete($deleteDataSet, $context);
         }
     }
-
-
 }
