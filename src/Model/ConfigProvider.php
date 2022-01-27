@@ -10,14 +10,14 @@ class ConfigProvider extends AbstractConfigProvider
     private SystemConfigService $systemConfig;
     protected string $pathPrefix = 'OdNostoIntegration.';
 
-    public const LOG_ENABLE_VARIATIONS = 'general/log_enable_variations';
-    public const LOG_ENABLE_PRODUCT_PROPERTIES = 'general/log_enable_product_properties';
-    public const LOG_ENABLE_ALTERNATE_IMAGES = 'general/log_enable_alternate_images';
-    public const LOG_ENABLE_INVENTORY_LEVELS = 'general/log_enable_inventory_levels';
-    public const LOG_ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'general/log_enable_send_customer_data_to_nosto';
-    public const LOG_ENABLE_SYNC_INACTIVE_PRODUCTS = 'general/log_enable_sync_inactive_products';
-    public const LOG_ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'general/log_enable_product_published_date_tagging';
-    public const LOG_ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'general/log_enable_reload_recommendations_after_adding';
+    public const ENABLE_VARIATIONS = 'general/enable_variations';
+    public const ENABLE_PRODUCT_PROPERTIES = 'general/enable_product_properties';
+    public const ENABLE_ALTERNATE_IMAGES = 'general/enable_alternate_images';
+    public const ENABLE_INVENTORY_LEVELS = 'general/enable_inventory_levels';
+    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'general/enable_send_customer_data_to_nosto';
+    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'general/enable_sync_inactive_products';
+    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'general/enable_product_published_date_tagging';
+    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'general/enable_reload_recommendations_after_adding';
     public const ACCOUNT_ID_FIELD = 'credentials/account_id_field';
     public const PRODUCT_TOKEN_FIELD = 'credentials/product_token_field';
 
@@ -27,44 +27,44 @@ class ConfigProvider extends AbstractConfigProvider
         $this->systemConfig = $systemConfig;
     }
 
-    public function isEnabledLogVariations($channelId = null): bool
+    public function isEnabledVariations($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_VARIATIONS, $channelId);
+        return $this->getBool(self::ENABLE_VARIATIONS, $channelId);
     }
 
-    public function isEnabledLogProductProperties($channelId = null): bool
+    public function isEnabledProductProperties($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_PRODUCT_PROPERTIES, $channelId);
+        return $this->getBool(self::ENABLE_PRODUCT_PROPERTIES, $channelId);
     }
 
-    public function isEnabledLogAlternateImages($channelId = null): bool
+    public function isEnabledAlternateImages($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_ALTERNATE_IMAGES, $channelId);
+        return $this->getBool(self::ENABLE_ALTERNATE_IMAGES, $channelId);
     }
 
-    public function isEnabledLogInventoryLevels($channelId = null): bool
+    public function isEnabledInventoryLevels($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_INVENTORY_LEVELS, $channelId);
+        return $this->getBool(self::ENABLE_INVENTORY_LEVELS, $channelId);
     }
 
-    public function isEnabledLogSendCustomerDataToNosto($channelId = null): bool
+    public function isEnabledSendCustomerDataToNosto($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO, $channelId);
+        return $this->getBool(self::ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO, $channelId);
     }
 
-    public function isEnabledLogSyncInactiveProducts($channelId = null): bool
+    public function isEnabledSyncInactiveProducts($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_SYNC_INACTIVE_PRODUCTS, $channelId);
+        return $this->getBool(self::ENABLE_SYNC_INACTIVE_PRODUCTS, $channelId);
     }
 
-    public function isEnabledLogProductPublishedDateTagging($channelId = null): bool
+    public function isEnabledProductPublishedDateTagging($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING, $channelId);
+        return $this->getBool(self::ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING, $channelId);
     }
 
-    public function isEnabledLogReloadRecommendationsAfterAdding($channelId = null): bool
+    public function isEnabledReloadRecommendationsAfterAdding($channelId = null): bool
     {
-        return $this->getBool(self::LOG_ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING, $channelId);
+        return $this->getBool(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING, $channelId);
     }
 
     public function getAccountIdField($channelId = null): string
