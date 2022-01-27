@@ -18,8 +18,8 @@ class ConfigProvider extends AbstractConfigProvider
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'general/enable_sync_inactive_products';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'general/enable_product_published_date_tagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'general/enable_reload_recommendations_after_adding';
-    public const ACCOUNT_ID_FIELD = 'credentials/account_id_field';
-    public const PRODUCT_TOKEN_FIELD = 'credentials/product_token_field';
+    public const ACCOUNT_ID = 'credentials/account_id';
+    public const PRODUCT_TOKEN = 'credentials/product_token';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -67,13 +67,13 @@ class ConfigProvider extends AbstractConfigProvider
         return $this->getBool(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING, $channelId);
     }
 
-    public function getAccountIdField($channelId = null): string
+    public function getAccountId($channelId = null): string
     {
-        return $this->getString(self::ACCOUNT_ID_FIELD, $channelId);
+        return $this->getString(self::ACCOUNT_ID, $channelId);
     }
 
-    public function getProductTokenField($channelId = null): string
+    public function getProductToken($channelId = null): string
     {
-        return $this->getString(self::PRODUCT_TOKEN_FIELD, $channelId);
+        return $this->getString(self::PRODUCT_TOKEN, $channelId);
     }
 }
