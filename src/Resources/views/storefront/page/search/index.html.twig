@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/page/search/index.html.twig' %}
+
+{# Adding Nosto search tagging #}
+{% block base_body_script %}
+
+    {{ parent() }}
+
+    {# Nosto search tagging #}
+    {% block od_nosto_integration_search_tagging %}
+        <div class="nosto_search_term" style="display:none">{{ page.searchTerm }}</div>
+    {% endblock %}
+
+{% endblock %}
