@@ -26,7 +26,6 @@
         {% block nosto_integration_content %}
             <template #content>
                 {% block nosto_integration_content_card %}
-                    <sw-card-view>
                         {% block nosto_integration_content_card_channel_config %}
                             <sw-sales-channel-config v-model="config"
                                                      ref="configComponent"
@@ -51,12 +50,25 @@
                                         {% endblock %}
                                     </template>
                                 {% endblock %}
+
+                                {% block styla_cmsintegration_content_card_channel_config_cards %}
+                                    <template #content="{ actualConfigData, allConfigs, selectedSalesChannelId }">
+                                        <div v-if="actualConfigData">
+                                            {% block nosto_integration_content_card_channel_config_general %}
+                                                <nosto-integration-settings-general
+                                                        :actualConfigData="actualConfigData"
+                                                        :allConfigs="allConfigs"
+                                                        :selectedSalesChannelId="selectedSalesChannelId">
+                                                </nosto-integration-settings-general>
+                                            {% endblock %}
+                                        </div>
+                                    </template>
+                                {% endblock %}
                             </sw-sales-channel-config>
                         {% endblock %}
                         {% block styla_cmsintegration_content_card_loading %}
                             <sw-loader v-if="isLoading"></sw-loader>
                         {% endblock %}
-                    </sw-card-view>
                 {% endblock %}
             </template>
         {% endblock %}

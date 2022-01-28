@@ -9,8 +9,6 @@ export default (() => {
             render(createElement, elementContext) {
                 const data = elementContext.data;
 
-                console.log('ggg', context(item));
-
                 return createElement('span', {
                     class: [data.staticClass, data.class],
                     style: data.style,

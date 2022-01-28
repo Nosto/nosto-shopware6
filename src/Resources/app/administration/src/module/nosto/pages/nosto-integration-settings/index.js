@@ -18,7 +18,7 @@ Component.register('nosto-integration-settings', {
             defaultAccountNameFilled: false,
             messageAccountBlankErrorState: null,
             config: null,
-            salesChannels: [],
+            salesChannels: []
         };
     },
 
@@ -73,11 +73,13 @@ Component.register('nosto-integration-settings', {
         },
 
         onSave() {
-            this.save();
-        },
+            this.isLoading = true;
 
-        save() {
-            console.log('Saved');
-        },
+            this.$refs.configComponent.save().then(() => {
+                this.isSaveSuccessful = true;
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        }
     }
 });

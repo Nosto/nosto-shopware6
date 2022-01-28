@@ -1,9 +1,14 @@
 import template from './nosto-integration-settings-general.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('nosto-integration-settings-general', {
     template,
+
+    inject: [
+        'repositoryFactory',
+    ],
 
     props: {
         actualConfigData: {
@@ -18,19 +23,38 @@ Component.register('nosto-integration-settings-general', {
             type: String,
             required: false,
             default: null,
+        }
+    },
+
+    data() {
+        return {
+            isLoading: false,
+            propertyGroups: []
+        };
+    },
+
+    computed: {
+        propertyRepository() {
+            return this.repositoryFactory.create('property_group');
         },
     },
 
     created() {
+        this.getProductProperties();
         this.createdComponent();
+        console.log(this.actualConfigData)
+        console.log(this.allConfigs)
     },
 
     methods: {
         createdComponent() {
             const configPrefix = 'NostoIntegration.settings.',
                 defaultConfigs = {
-                    pagesListSynchronizationInterval: 10,
-                    pageCacheDuration: 3600,
+                    tag1: null,
+                    tag2: null,
+                    tag3: null,
+                    gtin: null,
+                    googleCategory: null
                 };
 
             /**
@@ -41,6 +65,20 @@ Component.register('nosto-integration-settings-general', {
                     this.$set(this.allConfigs['null'], configPrefix + key, defaultValue);
                 }
             }
+        },
+
+        getProductProperties() {
+            this.isLoading = true;
+            const criteria = new Criteria();
+
+            return this.propertyRepository.search(criteria).then((items) => {
+                this.propertyGroups = items;
+                this.isLoading = false;
+
+                return items;
+            }).catch(() => {
+                this.isLoading = false;
+            });
         }
     },
 });

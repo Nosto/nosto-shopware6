@@ -6,7 +6,14 @@
             "title": "Nosto configuration"
         },
         "configuration": {
-            "title": "Nosto configuration"
+            "title": "Nosto configuration",
+            "tagAssignment": {
+                "tag1title": "Tag 1",
+                "tag2title": "Tag 2",
+                "tag3title": "Tag 3",
+                "gtinTitle": "GTIN",
+                "googleCategoryTitle": "Google category"
+            }
         }
     }
 }

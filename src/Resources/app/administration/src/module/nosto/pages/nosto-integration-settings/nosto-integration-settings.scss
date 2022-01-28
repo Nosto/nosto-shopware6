@@ -1,5 +1,15 @@
-.styla-cmsintegration-settings {
+.nosto-integration-settings {
     .card-container {
         margin: 30px 30px 0 30px;
+    }
+
+    .sw-sales-channel-config {
+        margin-top: 40px;
+    }
+
+    .sw-card.sw-card--grid  {
+        .sw-card__content {
+            padding: 30px 30px 0 30px;
+        }
     }
 }
