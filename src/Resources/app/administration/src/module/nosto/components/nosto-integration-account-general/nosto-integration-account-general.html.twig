@@ -1,0 +1,38 @@
+{% block nosto_integration_account_component_general %}
+    <sw-card title="Account settings">
+        {% block nosto_integration_account_id %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.accountID']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.accountID']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.idTitle')"
+                            type="text"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            required
+                            name="NostoIntegration.settings.accounts.accountID"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+        {% block nosto_integration_account_token %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.productToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.productToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.tokenTitle')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            required
+                            name="NostoIntegration.settings.accounts.productToken"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

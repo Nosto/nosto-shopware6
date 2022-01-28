@@ -13,6 +13,10 @@
                 "tag3title": "Tag 3",
                 "gtinTitle": "GTIN",
                 "googleCategoryTitle": "Google category"
+            },
+            "account": {
+                "idTitle": "Account ID",
+                "tokenTitle": "Token"
             }
         }
     }

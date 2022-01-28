@@ -42,8 +42,6 @@ Component.register('nosto-integration-settings-general', {
     created() {
         this.getProductProperties();
         this.createdComponent();
-        console.log(this.actualConfigData)
-        console.log(this.allConfigs)
     },
 
     methods: {

@@ -49,7 +49,16 @@ Component.register('nosto-integration-settings', {
     },
 
     methods: {
+
         createdComponent() {
+            this.getSalesChannels();
+        },
+
+        onChangeLanguage() {
+            this.getSalesChannels();
+        },
+
+        getSalesChannels() {
             this.isLoading = true;
 
             const criteria = new Criteria();

@@ -1,5 +1,6 @@
 import './pages/nosto-integration-settings';
 import './components/nosto-integration-settings-general';
+import './components/nosto-integration-account-general';
 import './components/nosto-plugin-settings-icon';
 
 import enGB from './snippet/en-GB.json';
