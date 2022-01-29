@@ -2,6 +2,7 @@ import './pages/nosto-integration-settings';
 import './components/nosto-integration-settings-general';
 import './components/nosto-integration-account-general';
 import './components/nosto-plugin-settings-icon';
+import './pages/nosto-job-listing';
 
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';
@@ -22,6 +23,10 @@ Module.register('nosto-integration', {
     },
 
     routes: {
+        list: {
+            component: 'nosto-job-listing',
+            path: 'list'
+        },
         'settings': {
             component: 'nosto-integration-settings',
             path: 'settings',
@@ -30,11 +35,19 @@ Module.register('nosto-integration', {
             }
         }
     },
-
     settingsItem: {
         group: 'plugins',
         to: 'nosto.integration.settings',
         iconComponent: 'nosto-plugin-settings-icon',
         backgroundEnabled: true
     },
+
+    navigation: [{
+        label: 'Nosto jobs list',
+        color: '#ff3d58',
+        path: 'nosto.integration.list',
+        icon: 'default-object-marketing',
+        parent: 'sw-marketing',
+        position: 100
+    }],
 });
