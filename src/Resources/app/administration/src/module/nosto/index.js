@@ -3,6 +3,7 @@ import './components/nosto-integration-settings-general';
 import './components/nosto-integration-account-general';
 import './components/nosto-plugin-settings-icon';
 import './pages/nosto-job-listing';
+import './components/nosto-integration-features-flags'
 
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';

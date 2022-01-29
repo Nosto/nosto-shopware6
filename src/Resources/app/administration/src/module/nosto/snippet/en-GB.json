@@ -17,6 +17,22 @@
             "account": {
                 "idTitle": "Account ID",
                 "tokenTitle": "Token"
+            },
+            "featuresFlags": {
+                "cardTitle": "Features flags",
+                "ratingsOptions": {
+                    "shopwareRatings": "Shopware ratings",
+                    "noRatings": "No ratings"
+                },
+                "enableVariations": "Enable variations",
+                "enableProductProperties": "Enable product properties",
+                "enableAlternateImages": "Enable Alternate Images",
+                "enableRatingsReviews": "Enable Ratings & Reviews",
+                "enableInventory": "Enable Inventory Levels",
+                "enableCustomerDataToNosto": "Send Customer Data To Nosto",
+                "enableSyncInactiveProducts": "Sync Inactive Products",
+                "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
+                "enableReloadRecommendations": "Reload Recommendations After Adding"
             }
         }
     }

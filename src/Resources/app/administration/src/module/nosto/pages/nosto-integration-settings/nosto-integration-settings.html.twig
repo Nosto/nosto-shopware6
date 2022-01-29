@@ -80,6 +80,14 @@
                                                     :selectedSalesChannelId="selectedSalesChannelId">
                                             </nosto-integration-settings-general>
                                         {% endblock %}
+
+                                        {% block noto_integration_content_card_features_flags %}
+                                            <nosto-integration-features-flags
+                                                    :actualConfigData="actualConfigData"
+                                                    :allConfigs="allConfigs"
+                                                    :selectedSalesChannelId="selectedSalesChannelId">
+                                            </nosto-integration-features-flags>
+                                        {% endblock %}
                                     </div>
                                 </template>
                             {% endblock %}
