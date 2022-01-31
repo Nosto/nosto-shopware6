@@ -4,7 +4,7 @@ namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CachedProvider implements ProductProviderInterface
@@ -20,7 +20,7 @@ class CachedProvider implements ProductProviderInterface
         $this->innerProvider = $innerProvider;
     }
 
-    public function get(ProductEntity $product, SalesChannelContext $context): NostoProduct
+    public function get(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
         $cacheKey = 'od_nosto_product_' . $product->getId();
         $cachedItem = $this->cache->getItem($cacheKey);

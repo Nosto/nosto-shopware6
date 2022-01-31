@@ -43,7 +43,7 @@ class Account
         }
 
         // TODO: $accountName = $configProvider->getAccountname();
-        $accountName = '';
+        $accountName = 'Shopware 6 Integration';
         $account = new NostoSignupAccount($accountName);
 
         foreach ($this->keyChain->getTokens() as $token) {

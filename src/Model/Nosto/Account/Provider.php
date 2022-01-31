@@ -3,6 +3,7 @@
 namespace Od\NostoIntegration\Model\Nosto\Account;
 
 use Nosto\Request\Api\Token;
+use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Account;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,11 +13,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class Provider
 {
+    private ConfigProvider $configProvider;
     private EntityRepositoryInterface $channelRepo;
-    private array $accounts = [];
+    private ?array $accounts = null;
 
-    public function __construct(EntityRepositoryInterface $channelRepo)
-    {
+    public function __construct(
+        ConfigProvider $configProvider,
+        EntityRepositoryInterface $channelRepo
+    ) {
+        $this->configProvider = $configProvider;
         $this->channelRepo = $channelRepo;
     }
 
@@ -36,7 +41,6 @@ class Provider
             return $this->accounts;
         }
 
-        $key = 'in5aaqAawFPNGR0sqnn1L0LkIhzf5cVs8y1VXR2awpcyL3npflChsq1Z6JJG3p1I';
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $context = Context::createDefaultContext();
@@ -44,7 +48,9 @@ class Provider
 
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
-            $keyChain = new KeyChain([new Token(Token::API_PRODUCTS, $key)]);
+            $keyChain = new KeyChain([
+                new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId()))
+            ]);
             $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $keyChain);
         }
 
