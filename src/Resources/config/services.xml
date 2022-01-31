@@ -106,6 +106,9 @@
         <service id="Od\NostoIntegration\Twig\Extension\CustomerExtension" public="true">
             <tag name="twig.extension"/>
         </service>
+        <service id="Od\NostoIntegration\Twig\Extension\NostoExtension" public="true">
+            <tag name="twig.extension"/>
+        </service>
         <!-- /Extensions -->
 
     </services>

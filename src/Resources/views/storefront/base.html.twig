@@ -1,13 +1,25 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
-{# Adding Nosto page tagging #}
+{# Adding Nosto tagging #}
 {% block base_body_script %}
 
     {{ parent() }}
 
-    {# Nosto page tagging #}
-    {% block base_body_script_page_tagging %}
-        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/page-tagging.html.twig' %}
+    {# Nosto tagging #}
+    {% block od_nosto_integration_tagging %}
+
+        {% set type = od_nosto_page_type(activeRoute, page.cmsPage.type) %}
+
+        {% block od_nosto_integration_tagging_global %}
+            {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/page-tagging.html.twig' with {
+                type: type
+            } %}
+        {% endblock %}
+
+        {% block od_nosto_integration_tagging_advanced %}
+            {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/'~type~'-tagging.html.twig' ignore missing %}
+        {% endblock %}
+
     {% endblock %}
 
 {% endblock %}

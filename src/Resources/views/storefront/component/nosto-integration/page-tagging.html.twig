@@ -1,25 +1,3 @@
 {% block od_nosto_integration_page_tagging %}
-
-    {% if activeRoute == 'frontend.home.page' %}
-        {% set pageType = 'front' %}
-    {% elseif activeRoute == 'frontend.navigation.page' and page.cmsPage.type == 'product_list' %}
-        {% set pageType = 'category' %}
-    {% elseif activeRoute == 'frontend.detail.page' %}
-        {% set pageType = 'product' %}
-    {% elseif activeRoute == 'frontend.checkout.cart.page' %}
-        {% set pageType = 'cart' %}
-    {% elseif activeRoute == 'frontend.checkout.register.page' or activeRoute == 'frontend.checkout.confirm.page' %}
-        {% set pageType = 'checkout' %}
-    {% elseif activeRoute == 'frontend.checkout.finish.page' %}
-        {% set pageType = 'order' %}
-    {% elseif activeRoute == 'frontend.search.page' %}
-        {% set pageType = 'search' %}
-    {% elseif activeRoute %}
-        {% set pageType = 'other' %}
-    {% else %}
-        {% set pageType = 'notfound' %}
-    {% endif %}
-
-    <div class="nosto_page_type" style="display:none">{{ pageType }}</div>
-    
+    <div class="nosto_page_type" style="display:none">{{ type }}</div>
 {% endblock %}
