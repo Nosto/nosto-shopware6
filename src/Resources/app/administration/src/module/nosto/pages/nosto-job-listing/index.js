@@ -11,6 +11,7 @@ Component.register('nosto-job-listing', {
                 'od-nosto-full-catalog-sync',
                 'od-nosto-marketing-permission-sync',
                 'od-nosto-order-sync',
+                'od-nosto-entity-changelog-sync',
                 'od-nosto-product-sync'
             ];
         },

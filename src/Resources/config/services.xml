@@ -9,10 +9,15 @@
         <service id="Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-full-catalog-sync"/>
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\ProductSyncHandler">
             <tag name="od.job_handler" code="od-nosto-product-sync"/>
-            <argument type="service" id="product.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="od.job_handler" code="od-nosto-order-sync"/>
@@ -39,6 +44,25 @@
         <!-- /Handlers -->
 
         <!-- Services -->
+        <service id="Od\NostoIntegration\Model\Nosto\Account\Provider">
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="sales_channel.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" />
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider">
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
+        </service>
+        <service id="Od\NostoIntegration\TestCommand">
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <tag name="console.command"/>
+        </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
             <tag name="shopware.scheduled.task"/>
         </service>

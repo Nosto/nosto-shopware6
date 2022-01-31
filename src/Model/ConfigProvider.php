@@ -8,18 +8,19 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ConfigProvider extends AbstractConfigProvider
 {
     private SystemConfigService $systemConfig;
-    protected string $pathPrefix = 'OdNostoIntegration.';
+    protected string $pathPrefix = 'NostoIntegration.';
 
-    public const ENABLE_VARIATIONS = 'general/enable_variations';
-    public const ENABLE_PRODUCT_PROPERTIES = 'general/enable_product_properties';
-    public const ENABLE_ALTERNATE_IMAGES = 'general/enable_alternate_images';
-    public const ENABLE_INVENTORY_LEVELS = 'general/enable_inventory_levels';
-    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'general/enable_send_customer_data_to_nosto';
-    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'general/enable_sync_inactive_products';
-    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'general/enable_product_published_date_tagging';
-    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'general/enable_reload_recommendations_after_adding';
-    public const ACCOUNT_ID = 'credentials/account_id';
-    public const PRODUCT_TOKEN = 'credentials/product_token';
+    public const ENABLE_VARIATIONS = 'feature.flags.variations';
+    public const ENABLE_PRODUCT_PROPERTIES = 'feature.flags.productProperties';
+    public const ENABLE_ALTERNATE_IMAGES = 'feature.flags.alternateImages';
+    public const ENABLE_INVENTORY_LEVELS = 'feature.flags.inventory';
+    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'feature.flags.customerDataToNosto';
+    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'feature.flags.syncInactiveProducts';
+    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'feature.flags.productPublishedDateTagging';
+    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'feature.flags.reloadRecommendations';
+    public const ACCOUNT_ID = 'settings.accounts.accountID';
+    public const PRODUCT_TOKEN = 'settings.accounts.productToken';
+    public const TAG_FIELD_TEMPLATE = 'settings.tag';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -75,5 +76,10 @@ class ConfigProvider extends AbstractConfigProvider
     public function getProductToken($channelId = null): string
     {
         return $this->getString(self::PRODUCT_TOKEN, $channelId);
+    }
+
+    public function getTagFieldKey(int $tagNumber, $channelId = null): string
+    {
+        return $this->getString(self::TAG_FIELD_TEMPLATE . $tagNumber, $channelId);
     }
 }
