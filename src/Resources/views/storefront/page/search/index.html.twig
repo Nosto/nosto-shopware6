@@ -6,8 +6,8 @@
     {{ parent() }}
 
     {# Nosto search tagging #}
-    {% block od_nosto_integration_search_tagging %}
-        <div class="nosto_search_term" style="display:none">{{ page.searchTerm }}</div>
+    {% block base_body_script_search_tagging %}
+        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/search-tagging.html.twig' %}
     {% endblock %}
 
 {% endblock %}

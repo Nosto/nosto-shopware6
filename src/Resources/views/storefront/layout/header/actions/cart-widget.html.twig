@@ -6,34 +6,13 @@
     {{ parent() }}
 
     {# Nosto cart tagging #}
-    {% block od_nosto_integration_cart_tagging %}
-        <div class="nosto_cart" style="display:none">
-            {% for lineItem in  page.cart.lineItems %}
-                {% if lineItem.type == 'product' %}
-                    <div class="line_item">
-                        <span class="product_id">{{ lineItem.referencedId }}</span>
-                        <span class="quantity">{{ lineItem.quantity }}</span>
-                        <span class="name">{{ lineItem.label }}</span>
-                        <span class="unit_price">{{ lineItem.price.totalPrice }}</span>
-                        <span class="price_currency_code">{{ context.currency.isoCode }}</span>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+    {% block layout_header_actions_cart_widget_cart_tagging %}
+        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/cart-tagging.html.twig' %}
     {% endblock %}
 
     {# Nosto customer tagging #}
-    {% block od_nosto_integration_customer_tagging %}
-        {% set customer = context.customer %}
-        {% if customer %}
-            <div class="nosto_customer" style="display:none">
-                <span class="email">{{ customer.email }}</span>
-                <span class="first_name">{{ customer.firstName }}</span>
-                <span class="last_name">{{ customer.lastName }}</span>
-                <span class="customer_reference">{{ od_nosto_customer_reference(customer) }}</span>
-                <span class="marketing_permission">false</span>
-            </div>
-        {% endif %}
+    {% block layout_header_actions_cart_widget_customer_tagging %}
+        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/customer-tagging.html.twig' %}
     {% endblock %}
 
 {% endblock %}

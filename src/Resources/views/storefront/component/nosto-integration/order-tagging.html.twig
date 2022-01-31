@@ -1,0 +1,35 @@
+{% block od_nosto_integration_order_tagging %}
+
+    {% set order = page.order %}
+
+    {% if order %}
+        <div class="nosto_purchase_order" style="display:none">
+            <span class="order_number">{{ order.orderNumber }}</span>
+
+            <div class="buyer">
+                <span class="email">{{ order.orderCustomer.email }}</span>
+                <span class="first_name">{{ order.orderCustomer.firstName }}</span>
+                <span class="last_name">{{ order.orderCustomer.lastName }}</span>
+                <span class="marketing_permission">false</span>
+            </div>
+
+            <span class="payment_provider">{{ order.transactions.first.paymentMethod.name }}</span>
+            <span class="order_status_code">{{ order.stateMachineState.technicalName }}</span>
+
+            <div class="purchased_items">
+                {% for lineItem in order.lineItems %}
+                    {% if lineItem.type == 'product' %}
+                        <div class="line_item">
+                            <span class="product_id">{{ lineItem.referencedId }}</span>
+                            <span class="quantity">{{ lineItem.quantity }}</span>
+                            <span class="name">{{ lineItem.label }}</span>
+                            <span class="unit_price">{{ lineItem.unitPrice }}</span>
+                            <span class="price_currency_code">{{ context.currency.isoCode }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
