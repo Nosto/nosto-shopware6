@@ -1,0 +1,15 @@
+{% block od_nosto_integration_cart_tagging %}
+    <div class="nosto_cart" style="display:none">
+        {% for lineItem in  page.cart.lineItems %}
+            {% if lineItem.type == 'product' %}
+                <div class="line_item">
+                    <span class="product_id">{{ lineItem.referencedId }}</span>
+                    <span class="quantity">{{ lineItem.quantity }}</span>
+                    <span class="name">{{ lineItem.label }}</span>
+                    <span class="unit_price">{{ lineItem.price.unitPrice }}</span>
+                    <span class="price_currency_code">{{ context.currency.isoCode }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

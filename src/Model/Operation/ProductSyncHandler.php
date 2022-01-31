@@ -11,8 +11,9 @@ use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Od\Scheduler\Model\Job;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter, NotFilter, OrFilter};
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -120,7 +121,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
 
-        /** @var ProductEntity $product */
+        /** @var SalesChannelProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload !
             $nostoProduct = $this->productProvider->get($product, $context);
