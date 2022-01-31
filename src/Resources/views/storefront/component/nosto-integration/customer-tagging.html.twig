@@ -1,8 +1,9 @@
 {% block od_nosto_integration_customer_tagging %}
 
     {% set customer = context.customer %}
+    {% set customerDataToNosto = config('NostoIntegration.feature.flags.customerDataToNosto') %}
 
-    {% if customer %}
+    {% if customer and customerDataToNosto %}
         <div class="nosto_customer" style="display:none">
             <span class="email">{{ customer.email }}</span>
             <span class="first_name">{{ customer.firstName }}</span>

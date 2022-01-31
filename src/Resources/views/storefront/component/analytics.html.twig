@@ -7,7 +7,7 @@
 
     {# Nosto connect script #}
     {% block od_nosto_integration_connect_script %}
-        {% set accountID = config('OdNostoIntegration.config.accountID') %}
+        {% set accountID = config('NostoIntegration.settings.accounts.accountID') %}
         {% if accountID %}
             {% apply spaceless %}
                 <script type="text/javascript">
