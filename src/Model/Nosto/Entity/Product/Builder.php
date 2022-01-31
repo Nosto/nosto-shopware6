@@ -6,9 +6,11 @@ use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
+use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -16,19 +18,22 @@ class Builder
 {
     private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
     private ConfigProvider $configProvider;
+    private ProductHelper $productHelper;
     private SkuBuilder $skuBuilder;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         ConfigProvider $configProvider,
+        ProductHelper $productHelper,
         SkuBuilder $skuBuilder
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
+        $this->productHelper = $productHelper;
         $this->skuBuilder = $skuBuilder;
     }
 
-    public function build(ProductEntity $product, SalesChannelContext $context): NostoProduct
+    public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
         $channelId = $context->getSalesChannelId();
         $nostoProduct = new NostoProduct();
@@ -47,7 +52,10 @@ class Builder
             $nostoProduct->setCategories(array_values($categoryNames));
         }
 
-        // todo: set ratings
+        if ($ratingAvg = $product->getRatingAverage()) {
+            $nostoProduct->setRatingValue($ratingAvg);
+            $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
+        }
 
         if ($this->configProvider->isEnabledVariations($channelId) && $product->getChildCount() !== 0) {
             $skuCollection = new SkuCollection();
