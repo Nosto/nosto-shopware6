@@ -1,0 +1,31 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{# Adding Nosto page type #}
+{% block base_body_script %}
+
+    {{ parent() }}
+
+    {# Nosto page type #}
+    {% block od_nosto_integration_page_type %}
+        {% if activeRoute == 'frontend.home.page' %}
+            <div class="nosto_page_type" style="display:none">front</div>
+        {% elseif activeRoute == 'frontend.navigation.page' and page.cmsPage.type == 'product_list' %}
+            <div class="nosto_page_type" style="display:none">category</div>
+        {% elseif activeRoute == 'frontend.detail.page' %}
+            <div class="nosto_page_type" style="display:none">product</div>
+        {% elseif activeRoute == 'frontend.checkout.cart.page' %}
+            <div class="nosto_page_type" style="display:none">cart</div>
+        {% elseif activeRoute == 'frontend.checkout.register.page' or activeRoute == 'frontend.checkout.confirm.page' %}
+            <div class="nosto_page_type" style="display:none">checkout</div>
+        {% elseif activeRoute == 'frontend.checkout.finish.page' %}
+            <div class="nosto_page_type" style="display:none">order</div>
+        {% elseif activeRoute == 'frontend.search.page' %}
+            <div class="nosto_page_type" style="display:none">search</div>
+        {% elseif activeRoute %}
+            <div class="nosto_page_type" style="display:none">other</div>
+        {% else %}
+            <div class="nosto_page_type" style="display:none">notfound</div>
+        {% endif %}
+    {% endblock %}
+
+{% endblock %}
