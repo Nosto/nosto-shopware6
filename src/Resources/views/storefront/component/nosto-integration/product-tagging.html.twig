@@ -1,0 +1,11 @@
+{% block od_nosto_integration_page_tagging %}
+
+    {% set product = page.product %}
+
+    {% if product %}
+        <div class="nosto_product nosto_basic" style="display:none">
+            <span class="product_id">{{ product.id }}</span>
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{% block od_nosto_integration_search_tagging %}
+
+    {% set searchTerm = page.searchTerm %}
+
+    {% if searchTerm %}
+        <div class="nosto_search_term" style="display:none">{{ searchTerm }}</div>
+    {% endif %}
+
+{% endblock %}
