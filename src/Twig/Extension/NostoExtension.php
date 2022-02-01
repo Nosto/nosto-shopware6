@@ -2,11 +2,21 @@
 
 namespace Od\NostoIntegration\Twig\Extension;
 
+use Nosto\Model\Product\Product as NostoProduct;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class NostoExtension extends AbstractExtension
 {
+    private ProductProviderInterface $productProvider;
+
+//    public function __construct(ProductProviderInterface $productProvider)
+//    {
+//        $this->productProvider = $productProvider;
+//    }
 
     /**
      * @return TwigFunction[]
@@ -18,12 +28,17 @@ class NostoExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * @param string $activeRoute
-     * @param $pageCmsType
-     * @return string
-     */
-    public function getPageType(string $activeRoute, $pageCmsType): string
+
+    public function getNostoProduct(SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
+    {
+        try {
+            return $this->productProvider->get($product, $context);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function getPageType($activeRoute, $pageCmsType): string
     {
 
         $pageType = 'notfound';
@@ -45,6 +60,9 @@ class NostoExtension extends AbstractExtension
                 break;
             case 'frontend.detail.page':
                 $pageType = 'product';
+                break;
+            case 'frontend.checkout.cart.page':
+                $pageType = 'cart';
                 break;
             case 'frontend.checkout.register.page':
             case 'frontend.checkout.confirm.page':

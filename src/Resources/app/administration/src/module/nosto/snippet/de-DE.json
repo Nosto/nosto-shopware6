@@ -33,6 +33,9 @@
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
                 "enableReloadRecommendations": "Reload Recommendations After Adding"
+            },
+            "listing": {
+                "rescheduleActionLabel": "Schedule Full Product Sync"
             }
         }
     }

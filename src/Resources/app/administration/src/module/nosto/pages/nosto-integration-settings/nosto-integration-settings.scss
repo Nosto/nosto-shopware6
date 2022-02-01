@@ -1,7 +1,4 @@
 .nosto-integration-settings {
-    .card-container {
-        margin: 30px 30px 0 30px;
-    }
 
     .sw-sales-channel-config {
         margin-top: 40px;
@@ -11,5 +8,9 @@
         .sw-card__content {
             padding: 30px 30px 0 30px;
         }
+    }
+
+    .sw-card__content {
+        padding-bottom: 0;
     }
 }
