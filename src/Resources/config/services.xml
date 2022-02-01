@@ -52,6 +52,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
+            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="product_review.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
