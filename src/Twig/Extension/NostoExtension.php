@@ -19,11 +19,11 @@ class NostoExtension extends AbstractExtension
     }
 
     /**
-     * @param string $activeRoute
+     * @param $activeRoute
      * @param $pageCmsType
      * @return string
      */
-    public function getPageType(string $activeRoute, $pageCmsType): string
+    public function getPageType($activeRoute, $pageCmsType): string
     {
 
         $pageType = 'notfound';
@@ -45,6 +45,9 @@ class NostoExtension extends AbstractExtension
                 break;
             case 'frontend.detail.page':
                 $pageType = 'product';
+                break;
+            case 'frontend.checkout.cart.page':
+                $pageType = 'cart';
                 break;
             case 'frontend.checkout.register.page':
             case 'frontend.checkout.confirm.page':
