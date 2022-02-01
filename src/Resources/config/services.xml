@@ -55,7 +55,7 @@
             <argument type="service" id="product_review.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" />
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
@@ -79,6 +79,12 @@
         <service id="Od\NostoIntegration\Model\ConfigProvider">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder">
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Person\Builder"/>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
