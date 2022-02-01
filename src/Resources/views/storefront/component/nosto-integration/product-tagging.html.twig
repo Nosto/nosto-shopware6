@@ -3,8 +3,20 @@
     {% set product = page.product %}
 
     {% if product %}
-        <div class="nosto_product nosto_basic" style="display:none">
+
+        {% set imageUrl = '' %}
+        {% if product.cover %}
+            {% set imageUrl = product.cover.media.url %}
+        {% endif %}
+
+        <div class="nosto_product" style="display:none">
             <span class="product_id">{{ product.id }}</span>
+            <span class="name">{{ product.translated.name }}</span>
+            <span class="url">{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</span>
+            <span class="image_url">{{ imageUrl }}</span>
+            <span class="availability">InStock</span>
+            <span class="price">{{ product.calculatedPrice.totalPrice }}</span>
+            <span class="price_currency_code">{{ context.currency.isoCode }}</span>
         </div>
     {% endif %}
 
