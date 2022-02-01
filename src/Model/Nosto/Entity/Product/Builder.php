@@ -12,6 +12,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Builder
@@ -35,6 +37,10 @@ class Builder
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
+        if ($product->getCategoriesRo() === null) {
+            $product = $this->productHelper->reloadProduct($product, $context);
+        }
+
         $channelId = $context->getSalesChannelId();
         $nostoProduct = new NostoProduct();
         $nostoProduct->setUrl($this->getProductUrl($product, $context));
@@ -134,7 +140,7 @@ class Builder
         return $nostoProduct;
     }
 
-    protected function getProductUrl(ProductEntity $product, SalesChannelContext $context)
+    private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $product->getId()]);
