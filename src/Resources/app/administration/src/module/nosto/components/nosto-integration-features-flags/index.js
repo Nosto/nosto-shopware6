@@ -53,7 +53,7 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.feature.flags.',
+            const configPrefix = 'NostoIntegration.settings.flags.',
                 defaultConfigs = {
                     variations: true,
                     productProperties: true,

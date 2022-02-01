@@ -3,12 +3,12 @@
              :title="$tc('nosto.configuration.featuresFlags.cardTitle')">
 
         {% block nosto_integration_feature_ratings_reviews %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.ratingsReviews']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.ratingsReviews']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.ratingsReviews']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.ratingsReviews']"
                                 :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')">
 
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.feature.flags.ratingsReviews"
+                    <sw-single-select name="NostoIntegration.settings.flags.ratingsReviews"
                                       labelProperty="label"
                                       valueProperty="value"
                                       :options="createRatingsAndReviewOptions"
@@ -23,8 +23,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_variations %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.variations']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.variations']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.variations']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.variations']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -39,8 +39,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_product_properties %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.productProperties']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.productProperties']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.productProperties']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.productProperties']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -55,8 +55,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_alternate_image %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.alternateImages']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.alternateImages']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.alternateImages']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.alternateImages']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -71,8 +71,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_inventory %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.inventory']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.inventory']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.inventory']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.inventory']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -87,8 +87,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_customer_data %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.customerDataToNosto']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.customerDataToNosto']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.customerDataToNosto']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.customerDataToNosto']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -103,8 +103,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_inavtive_products %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.syncInactiveProducts']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.syncInactiveProducts']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.syncInactiveProducts']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.syncInactiveProducts']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -119,8 +119,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_published_date %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.productPublishedDateTagging']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.productPublishedDateTagging']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.productPublishedDateTagging']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.productPublishedDateTagging']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -135,8 +135,8 @@
         {% endblock %}
 
         {% block nosto_integration_feature_recommendations %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.feature.flags.reloadRecommendations']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.feature.flags.reloadRecommendations']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.reloadRecommendations']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.reloadRecommendations']">
 
                 <template #content="props">
                     <sw-switch-field

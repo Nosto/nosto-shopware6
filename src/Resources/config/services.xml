@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
@@ -52,6 +52,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
+            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="product_review.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
@@ -116,6 +117,13 @@
             <tag name="twig.extension"/>
         </service>
         <!-- /Extensions -->
+
+        <!-- Controllers -->
+        <service id="Od\NostoIntegration\Api\Controller\OdNostoController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
 
     </services>
 </container>

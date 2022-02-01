@@ -51,7 +51,6 @@ Component.register('nosto-integration-settings-general', {
                     tag1: null,
                     tag2: null,
                     tag3: null,
-                    gtin: null,
                     googleCategory: null
                 };
 
