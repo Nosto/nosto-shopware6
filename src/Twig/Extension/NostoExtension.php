@@ -13,10 +13,10 @@ class NostoExtension extends AbstractExtension
 {
     private ProductProviderInterface $productProvider;
 
-//    public function __construct(ProductProviderInterface $productProvider)
-//    {
-//        $this->productProvider = $productProvider;
-//    }
+    public function __construct(ProductProviderInterface $productProvider)
+    {
+        $this->productProvider = $productProvider;
+    }
 
     /**
      * @return TwigFunction[]
@@ -24,6 +24,7 @@ class NostoExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
+            new TwigFunction('od_nosto_product', [$this, 'getNostoProduct']),
             new TwigFunction('od_nosto_page_type', [$this, 'getPageType'])
         ];
     }

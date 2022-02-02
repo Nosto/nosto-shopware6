@@ -1,10 +1,72 @@
 {% block od_nosto_integration_page_tagging %}
 
     {% set product = page.product %}
+    {% set nostoProduct = od_nosto_product(product, context) %}
 
-    {% if product %}
-        <div class="nosto_product nosto_basic" style="display:none">
-            <span class="product_id">{{ product.id }}</span>
+    {% if product and nostoProduct %}
+        <div class="nosto_product" style="display:none">
+            <span class="product_id">{{ nostoProduct.productId }}</span>
+            <span class="name">{{ nostoProduct.name }}</span>
+            <span class="url">{{ nostoProduct.url }}</span>
+            <span class="image_url">{{ nostoProduct.imageUrl }}</span>
+            <span class="availability">{{ nostoProduct.availability }}</span>
+            <span class="price">{{ nostoProduct.price }}</span>
+            <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
+
+            {% if nostoProduct.categories %}
+                {% for key, category in nostoProduct.categories %}
+                    <span class="category">{% for i in 0..key %}{% if loop.first %}/{% endif %}{{ nostoProduct.categories[i] }}{% if loop.last is not true %}/{% endif %}{% endfor %}</span>
+                {% endfor %}
+            {% endif %}
+
+            {% if nostoProduct.brand %}
+                <span class="brand">{{ nostoProduct.brand }}</span>
+            {% endif %}
+
+            {% if nostoProduct.description %}
+                <span class="description">{{ nostoProduct.description }}</span>
+            {% endif %}
+
+            {% if nostoProduct.googleCategory %}
+                <span class="google_category">{{ nostoProduct.googleCategory }}</span>
+            {% endif %}
+
+            {% if nostoProduct.listPrice %}
+                <span class="list_price">{{ nostoProduct.listPrice }}</span>
+            {% endif %}
+
+            {% if nostoProduct.tag1 %}
+                <span class="tag1">{{ nostoProduct.tag1 }}</span>
+            {% endif %}
+            {% if nostoProduct.tag2 %}
+                <span class="tag2">{{ nostoProduct.tag2 }}</span>
+            {% endif %}
+            {% if nostoProduct.tag3 %}
+                <span class="tag3">{{ nostoProduct.tag3 }}</span>
+            {% endif %}
+
+            {% if nostoProduct.ratingValue %}
+                <span class="rating_value">{{ nostoProduct.ratingValue }}</span>
+            {% endif %}
+
+            {% if nostoProduct.reviewCount %}
+                <span class="review_count">{{ nostoProduct.reviewCount }}</span>
+            {% endif %}
+
+            {% if nostoProduct.alternateImageUrls %}
+                {% for url in nostoProduct.alternateImageUrls %}
+                    <span class="alternate_image_url">{{ url }}</span>
+                {% endfor %}
+            {% endif %}
+
+            {% if nostoProduct.customFields %}
+                <span class="custom_fields">
+                {% for key, value in nostoProduct.customFields %}
+                    <span class="{{ key }}">{{ value }}</span>
+                {% endfor %}
+                </span>
+            {% endif %}
+
         </div>
     {% endif %}
 
