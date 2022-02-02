@@ -13,7 +13,6 @@ use Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemB
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Builder
 {
@@ -28,9 +27,8 @@ class Builder
         $this->nostoOrderItemBuilder = $nostoOrderItemBuilder;
     }
 
-    public function build(OrderEntity $order, SalesChannelContext $context): NostoOrder
+    public function build(OrderEntity $order): NostoOrder
     {
-        $channelId = $context->getSalesChannelId();
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
         $orderCreated = $order->getCreatedAt();
