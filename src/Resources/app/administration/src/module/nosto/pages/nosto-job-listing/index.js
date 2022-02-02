@@ -1,6 +1,6 @@
 import template from './nosto-job-listing.html.twig';
 
-const {Component, Mixin} = Shopware;;
+const {Component, Mixin} = Shopware;
 
 Component.register('nosto-job-listing', {
     template,
@@ -36,10 +36,11 @@ Component.register('nosto-job-listing', {
 
         onScheduleProductSync() {
             this.isLoading = true;
-            this.OdNostoProviderService.index('', {}).then(response => {
+            this.OdNostoProviderService.scheduleFullProductSync().then(response => {
                 this.createNotificationSuccess({
                     message: 'Success!'
                 });
+                this.onRefresh();
             }).catch((exception) => {
                 this.createNotificationError({
                     message: 'Something went wrong!'

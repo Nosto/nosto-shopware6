@@ -55,7 +55,7 @@ class Builder
             ->filter(fn(CategoryEntity $category) => $category->getParentId() !== null)
             ->map(fn(CategoryEntity $category) => $category->getTranslation('name'));
         if (!empty($categoryNames)) {
-            $nostoProduct->setCategories(array_values($categoryNames));
+            $nostoProduct->setCategories(array_reverse(array_values($categoryNames)));
         }
 
         if ($ratingAvg = $product->getRatingAverage()) {
@@ -99,9 +99,8 @@ class Builder
             }
         }
 
-        if ($product->getCoverId()) {
-            $coverMedia = $product->getMedia()->get($product->getCoverId())->getMedia();
-            $nostoProduct->setImageUrl($coverMedia->getUrl());
+        if ($product->getCover()) {
+            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId)) {

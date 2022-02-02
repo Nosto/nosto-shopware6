@@ -1,4 +1,4 @@
-import ApiService from '../../../../../../../../../../../vendor/shopware/administration/Resources/app/administration/src/core/service/api.service';
+const ApiService = Shopware.Classes.ApiService;
 
 class OdNostoService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'od-nosto') {
@@ -6,16 +6,11 @@ class OdNostoService extends ApiService {
         this.name = 'OdNostoService';
     }
 
-    index(ids, body) {
-        const apiRoute = `_action/od-nosto/index`;
-        return this.httpClient.post(
-            apiRoute,
-            body,
-            {
-                params: {},
-                headers: this.getBasicHeaders()
-            }
-        );
+    scheduleFullProductSync() {
+        const apiRoute = `_action/od-nosto/schedule-full-product-sync`,
+            headers = this.getBasicHeaders();
+
+        return this.httpClient.post(apiRoute, {}, {headers});
     }
 }
 
