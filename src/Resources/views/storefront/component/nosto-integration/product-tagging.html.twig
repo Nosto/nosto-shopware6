@@ -3,8 +3,6 @@
     {% set product = page.product %}
     {% set nostoProduct = od_nosto_product(product, context) %}
 
-    {{ dump(nostoProduct) }}
-
     {% if product and nostoProduct %}
         <div class="nosto_product" style="display:none">
             <span class="product_id">{{ nostoProduct.productId }}</span>
@@ -15,8 +13,11 @@
             <span class="price">{{ nostoProduct.price }}</span>
             <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
 
-            {#            <span class="category">/Mens/Jackets</span> #}
-            {#            <span class="category">/Mens/Jackets/Ski Jackets</span> #}
+            {% if nostoProduct.categories %}
+                {% for key, category in nostoProduct.categories %}
+                    <span class="category">{% for i in 0..key %}{% if loop.first %}/{% endif %}{{ nostoProduct.categories[i] }}{% if loop.last is not true %}/{% endif %}{% endfor %}</span>
+                {% endfor %}
+            {% endif %}
 
             {% if nostoProduct.brand %}
                 <span class="brand">{{ nostoProduct.brand }}</span>
