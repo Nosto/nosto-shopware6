@@ -11,6 +11,7 @@ use Nosto\NostoException;
 use Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder as NostoBuyerBuilder;
 use Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 
@@ -31,23 +32,21 @@ class Builder
     {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
-        $orderCreated = $order->getCreatedAt();
-        if (is_string($orderCreated)) {
-            $orderCreatedDate = \DateTime::createFromFormat('Y-m-d H:i:s', $orderCreated);
-            if ($orderCreatedDate instanceof DateTimeInterface) {
-                $nostoOrder->setCreatedAt($orderCreatedDate);
-            }
-        }
-        if ($order->getTransactions() instanceof OrderTransactionEntity) {
+        $nostoOrder->setExternalOrderRef($order->getId());
+        $orderCreated = $order->getCreatedAt()->format('Y-m-d H:i:s');
+        $nostoOrder->setCreatedAt($orderCreated);
+        if ($order->getTransactions() instanceof OrderTransactionCollection) {
             $nostoOrder->setPaymentProvider((string)$order->getTransactions()->first()->getPaymentMethod()->getName());
         } else {
             throw new NostoException('Order has no payment associated');
         }
         if ($order->getStateMachineState()) {
             $nostoStatus = new OrderStatus();
+            //TODO check the code
             $nostoStatus->setCode($order->getStateMachineState()->getTechnicalName());
-            $nostoStatus->setLabel($order->getStateMachineState()->getStateMachine()->getTechnicalName());
-            $nostoStatus->setDate($order->getUpdatedAt());
+            //TODO add label
+//            $nostoStatus->setLabel($order->getStateMachineState()->getStateMachine()->getTechnicalName());
+            $nostoStatus->setDate($order->getCreatedAt());
             $nostoOrder->setOrderStatus($nostoStatus);
         }
         $nostoBuyer = $this->buyerBuilder->fromOrder($order);
@@ -56,7 +55,7 @@ class Builder
         }
         foreach ($order->getLineItems() as $item) {
             if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                $nostoItem = $this->nostoOrderItemBuilder->build($item);
+                $nostoItem = $this->nostoOrderItemBuilder->build($item,$order->getCurrency());
                 $nostoOrder->addPurchasedItems($nostoItem);
             }
         }

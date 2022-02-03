@@ -52,7 +52,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $this->processEvents(
             $context,
             $message->getJobId(),
-            EventsWriter::ORDER_ENTITY_NAME,
+            EventsWriter::ORDER_ENTITY_PLACED_NAME,
+            OrderSyncMessage::class
+        );
+        $this->processEvents(
+            $context,
+            $message->getJobId(),
+            EventsWriter::ORDER_ENTITY_UPDATED_NAME,
             OrderSyncMessage::class
         );
         $this->processEvents(
