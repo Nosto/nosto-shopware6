@@ -1,21 +1,21 @@
-{% block job_listing_page %}
-    <sw-page class="swag-example-list">
+{% block nosto_job_listing_page %}
+    <sw-page class="nosto-job-list">
         <template #smart-bar-actions>
             <sw-button
                     @click="onScheduleProductSync"
                     :isLoading="isLoading"
-                    class="sw-order-detail__smart-bar-edit-button"
+                    class="od-nosto-detail__smart-bar-edit-button"
                     variant="primary"
             >
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
         </template>
         <template slot="content">
-            <job-listing-index ref="jobListing"
+            <od-job-listing-index ref="odJobListing"
                                :autoReloadInterval="60000"
                                :jobTypes="nostoJobTypes">
 
-            </job-listing-index>
+            </od-job-listing-index>
         </template>
         <template #sidebar>
             <sw-sidebar>

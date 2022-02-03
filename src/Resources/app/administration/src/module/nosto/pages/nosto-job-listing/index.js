@@ -31,7 +31,7 @@ Component.register('nosto-job-listing', {
 
     methods: {
         onRefresh: function () {
-            this.$refs.jobListing.onRefresh();
+            this.$refs.odJobListing.onRefresh();
         },
 
         onScheduleProductSync() {
