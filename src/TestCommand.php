@@ -17,22 +17,19 @@ class TestCommand extends Command
     protected static $defaultName = 'od:nosto:test';
 
     private JobScheduler $jobScheduler;
-    private OrderSyncHandler $orderSyncHandler;
 
     public function __construct(
-        JobScheduler $jobScheduler,
-        OrderSyncHandler $orderSyncHandler
+        JobScheduler $jobScheduler
     ) {
         parent::__construct();
         $this->jobScheduler = $jobScheduler;
-        $this->orderSyncHandler = $orderSyncHandler;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
 //        $jobMessage = new FullCatalogSyncMessage(Uuid::randomHex());
 //        $this->jobScheduler->schedule($jobMessage);
-            $jobMessage = new OrderSyncMessage(Uuid::randomHex(),'',['68D9B6E7764148EBB93756E94646DC76']);
+            $jobMessage = new OrderSyncMessage(Uuid::randomHex(),'',['30162DACBD214D939A1919C41A3FBE6D'],['F9C1B8DEC5DE4FCBAB8EAF25482C3824']);
             $this->jobScheduler->schedule($jobMessage);
         return 0;
     }

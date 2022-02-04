@@ -42,11 +42,9 @@ class Builder
         }
         if ($order->getStateMachineState()) {
             $nostoStatus = new OrderStatus();
-            //TODO check the code
             $nostoStatus->setCode($order->getStateMachineState()->getTechnicalName());
-            //TODO add label
-//            $nostoStatus->setLabel($order->getStateMachineState()->getStateMachine()->getTechnicalName());
-            $nostoStatus->setDate($order->getCreatedAt());
+            $nostoStatus->setLabel($order->getStateMachineState()->getTranslation('name'));
+            $nostoStatus->setDate($order->getCreatedAt()->format('Y-m-d H:i:s'));
             $nostoOrder->setOrderStatus($nostoStatus);
         }
         $nostoBuyer = $this->buyerBuilder->fromOrder($order);

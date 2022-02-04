@@ -8,17 +8,20 @@ use Od\Scheduler\Async\ParentAwareMessageInterface;
 class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
     protected static string $defaultName = 'Order Sync Operation';
-    private array $orderIds;
+    private array $newOrderIds;
+    private array $updatedOrderIds;
     private string $parentJobId;
 
     public function __construct(
         string $jobId,
         string $parentJobId,
-        array $orderIds,
+        array $newOrderIds,
+        array $updatedOrderIds,
         ?string $name = null
     ) {
         parent::__construct($jobId, $name);
-        $this->orderIds = $orderIds;
+        $this->newOrderIds = $newOrderIds;
+        $this->updatedOrderIds = $updatedOrderIds;
         $this->parentJobId = $parentJobId;
     }
 
@@ -27,9 +30,14 @@ class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInte
         return OrderSyncHandler::HANDLER_CODE;
     }
 
-    public function getOrderIds(): array
+    public function getNewOrderIds(): array
     {
-        return $this->orderIds;
+        return $this->newOrderIds;
+    }
+
+    public function getUpdatedOrderIds(): array
+    {
+        return $this->updatedOrderIds;
     }
 
     public function getParentJobId(): string

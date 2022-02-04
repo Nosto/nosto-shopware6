@@ -22,7 +22,6 @@
         <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="od.job_handler" code="od-nosto-order-sync"/>
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="od_nosto_entity_changelog.repository"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
@@ -73,7 +72,6 @@
         <service id="Od\NostoIntegration\TestCommand">
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
             <tag name="console.command"/>
-            <argument type="service" id="Od\NostoIntegration\Model\Operation\OrderSyncHandler"/>
         </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
             <tag name="shopware.scheduled.task"/>

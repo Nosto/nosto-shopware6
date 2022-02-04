@@ -13,29 +13,26 @@ use Od\Scheduler\Model\Job\JobHandlerInterface;
 use Od\Scheduler\Model\Job\JobResult;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-order-sync';
     private EntityRepositoryInterface $orderRepository;
-    private EntityRepositoryInterface $changelogRepository;
     private Account\Provider $accountProvider;
     private NostoOrderBuilder $nostoOrderbuilder;
     private NostoOrderStatusBuilder $nostoOrderStatusBuilder;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $changelogRepository,
         Account\Provider $accountProvider,
         NostoOrderBuilder $nostoOrderbuilder,
         NostoOrderStatusBuilder $nostoOrderStatusBuilder
     ) {
         $this->orderRepository = $orderRepository;
-        $this->changelogRepository = $changelogRepository;
         $this->accountProvider = $accountProvider;
         $this->nostoOrderbuilder = $nostoOrderbuilder;
         $this->nostoOrderStatusBuilder = $nostoOrderStatusBuilder;
@@ -50,18 +47,8 @@ class OrderSyncHandler implements JobHandlerInterface
     {
         $operationResult = new JobResult();
         $context = Context::createDefaultContext();
-        $entityTypes = [];
-        foreach ($message->getOrderIds() as $orderId) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('entityId', $orderId));
-            $changelogEntities = $this->changelogRepository->search($criteria, $context)->getElements();
-            foreach ($changelogEntities as $changelogEntity) {
-                $entityTypes[$changelogEntity->getEntityId()] = $changelogEntity->getEntityType();
-            }
-        }
-
         foreach ($this->accountProvider->all() as $account) {
-            $accountOperationResult = $this->doOperation($account, $context, $message->getOrderIds(),$entityTypes);
+            $accountOperationResult = $this->doOperation($account, $context, $message);
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
             }
@@ -70,7 +57,23 @@ class OrderSyncHandler implements JobHandlerInterface
         return $operationResult;
     }
 
-    private function doOperation(Account $account, Context $context, array $orderIds, array $entityTypes): JobResult
+    private function doOperation(Account $account, Context $context, object $message): JobResult
+    {
+        if (!empty($newOrdersIds = $message->getNewOrderIds())) {
+            foreach ($this->getOrders($context, $newOrdersIds) as $order) {
+                $this->sendNewOrder($order, $account);
+            }
+        }
+        if (!empty($updatedOrderIds = $message->getUpdatedOrderIds())) {
+            foreach ($this->getOrders($context, $updatedOrderIds) as $order) {
+                $this->sendUpdatedOrder($order, $account);
+            }
+        }
+
+        return new JobResult();
+    }
+
+    private function getOrders(Context $context, array $orderIds): EntityCollection
     {
         $criteria = new Criteria();
         $criteria->addAssociation('stateMachineState');
@@ -81,18 +84,8 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
         $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
-        $orders = $this->orderRepository->search($criteria, $context);
-        if ($orders->count() !== 0) {
-            foreach ($orders as $order) {
-                if (array_key_exists($order->getId(), $entityTypes)) {
-                    $this->sendNewOrder($order, $account);
-                } else {
-                    $this->sendOrderStatusUpdated($order, $account);
-                }
-            }
-        }
 
-        return new JobResult();
+        return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
     private function sendNewOrder(
@@ -108,7 +101,7 @@ class OrderSyncHandler implements JobHandlerInterface
 
     }
 
-    private function sendOrderStatusUpdated(
+    private function sendUpdatedOrder(
         OrderEntity $order,
         Account $account
     ): void {
