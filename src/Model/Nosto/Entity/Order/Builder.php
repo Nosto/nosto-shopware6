@@ -4,6 +4,7 @@ namespace Od\NostoIntegration\Model\Nosto\Entity\Order;
 
 use DateTimeInterface;
 use Nosto\Model\Cart\LineItem as NostoLineItem;
+use Nosto\Model\Customer;
 use Nosto\Model\Order\Buyer;
 use Nosto\Model\Order\Order as NostoOrder;
 use Nosto\Model\Order\OrderStatus;
@@ -46,6 +47,7 @@ class Builder
             $nostoStatus->setLabel($order->getStateMachineState()->getTranslation('name'));
             $nostoStatus->setDate($order->getCreatedAt()->format('Y-m-d H:i:s'));
             $nostoOrder->setOrderStatus($nostoStatus);
+            $nostoOrder->addOrderStatus($nostoStatus);
         }
         $nostoBuyer = $this->buyerBuilder->fromOrder($order);
         if ($nostoBuyer instanceof Buyer) {

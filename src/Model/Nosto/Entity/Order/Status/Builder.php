@@ -15,7 +15,7 @@ class Builder
     {
         $orderNumber = $order->getOrderNumber();
         $orderStatus = $order->getStateMachineState()->getTechnicalName();
-        $updatedAt = $order->getUpdatedAt();
+        $updatedAt = $order->getCreatedAt()->format('Y-m-d H:i:s');
         try {
             if ($order->getTransactions() instanceof OrderTransactionCollection) {
                 $paymentProvider = $order->getTransactions()->first()->getPaymentMethod()->getName();

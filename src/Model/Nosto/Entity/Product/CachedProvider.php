@@ -24,8 +24,7 @@ class CachedProvider implements ProductProviderInterface
     {
         $cacheKey = 'od_nosto_product_' . $product->getId();
         $cachedItem = $this->cache->getItem($cacheKey);
-        //TODO add time interval 3600
-//        $cachedItem->expiresAfter() 3600
+        $cachedItem->expiresAfter(3600);
 
         if ($cachedItem->isHit()) {
             return $cachedItem->get();
