@@ -15,7 +15,7 @@
             <tag name="od.job_handler" code="od-nosto-product-sync"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
@@ -65,8 +65,12 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
         </service>
-        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider">
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider">
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
         <service id="Od\NostoIntegration\TestCommand">
