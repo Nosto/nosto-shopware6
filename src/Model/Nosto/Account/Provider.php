@@ -17,6 +17,8 @@ class Provider
     private EntityRepositoryInterface $channelRepo;
     private ?array $accounts = null;
 
+    private const API_APPS = 'DqDdEIqLzDRI1ozNfS6OtkLLCGyIYRxYoKKkD8dLSvYYF9fmbWIL1gEYadQb3m26';
+
     public function __construct(
         ConfigProvider $configProvider,
         EntityRepositoryInterface $channelRepo
@@ -49,11 +51,10 @@ class Provider
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
             $keyChain = new KeyChain([
-                new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId()))
+                new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),new Token('apps',self::API_APPS)
             ]);
             $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $keyChain);
         }
-
         return $this->accounts;
     }
 }

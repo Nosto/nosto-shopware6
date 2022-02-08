@@ -27,7 +27,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     public function onCheckoutOrderPlaced(CheckoutOrderPlacedEvent $event)
     {
         $this->eventsWriter->writeEvent(
-            $this->eventsWriter::ORDER_ENTITY_NAME,
+            $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
             $event->getOrderId(),
             $event->getContext()
         );
@@ -36,8 +36,8 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     public function onOrderWritten(StateMachineStateChangeEvent $event)
     {
         $this->eventsWriter->writeEvent(
-            $this->eventsWriter::ORDER_ENTITY_NAME,
-            $event->getStateMachine()->getId(),
+            $this->eventsWriter::ORDER_ENTITY_UPDATED_NAME,
+            $event->getTransition()->getEntityId(),
             $event->getContext()
         );
     }
