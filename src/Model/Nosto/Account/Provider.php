@@ -16,7 +16,7 @@ class Provider
     private ConfigProvider $configProvider;
     private EntityRepositoryInterface $channelRepo;
     private ?array $accounts = null;
-
+    //TODO add API_EMAIL to config
     private const API_EMAIL = 'or3nWzPzH31r0zV1CNtLf5ugJ7bIRDsSdbZwX5DurBS9gddVzdXbL8VFSObuCd4d';
 
     public function __construct(
