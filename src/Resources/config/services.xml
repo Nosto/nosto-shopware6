@@ -43,7 +43,9 @@
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
+            <tag name="od.job_handler" code="od-nosto-marketing-permission-sync"/>
             <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
         </service>
         <!-- /Handlers -->
 

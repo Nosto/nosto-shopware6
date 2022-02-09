@@ -10,16 +10,16 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
 {
     protected static string $defaultName = 'Marketing Permission Sync Operation';
     private string $parentJobId;
-    private array $subscriberIds;
+    private array $newsletterRecipientIds;
 
     public function __construct(
         string $jobId,
         string $parentJobId,
-        array $subscriberIds,
+        array $newsletterRecipientIds,
         ?string $name = null
     ) {
         parent::__construct($jobId, $name);
-        $this->subscriberIds = $subscriberIds;
+        $this->newsletterRecipientIds = $newsletterRecipientIds;
         $this->parentJobId = $parentJobId;
     }
 
@@ -30,7 +30,7 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
 
     public function getNewsletterRecipientIds(): array
     {
-        return $this->subscriberIds;
+        return $this->newsletterRecipientIds;
     }
 
     public function getParentJobId(): string
