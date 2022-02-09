@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4b70ba2e9ff15c00eb74f05a4e6c30a",
+    "content-hash": "064df539195c122337b2b6d766c4e711",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -61,6 +61,31 @@
                 "source": "https://github.com/Nosto/nosto-php-sdk/tree/5.5.0"
             },
             "time": "2021-12-21T12:54:43+00:00"
+        },
+        {
+            "name": "od/sw6-job-scheduler",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/shopware-job-scheduler",
+                "reference": "85fb45f60d60f4804bc810569a1c89895f201656"
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Od\\Scheduler\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "System library for async job scheduling for Shopware 6",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "phpoption/phpoption",
@@ -392,7 +417,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.4 || ^8.0"
+    },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }

@@ -98,6 +98,10 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Person\Builder"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
+        <service id="Od\NostoIntegration\Utils\MigrationHelper" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
+        </service>
+        <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true"/>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
