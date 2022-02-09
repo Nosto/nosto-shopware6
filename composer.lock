@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "064df539195c122337b2b6d766c4e711",
+    "content-hash": "2b74f9c5ae78ac5616a688ce9d8447de",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/shopware-job-scheduler",
-                "reference": "85fb45f60d60f4804bc810569a1c89895f201656"
+                "reference": "19152aea45ca2a2b44fd9b9b0336d3df409cd1c5"
             },
             "require": {
                 "php": "^7.4 || ^8.0"
@@ -84,6 +84,7 @@
             ],
             "description": "System library for async job scheduling for Shopware 6",
             "transport-options": {
+                "symlink": false,
                 "relative": true
             }
         },
