@@ -21,7 +21,7 @@ class ConfigProvider extends AbstractConfigProvider
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
-    public const APP_TOKEN = 'settings.accounts.appToken';
+    public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
 
     public function __construct(SystemConfigService $systemConfig)
@@ -87,7 +87,7 @@ class ConfigProvider extends AbstractConfigProvider
 
     public function getAppToken($channelId = null): string
     {
-        return $this->getString(self::APP_TOKEN, $channelId);
+        return $this->getString(self::GRAPHQL_TOKEN, $channelId);
     }
 
     public function getTagFieldKey(int $tagNumber, $channelId = null): string
