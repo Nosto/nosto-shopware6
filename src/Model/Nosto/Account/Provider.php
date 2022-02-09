@@ -16,9 +16,6 @@ class Provider
     private ConfigProvider $configProvider;
     private EntityRepositoryInterface $channelRepo;
     private ?array $accounts = null;
-     //TODO add API_EMAIL and API_APPS to config
-    private const API_EMAIL = 'or3nWzPzH31r0zV1CNtLf5ugJ7bIRDsSdbZwX5DurBS9gddVzdXbL8VFSObuCd4d';
-    private const API_APPS = 'DqDdEIqLzDRI1ozNfS6OtkLLCGyIYRxYoKKkD8dLSvYYF9fmbWIL1gEYadQb3m26';
 
     public function __construct(
         ConfigProvider $configProvider,
@@ -52,7 +49,9 @@ class Provider
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
             $keyChain = new KeyChain([
-                new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId()))
+                new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),
+                new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channel->getId())),
+                new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId()))
             ]);
             $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $keyChain);
         }

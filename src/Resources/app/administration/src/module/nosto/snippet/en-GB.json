@@ -16,7 +16,9 @@
             },
             "account": {
                 "idTitle": "Account ID",
-                "tokenTitle": "Token"
+                "productTokenTitle": "Product Token (API_PRODUCTS)",
+                "emailTokenTitle": "Email Token (API_EMAIL)",
+                "appTokenTitle": "GraphQL Token (API_APPS)"
             },
             "featuresFlags": {
                 "cardTitle": "Features flags",

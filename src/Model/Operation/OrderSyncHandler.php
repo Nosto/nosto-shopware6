@@ -59,14 +59,19 @@ class OrderSyncHandler implements JobHandlerInterface
 
     private function doOperation(Account $account, Context $context, object $message): JobResult
     {
-        if (!empty($newOrdersIds = $message->getNewOrderIds())) {
-            foreach ($this->getOrders($context, $newOrdersIds) as $order) {
+        $result = new JobResult();
+        foreach ($this->getOrders($context, $message->getNewOrderIds()) as $order) {
+            try {
                 $this->sendNewOrder($order, $account);
+            } catch (\Throwable $e) {
+                $result->addError($e);
             }
         }
-        if (!empty($updatedOrderIds = $message->getUpdatedOrderIds())) {
-            foreach ($this->getOrders($context, $updatedOrderIds) as $order) {
+        foreach ($this->getOrders($context, $message->getUpdatedOrderIds()) as $order) {
+            try {
                 $this->sendUpdatedOrder($order, $account);
+            } catch (\Throwable $e) {
+                $result->addError($e);
             }
         }
 
