@@ -20,6 +20,8 @@ class ConfigProvider extends AbstractConfigProvider
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'feature.flags.reloadRecommendations';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
+    public const EMAIL_TOKEN = 'settings.accounts.emailToken';
+    public const APP_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
 
     public function __construct(SystemConfigService $systemConfig)
@@ -76,6 +78,16 @@ class ConfigProvider extends AbstractConfigProvider
     public function getProductToken($channelId = null): string
     {
         return $this->getString(self::PRODUCT_TOKEN, $channelId);
+    }
+
+    public function getEmailToken($channelId = null): string
+    {
+        return $this->getString(self::EMAIL_TOKEN, $channelId);
+    }
+
+    public function getAppToken($channelId = null): string
+    {
+        return $this->getString(self::APP_TOKEN, $channelId);
     }
 
     public function getTagFieldKey(int $tagNumber, $channelId = null): string
