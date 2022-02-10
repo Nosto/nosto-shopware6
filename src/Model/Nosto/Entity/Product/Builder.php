@@ -44,7 +44,7 @@ class Builder
         $channelId = $context->getSalesChannelId();
         $nostoProduct = new NostoProduct();
         $nostoProduct->setUrl($this->getProductUrl($product, $context));
-        $nostoProduct->setProductId($product->getParentId() ?? $product->getId());
+        $nostoProduct->setProductId($product->getId());
         $nostoProduct->setName($product->getTranslation('name'));
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
 

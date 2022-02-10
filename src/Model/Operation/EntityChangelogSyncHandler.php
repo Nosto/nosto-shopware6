@@ -8,9 +8,7 @@ use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Od\NostoIntegration\Async\OrderSyncMessage;
 use Od\NostoIntegration\Async\ProductSyncMessage;
 use Od\NostoIntegration\Entity\Changelog\ChangelogEntity;
-use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
-use Od\Scheduler\Model\Job\JobHandlerInterface;
-use Od\Scheduler\Model\Job\JobResult;
+use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult};
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -43,46 +41,35 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     public function execute(object $message): JobResult
     {
         $context = Context::createDefaultContext();
-        $this->processEvents(
-            $context,
-            $message->getJobId(),
-            EventsWriter::NEWSLETTER_ENTITY_NAME,
-            MarketingPermissionSyncMessage::class
-        );
-        $this->processNewOrderEvents(
-            $context,
-            $message->getJobId(),
-            EventsWriter::ORDER_ENTITY_PLACED_NAME,
-            OrderSyncMessage::class
-        );
-        $this->processUpdatedOrderEvents(
-            $context,
-            $message->getJobId(),
-            EventsWriter::ORDER_ENTITY_UPDATED_NAME,
-            OrderSyncMessage::class
-        );
-        $this->processEvents(
-            $context,
-            $message->getJobId(),
-            EventsWriter::PRODUCT_ENTITY_NAME,
-            ProductSyncMessage::class
-        );
+        $this->processMarketingPermissionEvents($context, $message->getJobId());
+        $this->processNewOrderEvents($context, $message->getJobId());
+        $this->processUpdatedOrderEvents($context, $message->getJobId());
+        $this->processProductEvents($context, $message->getJobId());
 
         return new JobResult();
     }
 
-    private function processEvents(Context $context, string $parentJobId, string $entityName, $message)
+    private function processMarketingPermissionEvents(Context $context, string $parentJobId)
+    {
+        $type = EventsWriter::NEWSLETTER_ENTITY_NAME;
+        $this->processEventBatches($context, $type, function (array $subscriberIds) use ($parentJobId) {
+            $jobMessage = new MarketingPermissionSyncMessage(Uuid::randomHex(), $parentJobId, $subscriberIds);
+            $this->jobScheduler->schedule($jobMessage);
+        });
+    }
+
+    private function processEventBatches(Context $context, string $entityType, callable $processCallback)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entityType', $entityName));
+        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
+
         $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
 
         while (($events = $iterator->fetch()) !== null) {
             $ids = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new $message(Uuid::randomHex(), $parentJobId, $ids);
-            $this->jobScheduler->schedule($jobMessage);
+            $processCallback($ids);
             $deleteDataSet = array_map(function ($id) {
                 return ['id' => $id];
             }, array_values($events->getIds()));
@@ -90,41 +77,30 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
     }
 
-    private function processNewOrderEvents(Context $context, string $parentJobId, string $entityName, $message)
+    private function processNewOrderEvents(Context $context, string $parentJobId)
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entityType', $entityName));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
-
-        while (($events = $iterator->fetch()) !== null) {
-            $ids = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new $message(Uuid::randomHex(), $parentJobId, $ids);
+        $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
+        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
+            $jobMessage = new OrderSyncMessage(Uuid::randomHex(), $parentJobId, $orderIds, []);
             $this->jobScheduler->schedule($jobMessage);
-            $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
-            }, array_values($events->getIds()));
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
-        }
+        });
     }
 
-    private function processUpdatedOrderEvents(Context $context, string $parentJobId, string $entityName, $message)
+    private function processUpdatedOrderEvents(Context $context, string $parentJobId)
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entityType', $entityName));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
-
-        while (($events = $iterator->fetch()) !== null) {
-            $ids = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
-            $jobMessage = new $message(Uuid::randomHex(), $parentJobId, $ids);
+        $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
+        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
+            $jobMessage = new OrderSyncMessage(Uuid::randomHex(), $parentJobId, [], $orderIds);
             $this->jobScheduler->schedule($jobMessage);
-            $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
-            }, array_values($events->getIds()));
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
-        }
+        });
+    }
+
+    private function processProductEvents(Context $context, string $parentJobId)
+    {
+        $type = EventsWriter::PRODUCT_ENTITY_NAME;
+        $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId) {
+            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds);
+            $this->jobScheduler->schedule($jobMessage);
+        });
     }
 }
