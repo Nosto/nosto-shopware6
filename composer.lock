@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4b70ba2e9ff15c00eb74f05a4e6c30a",
+    "content-hash": "2b74f9c5ae78ac5616a688ce9d8447de",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -61,6 +61,32 @@
                 "source": "https://github.com/Nosto/nosto-php-sdk/tree/5.5.0"
             },
             "time": "2021-12-21T12:54:43+00:00"
+        },
+        {
+            "name": "od/sw6-job-scheduler",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/shopware-job-scheduler",
+                "reference": "19152aea45ca2a2b44fd9b9b0336d3df409cd1c5"
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Od\\Scheduler\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "System library for async job scheduling for Shopware 6",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "phpoption/phpoption",
@@ -135,16 +161,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.35",
+            "version": "2.0.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "4e16cf3f5f927a7d3f5317820af795c0366c0420"
+                "reference": "a97547126396548c224703a267a30af1592be146"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/4e16cf3f5f927a7d3f5317820af795c0366c0420",
-                "reference": "4e16cf3f5f927a7d3f5317820af795c0366c0420",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/a97547126396548c224703a267a30af1592be146",
+                "reference": "a97547126396548c224703a267a30af1592be146",
                 "shasum": ""
             },
             "require": {
@@ -224,7 +250,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.35"
+                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.36"
             },
             "funding": [
                 {
@@ -240,7 +266,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-28T23:30:39+00:00"
+            "time": "2022-01-30T08:48:36+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -392,7 +418,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.4 || ^8.0"
+    },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }

@@ -10,7 +10,6 @@ use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Od\Scheduler\Model\Job;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
@@ -37,11 +36,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         Account\Provider $accountProvider,
         ConfigProvider $configProvider
     ) {
-       $this->productRepository = $productRepository;
-       $this->channelContextFactory = $channelContextFactory;
-       $this->productProvider = $productProvider;
-       $this->accountProvider = $accountProvider;
-       $this->configProvider = $configProvider;
+        $this->productRepository = $productRepository;
+        $this->channelContextFactory = $channelContextFactory;
+        $this->productProvider = $productProvider;
+        $this->accountProvider = $accountProvider;
+        $this->configProvider = $configProvider;
     }
 
     /**
@@ -72,35 +71,23 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function doOperation(Account $account, SalesChannelContext $context, array $productIds): Job\JobResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
-
-        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
-            $criteria->addFilter(new EqualsFilter('active', true));
-        }
-
-        $existentProducts = $this->productRepository->search($criteria, $context)->getEntities();
-        $deletedProductIds = array_diff($productIds, $existentProducts->getIds());
-        $existentParentProductIds = [];
-
-        /** @var ProductEntity $product */
-        foreach ($existentProducts as $product) {
-            if ($product->getParentId() === null) {
-                $existentParentProductIds[] = $product->getId();
-            } else {
-                $existentParentProductIds[] = $product->getParentId();
-            }
-        }
-
-        $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('children.media');
         $criteria->addAssociation('children.options.group');
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('children.manufacturer');
         $criteria->addAssociation('categoriesRo');
-        $criteria->addFilter(new EqualsAnyFilter('id', $existentParentProductIds));
-        $products = $this->productRepository->search($criteria, $context);
+        $criteria->addAssociation('children.categoriesRo');
 
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
+
+        $products = $this->productRepository->search($criteria, $context);
+        $deletedProductIds = array_diff($productIds,$products->getIds());
         if ($products->count() !== 0) {
             $this->doUpsertOperation($account, $context, $products->getEntities());
         }

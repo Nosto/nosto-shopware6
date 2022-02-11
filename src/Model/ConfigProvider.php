@@ -10,14 +10,14 @@ class ConfigProvider extends AbstractConfigProvider
     private SystemConfigService $systemConfig;
     protected string $pathPrefix = 'NostoIntegration.';
 
-    public const ENABLE_VARIATIONS = 'feature.flags.variations';
-    public const ENABLE_PRODUCT_PROPERTIES = 'feature.flags.productProperties';
-    public const ENABLE_ALTERNATE_IMAGES = 'feature.flags.alternateImages';
-    public const ENABLE_INVENTORY_LEVELS = 'feature.flags.inventory';
-    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'feature.flags.customerDataToNosto';
-    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'feature.flags.syncInactiveProducts';
-    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'feature.flags.productPublishedDateTagging';
-    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'feature.flags.reloadRecommendations';
+    public const ENABLE_VARIATIONS = 'settings.flags.variations';
+    public const ENABLE_PRODUCT_PROPERTIES = 'settings.flags.productProperties';
+    public const ENABLE_ALTERNATE_IMAGES = 'settings.flags.alternateImages';
+    public const ENABLE_INVENTORY_LEVELS = 'settings.flags.inventory';
+    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'settings.flags.customerDataToNosto';
+    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
+    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
+    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';

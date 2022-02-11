@@ -27,7 +27,9 @@ class SkuBuilder
         $nostoSku->setAvailability($stockStatus);
 
         if ($product->getCoverId()) {
-            $coverMedia = $product->getMedia()->get($product->getCoverId())->getMedia();
+            $mediaIdArray = $product->getMedia()->getMediaIds();
+            $mediaId = $mediaIdArray[$product->getMedia()->first()->getUniqueIdentifier()];
+            $coverMedia = $product->getMedia()->getMedia()->get($mediaId);
             $nostoSku->setImageUrl($coverMedia->getUrl());
         }
 
