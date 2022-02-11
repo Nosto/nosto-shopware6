@@ -7,7 +7,7 @@
         'aliases' => array(),
         'reference' => NULL,
         'name' => 'od/nosto-integration',
-        'dev' => true,
+        'dev' => false,
     ),
     'versions' => array(
         'nosto/php-sdk' => array(
@@ -34,7 +34,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => '19152aea45ca2a2b44fd9b9b0336d3df409cd1c5',
+            'reference' => '8a5140591dbae8734ef997f48f16f228c3b5e628',
             'dev_requirement' => false,
         ),
         'phpoption/phpoption' => array(

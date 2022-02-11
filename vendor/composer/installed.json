@@ -66,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/shopware-job-scheduler",
-                "reference": "19152aea45ca2a2b44fd9b9b0336d3df409cd1c5"
+                "reference": "8a5140591dbae8734ef997f48f16f228c3b5e628"
             },
             "require": {
                 "php": "^7.4 || ^8.0"
@@ -424,6 +424,6 @@
             "install-path": "../vlucas/phpdotenv"
         }
     ],
-    "dev": true,
+    "dev": false,
     "dev-package-names": []
 }
