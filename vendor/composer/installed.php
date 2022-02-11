@@ -7,7 +7,7 @@
         'aliases' => array(),
         'reference' => NULL,
         'name' => 'od/nosto-integration',
-        'dev' => false,
+        'dev' => true,
     ),
     'versions' => array(
         'nosto/php-sdk' => array(
