@@ -75,10 +75,6 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
-        <service id="Od\NostoIntegration\TestCommand">
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
-            <tag name="console.command"/>
-        </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
             <tag name="shopware.scheduled.task"/>
         </service>
@@ -102,6 +98,9 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
         </service>
         <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true"/>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
+            <argument type="service" id="newsletter_recipient.repository"/>
+        </service>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
@@ -127,16 +126,19 @@
 
         <!-- Extensions -->
         <service id="Od\NostoIntegration\Twig\Extension\CustomerExtension" public="true">
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder"/>
             <tag name="twig.extension"/>
         </service>
         <service id="Od\NostoIntegration\Twig\Extension\NostoExtension" public="true">
-            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <tag name="twig.extension"/>
         </service>
         <!-- /Extensions -->
 
         <!-- Controllers -->
         <service id="Od\NostoIntegration\Api\Controller\OdNostoController" public="true">
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="od_scheduler_job.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

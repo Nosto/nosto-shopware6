@@ -43,7 +43,7 @@ Component.register('nosto-job-listing', {
                 this.onRefresh();
             }).catch((exception) => {
                 this.createNotificationError({
-                    message: 'Something went wrong!'
+                    message: exception.text
                 });
             }).finally(() => {
                 this.isLoading = false;

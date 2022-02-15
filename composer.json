@@ -1,6 +1,6 @@
 {
 	"name": "od/nosto-integration",
-	"description": "Overdose Nosto Integration",
+	"description": "Nosto Integration",
 	"version": "1.0.0",
 	"type": "shopware-platform-plugin",
 	"license": "MIT",
@@ -31,13 +31,14 @@
 	},
 	"extra": {
 		"shopware-plugin-class": "Od\\NostoIntegration\\OdNostoIntegration",
+        "plugin-icon": "src/Resources/config/plugin.png",
 		"label": {
-			"de-DE": "Od Nosto Integration",
-			"en-GB": "Od Nosto Integration"
+			"de-DE": "Nosto Integration",
+			"en-GB": "Nosto Integration"
 		},
 		"description": {
-			"de-DE": "Od Nosto Integration",
-			"en-GB": "Od Nosto Integration"
+			"de-DE": "Nosto Integration",
+			"en-GB": "Nosto Integration"
 		}
 	}
 }

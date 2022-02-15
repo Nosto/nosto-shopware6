@@ -2,10 +2,9 @@
 
 namespace Od\NostoIntegration\Model;
 
-use Od\Base\Model\AbstractConfigProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class ConfigProvider extends AbstractConfigProvider
+class ConfigProvider
 {
     private SystemConfigService $systemConfig;
     protected string $pathPrefix = 'NostoIntegration.';
@@ -14,7 +13,6 @@ class ConfigProvider extends AbstractConfigProvider
     public const ENABLE_PRODUCT_PROPERTIES = 'settings.flags.productProperties';
     public const ENABLE_ALTERNATE_IMAGES = 'settings.flags.alternateImages';
     public const ENABLE_INVENTORY_LEVELS = 'settings.flags.inventory';
-    public const ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO = 'settings.flags.customerDataToNosto';
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
@@ -26,72 +24,71 @@ class ConfigProvider extends AbstractConfigProvider
 
     public function __construct(SystemConfigService $systemConfig)
     {
-        parent::__construct($systemConfig);
         $this->systemConfig = $systemConfig;
+    }
+
+    private function path(string $postfix): string
+    {
+        return $this->pathPrefix . $postfix;
     }
 
     public function isEnabledVariations($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_VARIATIONS, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_VARIATIONS), $channelId);
     }
 
     public function isEnabledProductProperties($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_PRODUCT_PROPERTIES, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_PRODUCT_PROPERTIES), $channelId);
     }
 
     public function isEnabledAlternateImages($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_ALTERNATE_IMAGES, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_ALTERNATE_IMAGES), $channelId);
     }
 
     public function isEnabledInventoryLevels($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_INVENTORY_LEVELS, $channelId);
-    }
-
-    public function isEnabledSendCustomerDataToNosto($channelId = null): bool
-    {
-        return $this->getBool(self::ENABLE_SEND_CUSTOMER_DATA_TO_NOSTO, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_INVENTORY_LEVELS), $channelId);
     }
 
     public function isEnabledSyncInactiveProducts($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_SYNC_INACTIVE_PRODUCTS, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_SYNC_INACTIVE_PRODUCTS), $channelId);
     }
 
     public function isEnabledProductPublishedDateTagging($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING), $channelId);
     }
 
     public function isEnabledReloadRecommendationsAfterAdding($channelId = null): bool
     {
-        return $this->getBool(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING, $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING), $channelId);
     }
 
     public function getAccountId($channelId = null): string
     {
-        return $this->getString(self::ACCOUNT_ID, $channelId);
+        return $this->systemConfig->getString($this->path(self::ACCOUNT_ID), $channelId);
     }
 
     public function getProductToken($channelId = null): string
     {
-        return $this->getString(self::PRODUCT_TOKEN, $channelId);
+        return $this->systemConfig->getString($this->path(self::PRODUCT_TOKEN), $channelId);
     }
 
     public function getEmailToken($channelId = null): string
     {
-        return $this->getString(self::EMAIL_TOKEN, $channelId);
+        return $this->systemConfig->getString($this->path(self::EMAIL_TOKEN), $channelId);
     }
 
     public function getAppToken($channelId = null): string
     {
-        return $this->getString(self::GRAPHQL_TOKEN, $channelId);
+        return $this->systemConfig->getString($this->path(self::GRAPHQL_TOKEN), $channelId);
     }
 
     public function getTagFieldKey(int $tagNumber, $channelId = null): string
     {
-        return $this->getString(self::TAG_FIELD_TEMPLATE . $tagNumber, $channelId);
+        return $this->systemConfig->getString($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
     }
 }

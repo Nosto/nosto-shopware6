@@ -1,16 +1,18 @@
 {% block od_nosto_integration_customer_tagging %}
 
-    {% set customer = context.customer %}
-    {% set customerDataToNosto = config('NostoIntegration.settings.flags.customerDataToNosto') %}
+    {% set isSendCustomerData = config('NostoIntegration.settings.flags.customerDataToNosto') %}
 
-    {% if customer and customerDataToNosto %}
-        <div class="nosto_customer" style="display:none">
-            <span class="email">{{ customer.email }}</span>
-            <span class="first_name">{{ customer.firstName }}</span>
-            <span class="last_name">{{ customer.lastName }}</span>
-            <span class="customer_reference">{{ od_nosto_customer_reference(customer) }}</span>
-            <span class="marketing_permission">false</span>
-        </div>
+    {% if isSendCustomerData %}
+        {% set customer = od_nosto_customer(context.customer) %}
+        {% if customer %}
+            <div class="nosto_customer" style="display:none">
+                <span class="email">{{ customer.email }}</span>
+                <span class="first_name">{{ customer.firstName }}</span>
+                <span class="last_name">{{ customer.lastName }}</span>
+                <span class="customer_reference">{{ customer.customerReference }}</span>
+                <span class="marketing_permission">{{ customer.marketingPermission }}</span>
+            </div>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

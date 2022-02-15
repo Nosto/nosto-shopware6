@@ -3,18 +3,15 @@
 namespace Od\NostoIntegration\Model\Operation;
 
 use Nosto\Operation\AbstractGraphQLOperation;
-use Nosto\Operation\Order\OrderCreate;
-use Nosto\Operation\Order\OrderStatus;
+use Nosto\Operation\Order\{OrderCreate, OrderStatus};
 use Od\NostoIntegration\Async\OrderSyncMessage;
 use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Entity\Order\Builder as NostoOrderBuilder;
 use Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder as NostoOrderStatusBuilder;
-use Od\Scheduler\Model\Job\JobHandlerInterface;
-use Od\Scheduler\Model\Job\JobResult;
+use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepositoryInterface};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
@@ -40,8 +37,6 @@ class OrderSyncHandler implements JobHandlerInterface
 
     /**
      * @param OrderSyncMessage $message
-     *
-     * @return JobResult
      */
     public function execute(object $message): JobResult
     {
@@ -93,23 +88,17 @@ class OrderSyncHandler implements JobHandlerInterface
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendNewOrder(
-        OrderEntity $order,
-        Account $account
-    ): void {
+    private function sendNewOrder(OrderEntity $order, Account $account): void
+    {
         $nostoOrder = $this->nostoOrderbuilder->build($order);
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
-        $operation = new OrderCreate($nostoOrder, $account->getNostoAccount(), $nostoCustomerIdentifier,
-            $nostoCustomerId);
+        $operation = new OrderCreate($nostoOrder, $account->getNostoAccount(), $nostoCustomerIdentifier, $nostoCustomerId);
         $operation->execute();
-
     }
 
-    private function sendUpdatedOrder(
-        OrderEntity $order,
-        Account $account
-    ): void {
+    private function sendUpdatedOrder(OrderEntity $order, Account $account): void
+    {
         $nostoOrderStatus = $this->nostoOrderStatusBuilder->build($order);
         $operation = new OrderStatus($account->getNostoAccount(), $nostoOrderStatus);
         $operation->execute();

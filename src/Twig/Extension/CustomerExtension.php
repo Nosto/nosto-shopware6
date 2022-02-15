@@ -2,34 +2,29 @@
 
 namespace Od\NostoIntegration\Twig\Extension;
 
+use Od\NostoIntegration\Model\Nosto\Entity\Customer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class CustomerExtension extends AbstractExtension
 {
+    private Customer\Builder $builder;
 
-    const CUSTOMER_REFERENCE_HASH_ALGO = 'sha256';
+    public function __construct(Customer\Builder $builder)
+    {
+        $this->builder = $builder;
+    }
 
-    /**
-     * @return TwigFunction[]
-     */
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('od_nosto_customer_reference', [$this, 'generateCustomerReference'])
+            new TwigFunction('od_nosto_customer', [$this, 'getNostoCustomer'])
         ];
     }
 
-    /**
-     * @param CustomerEntity $customer
-     * @return string
-     */
-    public function generateCustomerReference(CustomerEntity $customer): string
+    public function getNostoCustomer(CustomerEntity $customer)
     {
-        return hash(
-            self::CUSTOMER_REFERENCE_HASH_ALGO,
-            $customer->getId() . $customer->getEmail()
-        );
+        return $this->builder->build($customer);
     }
 }

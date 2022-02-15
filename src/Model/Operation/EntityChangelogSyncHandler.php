@@ -81,7 +81,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
         $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
-            $jobMessage = new OrderSyncMessage(Uuid::randomHex(), $parentJobId, $orderIds, []);
+            $jobMessage = new OrderSyncMessage(
+                Uuid::randomHex(),
+                $parentJobId,
+                $orderIds,
+                [],
+                'New Order Sync Operation'
+            );
             $this->jobScheduler->schedule($jobMessage);
         });
     }
@@ -90,7 +96,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
         $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
-            $jobMessage = new OrderSyncMessage(Uuid::randomHex(), $parentJobId, [], $orderIds);
+            $jobMessage = new OrderSyncMessage(
+                Uuid::randomHex(),
+                $parentJobId,
+                [],
+                $orderIds,
+                'Updated Order Sync Operation'
+            );
             $this->jobScheduler->schedule($jobMessage);
         });
     }
