@@ -2,7 +2,7 @@
 
     {% set isSendCustomerData = config('NostoIntegration.settings.flags.customerDataToNosto') %}
 
-    {% if isSendCustomerData %}
+    {% if isSendCustomerData and context.customer %}
         {% set customer = od_nosto_customer(context.customer) %}
         {% if customer %}
             <div class="nosto_customer" style="display:none">
