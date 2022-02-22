@@ -99,6 +99,7 @@ class Builder
 
         if ($product->getCover()) {
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
+            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId)) {

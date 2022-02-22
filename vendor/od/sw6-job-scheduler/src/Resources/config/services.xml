@@ -54,5 +54,17 @@
             </call>
         </service>
         <!-- Job Management Services -->
+        <!-- Decorators -->
+        <service id="Od\Scheduler\Decorator\MessageBusDecorator" decorates="messenger.bus.shopware">
+            <argument type="service" id="Od\Scheduler\Decorator\MessageBusDecorator.inner"/>
+            <argument type="service" id="messenger.transport.native_php_serializer"/>
+            <call method="setJobRepository">
+                <argument type="service" id="od_scheduler_job.repository"/>
+            </call>
+        </service>
+        <!-- /Decorators -->
+        <service id="Od\Scheduler\Model\Job\JobTreeProvider">
+            <argument type="service" id="od_scheduler_job.repository"/>
+        </service>
     </services>
 </container>

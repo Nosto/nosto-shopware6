@@ -34,7 +34,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => '590aa8481912342091e1065b1fb09a767c477663',
+            'reference' => '635a3b27a77fc7b54980360d597d43b95a7580f6',
             'dev_requirement' => false,
         ),
         'phpoption/phpoption' => array(

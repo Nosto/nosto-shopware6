@@ -8,7 +8,7 @@ use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Od\NostoIntegration\Async\OrderSyncMessage;
 use Od\NostoIntegration\Async\ProductSyncMessage;
 use Od\NostoIntegration\Entity\Changelog\ChangelogEntity;
-use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult};
+use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -40,21 +40,28 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
      */
     public function execute(object $message): JobResult
     {
+        $result = new JobResult();
         $context = Context::createDefaultContext();
-        $this->processMarketingPermissionEvents($context, $message->getJobId());
-        $this->processNewOrderEvents($context, $message->getJobId());
-        $this->processUpdatedOrderEvents($context, $message->getJobId());
-        $this->processProductEvents($context, $message->getJobId());
+        $this->processMarketingPermissionEvents($context, $result, $message->getJobId());
+        $this->processNewOrderEvents($context, $result, $message->getJobId());
+        $this->processUpdatedOrderEvents($context, $result, $message->getJobId());
+        $this->processProductEvents($context, $result, $message->getJobId());
 
-        return new JobResult();
+        return $result;
     }
 
-    private function processMarketingPermissionEvents(Context $context, string $parentJobId)
+    private function processMarketingPermissionEvents(Context $context, JobResult $result, string $parentJobId)
     {
         $type = EventsWriter::NEWSLETTER_ENTITY_NAME;
-        $this->processEventBatches($context, $type, function (array $subscriberIds) use ($parentJobId) {
+        $this->processEventBatches($context, $type, function (array $subscriberIds) use ($parentJobId, $result) {
             $jobMessage = new MarketingPermissionSyncMessage(Uuid::randomHex(), $parentJobId, $subscriberIds);
             $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                \sprintf(
+                    'Job with payload of %s marketing permission updates has been scheduled.',
+                    count($subscriberIds)
+                )
+            ));
         });
     }
 
@@ -77,10 +84,10 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
     }
 
-    private function processNewOrderEvents(Context $context, string $parentJobId)
+    private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId)
     {
         $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
-        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
+        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result) {
             $jobMessage = new OrderSyncMessage(
                 Uuid::randomHex(),
                 $parentJobId,
@@ -89,13 +96,16 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                 'New Order Sync Operation'
             );
             $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                \sprintf('Job with payload of %s new orders has been scheduled.', count($orderIds))
+            ));
         });
     }
 
-    private function processUpdatedOrderEvents(Context $context, string $parentJobId)
+    private function processUpdatedOrderEvents(Context $context, JobResult $result, string $parentJobId)
     {
         $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
-        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId) {
+        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result) {
             $jobMessage = new OrderSyncMessage(
                 Uuid::randomHex(),
                 $parentJobId,
@@ -104,15 +114,21 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                 'Updated Order Sync Operation'
             );
             $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                \sprintf('Job with payload of %s updated orders has been scheduled.', count($orderIds))
+            ));
         });
     }
 
-    private function processProductEvents(Context $context, string $parentJobId)
+    private function processProductEvents(Context $context, JobResult $result, string $parentJobId)
     {
         $type = EventsWriter::PRODUCT_ENTITY_NAME;
-        $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId) {
+        $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId, $result) {
             $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds);
             $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                \sprintf('Job with payload of %s updated products has been scheduled.', count($productIds))
+            ));
         });
     }
 }

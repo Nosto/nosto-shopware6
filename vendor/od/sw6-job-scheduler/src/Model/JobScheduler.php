@@ -3,15 +3,12 @@
 namespace Od\Scheduler\Model;
 
 use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
+use Od\Scheduler\Model\Job\{HandlerPool, JobHelper};
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
-use Od\Scheduler\Model\Job\HandlerPool;
-use Od\Scheduler\Model\Job\JobHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
@@ -50,25 +47,6 @@ class JobScheduler
         $this->rescheduleJob($job);
     }
 
-    public function schedule(JobMessageInterface $jobMessage)
-    {
-        $serializedEnvelope = $this->messageSerializer->encode(Envelope::wrap($jobMessage));
-        $jobData = [
-            'id' => $jobMessage->getJobId(),
-            'name' => $jobMessage->getJobName(),
-            'status' => JobEntity::TYPE_PENDING,
-            'type' => $jobMessage->getHandlerCode(),
-            'message' => $serializedEnvelope['body'] ?? null
-        ];
-
-        if ($jobMessage instanceof ParentAwareMessageInterface) {
-            $jobData['parentId'] = $jobMessage->getParentJobId();
-        }
-
-        $this->jobRepository->create([$jobData], Context::createDefaultContext());
-        $this->messageBus->dispatch($jobMessage);
-    }
-
     private function rescheduleJob(JobEntity $job)
     {
         $jobMessage = $this->messageSerializer->decode(['body' => $job->getMessage()])->getMessage();
@@ -98,5 +76,10 @@ class JobScheduler
         } else {
             $this->messageBus->dispatch($jobMessage);
         }
+    }
+
+    public function schedule(JobMessageInterface $jobMessage)
+    {
+        $this->messageBus->dispatch($jobMessage);
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b74f9c5ae78ac5616a688ce9d8447de",
+    "content-hash": "695bb5ddfd1d41750f5b0cb3b6d7a168",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -44,12 +44,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Nosto\\": "src"
-                },
                 "files": [
                     "src/bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Nosto\\": "src"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -65,16 +65,10 @@
         {
             "name": "od/sw6-job-scheduler",
             "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler.git",
-                "reference": "590aa8481912342091e1065b1fb09a767c477663"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/get/590aa8481912342091e1065b1fb09a767c477663.zip",
-                "reference": "590aa8481912342091e1065b1fb09a767c477663",
-                "shasum": ""
+                "type": "path",
+                "url": "packages/shopware-job-scheduler",
+                "reference": "635a3b27a77fc7b54980360d597d43b95a7580f6"
             },
             "require": {
                 "php": "^7.4 || ^8.0"
@@ -85,16 +79,14 @@
                     "Od\\Scheduler\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "proprietary"
             ],
             "description": "System library for async job scheduling for Shopware 6",
-            "homepage": "https://bitbucket.org/overdosedigital/shopware-job-scheduler",
-            "support": {
-                "source": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/src/590aa8481912342091e1065b1fb09a767c477663/?at=1.0.0"
-            },
-            "time": "2022-02-14T10:52:13+00:00"
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "phpoption/phpoption",
