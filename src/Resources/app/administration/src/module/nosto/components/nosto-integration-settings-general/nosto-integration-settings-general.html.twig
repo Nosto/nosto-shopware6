@@ -1,89 +1,107 @@
 {% block nosto_integration_content_card_channel_config_accounts_card %}
-    <sw-card class="sw-card--grid"
-             title="Tags assignment">
-
-        {% block nosto_integration_settings_tag_1 %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag1']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag1']"
-                                :label="$tc('nosto.configuration.tagAssignment.tag1title')">
-
-                <template #content="props">
-
-                    <sw-single-select name="NostoIntegration.settings.tag1"
-                                      labelProperty="name"
-                                      valueProperty="id"
-                                      :options="productCustomFields"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
-
-        {% block nosto_integration_settings_tag_2 %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag2']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag2']"
-                                :label="$tc('nosto.configuration.tagAssignment.tag2title')">
+    <div>
+        <sw-card class="sw-card--grid"
+                 title="General settings">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.afterIteration']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.afterIteration']"
+                                label="Initialize Nosto after first page iteration">
 
                 <template #content="props">
-
-                    <sw-single-select name="NostoIntegration.settings.tag2"
-                                      labelProperty="name"
-                                      valueProperty="id"
-                                      :options="productCustomFields"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-switch-field
+                            :map-inheritance="props"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
-        {% endblock %}
+        </sw-card>
+        <sw-card class="sw-card--grid"
+                 title="Tags assignment">
 
-        {% block nosto_integration_settings_tag_3 %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag3']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag3']"
-                                :label="$tc('nosto.configuration.tagAssignment.tag3title')">
+            {% block nosto_integration_settings_tag_1 %}
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag1']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag1']"
+                                    :label="$tc('nosto.configuration.tagAssignment.tag1title')">
 
-                <template #content="props">
+                    <template #content="props">
 
-                    <sw-single-select name="NostoIntegration.settings.tag3"
-                                      labelProperty="name"
-                                      valueProperty="id"
-                                      :options="productCustomFields"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
+                        <sw-single-select name="NostoIntegration.settings.tag1"
+                                          labelProperty="name"
+                                          valueProperty="id"
+                                          :options="productCustomFields"
+                                          :isInherited="props.isInherited"
+                                          :disabled="props.isInherited"
+                                          show-clearable-button
+                                          :value="props.currentValue"
+                                          @change="props.updateCurrentValue">
+                        </sw-single-select>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
 
-        {% block nosto_integration_settings_tag_google_category %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.googleCategory']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.googleCategory']"
-                                :label="$tc('nosto.configuration.tagAssignment.googleCategoryTitle')">
+            {% block nosto_integration_settings_tag_2 %}
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag2']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag2']"
+                                    :label="$tc('nosto.configuration.tagAssignment.tag2title')">
 
-                <template #content="props">
+                    <template #content="props">
 
-                    <sw-single-select name="NostoIntegration.settings.googleCategory"
-                                      labelProperty="name"
-                                      valueProperty="id"
-                                      :options="productCustomFields"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
-    </sw-card>
+                        <sw-single-select name="NostoIntegration.settings.tag2"
+                                          labelProperty="name"
+                                          valueProperty="id"
+                                          :options="productCustomFields"
+                                          :isInherited="props.isInherited"
+                                          :disabled="props.isInherited"
+                                          show-clearable-button
+                                          :value="props.currentValue"
+                                          @change="props.updateCurrentValue">
+                        </sw-single-select>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block nosto_integration_settings_tag_3 %}
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.tag3']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.tag3']"
+                                    :label="$tc('nosto.configuration.tagAssignment.tag3title')">
+
+                    <template #content="props">
+
+                        <sw-single-select name="NostoIntegration.settings.tag3"
+                                          labelProperty="name"
+                                          valueProperty="id"
+                                          :options="productCustomFields"
+                                          :isInherited="props.isInherited"
+                                          :disabled="props.isInherited"
+                                          show-clearable-button
+                                          :value="props.currentValue"
+                                          @change="props.updateCurrentValue">
+                        </sw-single-select>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block nosto_integration_settings_tag_google_category %}
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.googleCategory']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.googleCategory']"
+                                    :label="$tc('nosto.configuration.tagAssignment.googleCategoryTitle')">
+
+                    <template #content="props">
+
+                        <sw-single-select name="NostoIntegration.settings.googleCategory"
+                                          labelProperty="name"
+                                          valueProperty="id"
+                                          :options="productCustomFields"
+                                          :isInherited="props.isInherited"
+                                          :disabled="props.isInherited"
+                                          show-clearable-button
+                                          :value="props.currentValue"
+                                          @change="props.updateCurrentValue">
+                        </sw-single-select>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+        </sw-card>
+    </div>
 {% endblock %}
