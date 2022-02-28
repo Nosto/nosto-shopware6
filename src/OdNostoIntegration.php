@@ -31,7 +31,7 @@ class OdNostoIntegration extends Plugin
     private function getDependencyBundles(): array
     {
         return [
-            new OdScheduler()
+            new OdScheduler(true, $this->getBasePath())
         ];
     }
 

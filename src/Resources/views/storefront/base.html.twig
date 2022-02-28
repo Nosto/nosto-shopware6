@@ -26,49 +26,44 @@
     {% block od_nosto_integration_connect_script %}
         {% set accountID = config('NostoIntegration.settings.accounts.accountID') %}
         {% set initializeAfter = config('NostoIntegration.settings.afterIteration') %}
-        {% if initializeAfter %}
-            {% if accountID %}
+        {% if accountID %}
+            {% apply spaceless %}
+                <script type="text/javascript">
+                    var localStorage = window.localStorage;
+
+                    function initNosto() {
+                        var name = "nostojs";
+                        window[name] = window[name] || function (cb) {
+                            (window[name].q = window[name].q || []).push(cb);
+                        };
+                    }
+
+                    function prepareForInteraction() {
+                        if (localStorage && (!localStorage.nostoFirstInteraction || localStorage.nostoFirstInteraction !== 'done')) {
+                            localStorage.setItem('nostoFirstInteraction', 'done');
+                        }
+                        initNosto()
+                    }
+                </script>
+            {% endapply %}
+            {% if initializeAfter %}
                 {% apply spaceless %}
                     <script type="text/javascript">
-
                         (function () {
-                            let localStorage = window.localStorage;
-                            var executed = false;
-                            window.onscroll = function () {
-                                if (!executed) {
-                                    if (localStorage && (!localStorage.nostoFirstInteraction || localStorage.nostoFirstInteraction !== 'done')) {
-                                        localStorage.setItem('nostoFirstInteraction', 'done');
-                                        var name = "nostojs";
-                                        window[name] = window[name] || function (cb) {
-                                            (window[name].q = window[name].q || []).push(cb);
-                                        };
-
-                                    } else if (localStorage && localStorage.nostoFirstInteraction === 'done') {
-                                        var name = "nostojs";
-                                        window[name] = window[name] || function (cb) {
-                                            (window[name].q = window[name].q || []).push(cb);
-                                        };
-                                    }
-                                    executed = true;
-                                }
+                            if (localStorage && (localStorage.nostoFirstInteraction && localStorage.nostoFirstInteraction === 'done')) {
+                                initNosto();
+                            } else {
+                                window.addEventListener('scroll', prepareForInteraction, {once: true});
                             }
                         })();
                     </script>
                     <script src="//connect.nosto.com/include/{{ accountID }}" async></script>
                 {% endapply %}
-            {% endif %}
-        {% else %}
-            {% if accountID %}
+            {% else %}
                 {% apply spaceless %}
                     <script type="text/javascript">
-                        (function () {
-                            var name = "nostojs";
-                            window[name] = window[name] || function (cb) {
-                                (window[name].q = window[name].q || []).push(cb);
-                            };
-                        })();
+                        initNosto();
                     </script>
-                    <script src="//connect.nosto.com/include/{{ accountID }}" async></script>
                 {% endapply %}
             {% endif %}
         {% endif %}
