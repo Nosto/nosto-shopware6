@@ -5,8 +5,6 @@ import Iterator from 'src/helper/iterator.helper';
 export default class NostoPlugin extends Plugin {
 
     static options = {
-        redirectSelector: '[name="redirectTo"]',
-        redirectParamSelector: '[data-redirect-parameters="true"]',
         redirectTo: 'frontend.cart.offcanvas',
         action: '/checkout/line-item/add'
     };
@@ -23,22 +21,25 @@ export default class NostoPlugin extends Plugin {
     _onAddToCart(id) {
         this.csrf_token = document.querySelector('.nosto-csrf-token input').value;
 
-        this.data = {};
-        this.data['redirectParameters'] = {
-            productId: id
+        const productId = id;
+        const productData = {
+            id: productId,
+            type: 'product',
+            referencedId: productId,
+            stackable: 1,
+            removable: 1,
         };
+        const data = {
+            lineItems: {},
+            redirectParameters: {
+                productId: productId
+            },
+            redirectTo: this.options.redirectTo,
+            _csrf_token: this.csrf_token,
+        };
+        data.lineItems[productId] = productData;
 
-        this.data.lineItems = {};
-        this.data.lineItems[id] = {};
-        this.data.lineItems[id].id = id;
-        this.data.lineItems[id].type = 'product';
-        this.data.lineItems[id].referencedId = id;
-        this.data.lineItems[id].stackable = 1;
-        this.data.lineItems[id].removable = 1;
-        this.data["redirectTo"] = this.options.redirectTo;
-        this.data['_csrf_token'] = this.csrf_token;
-
-        this._openOffCanvasCarts(this.options.action, JSON.stringify(this.data));
+        this._openOffCanvasCarts(this.options.action, JSON.stringify(data));
     }
 
     /**
