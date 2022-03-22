@@ -2,8 +2,8 @@
     <div>
         <sw-card class="sw-card--grid"
                  title="General settings">
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.afterIteration']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.afterIteration']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
                                 label="Initialize Nosto after first page iteration">
 
                 <template #content="props">

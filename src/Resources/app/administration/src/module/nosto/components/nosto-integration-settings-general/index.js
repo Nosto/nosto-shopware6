@@ -52,7 +52,7 @@ Component.register('nosto-integration-settings-general', {
                     tag2: null,
                     tag3: null,
                     googleCategory: null,
-                    afterIteration: null
+                    isInitializeNostoAfterInteraction: null
                 };
 
             /**

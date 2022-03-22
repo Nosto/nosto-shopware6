@@ -3,14 +3,14 @@ import Storage from 'src/helper/storage/storage.helper';
 
 export default class NostoConfiguration extends Plugin {
     static options = {
-        nostoAfterFirstInteraction: 'afterFirstInteraction'
+        nostoInitializedStorageKey: 'nostoInitializedStorageKey'
     };
 
     init() {
         this.storage = Storage;
 
         if (this.options.initializeAfter) {
-            if (this.storage.getItem(this.options.nostoAfterFirstInteraction) !== null) {
+            if (this.storage.getItem(this.options.nostoInitializedStorageKey) !== null) {
                 return this._initNosto();
             } else {
                 return this.registerEvents();
@@ -25,7 +25,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _prepareForInitialization() {
-        this.storage.setItem(this.options.nostoAfterFirstInteraction, '')
+        this.storage.setItem(this.options.nostoInitializedStorageKey, '')
         this._initNosto();
     }
 
