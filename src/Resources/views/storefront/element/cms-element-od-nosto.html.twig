@@ -1,7 +1,8 @@
 {% block od_custom_nosto_compoinent_block %}
-    <div hidden data-nosto-cart-plugin="true"></div>
-    <div class="nosto-csrf-token">
-        {{ sw_csrf('frontend.checkout.line-item.add') }}
+    <div hidden data-nosto-cart-plugin="true">
+        <div class="nosto-csrf-token">
+            {{ sw_csrf('frontend.checkout.line-item.add') }}
+        </div>
     </div>
     <div class="nosto_element" id="{{ element.config.nostoElementID.value }}"></div>
 {% endblock %}
