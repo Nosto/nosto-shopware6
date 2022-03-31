@@ -39,6 +39,9 @@
             "listing": {
                 "rescheduleActionLabel": "Schedule Full Product Sync"
             }
+        },
+        "messages": {
+            "success-message": "Successfully saved!"
         }
     }
 }

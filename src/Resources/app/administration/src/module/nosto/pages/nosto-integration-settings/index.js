@@ -1,7 +1,7 @@
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 
-const { Component, Defaults } = Shopware;
+const { Component, Defaults, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('nosto-integration-settings', {
@@ -9,6 +9,10 @@ Component.register('nosto-integration-settings', {
 
     inject: [
         'repositoryFactory',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -86,6 +90,9 @@ Component.register('nosto-integration-settings', {
 
             this.$refs.configComponent.save().then(() => {
                 this.isSaveSuccessful = true;
+                this.createNotificationSuccess({
+                    message: this.$tc('nosto.messages.success-message')
+                });
             }).finally(() => {
                 this.isLoading = false;
             });
