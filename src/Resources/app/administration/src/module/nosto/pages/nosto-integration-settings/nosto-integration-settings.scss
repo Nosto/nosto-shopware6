@@ -5,6 +5,13 @@
     }
 
     .sw-card.sw-card--grid  {
+
+        &.is-general-settings {
+            .sw-card__content {
+                padding-top: 0;
+            }
+        }
+
         .sw-card__content {
             padding: 30px 30px 0 30px;
         }
@@ -12,5 +19,12 @@
 
     .sw-card__content {
         padding-bottom: 0;
+    }
+
+    .sw-field--switch {
+        margin: 0;
+        &.is-last-switch {
+            margin-bottom: 20px;
+        }
     }
 }

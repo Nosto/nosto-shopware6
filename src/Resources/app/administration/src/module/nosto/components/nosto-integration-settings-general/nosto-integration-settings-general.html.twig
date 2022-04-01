@@ -1,13 +1,13 @@
 {% block nosto_integration_content_card_channel_config_accounts_card %}
     <div>
-        <sw-card class="sw-card--grid"
+        <sw-card class="sw-card--grid is-general-settings"
                  title="General settings">
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
-                                label="Initialize Nosto after first page iteration">
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.isInitializeNostoAfterInteraction']">
 
                 <template #content="props">
                     <sw-switch-field
+                            label="Initialize Nosto after first page iteration"
                             :map-inheritance="props"
                             :disabled="props.isInherited"
                             :value="props.currentValue"

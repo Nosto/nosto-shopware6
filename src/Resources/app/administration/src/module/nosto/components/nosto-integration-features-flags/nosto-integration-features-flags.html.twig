@@ -140,6 +140,7 @@
 
                 <template #content="props">
                     <sw-switch-field
+                            class="is-last-switch"
                             :map-inheritance="props"
                             :label="$tc('nosto.configuration.featuresFlags.enableReloadRecommendations')"
                             :disabled="props.isInherited"
