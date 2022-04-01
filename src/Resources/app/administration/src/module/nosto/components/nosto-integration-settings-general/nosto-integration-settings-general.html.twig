@@ -33,6 +33,7 @@
                                           :isInherited="props.isInherited"
                                           :disabled="props.isInherited"
                                           show-clearable-button
+                                          @clear="clearTagValue('tag1')"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
                         </sw-single-select>
@@ -54,6 +55,7 @@
                                           :isInherited="props.isInherited"
                                           :disabled="props.isInherited"
                                           show-clearable-button
+                                          @clear="clearTagValue('tag2')"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
                         </sw-single-select>
@@ -74,6 +76,7 @@
                                           :options="productCustomFields"
                                           :isInherited="props.isInherited"
                                           :disabled="props.isInherited"
+                                          @clear="clearTagValue('tag3')"
                                           show-clearable-button
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">

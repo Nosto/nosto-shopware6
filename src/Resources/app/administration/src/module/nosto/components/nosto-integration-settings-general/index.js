@@ -65,6 +65,10 @@ Component.register('nosto-integration-settings-general', {
             }
         },
 
+        clearTagValue(tag) {
+            this.allConfigs['null']['NostoIntegration.settings.' + tag + ''] = null;
+        },
+
         getProductCustomFields() {
             var me = this;
             const customFieldsCriteria = new Criteria();

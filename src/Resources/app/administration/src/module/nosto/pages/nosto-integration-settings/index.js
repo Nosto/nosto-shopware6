@@ -1,8 +1,8 @@
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 
-const { Component, Defaults, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const {Component, Defaults, Mixin} = Shopware;
+const {Criteria} = Shopware.Data;
 
 Component.register('nosto-integration-settings', {
     template,
@@ -22,7 +22,8 @@ Component.register('nosto-integration-settings', {
             defaultAccountNameFilled: false,
             messageAccountBlankErrorState: null,
             config: null,
-            salesChannels: []
+            salesChannels: [],
+            errorStates: {}
         };
     },
 
@@ -87,6 +88,13 @@ Component.register('nosto-integration-settings', {
 
         onSave() {
             this.isLoading = true;
+
+            if (Object.keys(this.errorStates).length > 0) {
+                this.isLoading = false;
+                return this.createNotificationError({
+                    message: this.$tc('nosto.messages.error-message')
+                });
+            }
 
             this.$refs.configComponent.save().then(() => {
                 this.isSaveSuccessful = true;

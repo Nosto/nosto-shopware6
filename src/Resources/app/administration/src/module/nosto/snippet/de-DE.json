@@ -41,7 +41,9 @@
             }
         },
         "messages": {
-            "success-message": "Successfully saved!"
+            "success-message": "Successfully saved!",
+            "error-message": "Something went wrong, please check your configuration settings.",
+            "blank-field-error": "This field cannot be left blank!"
         }
     }
 }
