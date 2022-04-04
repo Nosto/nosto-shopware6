@@ -99,6 +99,7 @@
                                           :isInherited="props.isInherited"
                                           :disabled="props.isInherited"
                                           show-clearable-button
+                                          @clear="clearTagValue('googleCategory')"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
                         </sw-single-select>
