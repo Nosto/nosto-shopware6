@@ -12,7 +12,7 @@
                             :value="props.currentValue"
                             :disabled="props.isInherited"
                             :error="errorStates.accountID ?? null"
-                            @change="checkValue('accountID', props)"
+                            @change="validateRequiredField('accountID', props)"
                             required
                             name="NostoIntegration.settings.accounts.accountID"
                             @input="props.updateCurrentValue"></sw-field>
@@ -32,7 +32,7 @@
                             :disabled="props.isInherited"
                             :error="errorStates.productToken ?? null"
                             required
-                            @change="checkValue('productToken', props)"
+                            @change="validateRequiredField('productToken', props)"
                             name="NostoIntegration.settings.accounts.productToken"
                             @input="props.updateCurrentValue"></sw-field>
                 </template>
@@ -48,7 +48,7 @@
                             :value="props.currentValue"
                             :disabled="props.isInherited"
                             :error="errorStates.emailToken ?? null"
-                            @change="checkValue('emailToken', props)"
+                            @change="validateRequiredField('emailToken', props)"
                             required
                             name="NostoIntegration.settings.accounts.emailToken"
                             @input="props.updateCurrentValue"></sw-field>
@@ -66,7 +66,7 @@
                             :disabled="props.isInherited"
                             :error="errorStates.appToken ?? null"
                             required
-                            @change="checkValue('appToken', props)"
+                            @change="validateRequiredField('appToken', props)"
                             name="NostoIntegration.settings.accounts.appToken"
                             @input="props.updateCurrentValue"></sw-field>
                 </template>

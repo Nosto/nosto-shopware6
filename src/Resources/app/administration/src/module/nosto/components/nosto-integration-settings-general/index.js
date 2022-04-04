@@ -66,7 +66,7 @@ Component.register('nosto-integration-settings-general', {
         },
 
         clearTagValue(tag) {
-            this.allConfigs['null']['NostoIntegration.settings.' + tag + ''] = null;
+            this.allConfigs['null']['NostoIntegration.settings.' + tag] = null;
         },
 
         getProductCustomFields() {

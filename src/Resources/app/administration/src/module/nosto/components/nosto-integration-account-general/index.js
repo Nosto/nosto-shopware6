@@ -1,6 +1,6 @@
 import template from './nosto-integration-account-general.html.twig';
 
-const { Component } = Shopware;
+const {Component} = Shopware;
 
 Component.register('nosto-integration-account-general', {
     template,
@@ -22,6 +22,17 @@ Component.register('nosto-integration-account-general', {
             type: String,
             required: false,
             default: null,
+        },
+    },
+
+    data() {
+        return {
+            configurationKeys: {
+                accountID: 'NostoIntegration.settings.accounts.accountID',
+                productToken: 'NostoIntegration.settings.accounts.productToken',
+                emailToken: 'NostoIntegration.settings.accounts.emailToken',
+                appToken: 'NostoIntegration.settings.accounts.appToken'
+            }
         }
     },
 
@@ -42,20 +53,10 @@ Component.register('nosto-integration-account-general', {
         },
 
         checkErrorState() {
-            if (!this.allConfigs['null']['NostoIntegration.settings.accounts.accountID']) {
-                this.createErrorState('accountID');
-            }
-
-            if (!this.allConfigs['null']['NostoIntegration.settings.accounts.productToken']) {
-                this.createErrorState('productToken');
-            }
-
-            if (!this.allConfigs['null']['NostoIntegration.settings.accounts.emailToken']) {
-                this.createErrorState('emailToken');
-            }
-
-            if (!this.allConfigs['null']['NostoIntegration.settings.accounts.appToken']) {
-                this.createErrorState('appToken');
+            for (const [key, value] of Object.entries(this.configurationKeys)) {
+                if (!this.allConfigs['null'][value]) {
+                    this.createErrorState(key);
+                }
             }
         },
 
@@ -63,7 +64,7 @@ Component.register('nosto-integration-account-general', {
             return this.$delete(this.errorStates, key);
         },
 
-        checkValue(key, props) {
+        validateRequiredField(key, props) {
             if (props.currentValue.length === 0) {
                 return this.createErrorState(key);
             }
