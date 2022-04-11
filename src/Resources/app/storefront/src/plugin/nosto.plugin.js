@@ -39,6 +39,11 @@ export default class NostoPlugin extends Plugin {
         };
         data.lineItems[productId] = productData;
 
+        this.$emitter.publish('addRecommendationToCart', {
+            productId: productId,
+            elementId: 'test'
+        });
+
         this._openOffCanvasCarts(this.options.action, JSON.stringify(data));
     }
 
