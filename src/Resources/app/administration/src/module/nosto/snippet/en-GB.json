@@ -34,7 +34,7 @@
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding"
+                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product"
             }
         },
         "listing": {
