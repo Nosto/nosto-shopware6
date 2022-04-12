@@ -7,7 +7,6 @@ export default class NostoPlugin extends Plugin {
     static options = {
         redirectTo: 'frontend.cart.offcanvas',
         action: '/checkout/line-item/add',
-        nostoElementSelector: '.nosto_element'
     };
 
     init() {
