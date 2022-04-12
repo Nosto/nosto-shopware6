@@ -6,7 +6,8 @@ export default class NostoPlugin extends Plugin {
 
     static options = {
         redirectTo: 'frontend.cart.offcanvas',
-        action: '/checkout/line-item/add'
+        action: '/checkout/line-item/add',
+        nostoElementSelector: '.nosto_element'
     };
 
     init() {
@@ -16,6 +17,9 @@ export default class NostoPlugin extends Plugin {
         Nosto.addProductToCart = function(id, element) {
            self._onAddToCart(id);
         }
+
+        this._nostoElementId = (this.el.nextElementSibling.id ? this.el.nextElementSibling.id : 'empty');
+
     }
 
     _onAddToCart(id) {
@@ -39,11 +43,9 @@ export default class NostoPlugin extends Plugin {
         };
         data.lineItems[productId] = productData;
 
-        console.log('productId', productId);
-
         this.$emitter.publish('addRecommendationToCart', {
             productId: productId,
-            elementId: 'test'
+            elementId: this._nostoElementId
         });
 
         this._openOffCanvasCarts(this.options.action, JSON.stringify(data));
