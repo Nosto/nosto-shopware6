@@ -65,16 +65,18 @@ export default class NostoConfiguration extends Plugin {
         this._cartWidget.$emitter.subscribe('fetch', () => {
             nostojs(api => {
                 api.resendCartTagging();
-            })
+            });
         });
     }
 
     nostoSubscriber() {
         const instances = PluginManager.getPluginInstances('NostoPlugin');
         Iterator.iterate(instances, instance => {
-            instance.$emitter.subscribe('addRecommendationToCart', (productId, elementId) => {
-                console.log('productId', productId);
-                console.log('elementId', elementId);
+            instance.$emitter.subscribe('addRecommendationToCart', (event) => {
+                nostojs(api => {
+                    api.recommendedProductAddedToCart(event.detail.productId, event.detail.elementId);
+                    api.loadRecommendations();
+                });
             });
         });
     }
