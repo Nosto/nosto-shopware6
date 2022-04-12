@@ -18,7 +18,7 @@ export default class NostoPlugin extends Plugin {
            self._onAddToCart(id);
         }
 
-        this._nostoElementId = (this.el.nextElementSibling.id ? this.el.nextElementSibling.id : 'empty');
+        this._nostoElementId = (this.el.nextElementSibling.id ? this.el.nextElementSibling.id : '');
 
     }
 
