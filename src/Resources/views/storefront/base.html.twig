@@ -26,7 +26,8 @@
     {% block od_nosto_integration_connect_script %}
         {% set configurationOptions = {
             'accountID': config('NostoIntegration.settings.accounts.accountID'),
-            'initializeAfter':  config('NostoIntegration.settings.afterIteration')
+            'initializeAfter':  config('NostoIntegration.settings.afterIteration'),
+            'reloadRecommendations': config('NostoIntegration.settings.flags.reloadRecommendations')
         } %}
         <div hidden data-nosto-configuration="true" data-nosto-configuration-options="{{ configurationOptions|json_encode }}"></div>
     {% endblock %}

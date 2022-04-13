@@ -75,7 +75,10 @@ export default class NostoConfiguration extends Plugin {
             instance.$emitter.subscribe('addRecommendationToCart', (event) => {
                 nostojs(api => {
                     api.recommendedProductAddedToCart(event.detail.productId, event.detail.elementId);
-                    api.loadRecommendations();
+
+                    if (this.options.reloadRecommendations) {
+                        api.loadRecommendations();
+                    }
                 });
             });
         });
