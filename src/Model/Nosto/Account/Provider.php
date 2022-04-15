@@ -25,11 +25,11 @@ class Provider
         $this->channelRepo = $channelRepo;
     }
 
-    public function get(string $channelId)
+    public function get(string $channelId): ?Account
     {
-        return array_filter($this->all(), function(Account $account) use ($channelId) {
+        return array_values(array_filter($this->all(), function(Account $account) use ($channelId) {
             return $account->getChannelId() === $channelId;
-        })[0] ?? null;
+        }))[0] ?? null;
     }
 
     /**
