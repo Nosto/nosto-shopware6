@@ -104,6 +104,9 @@
         <service id="Od\NostoIntegration\Service\CategoryMerchandisingProvider">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="category_translation.repository"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandisingResultTranslator"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandisingProvider"/>
@@ -117,6 +120,7 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandisingResultTranslator"/>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
