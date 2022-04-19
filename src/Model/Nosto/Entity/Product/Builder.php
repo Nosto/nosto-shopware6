@@ -72,9 +72,14 @@ class Builder
         }
 
         if ($this->configProvider->isEnabledProductProperties($channelId) && $product->getOptions() !== null) {
-            foreach ($product->getOptions() as $propertyOption) {
-                if ($propertyOption->getGroup() !== null) {
-                    $nostoProduct->addCustomField($propertyOption->getGroup()->getName(), $propertyOption->getName());
+            foreach ($product->getOptions() as $option) {
+                if ($option->getGroup() !== null) {
+                    $nostoProduct->addCustomField($option->getGroup()->getName(), $option->getName());
+                }
+            }
+            foreach ($product->getProperties() as $property) {
+                if ($property->getGroup() !== null) {
+                    $nostoProduct->addCustomField($property->getGroup()->getName(), $property->getName());
                 }
             }
 

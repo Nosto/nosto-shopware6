@@ -73,8 +73,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('properties.group');
         $criteria->addAssociation('children.media');
         $criteria->addAssociation('children.options.group');
+        $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('children.manufacturer');
         $criteria->addAssociation('categoriesRo');

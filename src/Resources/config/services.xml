@@ -101,15 +101,16 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument type="service" id="newsletter_recipient.repository"/>
         </service>
-        <service id="Od\NostoIntegration\Service\CategoryMerchandisingProvider">
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\CategoryMerchandisingProvider">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="category_translation.repository"/>
-            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandisingResultTranslator"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
-            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandisingProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\CategoryMerchandisingProvider"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
@@ -120,7 +121,11 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>
-        <service id="Od\NostoIntegration\Service\CategoryMerchandisingResultTranslator"/>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator">
+            <argument type="service" id="product_manufacturer.repository"/>
+            <argument type="service" id="property_group_option.repository"/>
+        </service>
         <!-- /Services -->
 
         <!-- Entity Definitions -->

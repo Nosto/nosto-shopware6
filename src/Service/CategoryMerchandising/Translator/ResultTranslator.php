@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service;
+namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
 
-class CategoryMerchandisingResultTranslator
+class ResultTranslator
 {
     public function getProductIds(CategoryMerchandisingResult $result): array
     {
