@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\{Cookie, RequestStack};
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class CmsPageLoaderListener implements EventSubscriberInterface
@@ -61,7 +62,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    public function onKernelResponse($event)
+    public function onKernelResponse(ResponseEvent $event)
     {
         if (!($event->getResponse() instanceof StorefrontResponse)) {
             return;
