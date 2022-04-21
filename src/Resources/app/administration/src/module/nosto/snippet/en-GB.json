@@ -34,7 +34,8 @@
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product"
+                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
+                "enablePlpCache": "Enable cache on the PLP"
             }
         },
         "listing": {

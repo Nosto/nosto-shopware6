@@ -16,6 +16,7 @@ class ConfigProvider
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
+    public const ENABLE_PLP_CACHE = 'settings.flags.plpCache';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
@@ -65,6 +66,11 @@ class ConfigProvider
     public function isEnabledReloadRecommendationsAfterAdding($channelId = null): bool
     {
         return $this->systemConfig->getBool($this->path(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING), $channelId);
+    }
+
+    public function isEnabledPlpCache($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_PLP_CACHE), $channelId);
     }
 
     public function getAccountId($channelId = null): string

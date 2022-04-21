@@ -141,6 +141,13 @@
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
             <tag name="od.filter_translator" code="od-price-filter"/>
         </service>
+        <service id="nosto.aware_cached_listing"
+                 class="Od\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute">
+            <argument type="service" id="nosto.aware_cached_listing.inner"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+        </service>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
