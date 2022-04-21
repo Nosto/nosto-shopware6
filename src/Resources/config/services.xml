@@ -103,11 +103,10 @@
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\CategoryMerchandisingProvider">
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="category_translation.repository"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\CategoryMerchandisingProvider"/>
@@ -123,8 +122,24 @@
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator">
+            <argument type="tagged_iterator" tag="od.filter_translator" index-by="code" />
+        </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver">
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+        </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ManufacturerFilterTranslator">
+            <tag name="od.filter_translator" code="od-manufacturer-filter"/>
             <argument type="service" id="product_manufacturer.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator">
+            <tag name="od.filter_translator" code="od-shipping-free-filter"/>
+        </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\AttributeFilterTranslator">
+            <tag name="od.filter_translator" code="od-attribute-filter"/>
             <argument type="service" id="property_group_option.repository"/>
+        </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
+            <tag name="od.filter_translator" code="od-price-filter"/>
         </service>
         <!-- /Services -->
 
@@ -146,6 +161,11 @@
         <service id="Od\NostoIntegration\EventListener\NewsletterEventListener">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
+        </service>
+        <service id="Od\NostoIntegration\EventListener\CmsPageLoaderListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
         </service>
         <!-- /Event Listeners -->
 
