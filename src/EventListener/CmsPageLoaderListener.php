@@ -78,5 +78,6 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         $cookie = Cookie::create('2c_cId', $customerId);
         $cookie->setSecureDefault($request->isSecure());
         $response->headers->setCookie($cookie);
+        $response->headers->addCacheControlDirective('no-store');
     }
 }
