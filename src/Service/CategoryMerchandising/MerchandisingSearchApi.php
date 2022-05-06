@@ -9,14 +9,14 @@ use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslator, ResultTranslator};
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CategoryMerchandisingProvider implements SalesChannelRepositoryInterface
+class MerchandisingSearchApi implements SalesChannelRepositoryInterface
 {
     private SalesChannelRepositoryInterface $repository;
     private EntityRepositoryInterface $categoryRepository;
@@ -55,17 +55,17 @@ class CategoryMerchandisingProvider implements SalesChannelRepositoryInterface
      */
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $sessionData = $this->resolver->getSessionData($salesChannelContext);
-        $customerId = $sessionData['customerId'];
-        $account = $sessionData['account'];
+        $customerId = $this->resolver->getCustomerId();
+        $account = $this->resolver->getNostoAccount();
 
         if (!$account || !$customerId || $criteria->getLimit() == 0) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
 
-        $category = $this->getCategory($criteria, $salesChannelContext);
+        $category = $this->getCategoryName($criteria, $salesChannelContext);
         $includeFilters = !empty($criteria->getPostFilters())
-            ? $this->filterTranslator->setIncludeFilters($criteria->getPostFilters(), $salesChannelContext->getContext())
+            ? $this->filterTranslator->setIncludeFilters($criteria->getPostFilters(),
+                $salesChannelContext->getContext())
             : new IncludeFilters();
 
         try {
@@ -102,7 +102,24 @@ class CategoryMerchandisingProvider implements SalesChannelRepositoryInterface
         }
     }
 
-    private function getCategory(Criteria $criteria, SalesChannelContext $context): string
+    private function getCategoryName(Criteria $criteria, SalesChannelContext $context): string
+    {
+        $categoryId = $this->getCategoryId($criteria);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $categoryId));
+        $category = $this->categoryRepository->search($criteria, $context->getContext())->first();
+        $plainCategoryBreadcrumbs = $category->getPlainBreadcrumb();
+        $categoryBreadcrumbs = \array_slice($plainCategoryBreadcrumbs, 1);
+        $categoryName = '';
+
+        foreach ($categoryBreadcrumbs as $breadcrumb) {
+            $categoryName .= '/' . $breadcrumb;
+        }
+
+        return $categoryName;
+    }
+
+    private function getCategoryId(Criteria $criteria): ?string
     {
         $categoryId = null;
         foreach ($criteria->getFilters() as $filter) {
@@ -110,11 +127,7 @@ class CategoryMerchandisingProvider implements SalesChannelRepositoryInterface
                 $categoryId = $filter->getValue();
             }
         }
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('categoryId', $categoryId));
-        $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
-        $category = $this->categoryRepository->search($criteria, $context->getContext())->first()->getName();
 
-        return '/' . $category;
+        return $categoryId;
     }
 }

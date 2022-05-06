@@ -3,12 +3,9 @@
 namespace Od\NostoIntegration\EventListener;
 
 use Nosto\NostoException;
-use Nosto\Operation\Session\NewSession;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
-use Od\NostoIntegration\Model\Nosto\Account\Provider;
-use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
-use Shopware\Core\Content\Product\ProductEvents;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Od\NostoIntegration\Model\ConfigProvider;
+use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\{Cookie, RequestStack};
@@ -18,43 +15,24 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CmsPageLoaderListener implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
-    private Provider $accountProvider;
+    private SessionLookupResolver $sessionLookupResolver;
+    private ConfigProvider $configProvider;
 
     public function __construct(
         RequestStack $requestStack,
-        Provider $accountProvider
+        SessionLookupResolver $sessionLookupResolver,
+        ConfigProvider $configProvider
     ) {
         $this->requestStack = $requestStack;
-        $this->accountProvider = $accountProvider;
+        $this->sessionLookupResolver = $sessionLookupResolver;
+        $this->configProvider = $configProvider;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            ProductEvents::PRODUCT_LISTING_CRITERIA => 'onProductListingCriteria',
             KernelEvents::RESPONSE => 'onKernelResponse'
         ];
-    }
-
-    /**
-     * @throws NostoException
-     * @throws HttpResponseException
-     * @throws AbstractHttpException
-     */
-    public function onProductListingCriteria(ProductListingCriteriaEvent $event)
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        $customerId = $request->cookies->get('2c_cId');
-        $account = $this->accountProvider->get($request->attributes->get('sw-sales-channel-id'));
-
-        if ($account && !$customerId) {
-            $session = new NewSession($account->getNostoAccount(), '', false);
-            $customerId = $session->execute();
-        }
-
-        $event->getSalesChannelContext()->addExtension('customerId', new ArrayStruct([
-            'id' => $customerId
-        ]));
     }
 
     /**
@@ -67,17 +45,26 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         if (!($event->getResponse() instanceof StorefrontResponse)) {
             return;
         }
+
         $request = $this->requestStack->getCurrentRequest();
-        $extension = $event->getResponse()->getContext()->getExtension('customerId');
-        $customerId = $extension ? $extension->getVars()['id'] : null;
+        $customerId = $this->sessionLookupResolver->getCustomerId();
 
         if (!$customerId) {
             return;
         }
+
         $response = $event->getResponse();
         $cookie = Cookie::create('2c_cId', $customerId);
         $cookie->setSecureDefault($request->isSecure());
         $response->headers->setCookie($cookie);
-        $response->headers->addCacheControlDirective('no-store');
+
+        $activeRoute = $request->attributes->get('_route');
+        $enabledCache = $this->configProvider->isEnabledNotLoggedInCache();
+        $customer = $request->attributes->get('sw-sales-channel-context')->getCustomer();
+        $isCategoryRoute = $activeRoute === 'frontend.navigation.page';
+
+        if ((!$customer && $isCategoryRoute && !$enabledCache) || ($customer && $isCategoryRoute)) {
+            $response->headers->addCacheControlDirective('no-store');
+        }
     }
 }
