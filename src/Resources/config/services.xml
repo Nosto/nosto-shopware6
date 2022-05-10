@@ -105,7 +105,7 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
-            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
@@ -121,7 +121,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
-        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslator">
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
             <argument type="tagged_iterator" tag="od.nosto.merch.filter_translator" index-by="code" />
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver">
@@ -153,7 +153,13 @@
                  class="Od\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedCategoryRoute"
                  decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute">
             <argument type="service" id="nosto.aware_cached_category_route.inner"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
         </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+        </service>
+
         <!-- /Services -->
 
         <!-- Entity Definitions -->
@@ -179,7 +185,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
-            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
         </service>
         <!-- /Event Listeners -->
 

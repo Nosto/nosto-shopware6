@@ -2,24 +2,17 @@
 
 namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 
-use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
+use Nosto\Result\Graphql\Recommendation\{CategoryMerchandisingResult, ResultItem};
 
 class ResultTranslator
 {
     public function getProductIds(CategoryMerchandisingResult $result): array
     {
-        $productIds = [];
-        foreach ($result->getResultSet() as $item) {
-            if ($item->getProductId()) {
-                $productIds[$item->getProductId()] = [
-                    'primaryKey' => $item->getProductId(),
-                    'data' => [
-                        'id' => $item->getProductId()
-                    ]
-                ];
-            }
-        }
-
-        return $productIds;
+        return array_map(static function (ResultItem $item) {
+            return [
+                'primaryKey' => $item->getProductId(),
+                'data' => ['id' => $item->getProductId()]
+            ];
+        }, iterator_to_array($result->getResultSet()));
     }
 }

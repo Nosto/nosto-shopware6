@@ -37,7 +37,8 @@ class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
         Criteria $criteria
     ): ProductListingRouteResponse {
         $account = $this->accountProvider->get($context->getSalesChannelId());
-        if ($account && !($this->configProvider->isEnabledPlpCache())) {
+        $customer = $request->attributes->get('sw-sales-channel-context')->getCustomer();
+        if ($account && $customer && !($this->configProvider->isEnabledPlpCache())) {
             return $this->decoratedService->getDecorated()->load($categoryId, $request, $context, $criteria);
         }
 

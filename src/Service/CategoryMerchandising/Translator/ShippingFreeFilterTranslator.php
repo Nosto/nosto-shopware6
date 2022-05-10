@@ -5,7 +5,7 @@ namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-class ShippingFreeFilterTranslator
+class ShippingFreeFilterTranslator implements TranslatorInterface
 {
     public const SHIPPING = "product.shippingFree";
 

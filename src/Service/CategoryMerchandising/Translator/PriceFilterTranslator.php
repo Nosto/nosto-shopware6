@@ -5,15 +5,17 @@ namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
-class PriceFilterTranslator
+class PriceFilterTranslator implements TranslatorInterface
 {
     public const PRICE = "product.cheapestPrice";
 
     public function translate(
         IncludeFilters $includeFilters,
-        RangeFilter $filters
+        RangeFilter $filters = null
     ): IncludeFilters {
-        $includeFilters->setPrice($filters->getParameter("gte"), $filters->getParameter("lte"));
+        if ($filters) {
+            $includeFilters->setPrice($filters->getParameter("gte"), $filters->getParameter("lte"));
+        }
 
         return $includeFilters;
     }

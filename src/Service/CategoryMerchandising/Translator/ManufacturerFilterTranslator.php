@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
-class ManufacturerFilterTranslator
+class ManufacturerFilterTranslator implements TranslatorInterface
 {
     public const MANUFACTURER = "product.manufacturerId";
 
@@ -19,21 +19,23 @@ class ManufacturerFilterTranslator
         $this->manufacturerRepository = $manufacturerRepository;
     }
 
-    public function translate(
-        IncludeFilters $includeFilters,
-        EqualsAnyFilter $filters,
-        Context $context
-    ): IncludeFilters {
-        $manufacturerIds = [];
-        foreach ($filters->getValue() as $filter) {
-            $manufacturerIds[] = $filter;
+    public function translate(IncludeFilters $includeFilters, EqualsAnyFilter $filters = null, Context $context = null): IncludeFilters {
+        if (!$filters)
+        {
+            return $includeFilters;
         }
+        $manufacturerIds = array_values($filters->getValue());
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $manufacturerIds));
         $manufacturers = $this->manufacturerRepository->search($criteria, $context)->getEntities();
+        $manufacturerNames = [];
         foreach ($manufacturers as $manufacturer) {
-            $includeFilters->setBrands([$manufacturer->getName()]);
+            $manufacturerNames[]= $manufacturer->getName();
         }
+
+        $includeFilters->setBrands(array_map(static function ($name) {
+            return $name;
+        }, $manufacturerNames));
 
         return $includeFilters;
     }

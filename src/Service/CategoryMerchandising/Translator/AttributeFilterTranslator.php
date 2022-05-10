@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, MultiFilter};
 
-class AttributeFilterTranslator
+class AttributeFilterTranslator implements TranslatorInterface
 {
     private EntityRepositoryInterface $propertyGroupOptionRepository;
 
@@ -19,13 +19,16 @@ class AttributeFilterTranslator
 
     public function translate(
         IncludeFilters $includeFilters,
-        MultiFilter $filters,
-        Context $context
+        MultiFilter $filters = null,
+        Context $context = null
     ): IncludeFilters {
         $optionAndPropertyIds = [];
+        if (!$filters) {
+            return $includeFilters;
+        }
         foreach ($filters->getQueries() as $filter) {
             /** @var MultiFilter $filter */
-            $optionIds = $filter->getQueries()[0]->getValue();
+            $optionIds = $filter->getQueries() ? $filter->getQueries()[0]->getValue() : '';
             foreach ($optionIds as $optionId) {
                 $optionAndPropertyIds[] = $optionId;
             }

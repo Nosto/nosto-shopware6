@@ -4,7 +4,7 @@ namespace Od\NostoIntegration\EventListener;
 
 use Nosto\NostoException;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
-use Od\NostoIntegration\Model\ConfigProvider;
+use Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
 use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -16,16 +16,16 @@ class CmsPageLoaderListener implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
     private SessionLookupResolver $sessionLookupResolver;
-    private ConfigProvider $configProvider;
+    private NostoCacheResolver $cacheResolver;
 
     public function __construct(
         RequestStack $requestStack,
         SessionLookupResolver $sessionLookupResolver,
-        ConfigProvider $configProvider
+        NostoCacheResolver $cacheResolver
     ) {
         $this->requestStack = $requestStack;
         $this->sessionLookupResolver = $sessionLookupResolver;
-        $this->configProvider = $configProvider;
+        $this->cacheResolver = $cacheResolver;
     }
 
     public static function getSubscribedEvents(): array
@@ -40,7 +40,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         if (!($event->getResponse() instanceof StorefrontResponse)) {
             return;
@@ -58,12 +58,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         $cookie->setSecureDefault($request->isSecure());
         $response->headers->setCookie($cookie);
 
-        $activeRoute = $request->attributes->get('_route');
-        $enabledCache = $this->configProvider->isEnabledNotLoggedInCache();
-        $customer = $request->attributes->get('sw-sales-channel-context')->getCustomer();
-        $isCategoryRoute = $activeRoute === 'frontend.navigation.page';
-
-        if ((!$customer && $isCategoryRoute && !$enabledCache) || ($customer && $isCategoryRoute)) {
+        if ($this->cacheResolver->isCachingAllowed()) {
             $response->headers->addCacheControlDirective('no-store');
         }
     }

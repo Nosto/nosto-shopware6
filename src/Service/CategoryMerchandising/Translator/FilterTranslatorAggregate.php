@@ -5,9 +5,8 @@ namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\Context;
 
-class FilterTranslator
+class FilterTranslatorAggregate
 {
-    private array $rawFilterTranslators = [];
     private iterable $filterTranslators;
 
     public function __construct(iterable $rawFilterTranslators)
@@ -15,7 +14,7 @@ class FilterTranslator
         $this->filterTranslators = $rawFilterTranslators;
     }
 
-    public function setIncludeFilters(array $postFilters, Context $context): IncludeFilters
+    public function buildIncludeFilters(array $postFilters, Context $context): IncludeFilters
     {
         $includeFilters = new IncludeFilters();
         foreach ($this->filterTranslators as $filterTranslator) {

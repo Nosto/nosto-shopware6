@@ -9,10 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
 {
     private AbstractCategoryRoute $decoratedService;
+    private NostoCacheResolver $cacheResolver;
 
-    public function __construct(AbstractCategoryRoute $cachedCategoryRoute)
+    public function __construct(AbstractCategoryRoute $cachedCategoryRoute, NostoCacheResolver $cacheResolver)
     {
         $this->decoratedService = $cachedCategoryRoute;
+        $this->cacheResolver = $cacheResolver;
     }
 
     public function load(
@@ -20,7 +22,11 @@ class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
         Request $request,
         SalesChannelContext $context
     ): CategoryRouteResponse {
-        return $this->getDecorated()->load($navigationId, $request, $context);
+        if ($this->cacheResolver->isCachingAllowed()) {
+            return $this->getDecorated()->load($navigationId, $request, $context);
+        }
+
+        return $this->decoratedService->load($navigationId, $request, $context);
     }
 
     public function getDecorated(): AbstractCategoryRoute

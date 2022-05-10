@@ -7,7 +7,7 @@ use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, IncludeFilters};
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslator, ResultTranslator};
+use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -21,14 +21,14 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
     private SalesChannelRepositoryInterface $repository;
     private EntityRepositoryInterface $categoryRepository;
     private ResultTranslator $resultTranslator;
-    private FilterTranslator $filterTranslator;
+    private FilterTranslatorAggregate $filterTranslator;
     private SessionLookupResolver $resolver;
 
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         EntityRepositoryInterface $categoryRepository,
         ResultTranslator $resultTranslator,
-        FilterTranslator $filterTranslator,
+        FilterTranslatorAggregate $filterTranslator,
         SessionLookupResolver $resolver
     ) {
         $this->repository = $repository;
@@ -64,8 +64,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
 
         $category = $this->getCategoryName($criteria, $salesChannelContext);
         $includeFilters = !empty($criteria->getPostFilters())
-            ? $this->filterTranslator->setIncludeFilters($criteria->getPostFilters(),
-                $salesChannelContext->getContext())
+            ? $this->filterTranslator->buildIncludeFilters($criteria->getPostFilters(), $salesChannelContext->getContext())
             : new IncludeFilters();
 
         try {
