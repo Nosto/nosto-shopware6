@@ -15,6 +15,7 @@
                 "googleCategoryTitle": "Google category"
             },
             "account": {
+                "nameTitle": "Account Name",
                 "idTitle": "Account ID",
                 "productTokenTitle": "Product Token (API_PRODUCTS)",
                 "emailTokenTitle": "Email Token (API_EMAIL)",

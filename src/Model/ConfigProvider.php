@@ -19,6 +19,7 @@ class ConfigProvider
     public const ENABLE_PLP_CACHE = 'settings.flags.plpCache';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.flags.notLoggedInCache';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
+    public const ACCOUNT_NAME = 'settings.accounts.accountName';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
     public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
@@ -82,6 +83,11 @@ class ConfigProvider
     public function getAccountId($channelId = null): string
     {
         return $this->systemConfig->getString($this->path(self::ACCOUNT_ID), $channelId);
+    }
+
+    public function getAccountName($channelId = null): string
+    {
+        return $this->systemConfig->getString($this->path(self::ACCOUNT_NAME), $channelId);
     }
 
     public function getProductToken($channelId = null): string

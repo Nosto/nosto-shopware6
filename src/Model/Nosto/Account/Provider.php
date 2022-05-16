@@ -49,12 +49,13 @@ class Provider
 
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
+            $accountName = $this->configProvider->getAccountName($channel->getId());
             $keyChain = new KeyChain([
                 new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),
                 new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channel->getId())),
                 new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId()))
             ]);
-            $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $keyChain);
+            $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $accountName, $keyChain);
         }
 
         return $this->accounts;

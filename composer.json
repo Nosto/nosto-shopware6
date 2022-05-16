@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"authors": [
 		{
-			"name": "od-dev-team",
+			"name": "Overdose",
 			"homepage": "https://overdose.digital/"
 		}
 	],
@@ -15,15 +15,6 @@
 		"od/sw6-job-scheduler": "^1.0",
 		"nosto/php-sdk": "^5.5.0"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "deps/*",
-			"options": {
-				"symlink": false
-			}
-		}
-	],
 	"autoload": {
 		"psr-4": {
 			"Od\\NostoIntegration\\": "src/"

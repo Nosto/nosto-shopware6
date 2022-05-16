@@ -29,6 +29,7 @@ Component.register('nosto-integration-account-general', {
         return {
             configurationKeys: {
                 accountID: 'NostoIntegration.settings.accounts.accountID',
+                accountName: 'NostoIntegration.settings.accounts.accountName',
                 productToken: 'NostoIntegration.settings.accounts.productToken',
                 emailToken: 'NostoIntegration.settings.accounts.emailToken',
                 appToken: 'NostoIntegration.settings.accounts.appToken'
