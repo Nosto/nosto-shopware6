@@ -12,10 +12,9 @@
             <span class="availability">{{ nostoProduct.availability }}</span>
             <span class="price">{{ nostoProduct.price }}</span>
             <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
-
             {% if nostoProduct.categories %}
                 {% for key, category in nostoProduct.categories %}
-                    <span class="category">{% for i in 0..key %}{% if loop.first %}/{% endif %}{{ nostoProduct.categories[i] }}{% if loop.last is not true %}/{% endif %}{% endfor %}</span>
+                    <span class="category">{{ category }}</span>
                 {% endfor %}
             {% endif %}
 
