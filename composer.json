@@ -18,7 +18,7 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "packages/*",
+			"url": "deps/*",
 			"options": {
 				"symlink": false
 			}
