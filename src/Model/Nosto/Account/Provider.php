@@ -43,6 +43,7 @@ class Provider
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
+        $criteria->addFilter(new EqualsFilter('active', true));
         $context = Context::createDefaultContext();
         $channels = $this->channelRepo->search($criteria, $context)->getEntities();
 

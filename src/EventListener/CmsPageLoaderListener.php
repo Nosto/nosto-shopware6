@@ -46,20 +46,21 @@ class CmsPageLoaderListener implements EventSubscriberInterface
             return;
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        $customerId = $this->sessionLookupResolver->getCustomerId();
-
-        if (!$customerId) {
-            return;
-        }
-
         $response = $event->getResponse();
-        $cookie = Cookie::create('2c_cId', $customerId);
-        $cookie->setSecureDefault($request->isSecure());
-        $response->headers->setCookie($cookie);
+        $request = $this->requestStack->getCurrentRequest();
+        $sessionId = $this->sessionLookupResolver->getSessionId();
 
         if ($this->cacheResolver->isCachingAllowed()) {
             $response->headers->addCacheControlDirective('no-store');
+            $response->headers->addCacheControlDirective('private');
         }
+
+        if (!$sessionId || $request->cookies->has('2c_cId')) {
+            return;
+        }
+
+        $cookie = Cookie::create('2c_cId', $sessionId);
+        $cookie->setSecureDefault($request->isSecure());
+        $response->headers->setCookie($cookie);
     }
 }

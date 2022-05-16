@@ -7,11 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class ShippingFreeFilterTranslator implements TranslatorInterface
 {
+    public const SHIPPING_FREE_ATTR_NAME = 'Shipping Free';
     public const SHIPPING = "product.shippingFree";
 
     public function translate(IncludeFilters $includeFilters): IncludeFilters
     {
-        $includeFilters->setCustomFields("Shipping Free", ["true"]);
+        $includeFilters->setCustomFields(self::SHIPPING_FREE_ATTR_NAME, ["true"]);
 
         return $includeFilters;
     }

@@ -25,7 +25,7 @@ class SessionLookupResolver
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    public function getCustomerId(): string
+    public function getSessionId(): string
     {
         $request = $this->requestStack->getCurrentRequest();
         $customerId = $request->cookies->get('2c_cId');

@@ -29,7 +29,7 @@ class CachedProvider implements ProductProviderInterface
         $cachedItem = $this->cache->getItem($cacheKey);
 
         if ($cachedItem->isHit()) {
-            return $cachedItem->get();
+            //return $cachedItem->get();
         }
 
         $nostoProduct = $this->innerProvider->get($product, $context);

@@ -55,10 +55,10 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
      */
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $customerId = $this->resolver->getCustomerId();
+        $sessionId = $this->resolver->getSessionId();
         $account = $this->resolver->getNostoAccount();
 
-        if (!$account || !$customerId || $criteria->getLimit() == 0) {
+        if (!$account || !$sessionId || $criteria->getLimit() == 0) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
 
@@ -70,7 +70,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         try {
             $operation = new CategoryMerchandising(
                 $account->getNostoAccount(),
-                $customerId,
+                $sessionId,
                 $category,
                 $criteria->getOffset() / $criteria->getLimit(),
                 $includeFilters,
@@ -89,13 +89,12 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
                 throw new \Exception('There are no products from the Nosto.');
             }
 
-            $productIds = $this->resultTranslator->getProductIds($result);
-
             return new IdSearchResult(
                 $result->getTotalPrimaryCount(),
-                $productIds,
+                $this->resultTranslator->getProductIds($result),
                 $criteria,
-                $salesChannelContext->getContext());
+                $salesChannelContext->getContext()
+            );
         } catch (\Exception $e) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }

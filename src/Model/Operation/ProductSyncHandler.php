@@ -10,6 +10,7 @@ use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Od\Scheduler\Model\Job;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
@@ -61,7 +62,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
             foreach ($accountOperationResult->getErrors() as $error) {
-                $operationResult->addError($error);
+                $operationResult->addMessage($error);
             }
         }
 
@@ -70,6 +71,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private function doOperation(Account $account, SalesChannelContext $context, array $productIds): Job\JobResult
     {
+        $result = new Job\JobResult();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $existentProductsCollection = $this->productRepository->search($criteria, $context)->getEntities();
+        $deletedProductIds = array_diff($productIds, $existentProductsCollection->getIds());
+        $existentParentProductIds = \array_map(function (ProductEntity $product) {
+            return $product->getParentId() === null ? $product->getId() : $product->getParentId();
+        }, $existentProductsCollection->getElements());
+
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('options.group');
@@ -86,19 +101,22 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $criteria->addFilter(new EqualsFilter('active', true));
         }
 
-        $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
-
+        $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $products = $this->productRepository->search($criteria, $context);
-        $deletedProductIds = array_diff($productIds,$products->getIds());
-        if ($products->count() !== 0) {
-            $this->doUpsertOperation($account, $context, $products->getEntities());
+
+        try {
+            if ($products->count() !== 0) {
+                $this->doUpsertOperation($account, $context, $products->getEntities());
+            }
+
+            if (!empty($deletedProductIds)) {
+                $this->doDeleteOperation($account, $context, $deletedProductIds);
+            }
+        } catch (\Throwable $e) {
+            $result->addError($e);
         }
 
-        if (!empty($deletedProductIds)) {
-            $this->doDeleteOperation($account, $context, $deletedProductIds);
-        }
-
-        return new Job\JobResult();
+        return $result;
     }
 
     private function doUpsertOperation(
