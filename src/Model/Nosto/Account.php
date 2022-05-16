@@ -8,16 +8,19 @@ class Account
 {
     private string $channelId;
     private string $languageId;
+    private string $accountName;
     private Account\KeyChain $keyChain;
     private ?NostoSignupAccount $nostoAccount = null;
 
     public function __construct(
         string $channelId,
         string $languageId,
+        string $accountName,
         Account\KeyChain $keyChain
     ) {
         $this->channelId = $channelId;
         $this->languageId = $languageId;
+        $this->accountName = $accountName;
         $this->keyChain = $keyChain;
     }
 
@@ -42,9 +45,7 @@ class Account
             return $this->nostoAccount;
         }
 
-        // TODO: $accountName = $configProvider->getAccountname();
-        $accountName = 'Shopware 6 Integration';
-        $account = new NostoSignupAccount($accountName);
+        $account = new NostoSignupAccount($this->accountName);
 
         foreach ($this->keyChain->getTokens() as $token) {
             $account->addApiToken($token);
