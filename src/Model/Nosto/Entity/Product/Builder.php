@@ -7,6 +7,8 @@ use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -20,17 +22,20 @@ class Builder
     private ConfigProvider $configProvider;
     private ProductHelper $productHelper;
     private SkuBuilder $skuBuilder;
+    private TreeBuilder $treeBuilder;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         ConfigProvider $configProvider,
         ProductHelper $productHelper,
-        SkuBuilder $skuBuilder
+        SkuBuilder $skuBuilder,
+        TreeBuilder $treeBuilder
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
         $this->productHelper = $productHelper;
         $this->skuBuilder = $skuBuilder;
+        $this->treeBuilder = $treeBuilder;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
@@ -49,11 +54,9 @@ class Builder
         $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoProduct->setAvailability($stockStatus);
 
-        $categoryNames = $product->getCategoriesRo()
-            ->filter(fn(CategoryEntity $category) => $category->getParentId() !== null)
-            ->map(fn(CategoryEntity $category) => $category->getTranslation('name'));
-        if (!empty($categoryNames)) {
-            $nostoProduct->setCategories(array_reverse(array_values($categoryNames)));
+        $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
+        if (!empty($nostoCategoryNames)) {
+            $nostoProduct->setCategories($nostoCategoryNames);
         }
 
         if ($ratingAvg = $product->getRatingAverage()) {
@@ -71,10 +74,19 @@ class Builder
             $nostoProduct->setSkus($skuCollection);
         }
 
+        if ($product->getShippingFree()) {
+            $nostoProduct->addCustomField(ShippingFreeFilterTranslator::SHIPPING_FREE_ATTR_NAME, 'true');
+        }
+
         if ($this->configProvider->isEnabledProductProperties($channelId) && $product->getOptions() !== null) {
-            foreach ($product->getOptions() as $propertyOption) {
-                if ($propertyOption->getGroup() !== null) {
-                    $nostoProduct->addCustomField($propertyOption->getGroup()->getName(), $propertyOption->getName());
+            foreach ($product->getOptions() as $option) {
+                if ($option->getGroup() !== null) {
+                    $nostoProduct->addCustomField($option->getGroup()->getName(), $option->getName());
+                }
+            }
+            foreach ($product->getProperties() as $property) {
+                if ($property->getGroup() !== null) {
+                    $nostoProduct->addCustomField($property->getGroup()->getName(), $property->getName());
                 }
             }
 

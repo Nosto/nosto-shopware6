@@ -45,8 +45,10 @@ class ProductHelper
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('properties.group');
         $criteria->addAssociation('children.media');
         $criteria->addAssociation('children.options.group');
+        $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('categoriesRo');
         $criteria->addFilter(new EqualsFilter('id', $product->getId()));
