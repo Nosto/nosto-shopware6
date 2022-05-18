@@ -36,8 +36,7 @@
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
                 "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
-                "enablePlpCache": "Enable cache on the PLP",
-                "notLoggedInCache": "Enable cache for the not logged in customers"
+                "notLoggedInCache": "Enable cache"
             },
             "listing": {
                 "rescheduleActionLabel": "Schedule Full Product Sync"

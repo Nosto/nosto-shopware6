@@ -64,7 +64,6 @@ Component.register('nosto-integration-features-flags', {
                     syncInactiveProducts: false,
                     productPublishedDateTagging: false,
                     reloadRecommendations: false,
-                    plpCache: false,
                     notLoggedInCache: false
                 };
 

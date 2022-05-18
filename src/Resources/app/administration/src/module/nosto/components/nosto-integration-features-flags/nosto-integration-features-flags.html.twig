@@ -150,22 +150,6 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
-        {% block nosto_integration_feature_plpCache %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.plpCache']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.plpCache']">
-
-                <template #content="props">
-                    <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enablePlpCache')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
-                    />
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
-
         {% block nosto_integration_feature_notLoggedInCache %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.notLoggedInCache']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.notLoggedInCache']">
