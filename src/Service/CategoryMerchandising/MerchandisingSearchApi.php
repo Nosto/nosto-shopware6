@@ -8,6 +8,7 @@ use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, Inclu
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
+use Od\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -23,19 +24,22 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
     private ResultTranslator $resultTranslator;
     private FilterTranslatorAggregate $filterTranslator;
     private SessionLookupResolver $resolver;
+    private ConfigProvider $configProvider;
 
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         EntityRepositoryInterface $categoryRepository,
         ResultTranslator $resultTranslator,
         FilterTranslatorAggregate $filterTranslator,
-        SessionLookupResolver $resolver
+        SessionLookupResolver $resolver,
+        ConfigProvider $configProvider
     ) {
         $this->repository = $repository;
         $this->categoryRepository = $categoryRepository;
         $this->resultTranslator = $resultTranslator;
         $this->filterTranslator = $filterTranslator;
         $this->resolver = $resolver;
+        $this->configProvider = $configProvider;
     }
 
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
@@ -55,10 +59,11 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
      */
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
+        $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
         $sessionId = $this->resolver->getSessionId();
         $account = $this->resolver->getNostoAccount();
 
-        if (!$account || !$sessionId || $criteria->getLimit() == 0) {
+        if (!$isMerchEnabled || !$account || !$sessionId || $criteria->getLimit() == 0) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
 
