@@ -33,15 +33,19 @@ class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
     public function load(
         string $categoryId,
         Request $request,
-        SalesChannelContext $context,
+        SalesChannelContext $channelContext,
         Criteria $criteria
     ): ProductListingRouteResponse {
-        $account = $this->accountProvider->get($context->getSalesChannelId());
-        $customer = $request->attributes->get('sw-sales-channel-context')->getCustomer();
-        if ($account && $customer && !($this->configProvider->isEnabledPlpCache())) {
-            return $this->decoratedService->getDecorated()->load($categoryId, $request, $context, $criteria);
+        $isLoggedIn = $channelContext->getCustomer() !== null;
+        $isMerchEnabled = $this->configProvider->isMerchEnabled($channelContext->getSalesChannelId());
+        $nostoAccount = $this->accountProvider->get($channelContext->getSalesChannelId());
+
+        if ($nostoAccount && $isMerchEnabled && $isLoggedIn) {
+            /** Bypass the caching */
+            return $this->decoratedService->getDecorated()->load($categoryId, $request, $channelContext, $criteria);
         }
 
-        return $this->decoratedService->load($categoryId, $request, $context, $criteria);
+        /** Allow caching */
+        return $this->decoratedService->load($categoryId, $request, $channelContext, $criteria);
     }
 }

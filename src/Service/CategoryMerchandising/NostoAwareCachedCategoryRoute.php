@@ -22,7 +22,7 @@ class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
         Request $request,
         SalesChannelContext $context
     ): CategoryRouteResponse {
-        if ($this->cacheResolver->isCachingAllowed()) {
+        if (!$this->cacheResolver->isCachingAllowed()) {
             return $this->getDecorated()->load($navigationId, $request, $context);
         }
 

@@ -21,6 +21,19 @@
                 "emailTokenTitle": "Email Token (API_EMAIL)",
                 "appTokenTitle": "GraphQL Token (API_APPS)"
             },
+            "general": {
+                "deferredInit": {
+                    "label": "Initialize Nosto Script After First Page Iteration",
+                    "helpText": "This setting is a web page performance tweak. This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
+                },
+                "merch": {
+                    "label": "Enable Nosto Merchandising."
+                },
+                "notLoggedInCache": {
+                    "label": "Enable PLP Cache for Not Logged In Customers.",
+                    "helpText": "When merchandising feature is enabled, Whole PLP HTTP page cache is being disabled to prevent caching of the personalized PLP products for all customers. You can enable PLP HTTP cache for Not Logged In customers (not-personalized) to prevent storefront performance issues."
+                }
+            },
             "featuresFlags": {
                 "cardTitle": "Features flags",
                 "ratingsOptions": {
@@ -35,9 +48,7 @@
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
-                "enablePlpCache": "Enable cache on the PLP",
-                "notLoggedInCache": "Enable cache for the not logged in customers"
+                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product"
             }
         },
         "listing": {

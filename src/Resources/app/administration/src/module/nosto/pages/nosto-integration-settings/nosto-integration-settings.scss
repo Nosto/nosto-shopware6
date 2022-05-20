@@ -1,5 +1,16 @@
 .nosto-integration-settings {
 
+    .channel-card-container {
+        .sw-card__content {
+            border: none;
+            padding: 0 0!important;
+        }
+
+        .sw-select.sw-single-select {
+            margin-bottom: 0;
+        }
+    }
+
     .sw-sales-channel-config {
         margin-top: 40px;
     }
@@ -8,12 +19,12 @@
 
         &.is-general-settings {
             .sw-card__content {
-                padding-top: 0;
+                padding-top: 20px;
             }
         }
 
         .sw-card__content {
-            padding: 30px 30px 0 30px;
+            padding: 20px 30px 20px 30px;
         }
     }
 
@@ -23,8 +34,5 @@
 
     .sw-field--switch {
         margin: 0;
-        &.is-last-switch {
-            margin-bottom: 20px;
-        }
     }
 }

@@ -160,6 +160,7 @@
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
         </service>
 
         <!-- /Services -->
