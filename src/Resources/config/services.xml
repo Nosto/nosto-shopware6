@@ -109,6 +109,7 @@
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi"/>
@@ -148,8 +149,7 @@
                  class="Od\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
                  decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute">
             <argument type="service" id="nosto.aware_cached_listing.inner"/>
-            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
         </service>
         <service id="nosto.aware_cached_category_route"
                  class="Od\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedCategoryRoute"
@@ -162,7 +162,6 @@
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
         </service>
-
         <!-- /Services -->
 
         <!-- Entity Definitions -->

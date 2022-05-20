@@ -42,9 +42,30 @@ class NostoCacheResolver
      *  4. User is NOT logged in;
      *  5. Not Logged In cache is NOT enabled in plugin config.
      *
+     * @param SalesChannelContext|null $channelContext
      * @return bool
      */
-    public function isCachingAllowed(): bool
+    public function isCachingAllowed(?SalesChannelContext $channelContext = null): bool
+    {
+        if (!$request = $this->requestStack->getCurrentRequest()) {
+            return true;
+        }
+
+        $isCategoryRoute = $request->attributes->get('_route') === 'frontend.navigation.page';
+        $isCachingAllowed = $this->isCachingAllowedNoRoute($channelContext);
+
+        if (!$isCachingAllowed && !$isCategoryRoute) {
+            $isCachingAllowed = true;
+        }
+
+        return $isCachingAllowed;
+    }
+
+    /**
+     * @param SalesChannelContext|null $channelContext
+     * @return bool
+     */
+    public function isCachingAllowedNoRoute(?SalesChannelContext $channelContext = null): bool
     {
         $isCachingAllowed = true;
 
@@ -53,11 +74,11 @@ class NostoCacheResolver
         }
 
         /** @var SalesChannelContext $channelContext */
-        if (!$channelContext = $request->attributes->get('sw-sales-channel-context')) {
+        if (!$channelContext || !$channelContext = $request->attributes->get('sw-sales-channel-context')) {
             return $isCachingAllowed;
         }
 
-        if ($this->getBasicCachingAllowance($request, $channelContext)) {
+        if ($this->getBasicCachingAllowance($channelContext)) {
             $channelId = $channelContext->getSalesChannelId();
             $isLoggedIn = $channelContext->getCustomer() !== null;
             $isEnabledNotLoggedIdCache = $this->configProvider->isEnabledNotLoggedInCache($channelId);
@@ -68,12 +89,11 @@ class NostoCacheResolver
         return $isCachingAllowed;
     }
 
-    private function getBasicCachingAllowance(Request $request, SalesChannelContext $channelContext): bool
+    private function getBasicCachingAllowance(SalesChannelContext $channelContext): bool
     {
-        $isCategoryRoute = $request->attributes->get('_route') === 'frontend.navigation.page';
         $isMerchEnabled = $this->configProvider->isMerchEnabled($channelContext->getSalesChannelId());
         $isNostoAccountExists = $this->accountProvider->get($channelContext->getSalesChannelId()) !== null;
 
-        return $isCategoryRoute && $isMerchEnabled && $isNostoAccountExists;
+        return $isMerchEnabled && $isNostoAccountExists;
     }
 }
