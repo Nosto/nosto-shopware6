@@ -34,19 +34,17 @@
                             {% block nosto_integration_content_card_channel_config_sales_channel %}
                                 <template #select="{ onInput, selectedSalesChannelId }">
                                     {% block nosto_integration_content_card_channel_config_sales_channel_card %}
-                                        <sw-card class="sw-card--grid"
+                                        <sw-card class="sw-card--grid channel-card-container"
                                                  :title="$tc('global.entities.sales_channel', 2)">
-                                            <div class="card-container">
-                                                {% block nosto_integration_content_card_channel_config_sales_channel_card_title %}
-                                                    <sw-single-select v-model="selectedSalesChannelId"
-                                                                      labelProperty="translated.name"
-                                                                      valueProperty="id"
-                                                                      :isLoading="isLoading"
-                                                                      :options="salesChannels"
-                                                                      @change="onInput">
-                                                    </sw-single-select>
-                                                {% endblock %}
-                                            </div>
+                                            {% block nosto_integration_content_card_channel_config_sales_channel_card_title %}
+                                                <sw-single-select v-model="selectedSalesChannelId"
+                                                                  labelProperty="translated.name"
+                                                                  valueProperty="id"
+                                                                  :isLoading="isLoading"
+                                                                  :options="salesChannels"
+                                                                  @change="onInput">
+                                                </sw-single-select>
+                                            {% endblock %}
                                         </sw-card>
                                     {% endblock %}
                                 </template>

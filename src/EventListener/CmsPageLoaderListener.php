@@ -50,7 +50,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         $request = $this->requestStack->getCurrentRequest();
         $sessionId = $this->sessionLookupResolver->getSessionId();
 
-        if ($this->cacheResolver->isCachingAllowed()) {
+        if (!$this->cacheResolver->isCachingAllowed()) {
             $response->headers->addCacheControlDirective('no-store');
             $response->headers->addCacheControlDirective('private');
         }

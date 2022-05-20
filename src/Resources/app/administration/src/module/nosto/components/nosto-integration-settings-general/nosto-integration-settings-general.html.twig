@@ -2,20 +2,59 @@
     <div>
         <sw-card class="sw-card--grid is-general-settings"
                  title="General settings">
+
+            {% block nosto_integration_setting_deferred_init %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.isInitializeNostoAfterInteraction']">
 
                 <template #content="props">
                     <sw-switch-field
-                            label="Initialize Nosto after first page iteration"
+                            :label="$tc('nosto.configuration.general.deferredInit.label')"
                             :map-inheritance="props"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
                             @change="props.updateCurrentValue"
+                            :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
                     />
                 </template>
             </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block nosto_integration_setting_merch %}
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.enableMerch']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.enableMerch']">
+
+                    <template #content="props">
+                        <sw-switch-field
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.general.merch.label')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block nosto_integration_setting_notLoggedInCache %}
+                <sw-inherit-wrapper v-if="actualConfigData['NostoIntegration.settings.enableMerch']"
+                                    v-model="actualConfigData['NostoIntegration.settings.notLoggedInCache']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.notLoggedInCache']">
+
+                    <template #content="props">
+                        <sw-switch-field
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.general.notLoggedInCache.label')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                            :helpText="$tc('nosto.configuration.general.notLoggedInCache.helpText')"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
         </sw-card>
+
         <sw-card class="sw-card--grid"
                  title="Tags assignment">
 

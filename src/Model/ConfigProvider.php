@@ -16,8 +16,8 @@ class ConfigProvider
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
-    public const ENABLE_PLP_CACHE = 'settings.flags.plpCache';
-    public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.flags.notLoggedInCache';
+    public const ENABLE_MERCH = 'settings.enableMerch';
+    public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const ACCOUNT_NAME = 'settings.accounts.accountName';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
@@ -70,9 +70,9 @@ class ConfigProvider
         return $this->systemConfig->getBool($this->path(self::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING), $channelId);
     }
 
-    public function isEnabledPlpCache($channelId = null): bool
+    public function isMerchEnabled($channelId = null): bool
     {
-        return $this->systemConfig->getBool($this->path(self::ENABLE_PLP_CACHE), $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_MERCH), $channelId);
     }
 
     public function isEnabledNotLoggedInCache($channelId = null): bool
