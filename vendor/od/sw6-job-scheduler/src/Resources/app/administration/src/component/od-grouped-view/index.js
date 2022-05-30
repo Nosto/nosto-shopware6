@@ -21,7 +21,11 @@ Component.register('od-grouped-view', {
             required: false,
             default: () => []
         },
-
+        groupCreationDate: {
+            type: Object,
+            required: false,
+            default: () => {}
+        },
         sortType: {
             type: String,
             required: true,
@@ -124,6 +128,13 @@ Component.register('od-grouped-view', {
             this.groupedItems = [];
             this.initGroupedView();
         },
+        groupCreationDate:{
+            handler() {
+                this.groupedItems = [];
+                this.initGroupedView();
+            },
+            deep: true
+        }
     },
 
     methods: {
@@ -138,6 +149,14 @@ Component.register('od-grouped-view', {
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
+            }
+
+            if(this.groupCreationDate.fromDate){
+                criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
+            }
+
+            if(this.groupCreationDate.toDate){
+                criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
             }
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
@@ -168,6 +187,14 @@ Component.register('od-grouped-view', {
                 criteria.addAssociation('messages');
                 criteria.addAssociation('subJobs');
 
+                if(this.groupCreationDate.fromDate){
+                    criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
+                }
+
+                if(this.groupCreationDate.toDate){
+                    criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
+                }
+
                 if (this.jobTypes !== []) {
                     criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
                 }
@@ -181,13 +208,8 @@ Component.register('od-grouped-view', {
                 }
 
                 this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
-                    const groupType = this.sortType === 'status' ? type.title.toUpperCase() : items[0].name;
-                    const groupTitle = this.sortType === 'status'
-                        ? this.$tc('job-listing.page.listing.grid.job-status.' + type.title)
-                        : items[0].name;
                     this.groupedItems.push({
-                        title: groupTitle,
-                        type: groupType,
+                        title: this.sortType === 'status' ? type.title.toUpperCase() : items[0].name,
                         items: items
                     });
                 });
@@ -235,6 +257,11 @@ Component.register('od-grouped-view', {
                     message: "Unable reschedule job.",
                 });
             })
+        },
+
+        showJobInfo(jobId) {
+            this.currentJobID = jobId;
+            this.showJobInfoModal = true
         },
 
         showSubJobs(jobId) {

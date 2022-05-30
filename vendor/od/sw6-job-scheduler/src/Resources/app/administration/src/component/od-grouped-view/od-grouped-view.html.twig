@@ -2,7 +2,7 @@
     <div class="od-grouped-view-container" v-if="groupedItems" :isLoading="isLoading">
         <div class="od-grouped-view-wrapper"
              v-for="group in groupedItems">
-            <sw-collapse :class="`is-${group.type}`">
+            <sw-collapse :class="`is-${group.title}`">
                 <template #header>{{ group.title }} <span class="amount">({{ group.items.total }})</span></template>
                 <template #content>
                     <od-entity-listing
@@ -125,6 +125,20 @@
                 </template>
             </sw-collapse>
         </div>
+        {% block od_entity_listing_job_info_modal %}
+            <sw-modal class="od-job-info-modal" v-if="showJobInfoModal" title="Job info"
+                      @modal-close="showJobInfoModal = false">
+                <od-job-info v-if="currentJobID" :jobId="currentJobID">
+
+                </od-job-info>
+                <template #modal-footer>
+                    <sw-button variant="primary"
+                               @click="showJobInfoModal = false">
+                        Close
+                    </sw-button>
+                </template>
+            </sw-modal>
+        {% endblock %}
 
         {% block od_entity_listing_job_subs_modal %}
             <sw-modal class="od-job-sub-jobs-modal" v-if="showJobSubsModal" title="Sub jobs"
@@ -145,34 +159,49 @@
             <sw-modal class="od-job-messages-modal" v-if="showMessagesModal" title="Job messages"
                       @modal-close="showMessagesModal = false">
                 {% block job_messages_listing %}
-                    <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
-                        <div class="messages-content" v-for="item in currentJobMessages">
-                            <sw-alert class="od-alert"
-                                      v-if="item.type == 'info-message'"
-                                      variant="info"
-                                      appearance="default"
-                                      :showIcon="true"
-                                      :closable="false">
-                                {{ item.message }}
-                            </sw-alert>
-                            <sw-alert class="od-alert"
-                                      v-if="item.type == 'error-message'"
-                                      variant="error"
-                                      appearance="default"
-                                      :showIcon="true"
-                                      :closable="false">
-                                {{ item.message }}
-                            </sw-alert>
-                            <sw-alert class="od-alert"
-                                      v-if="item.type == 'warning-message'"
-                                      variant="warning"
-                                      appearance="default"
-                                      :showIcon="true"
-                                      :closable="false">
-                                {{ item.message }}
-                            </sw-alert>
-                        </div>
-                    </div>
+                    <sw-data-grid
+                            v-if="currentJobMessages"
+                            :items="currentJobMessages"
+                            :data-source="currentJobMessages"
+                            :showSelection="false"
+                            :allowColumnEdit="false"
+                            :allowDelete="false"
+                            :allowEdit="false"
+                            :showActions="false"
+                            :showHeader="false"
+                            class="od-job-messages-grid"
+                            :columns="jobMessagesColumns">
+                        <template #column-message="{ item }">
+                            {% block job_list_grid_job_messages %}
+                                <div class="job_list_grid_job_messages-information" style="width:100%;">
+                                    <sw-alert
+                                            v-if="item.type == 'info-message'"
+                                            variant="info"
+                                            appearance="default"
+                                            :showIcon="true"
+                                            :closable="false">
+                                        {{ item.message }}
+                                    </sw-alert>
+                                    <sw-alert
+                                            v-if="item.type == 'error-message'"
+                                            variant="error"
+                                            appearance="default"
+                                            :showIcon="true"
+                                            :closable="false">
+                                        {{ item.message }}
+                                    </sw-alert>
+                                    <sw-alert
+                                            v-if="item.type == 'warning-message'"
+                                            variant="warning"
+                                            appearance="default"
+                                            :showIcon="true"
+                                            :closable="false">
+                                        {{ item.message }}
+                                    </sw-alert>
+                                </div>
+                            {% endblock %}
+                        </template>
+                    </sw-data-grid>
                 {% endblock %}
                 <template #modal-footer>
                     <sw-button variant="primary"

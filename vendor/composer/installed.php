@@ -11,12 +11,12 @@
     ),
     'versions' => array(
         'nosto/php-sdk' => array(
-            'pretty_version' => '5.8.1',
-            'version' => '5.8.1.0',
+            'pretty_version' => '5.8.2',
+            'version' => '5.8.2.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nosto/php-sdk',
             'aliases' => array(),
-            'reference' => '7312c672c892b3d40474b42f01e654f4246b4118',
+            'reference' => '0acb3150e10fa5880e9268c3a677037617a88463',
             'dev_requirement' => false,
         ),
         'od/nosto-integration' => array(
@@ -34,7 +34,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => '70e9c41b9770982b93abe04fab7e5d6655159b39',
+            'reference' => '19152aea45ca2a2b44fd9b9b0336d3df409cd1c5',
             'dev_requirement' => false,
         ),
         'paragonie/constant_time_encoding' => array(

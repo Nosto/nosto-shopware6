@@ -21,11 +21,6 @@
         }
     }
 
-    /* Job Listing */
-    .sw-data-grid {
-        height: calc(100% - 133px) !important;
-    }
-
     /* Sub jobs columns */
     .sw-data-grid__cell--messages,
     .sw-data-grid__cell--subJobs {
@@ -101,6 +96,10 @@
     .sw-block-field {
         max-width: 150px;
         margin-bottom: 0;
+        &.sw-field--datepicker{
+            max-width: unset;
+            width: 220px;
+        }
     }
 
     .action-item {

@@ -2,25 +2,25 @@
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "5.8.1",
-            "version_normalized": "5.8.1.0",
+            "version": "5.8.2",
+            "version_normalized": "5.8.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "7312c672c892b3d40474b42f01e654f4246b4118"
+                "reference": "0acb3150e10fa5880e9268c3a677037617a88463"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/7312c672c892b3d40474b42f01e654f4246b4118",
-                "reference": "7312c672c892b3d40474b42f01e654f4246b4118",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/0acb3150e10fa5880e9268c3a677037617a88463",
+                "reference": "0acb3150e10fa5880e9268c3a677037617a88463",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "php": ">=5.5",
-                "phpseclib/phpseclib": "~3.0.9",
-                "vlucas/phpdotenv": "^3.6"
+                "phpseclib/phpseclib": "2.0.* || ~3.0.9",
+                "vlucas/phpdotenv": "^2.4 || ^3.6"
             },
             "require-dev": {
                 "codeception/c3": "^2.6",
@@ -37,7 +37,7 @@
                 "symfony/console": "3.*",
                 "wimg/php-compatibility": "^9.0"
             },
-            "time": "2022-05-02T14:48:49+00:00",
+            "time": "2022-05-19T06:59:11+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -55,7 +55,7 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/5.8.1"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/5.8.2"
             },
             "install-path": "../nosto/php-sdk"
         },
@@ -65,8 +65,8 @@
             "version_normalized": "1.0.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/shopware-job-scheduler",
-                "reference": "70e9c41b9770982b93abe04fab7e5d6655159b39"
+                "url": "dependencies/shopware-job-scheduler",
+                "reference": "19152aea45ca2a2b44fd9b9b0336d3df409cd1c5"
             },
             "require": {
                 "php": "^7.4 || ^8.0"

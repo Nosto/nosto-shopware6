@@ -1,4 +1,5 @@
 import template from './nosto-job-listing.html.twig';
+import './nosto-job-listing.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -121,8 +122,17 @@ Component.register('nosto-job-listing', {
         },
 
         onDisplayModeChange(mode) {
+            let innerBox = this.$el;
+            innerBox.classList.remove('no-filter');
+
             if (mode !== 'list') {
-                this.$refs.odFilter.resetAll()
+                innerBox.classList.add('no-filter');
+                this.$refs.odSidebar.closeSidebar();
+
+                if (this.$refs.odFilter.$el.length !== 0){
+                    this.$refs.odFilter.resetAll();
+                }
+
                 return this.hideFilters = true
             }
 
@@ -147,8 +157,6 @@ Component.register('nosto-job-listing', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.addAssociation('messages');
-            criteria.addAssociation('subJobs');
             criteria.addFilter(Criteria.equalsAny('type', this.nostoJobTypes));
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then((items) => {
