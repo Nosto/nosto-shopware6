@@ -34,7 +34,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => '19152aea45ca2a2b44fd9b9b0336d3df409cd1c5',
+            'reference' => '1efc5de0d2409025387a3a68dc5c93ff76731e1b',
             'dev_requirement' => false,
         ),
         'paragonie/constant_time_encoding' => array(

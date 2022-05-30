@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "dependencies/shopware-job-scheduler",
-                "reference": "19152aea45ca2a2b44fd9b9b0336d3df409cd1c5"
+                "reference": "1efc5de0d2409025387a3a68dc5c93ff76731e1b"
             },
             "require": {
                 "php": "^7.4 || ^8.0"
