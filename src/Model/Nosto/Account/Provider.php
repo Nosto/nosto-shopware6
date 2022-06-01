@@ -49,6 +49,10 @@ class Provider
 
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
+            if (!$this->configProvider->isAccountEnabled($channel->getId())) {
+                continue;
+            }
+
             $accountName = $this->configProvider->getAccountName($channel->getId());
             $keyChain = new KeyChain([
                 new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),
@@ -56,6 +60,10 @@ class Provider
                 new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId()))
             ]);
             $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $accountName, $keyChain);
+        }
+
+        if (empty($this->accounts)) {
+            $this->accounts = [];
         }
 
         return $this->accounts;

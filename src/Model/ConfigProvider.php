@@ -18,6 +18,7 @@ class ConfigProvider
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
+    public const ACCOUNT_ENABLED = 'settings.accounts.isEnabled';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const ACCOUNT_NAME = 'settings.accounts.accountName';
     public const PRODUCT_TOKEN = 'settings.accounts.productToken';
@@ -78,6 +79,11 @@ class ConfigProvider
     public function isEnabledNotLoggedInCache($channelId = null): bool
     {
         return $this->systemConfig->getBool($this->path(self::ENABLE_NOT_LOGGED_IN_CACHE), $channelId);
+    }
+
+    public function isAccountEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ACCOUNT_ENABLED), $channelId);
     }
 
     public function getAccountId($channelId = null): string

@@ -74,7 +74,8 @@ class NostoCacheResolver
         }
 
         /** @var SalesChannelContext $channelContext */
-        if (!$channelContext || !$channelContext = $request->attributes->get('sw-sales-channel-context')) {
+        $channelContext = $channelContext ?? $request->attributes->get('sw-sales-channel-context');
+        if (!$channelContext) {
             return $isCachingAllowed;
         }
 

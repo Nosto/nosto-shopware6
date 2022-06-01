@@ -61,7 +61,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
     {
         $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
         $sessionId = $this->resolver->getSessionId();
-        $account = $this->resolver->getNostoAccount();
+        $account = $this->resolver->getNostoAccount($salesChannelContext->getSalesChannelId());
 
         if (!$isMerchEnabled || !$account || !$sessionId || $criteria->getLimit() == 0) {
             return $this->repository->searchIds($criteria, $salesChannelContext);

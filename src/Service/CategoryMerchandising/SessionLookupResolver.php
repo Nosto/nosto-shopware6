@@ -39,10 +39,11 @@ class SessionLookupResolver
         return $customerId;
     }
 
-    public function getNostoAccount(): ?Account
+    public function getNostoAccount(?string $channelId = null): ?Account
     {
         $request = $this->requestStack->getCurrentRequest();
+        $channelId = $request->attributes->get('sw-sales-channel-id', '');
 
-        return $this->accountProvider->get($request->attributes->get('sw-sales-channel-id'));
+        return $this->accountProvider->get($channelId);
     }
 }

@@ -1,5 +1,19 @@
 {% block nosto_integration_account_component_general %}
-    <sw-card title="Account settings">
+    <sw-card title="Account settings" class="od-nosto-account-card">
+        {% block nosto_integration_account_enabled %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.isEnabled']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.isEnabled']">
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.account.enabledTitle')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
         {% block nosto_integration_account_id %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.accountID']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.accountID']"
