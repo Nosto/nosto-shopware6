@@ -4,6 +4,8 @@ namespace Od\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
@@ -12,10 +14,14 @@ use Twig\TwigFunction;
 class NostoExtension extends AbstractExtension
 {
     private ProductProviderInterface $productProvider;
+    private LoggerInterface $logger;
 
-    public function __construct(ProductProviderInterface $productProvider)
-    {
+    public function __construct(
+        ProductProviderInterface $productProvider,
+        LoggerInterface $logger
+    ) {
         $this->productProvider = $productProvider;
+        $this->logger = $logger;
     }
 
     /**
@@ -34,7 +40,11 @@ class NostoExtension extends AbstractExtension
     {
         try {
             return $this->productProvider->get($product, $context);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
+            $this->logger->error(
+                $throwable->getMessage(),
+                ContextHelper::createContextFromException($throwable)
+            );
             return null;
         }
     }

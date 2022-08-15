@@ -110,6 +110,7 @@
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="logger"/>
         </service>
         <service id="nosto.product_listing_loader" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi"/>
@@ -188,6 +189,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
+            <argument type="service" id="logger"/>
         </service>
         <!-- /Event Listeners -->
 
@@ -198,6 +200,7 @@
         </service>
         <service id="Od\NostoIntegration\Twig\Extension\NostoExtension" public="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument type="service" id="logger"/>
             <tag name="twig.extension"/>
         </service>
         <!-- /Extensions -->
