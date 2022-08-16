@@ -12,15 +12,22 @@
                 "tag2title": "Tag 2",
                 "tag3title": "Tag 3",
                 "gtinTitle": "GTIN",
-                "googleCategoryTitle": "Google category"
+                "googleCategoryTitle": "Google category",
+                "googleCategoryHelpText": "Google Category field.Selected field should be sent as google category."
             },
             "account": {
                 "enabledTitle": "Enable Account",
+                "enabledHelpText": "Account enabled indicator for merchandising/product sync",
                 "nameTitle": "Account Name",
+                "nameHelpText": "The name of Nosto account. You are able to find it on top-right corner on your Nosto dashboard.",
                 "idTitle": "Account ID",
+                "idHelpText": "The unique Nosto account identifier. You are able to find it on top-right corner on your Nosto dashboard.",
                 "productTokenTitle": "Product Token (API_PRODUCTS)",
+                "productTokenHelpText": "A token for accessing the Products API. You can request an API token (API_PRODUCTS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "emailTokenTitle": "Email Token (API_EMAIL)",
-                "appTokenTitle": "GraphQL Token (API_APPS)"
+                "emailTokenHelpText": "A token for managing customers using the Blacklist and GDPR APIs. You can request an API token (API_EMAIL) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
+                "appTokenTitle": "GraphQL Token (API_APPS)",
+                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin."
             },
             "general": {
                 "deferredInit": {
@@ -28,7 +35,8 @@
                     "helpText": "This setting is a web page performance tweak. This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
                 "merch": {
-                    "label": "Enable Nosto Merchandising."
+                    "label": "Enable Nosto Merchandising.",
+                    "helpText": "By enabling this setting, Nosto Merchandising feature will be activated. Please make sure you have setup all necessary product merchandising rules before enabling this feature."
                 },
                 "notLoggedInCache": {
                     "label": "Enable PLP Cache for Not Logged In Customers.",
@@ -42,14 +50,23 @@
                     "noRatings": "No ratings"
                 },
                 "enableVariations": "Enable variations",
+                "enableVariationsHelpText": "The checkbox enables variations tagging.",
                 "enableProductProperties": "Enable product properties",
+                "enableProductPropertiesHelpText": "The checkbox enables product properties tagging.",
                 "enableAlternateImages": "Enable Alternate Images",
+                "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
                 "enableRatingsReviews": "Enable Ratings & Reviews",
+                "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
                 "enableInventory": "Enable Inventory Levels",
+                "enableInventoryHelpText": "The selection enables inventory levels tagging.",
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
+                "enableCustomerDataToNostoHelpText": "If the checkbox is checked, customer data is tagged during the order.",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
+                "enableSyncInactiveProductsHelpText": "If the checkbox is checked, inactive products will be synchronized as well.",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product"
+                "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
+                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
+                "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product"
             }
         },
         "listing": {
@@ -59,6 +76,28 @@
             "success-message": "Successfully saved!",
             "error-message": "Something went wrong, please check your configuration settings.",
             "blank-field-error": "This field cannot be left blank!"
+        },
+        "job": {
+            "navigation": {
+                "label": "Nosto Job Listing"
+            },
+            "notification": {
+                "success": "Job has been scheduled successfully!",
+                "unknownError": "Unknown error."
+            },
+            "date-filter": {
+                "label": "Job Created At",
+                "from": "From",
+                "to": "To"
+            },
+            "type-filter": {
+                "label": "Job Type",
+                "placeholder": "Select type..."
+            },
+            "status-filter": {
+                "label": "Job Status",
+                "placeholder": "Select status..."
+            }
         }
     }
 }

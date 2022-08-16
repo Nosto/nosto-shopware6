@@ -69,8 +69,8 @@ Component.register('nosto-job-listing', {
                 'job-status-filter': {
                     property: 'status',
                     type: 'multi-select-filter',
-                    label: 'Job Status',
-                    placeholder: 'Select status...',
+                    label: this.$tc('nosto.job.status-filter.label'),
+                    placeholder: this.$tc('nosto.job.status-filter.placeholder'),
                     valueProperty: 'value',
                     labelProperty: 'name',
                     options: this.statusFilterOptions
@@ -78,18 +78,18 @@ Component.register('nosto-job-listing', {
                 'job-type-filter': {
                     property: 'name',
                     type: 'multi-select-filter',
-                    label: 'Job Type',
-                    placeholder: 'Select type...',
+                    label: this.$tc('nosto.job.type-filter.label'),
+                    placeholder: this.$tc('nosto.job.type-filter.placeholder'),
                     valueProperty: 'value',
                     labelProperty: 'name',
                     options: this.typeFilterOptions
                 },
                 'job-date-filter': {
                     property: 'createdAt',
-                    label: 'Job Created At',
+                    label: this.$tc('nosto.job.date-filter.label'),
                     dateType: 'datetime-local',
-                    fromFieldLabel: 'From',
-                    toFieldLabel: 'To',
+                    fromFieldLabel: this.$tc('nosto.job.date-filter.from'),
+                    toFieldLabel: this.$tc('nosto.job.date-filter.to'),
                     showTimeframe: true,
                 },
             });
@@ -109,12 +109,12 @@ Component.register('nosto-job-listing', {
             this.isLoading = true;
             this.OdNostoProviderService.scheduleFullProductSync().then(() => {
                 this.createNotificationSuccess({
-                    message: 'Job has been scheduled successfully!'
+                    message: this.$tc('nosto.job.notification.success')
                 });
                 this.onRefresh();
             }).catch((exception) => {
                 this.createNotificationError({
-                    message: exception?.response?.data?.errors[0]?.detail ?? 'Unknown error.'
+                    message: exception?.response?.data?.errors[0]?.detail ?? this.$tc('nosto.job.notification.unknownError')
                 });
             }).finally(() => {
                 this.isLoading = false;
