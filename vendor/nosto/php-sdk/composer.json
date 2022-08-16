@@ -1,0 +1,55 @@
+{
+  "name": "nosto/php-sdk",
+  "version": "5.8.2",
+  "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
+  "license": "BSD-3-Clause",
+  "require-dev": {
+    "codeception/specify": "^0.4.6",
+    "phpmd/phpmd": "^2.6",
+    "squizlabs/php_codesniffer": "^2.6",
+    "sebastian/phpcpd": "^3.0",
+    "phing/phing": "2.*",
+    "codeception/c3": "^2.6",
+    "symfony/console": "3.*",
+    "wimg/php-compatibility": "^9.0",
+    "codeception/codeception": "4.1.*",
+    "codeception/module-asserts": "1.3.*",
+    "phan/phan": "2.6",
+    "staabm/annotate-pull-request-from-checkstyle": "^1.1",
+    "mridang/pmd-annotations": "^0.0.2"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/magento/marketplace-eqp"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Nosto\\": "src"
+    },
+    "files": [
+      "src/bootstrap.php"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/"
+    ]
+  },
+  "require": {
+    "php": ">=5.5",
+    "phpseclib/phpseclib": "2.0.* || ~3.0.9",
+    "vlucas/phpdotenv": "^2.4 || ^3.6",
+    "ext-json": "*",
+    "ext-curl": "*"
+  },
+  "scripts": {
+    "post-install-cmd": "if [ -f ./vendor/bin/phpcs ]; then \"vendor/bin/phpcs\" --config-set installed_paths vendor/wimg/php-compatibility; fi",
+    "post-update-cmd" : "if [ -f ./vendor/bin/phpcs ]; then \"vendor/bin/phpcs\" --config-set installed_paths vendor/wimg/php-compatibility; fi",
+    "ci:inspect": "./inspect.sh"
+  },
+  "config": {
+    "process-timeout": 3600
+  }
+}

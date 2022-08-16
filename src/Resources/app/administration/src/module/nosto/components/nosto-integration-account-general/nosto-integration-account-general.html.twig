@@ -1,0 +1,109 @@
+{% block nosto_integration_account_component_general %}
+    <sw-card title="Account settings" class="od-nosto-account-card">
+        {% block nosto_integration_account_enabled %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.isEnabled']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.isEnabled']">
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.account.enabledTitle')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+        {% block nosto_integration_account_id %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.accountID']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.accountID']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.idTitle')"
+                            type="text"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="errorStates.accountID ?? null"
+                            @change="validateRequiredField('accountID', props)"
+                            required
+                            name="NostoIntegration.settings.accounts.accountID"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+        {% block nosto_integration_account_name %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.accountName']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.accountName']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                        :label="$tc('nosto.configuration.account.nameTitle')"
+                        type="text"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        :error="errorStates.accountName ?? null"
+                        @change="validateRequiredField('accountName', props)"
+                        required
+                        name="NostoIntegration.settings.accounts.accountName"
+                        @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+        {% block nosto_integration_account_token %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.productToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.productToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.productTokenTitle')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="errorStates.productToken ?? null"
+                            required
+                            @change="validateRequiredField('productToken', props)"
+                            name="NostoIntegration.settings.accounts.productToken"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.emailToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.emailToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.emailTokenTitle')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="errorStates.emailToken ?? null"
+                            @change="validateRequiredField('emailToken', props)"
+                            required
+                            name="NostoIntegration.settings.accounts.emailToken"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.appToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.appToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.appTokenTitle')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="errorStates.appToken ?? null"
+                            required
+                            @change="validateRequiredField('appToken', props)"
+                            name="NostoIntegration.settings.accounts.appToken"
+                            @input="props.updateCurrentValue"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

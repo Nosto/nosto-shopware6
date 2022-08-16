@@ -1,0 +1,44 @@
+.nosto-integration-settings {
+
+    .channel-card-container {
+        .sw-card__content {
+            border: none;
+            padding: 0 0!important;
+        }
+
+        .sw-select.sw-single-select {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-sales-channel-config {
+        margin-top: 40px;
+    }
+
+    .od-nosto-account-card {
+        .sw-field--switch {
+            margin-bottom: 22px;
+        }
+    }
+
+    .sw-card.sw-card--grid  {
+
+        &.is-general-settings {
+            .sw-card__content {
+                padding-top: 20px;
+            }
+        }
+
+        .sw-card__content {
+            padding: 20px 30px 20px 30px;
+        }
+    }
+
+    .sw-card__content {
+        padding-bottom: 0;
+    }
+
+    .sw-field--switch {
+        margin: 0;
+    }
+}

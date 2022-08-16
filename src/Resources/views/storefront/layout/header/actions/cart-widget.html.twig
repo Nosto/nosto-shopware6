@@ -1,0 +1,18 @@
+{% sw_extends '@Storefront/storefront/layout/header/actions/cart-widget.html.twig' %}
+
+{# Adding Nosto cart tagging, customer tagging #}
+{% block layout_header_actions_cart_widget %}
+
+    {{ parent() }}
+
+    {# Nosto cart tagging #}
+    {% block layout_header_actions_cart_widget_cart_tagging %}
+        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/widget-cart-tagging.html.twig' %}
+    {% endblock %}
+
+    {# Nosto customer tagging #}
+    {% block layout_header_actions_cart_widget_customer_tagging %}
+        {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/widget-customer-tagging.html.twig' %}
+    {% endblock %}
+
+{% endblock %}

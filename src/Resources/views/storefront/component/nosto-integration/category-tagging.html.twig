@@ -1,0 +1,10 @@
+{% block od_nosto_integration_category_tagging %}
+
+    {% set category = page.header.navigation.active %}
+
+    {% if category %}
+        <div class="nosto_category"
+             style="display:none">{% for item in sw_breadcrumb_full(category, context.context) %}{% if loop.first %}/{% endif %}{{ item.translated.name }}{% if loop.last is not true %}/{% endif %}{% endfor %}</div>
+    {% endif %}
+
+{% endblock %}
