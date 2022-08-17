@@ -25,6 +25,7 @@ class ConfigProvider
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
     public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
+    public const SELECTED_CUSTOM_FIELDS = 'settings.selectedCustomFields';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -114,5 +115,11 @@ class ConfigProvider
     public function getTagFieldKey(int $tagNumber, $channelId = null): string
     {
         return $this->systemConfig->getString($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+    }
+
+    public function getSelectedCustomFields($channelId = null): array
+    {
+        $value = $this->systemConfig->get($this->path(self::SELECTED_CUSTOM_FIELDS), $channelId);
+        return is_array($value) ? $value : [];
     }
 }
