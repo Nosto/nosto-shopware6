@@ -90,23 +90,26 @@ class Builder
                 }
             }
 
-            $tag1Key = $this->configProvider->getTagFieldKey(1, $channelId) ?: null;
-            $tag2Key = $this->configProvider->getTagFieldKey(2, $channelId) ?: null;
-            $tag3Key = $this->configProvider->getTagFieldKey(3, $channelId) ?: null;
+            $tag1Keys = $this->configProvider->getTagFieldKey(1, $channelId);
+            $tag2Keys = $this->configProvider->getTagFieldKey(2, $channelId);
+            $tag3Keys = $this->configProvider->getTagFieldKey(3, $channelId);
+
+            $tag1Values = $tag2Values = $tag3Values = [];
 
             foreach ($product->getCustomFields() as $fieldName => $fieldValue) {
-                switch ($fieldName) {
-                    case $tag1Key:
-                        $nostoProduct->setTag1($fieldValue);
-                        break;
-                    case $tag2Key:
-                        $nostoProduct->setTag2($fieldValue);
-                        break;
-                    case $tag3Key:
-                        $nostoProduct->setTag3($fieldValue);
-                        break;
+                if (in_array($fieldName, $tag1Keys)) {
+                    $tag1Values[] = $fieldValue;
+                }
+                if (in_array($fieldName, $tag2Keys)) {
+                    $tag2Values[] = $fieldValue;
+                }
+                if (in_array($fieldName, $tag3Keys)) {
+                    $tag3Values[] = $fieldValue;
                 }
             }
+            $nostoProduct->setTag1($tag1Values);
+            $nostoProduct->setTag2($tag2Values);
+            $nostoProduct->setTag3($tag3Values);
         }
 
         if ($product->getCover()) {

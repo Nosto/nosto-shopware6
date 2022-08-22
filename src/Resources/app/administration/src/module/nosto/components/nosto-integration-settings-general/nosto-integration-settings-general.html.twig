@@ -64,18 +64,15 @@
                                     :label="$tc('nosto.configuration.tagAssignment.tag1title')">
 
                     <template #content="props">
-
-                        <sw-single-select name="NostoIntegration.settings.tag1"
-                                          labelProperty="name"
-                                          valueProperty="id"
-                                          :options="productCustomFields"
-                                          :isInherited="props.isInherited"
-                                          :disabled="props.isInherited"
-                                          show-clearable-button
-                                          @clear="clearTagValue('tag1')"
-                                          :value="props.currentValue"
-                                          @change="props.updateCurrentValue">
-                        </sw-single-select>
+                        <sw-multi-select name="NostoIntegration.settings.tag1"
+                                         labelProperty="name"
+                                         valueProperty="id"
+                                         :options="productCustomFields"
+                                         :isInherited="props.isInherited"
+                                         :disabled="props.isInherited"
+                                         :value="props.currentValue"
+                                         @change="props.updateCurrentValue">
+                        </sw-multi-select>
                     </template>
                 </sw-inherit-wrapper>
             {% endblock %}
@@ -86,18 +83,15 @@
                                     :label="$tc('nosto.configuration.tagAssignment.tag2title')">
 
                     <template #content="props">
-
-                        <sw-single-select name="NostoIntegration.settings.tag2"
-                                          labelProperty="name"
-                                          valueProperty="id"
-                                          :options="productCustomFields"
-                                          :isInherited="props.isInherited"
-                                          :disabled="props.isInherited"
-                                          show-clearable-button
-                                          @clear="clearTagValue('tag2')"
-                                          :value="props.currentValue"
-                                          @change="props.updateCurrentValue">
-                        </sw-single-select>
+                        <sw-multi-select name="NostoIntegration.settings.tag2"
+                                         labelProperty="name"
+                                         valueProperty="id"
+                                         :options="productCustomFields"
+                                         :isInherited="props.isInherited"
+                                         :disabled="props.isInherited"
+                                         :value="props.currentValue"
+                                         @change="props.updateCurrentValue">
+                        </sw-multi-select>
                     </template>
                 </sw-inherit-wrapper>
             {% endblock %}
@@ -108,18 +102,15 @@
                                     :label="$tc('nosto.configuration.tagAssignment.tag3title')">
 
                     <template #content="props">
-
-                        <sw-single-select name="NostoIntegration.settings.tag3"
-                                          labelProperty="name"
-                                          valueProperty="id"
-                                          :options="productCustomFields"
-                                          :isInherited="props.isInherited"
-                                          :disabled="props.isInherited"
-                                          @clear="clearTagValue('tag3')"
-                                          show-clearable-button
-                                          :value="props.currentValue"
-                                          @change="props.updateCurrentValue">
-                        </sw-single-select>
+                        <sw-multi-select name="NostoIntegration.settings.tag3"
+                                         labelProperty="name"
+                                         valueProperty="id"
+                                         :options="productCustomFields"
+                                         :isInherited="props.isInherited"
+                                         :disabled="props.isInherited"
+                                         :value="props.currentValue"
+                                         @change="props.updateCurrentValue">
+                        </sw-multi-select>
                     </template>
                 </sw-inherit-wrapper>
             {% endblock %}

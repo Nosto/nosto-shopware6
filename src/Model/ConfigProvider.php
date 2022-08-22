@@ -111,8 +111,14 @@ class ConfigProvider
         return $this->systemConfig->getString($this->path(self::GRAPHQL_TOKEN), $channelId);
     }
 
-    public function getTagFieldKey(int $tagNumber, $channelId = null): string
+    public function getTagFieldKey(int $tagNumber, $channelId = null): array
     {
-        return $this->systemConfig->getString($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+        $config = $this->systemConfig->get($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+        if (is_string($config) && !empty($config)) {
+            return [$config];
+        } elseif (is_array($config)) {
+            return $config;
+        }
+        return [];
     }
 }
