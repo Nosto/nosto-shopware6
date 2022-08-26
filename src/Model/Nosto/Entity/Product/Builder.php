@@ -7,41 +7,46 @@ use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder
+class Builder implements BuilderInterface
 {
     private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
     private ConfigProvider $configProvider;
     private ProductHelper $productHelper;
-    private SkuBuilder $skuBuilder;
-    private TreeBuilder $treeBuilder;
+    private SkuBuilderInterface $skuBuilder;
+    private TreeBuilderInterface $treeBuilder;
+    private EventDispatcherInterface $eventDispatcher;
+
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         ConfigProvider $configProvider,
         ProductHelper $productHelper,
-        SkuBuilder $skuBuilder,
-        TreeBuilder $treeBuilder
+        SkuBuilderInterface $skuBuilder,
+        TreeBuilderInterface $treeBuilder,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
         $this->productHelper = $productHelper;
         $this->skuBuilder = $skuBuilder;
         $this->treeBuilder = $treeBuilder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
         if ($product->getCategoriesRo() === null) {
-            $product = $this->productHelper->reloadProduct($product, $context);
+            $product = $this->productHelper->reloadProduct($product->getId(), $context);
         }
 
         $channelId = $context->getSalesChannelId();
@@ -146,6 +151,8 @@ class Builder
         if ($ean = $product->getEan()) {
             $nostoProduct->setGtin($ean);
         }
+
+        $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
     }

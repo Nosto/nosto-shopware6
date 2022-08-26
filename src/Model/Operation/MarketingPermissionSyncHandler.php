@@ -6,25 +6,30 @@ use Nosto\Operation\MarketingPermission;
 use Nosto\Types\Signup\AccountInterface;
 use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Od\NostoIntegration\Model\Nosto\Account;
+use Od\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepositoryInterface};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-marketing-permission-sync';
     private EntityRepositoryInterface $newsletterRecipientRepository;
     private Account\Provider $accountProvider;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
-        Account\Provider $accountProvider
+        Account\Provider $accountProvider,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->accountProvider = $accountProvider;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -63,6 +68,12 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
                 ]
             );
             try {
+                $this->eventDispatcher->dispatch(
+                    new BeforeMarketingOperationEvent(
+                        $operation,
+                        ['email' => $subscriber->getEmail(), 'isSubscribed' => $isSubscribed], $context
+                    )
+                );
                 $operation->update($subscriber->getEmail(), $isSubscribed);
             } catch (\Throwable $e) {
                 $result->addError($e);
