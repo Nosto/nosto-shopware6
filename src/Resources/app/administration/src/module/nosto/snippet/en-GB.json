@@ -49,7 +49,11 @@
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product"
+                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
+                "enableDailySynchronization": "Enable Daily Product Synchronization",
+                "enableDailySynchronizationHelp": "If the field is enabled products will be synchronized at the mentioned time each day",
+                "timeDailySynchronization": "Time for Daily Product Synchronization",
+                "timeDailySynchronizationHelp": "The option specifies at which time to sync daily product synchronization"
             }
         },
         "listing": {

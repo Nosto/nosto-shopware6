@@ -16,6 +16,8 @@ class ConfigProvider
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
+    public const DAILY_PRODUCT_SYNC_ENABLED = 'settings.flags.dailySynchronization';
+    public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
     public const ACCOUNT_ENABLED = 'settings.accounts.isEnabled';
@@ -81,6 +83,11 @@ class ConfigProvider
         return $this->systemConfig->getBool($this->path(self::ENABLE_NOT_LOGGED_IN_CACHE), $channelId);
     }
 
+    public function isDailyProductSyncEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::DAILY_PRODUCT_SYNC_ENABLED), $channelId);
+    }
+
     public function isAccountEnabled($channelId = null): bool
     {
         return $this->systemConfig->getBool($this->path(self::ACCOUNT_ENABLED), $channelId);
@@ -114,5 +121,10 @@ class ConfigProvider
     public function getTagFieldKey(int $tagNumber, $channelId = null): string
     {
         return $this->systemConfig->getString($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+    }
+
+    public function getDailyProductSyncTime($channelId = null): ?string
+    {
+        return $this->systemConfig->get($this->path(self::DAILY_PRODUCT_SYNC_TIME), $channelId);
     }
 }

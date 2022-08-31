@@ -18,6 +18,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="od.job_handler" code="od-nosto-order-sync"/>
@@ -42,6 +43,14 @@
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>
+        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <tag name="messenger.message_handler"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Od\NostoIntegration\Api\Controller\OdNostoController"/>
+            <argument type="service" id="cache.object"/>
+        </service>
         <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
             <tag name="od.job_handler" code="od-nosto-marketing-permission-sync"/>
             <argument type="service" id="newsletter_recipient.repository"/>
@@ -59,7 +68,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="product_review.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
@@ -68,6 +77,8 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
@@ -81,6 +92,9 @@
             <tag name="shopware.scheduled.task"/>
         </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTask">
             <tag name="shopware.scheduled.task"/>
         </service>
         <service id="Od\NostoIntegration\Async\EventsWriter" lazy="true">

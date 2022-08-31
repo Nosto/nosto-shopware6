@@ -149,5 +149,39 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_daily_synchronization_flag %}
+            <sw-inherit-wrapper v-if="selectedSalesChannelId === null" v-model="actualConfigData['NostoIntegration.settings.flags.dailySynchronization']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.dailySynchronization']">
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableDailySynchronization')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableDailySynchronizationHelp')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_daily_synchronization_time %}
+            <sw-inherit-wrapper v-if="selectedSalesChannelId === null" v-model="actualConfigData['NostoIntegration.settings.flags.dailySynchronizationTime']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.dailySynchronizationTime']">
+                <template #content="props">
+                    <sw-datepicker
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        date-type="time"
+                        :label="$tc('nosto.configuration.featuresFlags.timeDailySynchronization')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.timeDailySynchronizationHelp')"
+                        @input="props.updateCurrentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}

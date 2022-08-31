@@ -9,9 +9,12 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Od\Scheduler\Model\Job;
+use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,19 +32,22 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private ProductProviderInterface $productProvider;
     private Account\Provider $accountProvider;
     private ConfigProvider $configProvider;
+    private AbstractRuleLoader $ruleLoader;
 
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
         AbstractSalesChannelContextFactory $channelContextFactory,
         ProductProviderInterface $productProvider,
         Account\Provider $accountProvider,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
+        AbstractRuleLoader $ruleLoader
     ) {
         $this->productRepository = $productRepository;
         $this->channelContextFactory = $channelContextFactory;
         $this->productProvider = $productProvider;
         $this->accountProvider = $accountProvider;
         $this->configProvider = $configProvider;
+        $this->ruleLoader = $ruleLoader;
     }
 
     /**
@@ -59,6 +65,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $account->getChannelId(),
                 [SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId()]
             );
+            $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
             foreach ($accountOperationResult->getErrors() as $error) {
@@ -67,6 +74,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $operationResult;
+    }
+
+    private function loadRuleIds(SalesChannelContext $channelContext): array
+    {
+        return $this->ruleLoader->load($channelContext->getContext())->filter(
+            function (RuleEntity $rule) use ($channelContext) {
+                return $rule->getPayload()->match(new CheckoutRuleScope($channelContext));
+            }
+        )->getIds();
     }
 
     private function doOperation(Account $account, SalesChannelContext $context, array $productIds): Job\JobResult

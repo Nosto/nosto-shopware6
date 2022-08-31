@@ -9,7 +9,10 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
-use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -23,25 +26,31 @@ class Builder
     private ProductHelper $productHelper;
     private SkuBuilder $skuBuilder;
     private TreeBuilder $treeBuilder;
+    private NetPriceCalculator $calculator;
+    private CashRounding $priceRounding;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         ConfigProvider $configProvider,
         ProductHelper $productHelper,
         SkuBuilder $skuBuilder,
-        TreeBuilder $treeBuilder
+        TreeBuilder $treeBuilder,
+        NetPriceCalculator $calculator,
+        CashRounding $priceRounding
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
         $this->productHelper = $productHelper;
         $this->skuBuilder = $skuBuilder;
         $this->treeBuilder = $treeBuilder;
+        $this->calculator = $calculator;
+        $this->priceRounding = $priceRounding;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
         if ($product->getCategoriesRo() === null) {
-            $product = $this->productHelper->reloadProduct($product, $context);
+            $product = $this->productHelper->reloadProduct($product->getId(), $context);
         }
 
         $channelId = $context->getSalesChannelId();
@@ -135,19 +144,49 @@ class Builder
             $nostoProduct->setDatePublished($product->getCreatedAt()->format('Y-m-d'));
         }
 
-        if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
-            $nostoProduct->setPrice($price->getGross());
-        }
-
-        if ($price->getListPrice() !== null) {
-            $nostoProduct->setListPrice($price->getListPrice()->getGross());
-        }
-
         if ($ean = $product->getEan()) {
             $nostoProduct->setGtin($ean);
         }
 
+        $this->setPrices($nostoProduct, $product, $context);
+
         return $nostoProduct;
+    }
+
+    private function setPrices(
+        NostoProduct $nostoProdcut,
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context
+    ): void {
+        $productPrice = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+        if (!($productPrice instanceof CalculatedPrice)) {
+            return;
+        }
+        $listPrice = $productPrice->getListPrice() ? $productPrice->getListPrice()->getPrice(
+        ) : $productPrice->getUnitPrice();
+        $unitPrice = $productPrice->getUnitPrice();
+        $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
+        if (!$isGross) {
+            $price = $this->calculator->calculate(
+                new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding()
+            );
+            $unitPrice = 0;
+            foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                $unitPrice += ($tax->getTax() + $tax->getPrice());
+            }
+            $priceList = $this->calculator->calculate(
+                new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding()
+            );
+            $listPrice = 0;
+            foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
+                $listPrice += ($tax->getTax() + $tax->getPrice());
+            }
+        }
+
+        $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
+        $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
     }
 
     private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
