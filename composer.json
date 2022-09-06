@@ -1,28 +1,28 @@
 {
-    "version": "1.0.0",
-	"name": "od/nosto-integration",
-	"description": "Nosto Integration",
-	"type": "shopware-platform-plugin",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Overdose",
-			"homepage": "https://overdose.digital/"
-		}
-	],
+    "version": "1.0.1",
+    "name": "od/nosto-integration",
+    "description": "Nosto Integration",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Overdose",
+            "homepage": "https://overdose.digital/"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Od\\NostoIntegration\\": "src/"
         }
     },
-	"require": {
-		"php": "^7.4 || ^8.0",
+    "require": {
+        "php": "^7.4 || ^8.0",
         "shopware/administration": "~v6.4.0",
         "shopware/core": "~v6.4.0",
         "shopware/storefront": "~v6.4.0",
-		"od/sw6-job-scheduler": "^1.0.1",
-		"nosto/php-sdk": "^5.5.0"
-	},
+        "od/sw6-job-scheduler": "^1.0.1",
+        "nosto/php-sdk": "^5.5.0"
+    },
     "repositories": [
         {
             "type": "path",
@@ -32,16 +32,24 @@
             }
         }
     ],
-	"extra": {
-		"shopware-plugin-class": "Od\\NostoIntegration\\OdNostoIntegration",
+    "extra": {
+        "shopware-plugin-class": "Od\\NostoIntegration\\overd_nosto",
         "plugin-icon": "src/Resources/config/plugin.png",
-		"label": {
-			"de-DE": "Nosto Integration",
-			"en-GB": "Nosto Integration"
-		},
-		"description": {
-			"de-DE": "Nosto Integration",
-			"en-GB": "Nosto Integration"
-		}
-	}
+        "label": {
+            "de-DE": "Nosto Integration",
+            "en-GB": "Nosto Integration"
+        },
+        "description": {
+            "de-DE": "Nostos führende Personalisierungslösung nutzt die Stärke von Big Data (KI), um Ihren Online Shop und jeden Ihrer Besucher bis ins Detail zu verstehen!",
+            "en-GB": "Nosto's leading personalisation solution uses the power of Big Data (artificial intelligence) to understand your online shop and each of your visitors in detail!"
+        },
+        "manufacturerLink": {
+            "de-DE": "https://overdose.digital/",
+            "en-GB": "https://overdose.digital/"
+        },
+        "supportLink": {
+            "de-DE": "https://overdose.digital/",
+            "en-GB": "https://overdose.digital/"
+        }
+    }
 }
