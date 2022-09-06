@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.0",
     "name": "od/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
