@@ -7,6 +7,7 @@
                     <sw-switch-field
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.account.enabledTitle')"
+                        :help-text="$tc('nosto.configuration.account.enabledHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
                         @change="props.updateCurrentValue"
@@ -21,6 +22,7 @@
                 <template #content="props">
                     <sw-field
                             :label="$tc('nosto.configuration.account.idTitle')"
+                            :help-text="$tc('nosto.configuration.account.idHelpText')"
                             type="text"
                             :map-inheritance="props"
                             :value="props.currentValue"
@@ -40,6 +42,7 @@
                 <template #content="props">
                     <sw-field
                         :label="$tc('nosto.configuration.account.nameTitle')"
+                        :help-text="$tc('nosto.configuration.account.nameHelpText')"
                         type="text"
                         :map-inheritance="props"
                         :value="props.currentValue"
@@ -59,6 +62,7 @@
                 <template #content="props">
                     <sw-field
                             :label="$tc('nosto.configuration.account.productTokenTitle')"
+                            :help-text="$tc('nosto.configuration.account.productTokenHelpText')"
                             type="password"
                             :map-inheritance="props"
                             :value="props.currentValue"
@@ -76,6 +80,7 @@
                 <template #content="props">
                     <sw-field
                             :label="$tc('nosto.configuration.account.emailTokenTitle')"
+                            :help-text="$tc('nosto.configuration.account.emailTokenHelpText')"
                             type="password"
                             :map-inheritance="props"
                             :value="props.currentValue"
@@ -93,6 +98,7 @@
                 <template #content="props">
                     <sw-field
                             :label="$tc('nosto.configuration.account.appTokenTitle')"
+                            :help-text="$tc('nosto.configuration.account.appTokenHelpText')"
                             type="password"
                             :map-inheritance="props"
                             :value="props.currentValue"

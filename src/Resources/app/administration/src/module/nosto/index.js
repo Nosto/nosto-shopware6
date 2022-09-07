@@ -44,7 +44,7 @@ Module.register('nosto-integration', {
     },
 
     navigation: [{
-        label: 'Nosto Job Listing',
+        label: 'nosto.job.navigation.label',
         color: '#ff3d58',
         path: 'nosto.integration.list',
         icon: 'default-object-marketing',

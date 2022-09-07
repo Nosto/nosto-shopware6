@@ -2,13 +2,13 @@
 
 namespace Od\NostoIntegration\Service\CategoryMerchandising;
 
-use Nosto\NostoException;
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, IncludeFilters};
-use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
 use Od\NostoIntegration\Model\ConfigProvider;
+use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
+use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Throwable;
 
 class MerchandisingSearchApi implements SalesChannelRepositoryInterface
 {
@@ -25,6 +26,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
     private FilterTranslatorAggregate $filterTranslator;
     private SessionLookupResolver $resolver;
     private ConfigProvider $configProvider;
+    private LoggerInterface $logger;
 
     public function __construct(
         SalesChannelRepositoryInterface $repository,
@@ -32,7 +34,8 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         ResultTranslator $resultTranslator,
         FilterTranslatorAggregate $filterTranslator,
         SessionLookupResolver $resolver,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
+        LoggerInterface $logger
     ) {
         $this->repository = $repository;
         $this->categoryRepository = $categoryRepository;
@@ -40,6 +43,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         $this->filterTranslator = $filterTranslator;
         $this->resolver = $resolver;
         $this->configProvider = $configProvider;
+        $this->logger = $logger;
     }
 
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
@@ -52,15 +56,22 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         return $this->repository->aggregate($criteria, $salesChannelContext);
     }
 
-    /**
-     * @throws NostoException
-     * @throws AbstractHttpException
-     * @throws HttpResponseException
-     */
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
         $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
-        $sessionId = $this->resolver->getSessionId();
+        try {
+            $sessionId = $this->resolver->getSessionId();
+        } catch (Throwable $throwable) {
+            $sessionId = null;
+            $this->logger->error(
+                sprintf(
+                    'Unable to load resolve session, reason: %s',
+                    $throwable->getMessage()
+                ),
+                ContextHelper::createContextFromException($throwable)
+            );
+        }
+
         $account = $this->resolver->getNostoAccount($salesChannelContext->getSalesChannelId());
 
         if (!$isMerchEnabled || !$account || !$sessionId || $criteria->getLimit() == 0) {
@@ -101,6 +112,10 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
                 $salesChannelContext->getContext()
             );
         } catch (\Exception $e) {
+            $this->logger->error(
+                $e->getMessage(),
+                ContextHelper::createContextFromException($e)
+            );
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
     }
