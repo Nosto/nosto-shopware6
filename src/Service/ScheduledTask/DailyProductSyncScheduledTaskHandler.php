@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Od\NostoIntegration\Service\ScheduledTask;
 
-use DateTime;
-use Exception;
-use Od\NostoIntegration\Api\Controller\OdNostoController;
+use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use Shopware\Core\Defaults;
@@ -22,20 +20,20 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
     private const LAST_EXECUTION_TIME_CONFIG = 'NostoIntegration.settings.hidden.dailySyncLastTime';
     private ConfigProvider $configProvider;
     private SystemConfigService $systemConfigService;
-    private OdNostoController $odNostoController;
+    private OdNostoSyncRoute $nostoSyncRoute;
     private TagAwareAdapterInterface $cache;
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
-        OdNostoController $odNostoController,
+        OdNostoSyncRoute $nostoSyncRoute,
         TagAwareAdapterInterface $cache
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->configProvider = $configProvider;
         $this->systemConfigService = $systemConfigService;
-        $this->odNostoController = $odNostoController;
+        $this->nostoSyncRoute = $nostoSyncRoute;
         $this->cache = $cache;
     }
 
@@ -49,12 +47,12 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         if ($this->isTimeToRunJob()) {
             try {
                 $this->cache->clear(CachedProvider::CACHE_PREFIX);
-                $this->odNostoController->fullCatalogSyncAction(new Request(), Context::createDefaultContext());
+                $this->nostoSyncRoute->fullCatalogSync(new Request(), Context::createDefaultContext());
                 $this->systemConfigService->set(
                     self::LAST_EXECUTION_TIME_CONFIG,
-                    (new DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+                    (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
                 );
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // leave it for next time
             }
         }
@@ -67,12 +65,12 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         try {
-            $executionTime = new DateTime($this->configProvider->getDailyProductSyncTime($channelId));
-        } catch (Exception $e) {
+            $executionTime = new \DateTime($this->configProvider->getDailyProductSyncTime($channelId));
+        } catch (\Exception $e) {
             return false;
         }
 
-        return $executionTime <= new DateTime();
+        return $executionTime <= new \DateTime();
     }
 
     private function isTodayAlreadyRun(?string $channelId = null): bool
@@ -87,12 +85,12 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         try {
-            $lastSyncTimeObject = new DateTime($lastSyncTime);
-        } catch (Exception $e) {
+            $lastSyncTimeObject = new \DateTime($lastSyncTime);
+        } catch (\Exception $e) {
             return false;
         }
 
-        return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new DateTime())->format(
+        return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new \DateTime())->format(
                 Defaults::STORAGE_DATE_FORMAT
             );
     }

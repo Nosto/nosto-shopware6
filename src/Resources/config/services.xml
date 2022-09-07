@@ -43,12 +43,12 @@
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>
-        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler">
+        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Od\NostoIntegration\Api\Controller\OdNostoController"/>
+            <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
             <argument type="service" id="cache.object"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
@@ -218,12 +218,16 @@
 
         <!-- Controllers -->
         <service id="Od\NostoIntegration\Api\Controller\OdNostoController" public="true">
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
-            <argument type="service" id="od_scheduler_job.repository"/>
+            <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
+        <!-- Routes -->
+        <service id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute" public="true">
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="od_scheduler_job.repository"/>
+        </service>
     </services>
 </container>
