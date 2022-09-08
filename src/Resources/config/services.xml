@@ -50,6 +50,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
             <tag name="od.job_handler" code="od-nosto-marketing-permission-sync"/>

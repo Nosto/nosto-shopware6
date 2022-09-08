@@ -7,6 +7,8 @@ namespace Od\NostoIntegration\Service\ScheduledTask;
 use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
+use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -22,19 +24,22 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
     private SystemConfigService $systemConfigService;
     private OdNostoSyncRoute $nostoSyncRoute;
     private TagAwareAdapterInterface $cache;
+    private LoggerInterface $logger;
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
         OdNostoSyncRoute $nostoSyncRoute,
-        TagAwareAdapterInterface $cache
+        TagAwareAdapterInterface $cache,
+        LoggerInterface $logger
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->configProvider = $configProvider;
         $this->systemConfigService = $systemConfigService;
         $this->nostoSyncRoute = $nostoSyncRoute;
         $this->cache = $cache;
+        $this->logger = $logger;
     }
 
     public static function getHandledMessages(): iterable
@@ -53,7 +58,13 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
                     (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
                 );
             } catch (\Exception $e) {
-                // leave it for next time
+                $this->logger->error(
+                    sprintf(
+                        'Unable to sync job, the reason is: %s',
+                        $e->getMessage()
+                    ),
+                    ContextHelper::createContextFromException($e)
+                );
             }
         }
     }
