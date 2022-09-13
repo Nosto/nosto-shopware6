@@ -34,14 +34,32 @@
                 <span class="list_price">{{ nostoProduct.listPrice }}</span>
             {% endif %}
 
-            {% if nostoProduct.tag1 %}
-                <span class="tag1">{{ nostoProduct.tag1 }}</span>
+            {% if nostoProduct.tag1 is not empty %}
+                <span class="tag1">
+                    {% if nostoProduct.tag1|length > 1 %}
+                        [{{ nostoProduct.tag1|join(', ') }}]
+                    {% else %}
+                        {{ nostoProduct.tag1[0] }}
+                    {% endif %}
+                </span>
             {% endif %}
-            {% if nostoProduct.tag2 %}
-                <span class="tag2">{{ nostoProduct.tag2 }}</span>
+            {% if nostoProduct.tag2 is not empty %}
+                <span class="tag2">
+                    {% if nostoProduct.tag2|length > 1 %}
+                        [{{ nostoProduct.tag2|join(', ') }}]
+                    {% else %}
+                        {{ nostoProduct.tag2[0] }}
+                    {% endif %}
+                </span>
             {% endif %}
-            {% if nostoProduct.tag3 %}
-                <span class="tag3">{{ nostoProduct.tag3 }}</span>
+            {% if nostoProduct.tag3 is not empty %}
+                <span class="tag3">
+                    {% if nostoProduct.tag3|length > 1 %}
+                        [{{ nostoProduct.tag3|join(', ') }}]
+                    {% else %}
+                        {{ nostoProduct.tag3[0] }}
+                    {% endif %}
+                </span>
             {% endif %}
 
             {% if nostoProduct.ratingValue %}

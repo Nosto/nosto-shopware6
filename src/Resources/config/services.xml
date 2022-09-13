@@ -18,6 +18,9 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="od.job_handler" code="od-nosto-order-sync"/>
@@ -25,7 +28,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
-            <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-entity-changelog-sync"/>
@@ -42,10 +45,20 @@
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
         </service>
+        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
+            <argument type="service" id="scheduled_task.repository"/>
+            <tag name="messenger.message_handler"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
         <service id="Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
             <tag name="od.job_handler" code="od-nosto-marketing-permission-sync"/>
             <argument type="service" id="newsletter_recipient.repository"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <!-- /Handlers -->
 
@@ -60,14 +73,20 @@
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
@@ -83,6 +102,9 @@
         <service id="Od\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
             <tag name="shopware.scheduled.task"/>
         </service>
+        <service id="Od\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
         <service id="Od\NostoIntegration\Async\EventsWriter" lazy="true">
             <argument type="service" id="od_nosto_entity_changelog.repository"/>
         </service>
@@ -92,6 +114,7 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Person\Builder"/>
@@ -102,6 +125,7 @@
         <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi">
             <argument type="service" id="sales_channel.product.repository"/>
@@ -207,12 +231,16 @@
 
         <!-- Controllers -->
         <service id="Od\NostoIntegration\Api\Controller\OdNostoController" public="true">
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
-            <argument type="service" id="od_scheduler_job.repository"/>
+            <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
+        <!-- Routes -->
+        <service id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute" public="true">
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="od_scheduler_job.repository"/>
+        </service>
     </services>
 </container>

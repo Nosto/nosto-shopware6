@@ -1,16 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Exception;
 use Nosto\Model\Product\Product as NostoProduct;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Provider implements ProductProviderInterface
 {
-    private Builder $builder;
+    private BuilderInterface $builder;
 
-    public function __construct(Builder $builder)
+    public function __construct(BuilderInterface $builder)
     {
         $this->builder = $builder;
     }
@@ -19,8 +22,8 @@ class Provider implements ProductProviderInterface
     {
         try {
             $nostoProduct = $this->builder->build($product, $context);
-        } catch (\Exception $e) {
-            throw new \Exception('Unable to build product, reason: ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Unable to build product, reason: ' . $e->getMessage());
         }
 
         return $nostoProduct;
