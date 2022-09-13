@@ -70,6 +70,17 @@ Component.register('nosto-integration-settings-general', {
                     this.$set(this.allConfigs['null'], configPrefix + key, defaultValue);
                 }
             }
+
+            // For old single select config
+            for (let i = 1; i < 4; i++) {
+                let key = 'NostoIntegration.settings.tag' + i
+                if (typeof this.allConfigs['null'][key] === 'string' || this.allConfigs['null'][key] instanceof String) {
+                    this.allConfigs['null'][key] = [this.allConfigs['null'][key]]
+                }
+                if (typeof this.actualConfigData[key] === 'string' || this.actualConfigData[key] instanceof String) {
+                    this.actualConfigData[key] = [this.actualConfigData[key]]
+                }
+            }
         },
 
         async initLanguageCode() {

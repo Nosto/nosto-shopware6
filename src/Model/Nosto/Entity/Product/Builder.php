@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
 {
@@ -28,9 +29,6 @@ class Builder implements BuilderInterface
     private SkuBuilderInterface $skuBuilder;
     private TreeBuilderInterface $treeBuilder;
     private EventDispatcherInterface $eventDispatcher;
-
-    private SkuBuilder $skuBuilder;
-    private TreeBuilder $treeBuilder;
     private NetPriceCalculator $calculator;
     private CashRounding $priceRounding;
 
@@ -38,10 +36,8 @@ class Builder implements BuilderInterface
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         ConfigProvider $configProvider,
         ProductHelper $productHelper,
-        SkuBuilder $skuBuilder,
-        TreeBuilder $treeBuilder,
         NetPriceCalculator $calculator,
-        CashRounding $priceRounding
+        CashRounding $priceRounding,
         SkuBuilderInterface $skuBuilder,
         TreeBuilderInterface $treeBuilder,
         EventDispatcherInterface $eventDispatcher
@@ -108,28 +104,31 @@ class Builder implements BuilderInterface
                 }
             }
 
-            $tag1Key = $this->configProvider->getTagFieldKey(1, $channelId) ?: null;
-            $tag2Key = $this->configProvider->getTagFieldKey(2, $channelId) ?: null;
-            $tag3Key = $this->configProvider->getTagFieldKey(3, $channelId) ?: null;
+            $tag1Keys = $this->configProvider->getTagFieldKey(1, $channelId);
+            $tag2Keys = $this->configProvider->getTagFieldKey(2, $channelId);
+            $tag3Keys = $this->configProvider->getTagFieldKey(3, $channelId);
+
             $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId);
+            $tag1Values = $tag2Values = $tag3Values = [];
 
             foreach ($product->getCustomFields() as $fieldName => $fieldValue) {
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
                     $nostoProduct->addCustomField($fieldName, $fieldValue);
                 }
-
-                switch ($fieldName) {
-                    case $tag1Key:
-                        $nostoProduct->setTag1($fieldValue);
-                        break;
-                    case $tag2Key:
-                        $nostoProduct->setTag2($fieldValue);
-                        break;
-                    case $tag3Key:
-                        $nostoProduct->setTag3($fieldValue);
-                        break;
+                if (in_array($fieldName, $tag1Keys)) {
+                    $tag1Values[] = $fieldValue;
+                }
+                if (in_array($fieldName, $tag2Keys)) {
+                    $tag2Values[] = $fieldValue;
+                }
+                if (in_array($fieldName, $tag3Keys)) {
+                    $tag3Values[] = $fieldValue;
                 }
             }
+
+            $nostoProduct->setTag1($tag1Values);
+            $nostoProduct->setTag2($tag2Values);
+            $nostoProduct->setTag3($tag3Values);
         }
 
         if ($product->getCover()) {
@@ -163,7 +162,6 @@ class Builder implements BuilderInterface
         }
 
         $this->setPrices($nostoProduct, $product, $context);
-
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
@@ -178,24 +176,25 @@ class Builder implements BuilderInterface
         if (!($productPrice instanceof CalculatedPrice)) {
             return;
         }
-        $listPrice = $productPrice->getListPrice() ? $productPrice->getListPrice()->getPrice(
-        ) : $productPrice->getUnitPrice();
+        $listPrice = $productPrice->getListPrice() ? $productPrice->getListPrice()->getPrice() : $productPrice->getUnitPrice();
         $unitPrice = $productPrice->getUnitPrice();
         $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
+
         if (!$isGross) {
+            $unitPrice = $listPrice = 0;
             $price = $this->calculator->calculate(
                 new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
-            $unitPrice = 0;
-            foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
-                $unitPrice += ($tax->getTax() + $tax->getPrice());
-            }
             $priceList = $this->calculator->calculate(
                 new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
-            $listPrice = 0;
+
+            foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                $unitPrice += ($tax->getTax() + $tax->getPrice());
+            }
+
             foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
                 $listPrice += ($tax->getTax() + $tax->getPrice());
             }
