@@ -8,6 +8,8 @@
         "configuration": {
             "title": "Nosto configuration",
             "tagAssignment": {
+                "selectedCustomFieldsTitle": "Custom Fields",
+                "selectedCustomFieldsHelpText": "The selected values will be tagged as custom fields",
                 "tag1title": "Tag 1",
                 "tag2title": "Tag 2",
                 "tag3title": "Tag 3",

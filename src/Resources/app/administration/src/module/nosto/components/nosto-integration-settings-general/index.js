@@ -29,17 +29,23 @@ Component.register('nosto-integration-settings-general', {
     data() {
         return {
             isLoading: false,
-            productCustomFields: []
+            productCustomFields: [],
+            languageCode: null
         };
     },
 
     computed: {
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
     },
 
     created() {
+        this.initLanguageCode()
         this.getProductCustomFields();
         this.createdComponent();
     },
@@ -51,6 +57,7 @@ Component.register('nosto-integration-settings-general', {
                     tag1: null,
                     tag2: null,
                     tag3: null,
+                    selectedCustomFields: null,
                     googleCategory: null,
                     isInitializeNostoAfterInteraction: null
                 };
@@ -63,6 +70,18 @@ Component.register('nosto-integration-settings-general', {
                     this.$set(this.allConfigs['null'], configPrefix + key, defaultValue);
                 }
             }
+        },
+
+        async initLanguageCode() {
+            this.languageCode = await this.getSystemCurrentLocale();
+        },
+
+        async getSystemCurrentLocale() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', Shopware.Context.api.languageId));
+            criteria.addAssociation('locale');
+            const languages = await this.languageRepository.search(criteria, Shopware.Context.api);
+            return languages.first().locale.code;
         },
 
         clearTagValue(tag) {
@@ -80,6 +99,7 @@ Component.register('nosto-integration-settings-general', {
                 customFieldSets.forEach((customFieldSet) => {
                     customFieldSet.customFields.forEach((customField) => {
                         me.productCustomFields.push({
+                            label: me.languageCode && customField.config.label !== undefined && customField.config.label[me.languageCode] !== undefined ? customField.config.label[me.languageCode] : customField.name,
                             name: customField.name,
                             id: customField.name
                         });

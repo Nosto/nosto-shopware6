@@ -27,6 +27,7 @@ class ConfigProvider
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
     public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
+    public const SELECTED_CUSTOM_FIELDS = 'settings.selectedCustomFields';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -126,5 +127,11 @@ class ConfigProvider
     public function getDailyProductSyncTime($channelId = null): ?string
     {
         return $this->systemConfig->get($this->path(self::DAILY_PRODUCT_SYNC_TIME), $channelId);
+    }
+
+    public function getSelectedCustomFields($channelId = null): array
+    {
+        $value = $this->systemConfig->get($this->path(self::SELECTED_CUSTOM_FIELDS), $channelId);
+        return is_array($value) ? $value : [];
     }
 }

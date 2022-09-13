@@ -102,8 +102,13 @@ class Builder
             $tag1Key = $this->configProvider->getTagFieldKey(1, $channelId) ?: null;
             $tag2Key = $this->configProvider->getTagFieldKey(2, $channelId) ?: null;
             $tag3Key = $this->configProvider->getTagFieldKey(3, $channelId) ?: null;
+            $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId);
 
             foreach ($product->getCustomFields() as $fieldName => $fieldValue) {
+                if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
+                    $nostoProduct->addCustomField($fieldName, $fieldValue);
+                }
+
                 switch ($fieldName) {
                     case $tag1Key:
                         $nostoProduct->setTag1($fieldValue);
