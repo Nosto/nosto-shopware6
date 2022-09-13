@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 
-class OdNostoIntegration extends Plugin
+class overd_nosto extends Plugin
 {
     public function activate(ActivateContext $activateContext): void
     {
