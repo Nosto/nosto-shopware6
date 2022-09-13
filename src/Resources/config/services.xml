@@ -17,7 +17,8 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\OrderSyncHandler">
@@ -26,7 +27,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
-            <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-entity-changelog-sync"/>
@@ -56,6 +57,7 @@
             <tag name="od.job_handler" code="od-nosto-marketing-permission-sync"/>
             <argument type="service" id="newsletter_recipient.repository"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <!-- /Handlers -->
 
@@ -71,6 +73,8 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder">
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
@@ -80,6 +84,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
@@ -107,6 +112,7 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Person\Builder"/>
@@ -117,6 +123,7 @@
         <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true"/>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi">
             <argument type="service" id="sales_channel.product.repository"/>

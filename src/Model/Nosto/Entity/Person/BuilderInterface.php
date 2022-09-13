@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Od\NostoIntegration\Model\Nosto\Entity\Person;
 
 use Nosto\Model\AbstractPerson;
 
-abstract class Builder implements BuilderInterface
+interface BuilderInterface
 {
     public function build(
         $firstName,
@@ -17,24 +18,9 @@ abstract class Builder implements BuilderInterface
         $dateOfBirth = null,
         $gender = null,
         $customerReference = null
-    ): ?AbstractPerson {
-        $person = $this->buildObject(
-            $firstName,
-            $lastName,
-            $email,
-            $phone,
-            $postCode,
-            $country,
-            $customerGroup,
-            $dateOfBirth,
-            $gender,
-            $customerReference
-        );
+    ): ?AbstractPerson;
 
-        return $person;
-    }
-
-    abstract public function buildObject(
+    public function buildObject(
         $firstName,
         $lastName,
         $email,

@@ -3,36 +3,42 @@
 namespace Od\NostoIntegration\Model\Operation;
 
 use Nosto\Operation\AbstractGraphQLOperation;
+use Od\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
 use Od\NostoIntegration\Async\OrderSyncMessage;
 use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Builder as NostoOrderBuilder;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder as NostoOrderStatusBuilder;
+use Od\NostoIntegration\Model\Nosto\Entity\Order\BuilderInterface as NostoOrderBuilderInterface;
+use Od\NostoIntegration\Model\Nosto\Entity\Order\Status\BuilderInterface as NostoOrderStatusBuilderInterface;
+use Od\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepositoryInterface};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-order-sync';
     private EntityRepositoryInterface $orderRepository;
     private Account\Provider $accountProvider;
-    private NostoOrderBuilder $nostoOrderbuilder;
-    private NostoOrderStatusBuilder $nostoOrderStatusBuilder;
+    private NostoOrderBuilderInterface $nostoOrderbuilder;
+    private NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         Account\Provider $accountProvider,
-        NostoOrderBuilder $nostoOrderbuilder,
-        NostoOrderStatusBuilder $nostoOrderStatusBuilder
+        NostoOrderBuilderInterface $nostoOrderbuilder,
+        NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->orderRepository = $orderRepository;
         $this->accountProvider = $accountProvider;
         $this->nostoOrderbuilder = $nostoOrderbuilder;
         $this->nostoOrderStatusBuilder = $nostoOrderStatusBuilder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -57,7 +63,7 @@ class OrderSyncHandler implements JobHandlerInterface
         $result = new JobResult();
         foreach ($this->getOrders($context, $message->getNewOrderIds()) as $order) {
             try {
-                $this->sendNewOrder($order, $account);
+                $this->sendNewOrder($order, $account, $context);
             } catch (\Throwable $e) {
                 $result->addError($e);
             }
@@ -84,16 +90,17 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
         $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
-
+        $this->eventDispatcher->dispatch(new NostoOrderCriteriaEvent($criteria, $context));
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendNewOrder(OrderEntity $order, Account $account): void
+    private function sendNewOrder(OrderEntity $order, Account $account, Context $context): void
     {
         $nostoOrder = $this->nostoOrderbuilder->build($order);
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
         $operation = new OrderCreate($nostoOrder, $account->getNostoAccount(), $nostoCustomerIdentifier, $nostoCustomerId);
+        $this->eventDispatcher->dispatch(new BeforeOrderCreatedEvent($operation, $context));
         $operation->execute();
     }
 

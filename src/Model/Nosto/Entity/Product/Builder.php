@@ -7,7 +7,8 @@ use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
@@ -19,11 +20,15 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class Builder
+class Builder implements BuilderInterface
 {
     private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
     private ConfigProvider $configProvider;
     private ProductHelper $productHelper;
+    private SkuBuilderInterface $skuBuilder;
+    private TreeBuilderInterface $treeBuilder;
+    private EventDispatcherInterface $eventDispatcher;
+
     private SkuBuilder $skuBuilder;
     private TreeBuilder $treeBuilder;
     private NetPriceCalculator $calculator;
@@ -37,6 +42,9 @@ class Builder
         TreeBuilder $treeBuilder,
         NetPriceCalculator $calculator,
         CashRounding $priceRounding
+        SkuBuilderInterface $skuBuilder,
+        TreeBuilderInterface $treeBuilder,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
@@ -45,6 +53,7 @@ class Builder
         $this->treeBuilder = $treeBuilder;
         $this->calculator = $calculator;
         $this->priceRounding = $priceRounding;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
@@ -154,6 +163,8 @@ class Builder
         }
 
         $this->setPrices($nostoProduct, $product, $context);
+
+        $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
     }

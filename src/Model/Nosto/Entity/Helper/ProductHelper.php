@@ -4,28 +4,46 @@ declare(strict_types=1);
 
 namespace Od\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Od\NostoIntegration\Model\ConfigProvider;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
 {
+    private SalesChannelRepositoryInterface $productRepository;
     private AbstractProductDetailRoute $productRoute;
     private EntityRepositoryInterface $reviewRepository;
+    private EventDispatcherInterface $eventDispatcher;
+    private ConfigProvider $configProvider;
 
     public function __construct(
+        SalesChannelRepositoryInterface $productRepository,
         AbstractProductDetailRoute $productRoute,
-        EntityRepositoryInterface $reviewRepository
+        EntityRepositoryInterface $reviewRepository,
+        EventDispatcherInterface $eventDispatcher,
+        ConfigProvider $configProvider
     ) {
+        $this->productRepository = $productRepository;
         $this->productRoute = $productRoute;
         $this->reviewRepository = $reviewRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->configProvider = $configProvider;
     }
 
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
@@ -45,6 +63,15 @@ class ProductHelper
 
     public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
     {
+        $criteria = $this->getCommonCriteria();
+        $criteria->addFilter(new EqualsFilter('id', $productId));
+        $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
+
+        return $this->productRoute->load($productId, new Request(), $context, $criteria)->getProduct();
+    }
+
+    private function getCommonCriteria(): Criteria
+    {
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('options.group');
@@ -54,8 +81,36 @@ class ProductHelper
         $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('categoriesRo');
-        $criteria->addFilter(new EqualsFilter('id', $productId));
+        return $criteria;
+    }
 
-        return $this->productRoute->load($productId, new Request(), $context, $criteria)->getProduct();
+    public function loadExistingParentProducts(
+        array $existentParentProductIds,
+        SalesChannelContext $context
+    ): EntitySearchResult {
+        $criteria = $this->getCommonCriteria();
+        $criteria->addAssociation('children.manufacturer');
+        $criteria->addAssociation('children.categoriesRo');
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
+        $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
+        return $this->productRepository->search($criteria, $context);
+    }
+
+    public function loadProducts(
+        array $productIds,
+        SalesChannelContext $context
+    ): ProductCollection {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+        $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
+        return $this->productRepository->search($criteria, $context)->getEntities();
     }
 }

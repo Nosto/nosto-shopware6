@@ -8,7 +8,7 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SkuBuilder
+class SkuBuilder implements SkuBuilderInterface
 {
     private ConfigProvider $configProvider;
 
