@@ -28,7 +28,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     {
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
-            $event->getOrderId(),
+            $event->getOrder()->getId(),
             $event->getContext()
         );
     }
