@@ -2,6 +2,7 @@
 
 namespace Od\NostoIntegration\Model\Operation;
 
+use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
 use Od\NostoIntegration\Async\ProductSyncMessage;
@@ -14,6 +15,7 @@ use Od\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Od\Scheduler\Model\Job;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Od\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -76,7 +78,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
-            foreach ($accountOperationResult->getErrors() as $error) {
+            foreach ($accountOperationResult->getMessages() as $error) {
                 $operationResult->addMessage($error);
             }
         }
@@ -106,7 +108,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         try {
             if ($products->count() !== 0) {
-                $this->doUpsertOperation($account, $context, $products->getEntities());
+                $this->doUpsertOperation($account, $context, $products->getEntities(), $result);
             }
 
             if (!empty($deletedProductIds)) {
@@ -122,7 +124,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
-        ProductCollection $productCollection
+        ProductCollection $productCollection,
+        Job\JobResult $result
     ) {
         $domainUrl = $context->getSalesChannel()->getDomains()->first()->getUrl();
         $domain = parse_url($domainUrl, PHP_URL_HOST);
@@ -132,10 +135,23 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload !
             $nostoProduct = $this->productProvider->get($product, $context);
+            $invalidMessage = $this->validateProduct($product->getProductNumber(), $nostoProduct);
+            if ($invalidMessage) {
+                $result->addMessage($invalidMessage);
+                continue;
+            }
             $operation->addProduct($nostoProduct);
         }
         $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
         $operation->upsert();
+    }
+
+    private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
+    {
+        if (!$product->getImageUrl()) {
+            return new WarningMessage('Image url is empty, ignoring upsert for product with number. ' . $productNumber);
+        }
+        return null;
     }
 
     private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds)
