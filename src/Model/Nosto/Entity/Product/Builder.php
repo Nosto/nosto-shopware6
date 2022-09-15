@@ -116,7 +116,7 @@ class Builder
 
         if ($this->configProvider->isEnabledAlternateImages($channelId)) {
             $alternateMediaUrls = $product->getMedia()->map(fn(ProductMediaEntity $media) => $media->getMedia()->getUrl());
-            $nostoProduct->setAlternateImageUrls($alternateMediaUrls);
+            $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
         }
 
         if ($manufacturer = $product->getManufacturer()) {
