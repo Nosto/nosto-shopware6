@@ -3,23 +3,27 @@
 namespace Od\NostoIntegration\Model\Nosto\Entity\Customer;
 
 use Nosto\Model\Customer;
+use Od\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute as Newsletter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder
+class Builder implements BuilderInterface
 {
     private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(EntityRepositoryInterface $newsletterRecipientRepository)
+    public function __construct(EntityRepositoryInterface $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function build(CustomerEntity $customer): Customer
+    public function build(CustomerEntity $customer, Context $context): Customer
     {
         $nostoCustomer = new Customer();
         $nostoCustomer->setEmail($customer->getEmail());
@@ -27,6 +31,7 @@ class Builder
         $nostoCustomer->setLastName($customer->getLastName());
         $nostoCustomer->setCustomerReference($this->generateCustomerReference($customer));
         $nostoCustomer->setMarketingPermission($this->hasMarketingPermission($customer));
+        $this->eventDispatcher->dispatch(new NostoCustomerBuiltEvent($customer, $nostoCustomer, $context));
 
         return $nostoCustomer;
     }

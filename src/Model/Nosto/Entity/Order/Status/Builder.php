@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 
-class Builder
+class Builder implements BuilderInterface
 {
     public function build(OrderEntity $order): ?NostoOrderStatus
     {

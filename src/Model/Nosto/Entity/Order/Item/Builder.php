@@ -6,7 +6,7 @@ use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-class Builder
+class Builder implements BuilderInterface
 {
     public function build(OrderLineItemEntity $item, CurrencyEntity $currency): NostoLineItem
     {

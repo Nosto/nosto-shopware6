@@ -12,6 +12,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedProvider implements ProductProviderInterface
 {
+    public const CACHE_PREFIX = 'od_nosto_product_';
     private TagAwareAdapterInterface $cache;
     private Provider $innerProvider;
 
@@ -25,11 +26,11 @@ class CachedProvider implements ProductProviderInterface
 
     public function get(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
-        $cacheKey = 'od_nosto_product_' . $product->getId();
+        $cacheKey = self::CACHE_PREFIX . $product->getId();
         $cachedItem = $this->cache->getItem($cacheKey);
 
         if ($cachedItem->isHit()) {
-            //return $cachedItem->get();
+            return $cachedItem->get();
         }
 
         $nostoProduct = $this->innerProvider->get($product, $context);

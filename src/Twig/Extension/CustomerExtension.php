@@ -2,16 +2,17 @@
 
 namespace Od\NostoIntegration\Twig\Extension;
 
-use Od\NostoIntegration\Model\Nosto\Entity\Customer;
+use Od\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Context;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class CustomerExtension extends AbstractExtension
 {
-    private Customer\Builder $builder;
+    private BuilderInterface $builder;
 
-    public function __construct(Customer\Builder $builder)
+    public function __construct(BuilderInterface $builder)
     {
         $this->builder = $builder;
     }
@@ -23,8 +24,8 @@ class CustomerExtension extends AbstractExtension
         ];
     }
 
-    public function getNostoCustomer(CustomerEntity $customer)
+    public function getNostoCustomer(CustomerEntity $customer, Context $context)
     {
-        return $this->builder->build($customer);
+        return $this->builder->build($customer, $context);
     }
 }

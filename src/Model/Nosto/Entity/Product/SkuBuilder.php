@@ -8,7 +8,7 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SkuBuilder
+class SkuBuilder implements SkuBuilderInterface
 {
     private ConfigProvider $configProvider;
 
@@ -26,11 +26,8 @@ class SkuBuilder
         $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoSku->setAvailability($stockStatus);
 
-        if ($product->getCoverId()) {
-            $mediaIdArray = $product->getMedia()->getMediaIds();
-            $mediaId = $mediaIdArray[$product->getMedia()->first()->getUniqueIdentifier()];
-            $coverMedia = $product->getMedia()->getMedia()->get($mediaId);
-            $nostoSku->setImageUrl($coverMedia->getUrl());
+        if ($product->getCover() && $product->getCover()->getMedia()) {
+            $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
         }
 
         if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {

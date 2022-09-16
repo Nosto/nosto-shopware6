@@ -16,6 +16,8 @@ class ConfigProvider
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'settings.flags.syncInactiveProducts';
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'settings.flags.productPublishedDateTagging';
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
+    public const DAILY_PRODUCT_SYNC_ENABLED = 'settings.flags.dailySynchronization';
+    public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
     public const ACCOUNT_ENABLED = 'settings.accounts.isEnabled';
@@ -25,6 +27,7 @@ class ConfigProvider
     public const EMAIL_TOKEN = 'settings.accounts.emailToken';
     public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
+    public const SELECTED_CUSTOM_FIELDS = 'settings.selectedCustomFields';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -81,6 +84,11 @@ class ConfigProvider
         return $this->systemConfig->getBool($this->path(self::ENABLE_NOT_LOGGED_IN_CACHE), $channelId);
     }
 
+    public function isDailyProductSyncEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::DAILY_PRODUCT_SYNC_ENABLED), $channelId);
+    }
+
     public function isAccountEnabled($channelId = null): bool
     {
         return $this->systemConfig->getBool($this->path(self::ACCOUNT_ENABLED), $channelId);
@@ -111,8 +119,25 @@ class ConfigProvider
         return $this->systemConfig->getString($this->path(self::GRAPHQL_TOKEN), $channelId);
     }
 
-    public function getTagFieldKey(int $tagNumber, $channelId = null): string
+    public function getTagFieldKey(int $tagNumber, $channelId = null): array
     {
-        return $this->systemConfig->getString($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+        $config = $this->systemConfig->get($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
+        if (is_string($config) && !empty($config)) {
+            return [$config];
+        } elseif (is_array($config)) {
+            return $config;
+        }
+        return [];
+    }
+
+    public function getDailyProductSyncTime($channelId = null): ?string
+    {
+        return $this->systemConfig->get($this->path(self::DAILY_PRODUCT_SYNC_TIME), $channelId);
+    }
+
+    public function getSelectedCustomFields($channelId = null): array
+    {
+        $value = $this->systemConfig->get($this->path(self::SELECTED_CUSTOM_FIELDS), $channelId);
+        return is_array($value) ? $value : [];
     }
 }

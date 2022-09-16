@@ -6,4 +6,5 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../**/**/*Controller.php" type="annotation"/>
+    <import resource="../../**/**/*Route.php" type="annotation"/>
 </routes>

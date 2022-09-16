@@ -4,7 +4,7 @@ namespace Od\NostoIntegration\Model\Nosto\Entity\Person;
 
 use Nosto\Model\AbstractPerson;
 
-abstract class Builder
+abstract class Builder implements BuilderInterface
 {
     public function build(
         $firstName,
