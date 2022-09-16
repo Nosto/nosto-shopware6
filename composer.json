@@ -1,9 +1,9 @@
 {
-    "version": "1.0.0",
     "name": "od/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "license": "MIT",
+    "version": "1.0.0",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Overdose",
