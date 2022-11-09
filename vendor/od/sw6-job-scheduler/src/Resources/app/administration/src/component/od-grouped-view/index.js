@@ -1,4 +1,5 @@
 import template from './od-grouped-view.html.twig';
+import JobHelper from "../../util/job.helper";
 import './od-grouped-view.scss';
 
 const {Component} = Shopware;
@@ -101,7 +102,7 @@ Component.register('od-grouped-view', {
                 },
                 {
                     property: 'subJobs',
-                    label: 'Sub jobs',
+                    label: this.$tc('job-listing.page.listing.grid.column.child-jobs'),
                     allowResize: true,
                     width: '250px',
                     visible: true,
@@ -109,7 +110,7 @@ Component.register('od-grouped-view', {
                 },
                 {
                     property: 'messages',
-                    label: 'Messages',
+                    label: this.$tc('job-listing.page.listing.grid.column.messages'),
                     allowResize: true,
                     width: '350px',
                     visible: true,
@@ -145,7 +146,7 @@ Component.register('od-grouped-view', {
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
             criteria.addAssociation('subJobs');
-            criteria.setLimit(999999)
+            criteria.limit = null;
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
@@ -215,7 +216,7 @@ Component.register('od-grouped-view', {
                     this.groupedItems.push({
                         title: groupTitle,
                         type: groupType,
-                        items: items
+                        items: JobHelper.sortMessages(items)
                     });
                 });
             })

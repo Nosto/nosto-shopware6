@@ -7,7 +7,7 @@
         'aliases' => array(),
         'reference' => NULL,
         'name' => 'od/nosto-integration',
-        'dev' => false,
+        'dev' => true,
     ),
     'versions' => array(
         'nosto/php-sdk' => array(
@@ -29,12 +29,12 @@
             'dev_requirement' => false,
         ),
         'od/sw6-job-scheduler' => array(
-            'pretty_version' => '1.0.1',
-            'version' => '1.0.1.0',
+            'pretty_version' => '1.0.3',
+            'version' => '1.0.3.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => 'd0ade76c06164ca98486f38422a94d18dd3d8c10',
+            'reference' => '86f681957e8680fc74389c02eeccef3a04e45714',
             'dev_requirement' => false,
         ),
         'paragonie/constant_time_encoding' => array(

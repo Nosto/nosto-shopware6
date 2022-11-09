@@ -1,4 +1,5 @@
 import template from './od-job-listing-index.html.twig';
+import JobHelper from "../../../../util/job.helper";
 import './od-job-listing-index.scss';
 
 const { Component } = Shopware;
@@ -115,7 +116,7 @@ Component.register('od-job-listing-index', {
                 },
                 {
                     property: 'subJobs',
-                    label: 'Child Jobs',
+                    label: this.$tc('job-listing.page.listing.grid.column.child-jobs'),
                     allowResize: true,
                     width: '250px',
                     visible: true,
@@ -123,7 +124,7 @@ Component.register('od-job-listing-index', {
                 },
                 {
                     property: 'messages',
-                    label: 'Messages',
+                    label: this.$tc('job-listing.page.listing.grid.column.messages'),
                     allowResize: true,
                     width: '250px',
                     visible: true,
@@ -135,15 +136,15 @@ Component.register('od-job-listing-index', {
         jobDisplayMode() {
             return [
                 {
-                    name: 'List',
+                    name: this.$tc('job-listing.page.listing.index.list'),
                     value: 'list'
                 },
                 {
-                    name: 'Grouped',
+                    name: this.$tc('job-listing.page.listing.index.grouped'),
                     value: 'grouped'
                 },
                 {
-                    name: 'Chart',
+                    name: this.$tc('job-listing.page.listing.index.chart'),
                     value: 'chart'
                 }
             ]
@@ -214,7 +215,7 @@ Component.register('od-job-listing-index', {
             }
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = jobItems;
+                this.jobItems = JobHelper.sortMessages(jobItems);
             });
         },
 
