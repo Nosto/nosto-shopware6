@@ -29,7 +29,14 @@
                 "emailTokenTitle": "Email Token (API_EMAIL)",
                 "emailTokenHelpText": "A token for managing customers using the Blacklist and GDPR APIs. You can request an API token (API_EMAIL) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "appTokenTitle": "GraphQL Token (API_APPS)",
-                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin."
+                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
+                "apiValidation": {
+                    "buttonLabel": "API-key Prüfung",
+                    "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
+                    "generalErrorMessage": "API-Schlüssel können nicht validiert werden",
+                    "incorrectCredentialsTitle": "Falsche Anmeldeinformationen",
+                    "correctApiMessage": "Key ist gültig"
+                }
             },
             "general": {
                 "deferredInit": {
