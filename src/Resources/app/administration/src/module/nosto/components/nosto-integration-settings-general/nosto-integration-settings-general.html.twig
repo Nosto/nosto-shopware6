@@ -1,7 +1,7 @@
 {% block nosto_integration_content_card_channel_config_accounts_card %}
     <div>
         <sw-card class="sw-card--grid is-general-settings"
-                 title="General settings">
+                 :title="$tc('nosto.configuration.general.title')">
 
             {% block nosto_integration_setting_deferred_init %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.isInitializeNostoAfterInteraction']"
@@ -57,7 +57,7 @@
         </sw-card>
 
         <sw-card class="sw-card--grid"
-                 title="Tags assignment">
+                 :title="$tc('nosto.configuration.tagAssignment.title')">
             {% block nosto_integration_settings_custom_fields %}
                 <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.selectedCustomFields']"
                                     :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.selectedCustomFields']"
