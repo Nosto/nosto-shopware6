@@ -1,0 +1,8 @@
+{
+    "od-nosto": {
+        "cookie": {
+            "value": "Nosto Cookies",
+            "description": "Ermöglicht die Identifizierung des Benutzers, wenn er nicht angemeldet ist!"
+        }
+    }
+}

@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
+import NostoCookie from "../util/cookie";
 
 export default class NostoConfiguration extends Plugin {
     static options = {
@@ -9,17 +10,22 @@ export default class NostoConfiguration extends Plugin {
     };
 
     init() {
-        this.storage = Storage;
+        if (NostoCookie.getCookie('od-nosto-track-allow')) {
+            this.storage = Storage;
 
-        if (this.options.initializeAfter) {
-            if (this.storage.getItem(this.options.nostoInitializedStorageKey) !== null) {
-                return this._initNosto();
-            } else {
-                return this.registerEvents();
+            if (this.options.initializeAfter) {
+                if (this.storage.getItem(this.options.nostoInitializedStorageKey) !== null) {
+                    return this._initNosto();
+                } else {
+                    return this.registerEvents();
+                }
             }
+            this._initNosto()
         }
+    }
 
-        this._initNosto()
+    onNostoCookieConsentAllowed() {
+        this._initNosto();
     }
 
     registerEvents() {
@@ -46,7 +52,6 @@ export default class NostoConfiguration extends Plugin {
             document.body.appendChild(script);
 
             this.registerSubscribers();
-
         }
     }
 
