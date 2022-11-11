@@ -187,6 +187,11 @@
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
         </service>
+        <service id="Od\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
+                 decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+            <argument type="service"
+                      id="Od\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner"/>
+        </service>
         <!-- /Services -->
 
         <!-- Entity Definitions -->
