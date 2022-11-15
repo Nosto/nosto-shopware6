@@ -100,6 +100,9 @@ Component.register('nosto-integration-settings-general', {
         },
 
         getProductCustomFields() {
+            if(!this.languageCode) {
+                this.initLanguageCode();
+            }
             var me = this;
             const customFieldsCriteria = new Criteria();
             customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
