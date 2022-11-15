@@ -87,11 +87,11 @@ Component.register('nosto-integration-account-general', {
 
         validateApiCredentials() {
             this.apiValidationInProgress = true;
-            const accountId = this.actualConfigData[this.configurationKeys.accountID];
-            const accountName = this.actualConfigData[this.configurationKeys.accountName];
-            const productToken = this.actualConfigData[this.configurationKeys.productToken];
-            const emailToken = this.actualConfigData[this.configurationKeys.emailToken];
-            const appToken = this.actualConfigData[this.configurationKeys.appToken];
+            const accountId = this.getInheritedConfig(this.configurationKeys.accountID);
+            const accountName = this.getInheritedConfig(this.configurationKeys.accountName);
+            const productToken = this.getInheritedConfig(this.configurationKeys.productToken);
+            const emailToken = this.getInheritedConfig(this.configurationKeys.emailToken);
+            const appToken = this.getInheritedConfig(this.configurationKeys.appToken);
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -136,6 +136,11 @@ Component.register('nosto-integration-account-general', {
                 this.apiValidationInProgress = false;
             });
         },
+
+        getInheritedConfig(key) {
+            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key] ? this.actualConfigData[key] : this.allConfigs[null][key];
+        },
+
         credentialsEmptyValidation(key, value) {
             if (value === undefined || value === '' || value === null) {
                 this.createNotificationError({
