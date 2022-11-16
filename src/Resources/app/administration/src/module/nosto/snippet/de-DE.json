@@ -1,108 +1,119 @@
 {
     "nosto": {
         "title": "Nosto",
-        "description": "Nosto integration",
+        "description": "Nosto-Integration",
         "menu": {
-            "title": "Nosto configuration"
+            "title": "Nosto-Konfiguration"
         },
         "configuration": {
-            "title": "Nosto configuration",
+            "title": "Nosto-Konfiguration",
             "tagAssignment": {
-                "selectedCustomFieldsTitle": "Custom Fields",
-                "selectedCustomFieldsHelpText": "The selected values will be tagged as custom fields",
+                "title": "Tags zuweisen",
+                "selectedCustomFieldsTitle": "Benutzerdefinierte Felder",
+                "selectedCustomFieldsHelpText": "Die ausgewählten Werte werden als benutzerdefinierte Felder gekennzeichnet",
                 "tag1title": "Tag 1",
                 "tag2title": "Tag 2",
                 "tag3title": "Tag 3",
                 "gtinTitle": "GTIN",
-                "googleCategoryTitle": "Google category",
-                "googleCategoryHelpText": "Google Category field.Selected field should be sent as google category."
+                "googleCategoryTitle": "Google-Kategorie",
+                "googleCategoryHelpText": "Google-Kategoriefeld. Das ausgewählte Feld sollte als Google-Kategorie gesendet werden."
             },
             "account": {
-                "enabledTitle": "Enable Account",
-                "enabledHelpText": "Account enabled indicator for merchandising/product sync",
-                "nameTitle": "Account Name",
-                "nameHelpText": "The name of Nosto account. You are able to find it on top-right corner on your Nosto dashboard.",
-                "idTitle": "Account ID",
-                "idHelpText": "The unique Nosto account identifier. You are able to find it on top-right corner on your Nosto dashboard.",
-                "productTokenTitle": "Product Token (API_PRODUCTS)",
-                "productTokenHelpText": "A token for accessing the Products API. You can request an API token (API_PRODUCTS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
-                "emailTokenTitle": "Email Token (API_EMAIL)",
-                "emailTokenHelpText": "A token for managing customers using the Blacklist and GDPR APIs. You can request an API token (API_EMAIL) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
-                "appTokenTitle": "GraphQL Token (API_APPS)",
-                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin."
+                "title": "Account Einstellungen",
+                "enabledTitle": "Konto aktivieren",
+                "enabledHelpText": "Konto aktivierter Indikator für Merchandising/Produktsynchronisierung",
+                "nameTitle": "Kontobezeichnung",
+                "nameHelpText": "Der Name des Nosto-Kontos. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
+                "idTitle": "Konto-ID",
+                "idHelpText": "Die eindeutige Kennung des Nosto-Kontos. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
+                "productTokenTitle": "Produkt-Token (API_PRODUCTS)",
+                "productTokenHelpText": "Ein Token für den Zugriff auf die Produkt-API. Sie können ein API-Token (API_PRODUCTS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgelistet.",
+                "emailTokenTitle": "E-Mail-Token (API_EMAIL).",
+                "emailTokenTitle": "E-Mail-Token (API_EMAIL)",
+                "emailTokenHelpText": "Ein Token zum Verwalten von Kunden mithilfe der Blacklist- und GDPR-APIs. Sie können ein API-Token (API_EMAIL) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
+                "appTokenTitle": "GraphQL-Token (API_APPS)",
+                "appTokenHelpText": "Ein Token für den Zugriff auf die neuen GraphQL-APIs. Sie können ein API-Token (API_APPS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
+                "apiValidation": {
+                    "buttonLabel": "API-key Prüfung",
+                    "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
+                    "generalErrorMessage": "API-Schlüssel können nicht validiert werden",
+                    "incorrectCredentialsTitle": "Falsche Anmeldeinformationen",
+                    "correctApiMessage": "Key ist gültig"
+                }
             },
             "general": {
+                "title": "Allgemeine Einstellungen",
                 "deferredInit": {
-                    "label": "Initialize Nosto Script After First Page Iteration",
-                    "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
+                    "label": "Initialisieren Sie das Nosto-Skript nach der Iteration der ersten Seite",
+                    "helpText": "Diese Einstellung ist eine Optimierung der Webseitenleistung. Diese Einstellung ist eine Optimierung der Webseitenleistung. Wenn diese Einstellung aktiviert ist, wird das Nosto-Skript direkt nach dem Scrollen der Seite nach unten (erste Interaktion) beim allerersten Seitenbesuch geladen und initialisiert. Bei jedem weiteren Neuladen/Besuchen der Seite wird das Nosto-Skript sofort geladen und initialisiert."
                 },
                 "merch": {
-                    "label": "Enable Nosto Merchandising.",
-                    "helpText": "By enabling this setting, Nosto Merchandising feature will be activated. Please make sure you have setup all necessary product merchandising rules before enabling this feature."
+                    "label": "Nosto-Merchandising aktivieren.",
+                    "helpText": "Durch Aktivieren dieser Einstellung wird die Nosto Merchandising-Funktion aktiviert. Bitte stellen Sie sicher, dass Sie alle erforderlichen Produkt-Merchandising-Regeln eingerichtet haben, bevor Sie diese Funktion aktivieren."
                 },
                 "notLoggedInCache": {
-                    "label": "Enable PLP Cache for Not Logged In Customers.",
-                    "helpText": "When merchandising feature is enabled, Whole PLP HTTP page cache is being disabled to prevent caching of the personalized PLP products for all customers. You can enable PLP HTTP cache for Not Logged In customers (not-personalized) to prevent storefront performance issues."
+                    "label": "Aktivieren Sie den PLP-Cache für nicht angemeldete Kunden.",
+                    "helpText": "Wenn die Merchandising-Funktion aktiviert ist, wird der gesamte PLP-HTTP-Seiten-Cache deaktiviert, um das Caching der personalisierten PLP-Produkte für alle Kunden zu verhindern. Sie können den PLP-HTTP-Cache für nicht angemeldete Kunden (nicht personalisiert) aktivieren, um Leistungsprobleme im Schaufenster zu vermeiden."
                 }
             },
             "featuresFlags": {
-                "cardTitle": "Features flags",
+                "cardTitle": "Mit Flaggen",
                 "ratingsOptions": {
-                    "shopwareRatings": "Shopware ratings",
-                    "noRatings": "No ratings"
+                    "shopwareRatings": "Shopware-Bewertungen",
+                    "noRatings": "Keine Bewertungen"
                 },
-                "enableVariations": "Enable variations",
-                "enableVariationsHelpText": "The checkbox enables variations tagging.",
-                "enableProductProperties": "Enable product properties",
-                "enableProductPropertiesHelpText": "The checkbox enables product properties tagging.",
-                "enableAlternateImages": "Enable Alternate Images",
-                "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
-                "enableRatingsReviews": "Enable Ratings & Reviews",
-                "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
-                "enableInventory": "Enable Inventory Levels",
-                "enableInventoryHelpText": "The selection enables inventory levels tagging.",
-                "enableCustomerDataToNosto": "Send Customer Data To Nosto",
-                "enableCustomerDataToNostoHelpText": "If the checkbox is checked, customer data is tagged during the order.",
-                "enableSyncInactiveProducts": "Sync Inactive Products",
-                "enableSyncInactiveProductsHelpText": "If the checkbox is checked, inactive products will be synchronized as well.",
-                "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
-                "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
-                "enableDailySynchronization": "Enable Daily Product Synchronization",
-                "enableDailySynchronizationHelp": "If the field is enabled products will be synchronized at the mentioned time each day",
-                "timeDailySynchronization": "Time for Daily Product Synchronization",
-                "timeDailySynchronizationHelp": "The option specifies at which time to sync daily product synchronization",
-                "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
-                "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product"
+                "enableVariations": "Variationen aktivieren",
+                "enableVariationsHelpText": "Das Kontrollkästchen aktiviert das Tagging von Variationen.",
+                "enableProductProperties": "Produkteigenschaften aktivieren",
+                "enableProductPropertiesHelpText": "Das Kontrollkästchen aktiviert das Tagging von Produkteigenschaften.",
+                "enableAlternateImages": "Alternative Bilder aktivieren",
+                "enableAlternateImagesHelpText": "Das Kontrollkästchen aktiviert das Tagging alternativer Bilder.",
+                "enableRatingsReviews": "Bewertungen & Rezensionen aktivieren",
+                "enableRatingsReviewsHelpText": "Die Auswahl ermöglicht Bewertungen & Rezensionen.",
+                "enableInventory": "Lagerbestände aktivieren",
+                "enableInventoryHelpText": "Die Auswahl aktiviert das Tagging von Inventarebenen.",
+                "enableCustomerDataToNosto": "Kundendaten an Nosto senden",
+                "enableCustomerDataToNostoHelpText": "Bei aktivierter Checkbox werden Kundendaten während der Bestellung getaggt.",
+                "enableSyncInactiveProducts": "Inaktive Produkte synchronisieren",
+                "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden auch inaktive Produkte synchronisiert.",
+                "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",
+                "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
+                "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
+                "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
+                "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",
+                "timeDailySynchronizationHelp": "Die Option gibt an, zu welcher Uhrzeit die t\u00e4gliche Produktsynchronisierung synchronisiert werden soll",
+                "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
+                "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen"
             }
         },
         "listing": {
-            "rescheduleActionLabel": "Schedule Full Product Sync"
+            "rescheduleActionLabel": "Vollständige Produktsynchronisierung planen"
         },
         "messages": {
-            "success-message": "Successfully saved!",
-            "error-message": "Something went wrong, please check your configuration settings.",
-            "blank-field-error": "This field cannot be left blank!"
+            "success-message": "Erfolgreich gespeichert!",
+            "error-message": "Etwas ist schief gelaufen, bitte überprüfen Sie Ihre Konfigurationseinstellungen.",
+            "blank-field-error": "Dieses Feld darf nicht leer gelassen werden!"
         },
         "job": {
             "navigation": {
-                "label": "Nosto Job Listing"
+                "label": "Nosto-Stellenangebot"
             },
             "notification": {
-                "success": "Job has been scheduled successfully!",
-                "unknownError": "Unknown error."
+                "success": "Job wurde erfolgreich eingeplant!",
+                "unknownError": "Unbekannter Fehler."
             },
             "date-filter": {
-                "label": "Job Created At",
-                "from": "From",
-                "to": "To"
+                "label": "Job erstellt am",
+                "from": "Aus",
+                "to": "Zu"
             },
             "type-filter": {
-                "label": "Job Type",
-                "placeholder": "Select type..."
+                "label": "Auftragstyp",
+                "placeholder": "Art auswählen..."
             },
             "status-filter": {
-                "label": "Job Status",
-                "placeholder": "Select status..."
+                "label": "Beruflicher Status",
+                "placeholder": "Status auswählen..."
             }
         }
     }

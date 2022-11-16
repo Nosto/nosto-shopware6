@@ -8,6 +8,7 @@
         "configuration": {
             "title": "Nosto configuration",
             "tagAssignment": {
+                "title": "Tags assignment",
                 "selectedCustomFieldsTitle": "Custom Fields",
                 "selectedCustomFieldsHelpText": "The selected values will be tagged as custom fields",
                 "tag1title": "Tag 1",
@@ -18,6 +19,7 @@
                 "googleCategoryHelpText": "Google Category field.Selected field should be sent as google category."
             },
             "account": {
+                "title": "Account settings",
                 "enabledTitle": "Enable Account",
                 "enabledHelpText": "Account enabled indicator for merchandising/product sync",
                 "nameTitle": "Account Name",
@@ -29,9 +31,17 @@
                 "emailTokenTitle": "Email Token (API_EMAIL)",
                 "emailTokenHelpText": "A token for managing customers using the Blacklist and GDPR APIs. You can request an API token (API_EMAIL) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "appTokenTitle": "GraphQL Token (API_APPS)",
-                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin."
+                "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
+                "apiValidation": {
+                    "buttonLabel": "API-key test",
+                    "emptyErrorMessage": "\"{entityName}\" should not be blank!",
+                    "generalErrorMessage": "Unable to validate API-keys",
+                    "incorrectCredentialsTitle": "Incorrect Credentials",
+                    "correctApiMessage": "Key is valid"
+                }
             },
             "general": {
+                "title": "General settings",
                 "deferredInit": {
                     "label": "Initialize Nosto Script After First Page Iteration",
                     "helpText": "This setting is a web page performance tweak. This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."

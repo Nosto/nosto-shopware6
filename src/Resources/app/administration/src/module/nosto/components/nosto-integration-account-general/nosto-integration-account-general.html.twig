@@ -1,5 +1,5 @@
 {% block nosto_integration_account_component_general %}
-    <sw-card title="Account settings" class="od-nosto-account-card">
+    <sw-card :title="$tc('nosto.configuration.account.title')" class="od-nosto-account-card">
         {% block nosto_integration_account_enabled %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.isEnabled']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.isEnabled']">
@@ -15,6 +15,15 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_account_api_validate %}
+            <sw-button-process variant="ghost"
+                               :isLoading="apiValidationInProgress"
+                               @click="validateApiCredentials">
+                {{ $tc('nosto.configuration.account.apiValidation.buttonLabel') }}
+            </sw-button-process>
+        {% endblock %}
+
         {% block nosto_integration_account_id %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.accountID']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.accounts.accountID']"

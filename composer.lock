@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f6612aca6f908f0c23f51d3704576363",
+    "content-hash": "337a0f09207ca0ee65814f096c2c4a37",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -64,16 +64,16 @@
         },
         {
             "name": "od/sw6-job-scheduler",
-            "version": "1.0.1",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler.git",
-                "reference": "d0ade76c06164ca98486f38422a94d18dd3d8c10"
+                "reference": "86f681957e8680fc74389c02eeccef3a04e45714"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/get/d0ade76c06164ca98486f38422a94d18dd3d8c10.zip",
-                "reference": "d0ade76c06164ca98486f38422a94d18dd3d8c10",
+                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/get/86f681957e8680fc74389c02eeccef3a04e45714.zip",
+                "reference": "86f681957e8680fc74389c02eeccef3a04e45714",
                 "shasum": ""
             },
             "require": {
@@ -92,9 +92,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "homepage": "https://bitbucket.org/overdosedigital/shopware-job-scheduler",
             "support": {
-                "source": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/src/d0ade76c06164ca98486f38422a94d18dd3d8c10/?at=1.0.1"
+                "source": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/src/86f681957e8680fc74389c02eeccef3a04e45714/?at=1.0.3"
             },
-            "time": "2022-06-01T12:02:37+00:00"
+            "time": "2022-11-01T08:59:55+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -563,5 +563,5 @@
         "php": "^7.4 || ^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }

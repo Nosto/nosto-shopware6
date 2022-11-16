@@ -2,7 +2,7 @@
     "name": "od/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "proprietary",
     "authors": [
         {
@@ -17,10 +17,10 @@
     },
     "require": {
         "php": "^7.4 || ^8.0",
-        "shopware/administration": "~v6.4.0",
-        "shopware/core": "~v6.4.0",
-        "shopware/storefront": "~v6.4.0",
-        "od/sw6-job-scheduler": "^1.0.1",
+        "shopware/administration": ">=6.4.4.0",
+        "shopware/core": ">=6.4.4.0",
+        "shopware/storefront": ">=6.4.4.0",
+        "od/sw6-job-scheduler": "^1.0.3",
         "nosto/php-sdk": "^5.5.0"
     },
     "repositories": [
@@ -36,11 +36,11 @@
         "shopware-plugin-class": "Od\\NostoIntegration\\overd_nosto",
         "plugin-icon": "src/Resources/config/plugin.png",
         "label": {
-            "de-DE": "Nosto Integration",
+            "de-DE": "Nosto-Integration",
             "en-GB": "Nosto Integration"
         },
         "description": {
-            "de-DE": "Nostos führende Personalisierungslösung nutzt die Stärke von Big Data (KI), um Ihren Online Shop und jeden Ihrer Besucher bis ins Detail zu verstehen!",
+            "de-DE": "Nostos führende Personalisierungslösung nutzt die Kraft von Big Data (künstliche Intelligenz), um Ihren Online-Shop und jeden Ihrer Besucher im Detail zu verstehen!",
             "en-GB": "Nosto's leading personalisation solution uses the power of Big Data (artificial intelligence) to understand your online shop and each of your visitors in detail!"
         },
         "manufacturerLink": {
