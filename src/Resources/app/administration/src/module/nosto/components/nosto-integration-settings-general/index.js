@@ -100,21 +100,23 @@ Component.register('nosto-integration-settings-general', {
         },
 
         getProductCustomFields() {
-            var me = this;
-            const customFieldsCriteria = new Criteria();
-            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
-                .addAssociation('customFields')
-                .addAssociation('relations');
+            this.initLanguageCode().then(() => {
+                var me = this;
+                const customFieldsCriteria = new Criteria();
+                customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
+                    .addAssociation('customFields')
+                    .addAssociation('relations');
 
-            return this.customFieldSetRepository.search(customFieldsCriteria, Shopware.Context.api).then((customFieldSets) => {
-                customFieldSets.forEach((customFieldSet) => {
-                    customFieldSet.customFields.forEach((customField) => {
-                        me.productCustomFields.push({
-                            label: me.languageCode && customField.config.label !== undefined && customField.config.label[me.languageCode] !== undefined ? customField.config.label[me.languageCode] : customField.name,
-                            name: customField.name,
-                            id: customField.name
-                        });
-                    })
+                return this.customFieldSetRepository.search(customFieldsCriteria, Shopware.Context.api).then((customFieldSets) => {
+                    customFieldSets.forEach((customFieldSet) => {
+                        customFieldSet.customFields.forEach((customField) => {
+                            me.productCustomFields.push({
+                                label: me.languageCode && customField.config.label !== undefined && customField.config.label[me.languageCode] !== undefined ? customField.config.label[me.languageCode] : customField.name,
+                                name: customField.name,
+                                id: customField.name
+                            });
+                        })
+                    });
                 });
             });
         }

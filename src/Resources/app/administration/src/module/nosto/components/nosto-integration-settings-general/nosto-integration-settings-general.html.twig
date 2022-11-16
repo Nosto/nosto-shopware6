@@ -65,7 +65,7 @@
                                     :help-text="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsHelpText')">
                     <template #content="props">
                         <sw-multi-select name="NostoIntegration.settings.selectedCustomFields"
-                                          labelProperty="name"
+                                          labelProperty="label"
                                           valueProperty="id"
                                           :options="productCustomFields"
                                           :isInherited="props.isInherited"
@@ -84,7 +84,7 @@
 
                     <template #content="props">
                         <sw-multi-select name="NostoIntegration.settings.tag1"
-                                         labelProperty="name"
+                                         labelProperty="label"
                                          valueProperty="id"
                                          :options="productCustomFields"
                                          :isInherited="props.isInherited"
@@ -103,7 +103,7 @@
 
                     <template #content="props">
                         <sw-multi-select name="NostoIntegration.settings.tag2"
-                                         labelProperty="name"
+                                         labelProperty="label"
                                          valueProperty="id"
                                          :options="productCustomFields"
                                          :isInherited="props.isInherited"
@@ -122,7 +122,7 @@
 
                     <template #content="props">
                         <sw-multi-select name="NostoIntegration.settings.tag3"
-                                         labelProperty="name"
+                                         labelProperty="label"
                                          valueProperty="id"
                                          :options="productCustomFields"
                                          :isInherited="props.isInherited"
@@ -142,7 +142,7 @@
                     <template #content="props">
 
                         <sw-single-select name="NostoIntegration.settings.googleCategory"
-                                          labelProperty="name"
+                                          labelProperty="label"
                                           valueProperty="id"
                                           :options="productCustomFields"
                                           :isInherited="props.isInherited"
