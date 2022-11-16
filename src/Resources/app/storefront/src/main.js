@@ -1,5 +1,6 @@
 import NostoPlugin from './plugin/nosto.plugin'
 import NostoConfiguration from "./plugin/nosto-configuration.plugin";
+import './reacting-cookie/reacting-cookie'
 
 // Register plugins via the existing PluginManager
 const PluginManager = window.PluginManager;
