@@ -32,7 +32,14 @@
                 "emailTokenTitle": "E-Mail-Token (API_EMAIL)",
                 "emailTokenHelpText": "Ein Token zum Verwalten von Kunden mithilfe der Blacklist- und GDPR-APIs. Sie können ein API-Token (API_EMAIL) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
                 "appTokenTitle": "GraphQL-Token (API_APPS)",
-                "appTokenHelpText": "Ein Token für den Zugriff auf die neuen GraphQL-APIs. Sie können ein API-Token (API_APPS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt."
+                "appTokenHelpText": "Ein Token für den Zugriff auf die neuen GraphQL-APIs. Sie können ein API-Token (API_APPS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
+                "apiValidation": {
+                    "buttonLabel": "API-key Prüfung",
+                    "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
+                    "generalErrorMessage": "API-Schlüssel können nicht validiert werden",
+                    "incorrectCredentialsTitle": "Falsche Anmeldeinformationen",
+                    "correctApiMessage": "Key ist gültig"
+                }
             },
             "general": {
                 "title": "Allgemeine Einstellungen",

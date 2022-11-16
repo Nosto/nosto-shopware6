@@ -1,4 +1,5 @@
 import './init/svg-icons.init';
+import './init/nosto-api-keys-validator-service-init';
 import './module/nosto';
 import './extension/sw-cms/component/sw-cms-sidebar';
 import './module/sw-cms/blocks/od-nosto/od-nosto-block';

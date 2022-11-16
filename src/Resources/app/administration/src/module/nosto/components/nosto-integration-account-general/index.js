@@ -1,9 +1,12 @@
 import template from './nosto-integration-account-general.html.twig';
 
-const {Component} = Shopware;
+const {Component, Mixin} = Shopware;
 
 Component.register('nosto-integration-account-general', {
     template,
+
+    inject: ['nostoApiKeyValidatorService'],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         actualConfigData: {
@@ -27,6 +30,7 @@ Component.register('nosto-integration-account-general', {
 
     data() {
         return {
+            apiValidationInProgress: false,
             configurationKeys: {
                 accountID: 'NostoIntegration.settings.accounts.accountID',
                 accountName: 'NostoIntegration.settings.accounts.accountName',
@@ -80,5 +84,71 @@ Component.register('nosto-integration-account-general', {
 
             return value.length <= 0;
         },
+
+        validateApiCredentials() {
+            this.apiValidationInProgress = true;
+            const accountId = this.getInheritedConfig(this.configurationKeys.accountID);
+            const accountName = this.getInheritedConfig(this.configurationKeys.accountName);
+            const productToken = this.getInheritedConfig(this.configurationKeys.productToken);
+            const emailToken = this.getInheritedConfig(this.configurationKeys.emailToken);
+            const appToken = this.getInheritedConfig(this.configurationKeys.appToken);
+
+            if (!(this.credentialsEmptyValidation('id', accountId) *
+                this.credentialsEmptyValidation('name', accountName) *
+                this.credentialsEmptyValidation('productToken', productToken) *
+                this.credentialsEmptyValidation('emailToken', emailToken) *
+                this.credentialsEmptyValidation('appToken', appToken))) {
+                this.apiValidationInProgress = false;
+                return;
+            }
+            this.nostoApiKeyValidatorService.validate({
+                'accountId': accountId,
+                'name': accountName,
+                'productToken': productToken,
+                'emailToken': emailToken,
+                'appToken': appToken
+            }).then((response) => {
+                if (response.status !== 200) {
+                    this.createNotificationError({
+                        message: this.$tc('nosto.configuration.account.apiValidation.generalErrorMessage'),
+                    });
+                    return;
+                }
+                const data = response.data;
+                for (const prop in data) {
+                    if (data[prop].success) {
+                        this.createNotificationSuccess({
+                            title: this.$tc('nosto.configuration.account.' + prop + 'Title'),
+                            message: this.$tc('nosto.configuration.account.apiValidation.correctApiMessage'),
+                        });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$tc('nosto.configuration.account.' + prop + 'Title'),
+                            message: data[prop].message,
+                        });
+                    }
+                }
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('nosto.configuration.account.apiValidation.generalErrorMessage'),
+                });
+            }).finally(() => {
+                this.apiValidationInProgress = false;
+            });
+        },
+
+        getInheritedConfig(key) {
+            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key] ? this.actualConfigData[key] : this.allConfigs[null][key];
+        },
+
+        credentialsEmptyValidation(key, value) {
+            if (value === undefined || value === '' || value === null) {
+                this.createNotificationError({
+                    message: this.$tc('nosto.configuration.account.apiValidation.emptyErrorMessage', 0, {entityName: this.$tc('nosto.configuration.account.' + key + 'Title')}),
+                });
+                return false
+            }
+            return true;
+        }
     },
 });
