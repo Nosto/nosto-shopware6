@@ -17,7 +17,7 @@ use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class overd_nosto extends Plugin
+class overdose_nosto extends Plugin
 {
     public function activate(ActivateContext $activateContext): void
     {
