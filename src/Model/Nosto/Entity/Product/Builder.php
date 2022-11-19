@@ -60,9 +60,17 @@ class Builder implements BuilderInterface
 
         $channelId = $context->getSalesChannelId();
         $nostoProduct = new NostoProduct();
-        $nostoProduct->setUrl($this->getProductUrl($product, $context));
+        $url = $this->getProductUrl($product, $context);
+        if (!empty($url)) {
+            $nostoProduct->setUrl($url);
+        }
+
         $nostoProduct->setProductId($product->getId());
-        $nostoProduct->setName($product->getTranslation('name'));
+        $name = $product->getTranslation('name');
+        if (!empty($name)) {
+            $nostoProduct->setName($name);
+        }
+
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
 
         $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
@@ -212,6 +220,6 @@ class Builder implements BuilderInterface
             return $this->seoUrlReplacer->replace($raw, $domains->first()->getUrl(), $context);
         }
 
-        throw new \Exception('Unable to generate SEO Product URL.');
+        return null;
     }
 }

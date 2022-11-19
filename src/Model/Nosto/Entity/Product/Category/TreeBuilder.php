@@ -9,6 +9,10 @@ class TreeBuilder implements TreeBuilderInterface
 {
     public function fromCategoriesRo(CategoryCollection $categoriesRo): array
     {
+        if ($categoriesRo->count() < 1) {
+            return [];
+        }
+
         $rootCategoryId = $categoriesRo
             ->filter(fn(CategoryEntity $category) => $category->getParentId() === null)
             ->first()->getId();
