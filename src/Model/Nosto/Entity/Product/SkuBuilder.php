@@ -21,7 +21,11 @@ class SkuBuilder implements SkuBuilderInterface
     {
         $nostoSku = new NostoSku();
         $nostoSku->setId($product->getId());
-        $nostoSku->setName($product->getTranslation('name'));
+
+        $name = $product->getTranslation('name');
+        if (!empty($name)) {
+            $nostoSku->setName($name);
+        }
 
         $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoSku->setAvailability($stockStatus);

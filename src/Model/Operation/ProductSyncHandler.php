@@ -13,9 +13,9 @@ use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Od\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Od\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Od\Scheduler\Model\Job;
+use Od\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Od\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -148,10 +148,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
     {
+        $message = '';
         if (!$product->getImageUrl()) {
-            return new WarningMessage('Image url is empty, ignoring upsert for product with number. ' . $productNumber);
+            $message .= 'Product image url is empty, ';
         }
-        return null;
+        if (!$product->getUrl()) {
+            $message .= 'Product url is empty, ';
+        }
+        if (!$product->getName()) {
+            $message .= 'Product name is empty, ';
+        }
+
+        return empty($message) ? null : new WarningMessage(
+            $message.'ignoring upsert for product with number. '.$productNumber
+        );
     }
 
     private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds)
