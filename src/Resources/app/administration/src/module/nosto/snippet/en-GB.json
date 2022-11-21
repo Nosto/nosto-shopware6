@@ -33,7 +33,7 @@
                 "appTokenTitle": "GraphQL Token (API_APPS)",
                 "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "apiValidation": {
-                    "buttonLabel": "API-key test",
+                    "buttonLabel": "API-key Test",
                     "emptyErrorMessage": "\"{entityName}\" should not be blank!",
                     "generalErrorMessage": "Unable to validate API-keys",
                     "incorrectCredentialsTitle": "Incorrect Credentials",

@@ -1,11 +1,5 @@
 .nosto-integration-settings {
-
     .channel-card-container {
-        .sw-card__content {
-            border: none;
-            padding: 0 0!important;
-        }
-
         .sw-select.sw-single-select {
             margin-bottom: 0;
         }
@@ -16,13 +10,12 @@
     }
 
     .od-nosto-account-card {
-        .sw-field--switch {
-            margin-bottom: 22px;
+        .validate-btn {
+            margin-bottom: 10px;
         }
     }
 
     .sw-card.sw-card--grid  {
-
         &.is-general-settings {
             .sw-card__content {
                 padding-top: 20px;
