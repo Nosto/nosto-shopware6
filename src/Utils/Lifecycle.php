@@ -41,6 +41,12 @@ class Lifecycle
             // TODO: OdScheduler must be responsible for its uninstallation - move such operations to it in future.
             $this->connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job_message`');
             $this->connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job`');
+
+            $schedulerMigrationClassWildcard = addcslashes('Od\Scheduler\Migration', '\\_%') . '%';
+            $this->connection->executeUpdate(
+                'DELETE FROM migration WHERE class LIKE :class',
+                ['class' => $schedulerMigrationClassWildcard]
+            );
         }
 
         $this->removeConfigs($context->getContext());
