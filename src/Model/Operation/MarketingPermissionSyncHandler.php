@@ -40,12 +40,11 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
     public function execute(object $message): JobResult
     {
         $operationResult = new JobResult();
-        $context = Context::createDefaultContext();
-        foreach ($this->accountProvider->all() as $account) {
+        foreach ($this->accountProvider->all($message->getContext()) as $account) {
             $nostoAccount = $account->getNostoAccount();
             $accountOperationResult = $this->doOperation(
                 $nostoAccount,
-                $context,
+                $message->getContext(),
                 $message->getNewsletterRecipientIds()
             );
             foreach ($accountOperationResult->getErrors() as $error) {

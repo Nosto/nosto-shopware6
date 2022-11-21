@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Od\NostoIntegration\Service\ScheduledTask;
 
 use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
+use Od\NostoIntegration\Async\AbstractMessage;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use Od\NostoIntegration\Utils\Logger\ContextHelper;
@@ -52,7 +53,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         if ($this->isTimeToRunJob()) {
             try {
                 $this->cache->clear(CachedProvider::CACHE_PREFIX);
-                $this->nostoSyncRoute->fullCatalogSync(new Request(), Context::createDefaultContext());
+                $this->nostoSyncRoute->fullCatalogSync(new Request(), AbstractMessage::createDefaultContext());
                 $this->systemConfigService->set(
                     self::LAST_EXECUTION_TIME_CONFIG,
                     (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)

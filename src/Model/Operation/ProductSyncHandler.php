@@ -69,7 +69,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $operationResult = new Job\JobResult();
 
-        foreach ($this->accountProvider->all() as $account) {
+        foreach ($this->accountProvider->all($message->getContext()) as $account) {
             $channelContext = $this->channelContextFactory->create(
                 Uuid::randomHex(),
                 $account->getChannelId(),
