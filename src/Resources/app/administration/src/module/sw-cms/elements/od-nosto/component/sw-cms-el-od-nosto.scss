@@ -1,8 +1,15 @@
 sw-cms-block-od-nosto-block {
     .sw-cms-slot-od_nosto {
-        img {
-            max-height: 150px;
-            height: auto;
+        .od-preview-container {
+            & {
+                padding: 20px;
+                margin: 15px auto 0;
+            }
+
+            & p{
+                float: right;
+                line-height: 60px;
+            }
         }
     }
 }

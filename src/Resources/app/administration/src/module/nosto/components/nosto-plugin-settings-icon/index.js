@@ -4,4 +4,12 @@ const { Component } = Shopware;
 
 Component.register('nosto-plugin-settings-icon', {
     template,
+
+    props: {
+        size: {
+            type: String,
+            required: false,
+            default: "30"
+        }
+    }
 });
