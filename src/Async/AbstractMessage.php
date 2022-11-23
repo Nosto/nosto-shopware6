@@ -24,14 +24,17 @@ abstract class AbstractMessage implements JobMessageInterface
         $this->setContext($context);
     }
 
-    protected function setContext(?Context $context) {
+    protected function setContext(?Context $context)
+    {
         // All values should be sent to nosto with the default currency and language
-        if ($context &&
-            ($context->getLanguageId() !== Defaults::LANGUAGE_SYSTEM ||
-                $context->getCurrencyId() !== Defaults::CURRENCY
-            )
-        ) {
-            $context = new Context(
+        if ($context === null) {
+            $this->context = new Context(new SystemSource());
+            return;
+        }
+
+        // All values should be sent to nosto with the default currency and language
+        if ($context->getLanguageId() !== Defaults::LANGUAGE_SYSTEM || $context->getCurrencyId() !== Defaults::CURRENCY) {
+            $this->context = new Context(
                 $context->getSource(),
                 $context->getRuleIds(),
                 Defaults::CURRENCY,
@@ -42,8 +45,9 @@ abstract class AbstractMessage implements JobMessageInterface
                 $context->getTaxState(),
                 $context->getRounding()
             );
+        } else {
+            $this->context = $context;
         }
-        $this->context = $context;
     }
 
     public function getJobId(): string

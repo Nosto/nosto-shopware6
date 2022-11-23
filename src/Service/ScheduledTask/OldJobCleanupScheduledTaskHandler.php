@@ -7,6 +7,7 @@ namespace Od\NostoIntegration\Service\ScheduledTask;
 use DateTime;
 use Od\NostoIntegration\Async\AbstractMessage;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,7 +34,8 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $context = AbstractMessage::createDefaultContext();
+        // Here we have context-less process
+        $context = new Context(new SystemSource());
         $numberOfDaysBeforeToday = new DateTime(' - 5 day'); // needed to add to the plugin`s configuration
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter(

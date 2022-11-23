@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Od\NostoIntegration\Service\ScheduledTask;
 
 use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
-use Od\NostoIntegration\Async\AbstractMessage;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use Od\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -53,7 +53,8 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         if ($this->isTimeToRunJob()) {
             try {
                 $this->cache->clear(CachedProvider::CACHE_PREFIX);
-                $this->nostoSyncRoute->fullCatalogSync(new Request(), AbstractMessage::createDefaultContext());
+                // Here we have context-less process
+                $this->nostoSyncRoute->fullCatalogSync(new Request(), new Context(new SystemSource()));
                 $this->systemConfigService->set(
                     self::LAST_EXECUTION_TIME_CONFIG,
                     (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
