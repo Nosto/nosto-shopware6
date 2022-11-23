@@ -18,6 +18,7 @@
 
         {% block nosto_integration_account_api_validate %}
             <sw-button-process variant="ghost"
+                               class="validate-btn"
                                :isLoading="apiValidationInProgress"
                                @click="validateApiCredentials">
                 {{ $tc('nosto.configuration.account.apiValidation.buttonLabel') }}
