@@ -93,7 +93,7 @@ class NostoCacheResolver
     private function getBasicCachingAllowance(SalesChannelContext $channelContext): bool
     {
         $isMerchEnabled = $this->configProvider->isMerchEnabled($channelContext->getSalesChannelId());
-        $isNostoAccountExists = $this->accountProvider->get($channelContext->getSalesChannelId()) !== null;
+        $isNostoAccountExists = $this->accountProvider->get($channelContext->getContext(), $channelContext->getSalesChannelId()) !== null;
 
         return $isMerchEnabled && $isNostoAccountExists;
     }

@@ -25,9 +25,9 @@ class Provider
         $this->channelRepo = $channelRepo;
     }
 
-    public function get(string $channelId): ?Account
+    public function get(Context $context, string $channelId): ?Account
     {
-        return array_values(array_filter($this->all(), function(Account $account) use ($channelId) {
+        return array_values(array_filter($this->all($context), function(Account $account) use ($channelId) {
             return $account->getChannelId() === $channelId;
         }))[0] ?? null;
     }
@@ -35,7 +35,7 @@ class Provider
     /**
      * @return Account[]
      */
-    public function all(): array
+    public function all(Context $context): array
     {
         if ($this->accounts !== null) {
             return $this->accounts;
@@ -44,7 +44,6 @@ class Provider
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $criteria->addFilter(new EqualsFilter('active', true));
-        $context = Context::createDefaultContext();
         $channels = $this->channelRepo->search($criteria, $context)->getEntities();
 
         /** @var SalesChannelEntity $channel */

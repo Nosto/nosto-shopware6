@@ -50,7 +50,7 @@ class OdNostoSyncRoute
      */
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
-        $job = new FullCatalogSyncMessage(Uuid::randomHex());
+        $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
         $this->checkJobStatus($context, $job->getHandlerCode());
         $this->jobScheduler->schedule($job);
         return new JsonApiResponse();
