@@ -65,6 +65,17 @@ Component.register('nosto-integration-account-general', {
             }
         },
 
+        hasError(value) {
+            return this.isActive() && !value ? {
+                code: 1,
+                detail: this.$tc('nosto.messages.blank-field-error')
+            } : null;
+        },
+
+        isActive() {
+            return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) && this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') ? this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+        },
+
         removeErrorState(key) {
             return this.$delete(this.errorStates, key);
         },

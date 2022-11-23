@@ -3,6 +3,10 @@
         "detail": {
             "sidebar": {
                 "nostoSidebarOption": "Nosto Komponenten"
+            },
+            "preview": {
+                "elementLabel": "Element-ID",
+                "emptyLabel": "Nicht konfiguriert"
             }
         }
     }

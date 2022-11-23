@@ -30,17 +30,17 @@ class Builder implements BuilderInterface
         $nostoCustomer->setFirstName($customer->getFirstName());
         $nostoCustomer->setLastName($customer->getLastName());
         $nostoCustomer->setCustomerReference($this->generateCustomerReference($customer));
-        $nostoCustomer->setMarketingPermission($this->hasMarketingPermission($customer));
+        $nostoCustomer->setMarketingPermission($this->hasMarketingPermission($customer, $context));
         $this->eventDispatcher->dispatch(new NostoCustomerBuiltEvent($customer, $nostoCustomer, $context));
 
         return $nostoCustomer;
     }
 
-    private function hasMarketingPermission(CustomerEntity $customer): bool
+    private function hasMarketingPermission(CustomerEntity $customer, Context $context): bool
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
-        $subscriber = $this->newsletterRecipientRepository->search($criteria, Context::createDefaultContext())->first();
+        $subscriber = $this->newsletterRecipientRepository->search($criteria, $context)->first();
 
         return $subscriber !== null
             ? in_array($subscriber->getStatus(), [Newsletter::OPTION_DIRECT, Newsletter::STATUS_OPT_IN])

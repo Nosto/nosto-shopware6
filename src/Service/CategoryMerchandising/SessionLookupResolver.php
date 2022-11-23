@@ -7,10 +7,13 @@ use Nosto\Operation\Session\NewSession;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Account\Provider;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class SessionLookupResolver
 {
+    public const NOSTO_SESSION_COOKIE = '2c_cId';
+
     private Provider $accountProvider;
     private RequestStack $requestStack;
 
@@ -28,7 +31,7 @@ class SessionLookupResolver
     public function getSessionId(): string
     {
         $request = $this->requestStack->getCurrentRequest();
-        $customerId = $request->cookies->get('2c_cId');
+        $customerId = $request->cookies->get(self::NOSTO_SESSION_COOKIE);
         $account = $this->getNostoAccount();
 
         if ($account && !$customerId) {
@@ -39,11 +42,11 @@ class SessionLookupResolver
         return $customerId;
     }
 
-    public function getNostoAccount(?string $channelId = null): ?Account
+    public function getNostoAccount(Context $context, ?string $channelId = null): ?Account
     {
         $request = $this->requestStack->getCurrentRequest();
-        $channelId = $request->attributes->get('sw-sales-channel-id', '');
+        $channelId = $channelId === null ? $request->attributes->get('sw-sales-channel-id') : '';
 
-        return $this->accountProvider->get($channelId);
+        return $this->accountProvider->get($context, $channelId);
     }
 }

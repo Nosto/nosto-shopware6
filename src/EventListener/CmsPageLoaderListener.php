@@ -2,8 +2,6 @@
 
 namespace Od\NostoIntegration\EventListener;
 
-use Nosto\NostoException;
-use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
 use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Od\NostoIntegration\Utils\Logger\ContextHelper;
@@ -68,12 +66,14 @@ class CmsPageLoaderListener implements EventSubscriberInterface
             );
         }
 
-        if (!$sessionId || $request->cookies->has('2c_cId')) {
-            return;
-        }
+        $isNeedCreateSessionCookie = $sessionId !== null
+            && $request->cookies->has('od-nosto-track-allow')
+            && !$request->cookies->has(SessionLookupResolver::NOSTO_SESSION_COOKIE);
 
-        $cookie = Cookie::create('2c_cId', $sessionId);
-        $cookie->setSecureDefault($request->isSecure());
-        $response->headers->setCookie($cookie);
+        if ($isNeedCreateSessionCookie) {
+            $cookie = Cookie::create(SessionLookupResolver::NOSTO_SESSION_COOKIE, $sessionId);
+            $cookie->setSecureDefault($request->isSecure());
+            $response->headers->setCookie($cookie);
+        }
     }
 }

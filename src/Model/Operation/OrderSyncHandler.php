@@ -47,9 +47,8 @@ class OrderSyncHandler implements JobHandlerInterface
     public function execute(object $message): JobResult
     {
         $operationResult = new JobResult();
-        $context = Context::createDefaultContext();
-        foreach ($this->accountProvider->all() as $account) {
-            $accountOperationResult = $this->doOperation($account, $context, $message);
+        foreach ($this->accountProvider->all($message->getContext()) as $account) {
+            $accountOperationResult = $this->doOperation($account, $message->getContext(), $message);
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
             }
@@ -96,7 +95,7 @@ class OrderSyncHandler implements JobHandlerInterface
 
     private function sendNewOrder(OrderEntity $order, Account $account, Context $context): void
     {
-        $nostoOrder = $this->nostoOrderbuilder->build($order);
+        $nostoOrder = $this->nostoOrderbuilder->build($order, $context);
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
         $operation = new OrderCreate($nostoOrder, $account->getNostoAccount(), $nostoCustomerIdentifier, $nostoCustomerId);

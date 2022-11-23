@@ -4,6 +4,7 @@ namespace Od\NostoIntegration\Async;
 
 use Od\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Shopware\Core\Framework\Context;
 
 class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
@@ -17,9 +18,10 @@ class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInte
         string $parentJobId,
         array $newOrderIds,
         array $updatedOrderIds,
+        ?Context $context,
         ?string $name = null
     ) {
-        parent::__construct($jobId, $name);
+        parent::__construct($jobId, $context, $name);
         $this->newOrderIds = $newOrderIds;
         $this->updatedOrderIds = $updatedOrderIds;
         $this->parentJobId = $parentJobId;

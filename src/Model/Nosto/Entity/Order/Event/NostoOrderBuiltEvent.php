@@ -14,13 +14,16 @@ class NostoOrderBuiltEvent extends NestedEvent
 {
     private OrderEntity $order;
     private NostoOrder $nostoOrder;
+    private Context $context;
 
     public function __construct(
         OrderEntity $order,
-        NostoOrder $nostoOrder
+        NostoOrder $nostoOrder,
+        Context $context
     ) {
         $this->order = $order;
         $this->nostoOrder = $nostoOrder;
+        $this->context = $context;
     }
 
     public function getOrder(): OrderEntity
@@ -35,7 +38,6 @@ class NostoOrderBuiltEvent extends NestedEvent
 
     public function getContext(): Context
     {
-        // TODO see on OrderSyncHandler
-        return Context::createDefaultContext();
+        return $this->context;
     }
 }

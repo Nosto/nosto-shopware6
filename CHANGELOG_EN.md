@@ -1,3 +1,14 @@
+# 1.0.2
+
+* New: Added custom theme compatibility
+* New: Required fields are marked not required if the account is not enabled
+* Fix: Context is kept for background processes
+* Fix: Removed all data during uninstall process
+* Fix: Fixed server side generated cookies related to the permissions
+* Fix: Handled empty category, product image and product url cases
+* Fix: CSS removed "important" keywords
+* Fix: Fixed UI for Nosto CMS-element
+
 # 1.0.1
 
 * New: Added api key validation in Nosto config

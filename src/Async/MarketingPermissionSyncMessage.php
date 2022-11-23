@@ -4,6 +4,7 @@ namespace Od\NostoIntegration\Async;
 
 use Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler;
 use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Shopware\Core\Framework\Context;
 
 class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 
@@ -16,9 +17,10 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
         string $jobId,
         string $parentJobId,
         array $newsletterRecipientIds,
+        ?Context $context = null,
         ?string $name = null
     ) {
-        parent::__construct($jobId, $name);
+        parent::__construct($jobId, $context, $name);
         $this->newsletterRecipientIds = $newsletterRecipientIds;
         $this->parentJobId = $parentJobId;
     }

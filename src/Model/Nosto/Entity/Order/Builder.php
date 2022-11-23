@@ -13,6 +13,7 @@ use Od\NostoIntegration\Model\Nosto\Entity\Order\Item\BuilderInterface as NostoO
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
@@ -31,7 +32,7 @@ class Builder implements BuilderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function build(OrderEntity $order): NostoOrder
+    public function build(OrderEntity $order, Context $context): NostoOrder
     {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
@@ -71,7 +72,7 @@ class Builder implements BuilderInterface
             $nostoOrder->addPurchasedItems($nostoItem);
         }
 
-        $this->eventDispatcher->dispatch(new NostoOrderBuiltEvent($order, $nostoOrder));
+        $this->eventDispatcher->dispatch(new NostoOrderBuiltEvent($order, $nostoOrder, $context));
         return $nostoOrder;
     }
 }

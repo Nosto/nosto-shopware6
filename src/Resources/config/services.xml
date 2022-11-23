@@ -67,6 +67,7 @@
         <service id="Od\NostoIntegration\Model\Nosto\Account\Provider">
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="logger"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
@@ -164,6 +165,14 @@
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
             <tag name="od.nosto.merch.filter_translator" code="od-price-filter"/>
         </service>
+        <service id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
+        </service>
+        <!-- /Services -->
+
+        <!-- Decorators -->
         <service id="nosto.aware_cached_listing"
                  class="Od\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
                  decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute">
@@ -176,17 +185,17 @@
             <argument type="service" id="nosto.aware_cached_category_route.inner"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
         </service>
-        <service id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Account\Provider"/>
-        </service>
         <service id="Od\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
                  decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
             <argument type="service"
                       id="Od\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner"/>
         </service>
-        <!-- /Services -->
+        <service id="Od\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator"
+                 decorates="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface">
+            <argument type="service"
+                      id="Od\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner"/>
+        </service>
+        <!-- /Decorators -->
 
         <!-- Entity Definitions -->
         <service id="Od\NostoIntegration\Entity\Changelog\ChangelogDefinition">
