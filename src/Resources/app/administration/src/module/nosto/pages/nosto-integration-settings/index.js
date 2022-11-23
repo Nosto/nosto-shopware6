@@ -23,7 +23,14 @@ Component.register('nosto-integration-settings', {
             messageAccountBlankErrorState: null,
             config: null,
             salesChannels: [],
-            errorStates: {}
+            errorStates: {},
+            configurationKeys: {
+                accountID: 'NostoIntegration.settings.accounts.accountID',
+                accountName: 'NostoIntegration.settings.accounts.accountName',
+                productToken: 'NostoIntegration.settings.accounts.productToken',
+                emailToken: 'NostoIntegration.settings.accounts.emailToken',
+                appToken: 'NostoIntegration.settings.accounts.appToken'
+            }
         };
     },
 
@@ -76,13 +83,62 @@ Component.register('nosto-integration-settings', {
             });
         },
 
+
+        preprocessConfigData() {
+            Object.keys(this.$refs.configComponent.allConfigs).forEach(item => {
+                Object.keys(this.configurationKeys).forEach(key => {
+                    if (this.$refs.configComponent.allConfigs[item].hasOwnProperty(this.configurationKeys[key]) && !this.$refs.configComponent.allConfigs[item][this.configurationKeys[key]]) {
+                        delete this.$refs.configComponent.allConfigs[item][this.configurationKeys[key]];
+                    }
+                })
+                if (this.$refs.configComponent.allConfigs[item].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') && typeof this.$refs.configComponent.allConfigs[item]['NostoIntegration.settings.accounts.isEnabled'] !== 'boolean') {
+                    delete this.$refs.configComponent[item]['NostoIntegration.settings.accounts.isEnabled'];
+                }
+            });
+        },
+
+        isActive(channelId) {
+            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) && this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') ? this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+        },
+
+        getInheritedValue(channelId, key) {
+            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) && this.$refs.configComponent.allConfigs[channelId].hasOwnProperty(key) ? this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs[null][key]
+        },
+
+        checkErrorsBeforeSave() {
+            const BreakException = {};
+            let result = false;
+            try {
+                Object.keys(this.$refs.configComponent.allConfigs).forEach(item => {
+                    if (
+                        this.isActive(item) &&
+                        (!this.getInheritedValue(item, this.configurationKeys.accountID) ||
+                            !this.getInheritedValue(item, this.configurationKeys.accountName) ||
+                            !this.getInheritedValue(item, this.configurationKeys.productToken) ||
+                            !this.getInheritedValue(item, this.configurationKeys.emailToken) ||
+                            !this.getInheritedValue(item, this.configurationKeys.appToken)
+                        )
+                    ) {
+                        result = {
+                            'salesChannelName': this.salesChannels.get(item == 'null' ? null : item).translated.name
+                        }
+                        throw BreakException;
+                    }
+                })
+            } catch (e) {
+                if (e !== BreakException) throw e;
+            }
+            return result
+        },
+
         onSave() {
             this.isLoading = true;
-
-            if (Object.keys(this.errorStates).length > 0) {
+            this.preprocessConfigData();
+            const checkList = this.checkErrorsBeforeSave();
+            if (checkList) {
                 this.isLoading = false;
                 return this.createNotificationError({
-                    message: this.$tc('nosto.messages.error-message')
+                    title: checkList['salesChannelName'], message: this.$tc('nosto.messages.error-message')
                 });
             }
 
