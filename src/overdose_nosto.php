@@ -3,9 +3,7 @@
 namespace Od\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
-use Doctrine\DBAL\Connection;
 use Od\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
-use Od\NostoIntegration\Utils\MigrationHelper;
 use Od\Scheduler\OdScheduler;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -16,6 +14,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class overdose_nosto extends Plugin
 {
@@ -24,8 +23,8 @@ class overdose_nosto extends Plugin
         parent::activate($activateContext);
         /** @var AssetService $assetService */
         $assetService = $this->container->get('nosto.plugin.assetservice.public');
-        /** @var MigrationHelper $migrationHelper */
-        $migrationHelper = $this->container->get(MigrationHelper::class);
+        /** @var Utils\MigrationHelper $migrationHelper */
+        $migrationHelper = $this->container->get(Utils\MigrationHelper::class);
 
         foreach ($this->getDependencyBundles() as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
@@ -46,9 +45,29 @@ class overdose_nosto extends Plugin
             return;
         }
 
-        /** @var Connection $connection */
-        $connection = $this->container->get(Connection::class);
-        $connection->executeStatement('DROP TABLE IF EXISTS `od_nosto_entity_changelog`');
+        $hasOtherSchedulerDependency = false;
+        $bundleParameters = new AdditionalBundleParameters(new ClassLoader(), new Plugin\KernelPluginCollection(), []);
+        $kernel = $this->container->get('kernel');
+
+        foreach ($kernel->getPluginLoader()->getPluginInstances()->getActives() as $bundle) {
+            if (!$bundle instanceof Plugin || $bundle instanceof self) {
+                continue;
+            }
+
+            $schedulerDependencies = \array_filter(
+                $bundle->getAdditionalBundles($bundleParameters),
+                function (BundleInterface $bundle) {
+                    return $bundle instanceof OdScheduler;
+                }
+            );
+
+            if (\count($schedulerDependencies) !== 0) {
+                $hasOtherSchedulerDependency = true;
+                break;
+            }
+        }
+
+        (new Utils\Lifecycle($this->container, $hasOtherSchedulerDependency))->uninstall($uninstallContext);
     }
 
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
