@@ -67,6 +67,7 @@
         <service id="Od\NostoIntegration\Model\Nosto\Account\Provider">
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="logger"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>

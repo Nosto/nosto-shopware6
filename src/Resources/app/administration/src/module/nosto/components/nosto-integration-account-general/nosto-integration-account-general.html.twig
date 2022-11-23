@@ -36,8 +36,7 @@
                             :map-inheritance="props"
                             :value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="errorStates.accountID ?? null"
-                            @change="validateRequiredField('accountID', props)"
+                            :error="hasError(props.currentValue)"
                             required
                             name="NostoIntegration.settings.accounts.accountID"
                             @input="props.updateCurrentValue"></sw-field>
@@ -56,8 +55,7 @@
                         :map-inheritance="props"
                         :value="props.currentValue"
                         :disabled="props.isInherited"
-                        :error="errorStates.accountName ?? null"
-                        @change="validateRequiredField('accountName', props)"
+                        :error="hasError(props.currentValue)"
                         required
                         name="NostoIntegration.settings.accounts.accountName"
                         @input="props.updateCurrentValue"></sw-field>
@@ -76,9 +74,8 @@
                             :map-inheritance="props"
                             :value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="errorStates.productToken ?? null"
                             required
-                            @change="validateRequiredField('productToken', props)"
+                            :error="hasError(props.currentValue)"
                             name="NostoIntegration.settings.accounts.productToken"
                             @input="props.updateCurrentValue"></sw-field>
                 </template>
@@ -94,8 +91,7 @@
                             :map-inheritance="props"
                             :value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="errorStates.emailToken ?? null"
-                            @change="validateRequiredField('emailToken', props)"
+                            :error="hasError(props.currentValue)"
                             required
                             name="NostoIntegration.settings.accounts.emailToken"
                             @input="props.updateCurrentValue"></sw-field>
@@ -112,9 +108,8 @@
                             :map-inheritance="props"
                             :value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="errorStates.appToken ?? null"
+                            :error="hasError(props.currentValue)"
                             required
-                            @change="validateRequiredField('appToken', props)"
                             name="NostoIntegration.settings.accounts.appToken"
                             @input="props.updateCurrentValue"></sw-field>
                 </template>
