@@ -194,12 +194,12 @@ View modes can be switched from the dashboard action bar on top of the job listi
 
 ![Switch View](images/job-scheduler-switch-view.png?raw=true)
 
-###Listing View <a name="job-scheduling-view-listing"></a>
+### Listing View <a name="job-scheduling-view-listing"></a>
 
 List view is the default view of the dashboard with filtering support.
 ![Listing View](images/job-scheduler-listing-view.png?raw=true)
 
-###Grouped view <a name="job-scheduling-view-group"></a>
+### Grouped view <a name="job-scheduling-view-group"></a>
 
 ![Grouped View](images/job-scheduler-grouped-view.gif?raw=true)
 The grouped view has 2 types of grouping itself.
@@ -226,7 +226,7 @@ type/status in front of it.
 
 At the bottom of the charts there are colored dot badges with the chart line name (corresponding to the chart grouping mode status/type).
 
-##Auto Load <a name="job-scheduling-auto-load"></a>
+## Auto Load <a name="job-scheduling-auto-load"></a>
 
 In the **Actions** at the top of the Nosto dashboard there is a switch field named **Auto Load**.
 
