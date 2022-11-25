@@ -250,6 +250,7 @@ Job Listing page has auto-reload feature so you don't even need to reload whole 
 Listing data refreshes automatically every 1 minute.
 
 Listing page contains all Nosto plugin jobs:
+
 1. **Changelog Entity Sync Operation** - parent backlog events processing operation over the child's - **Marketing Permission Sync Operation** (newsletter), **Order Sync Operation** (New Order, Updated Order events), and **Product Sync Operation**.
 2. **Full Catalog Sync Operation** - synchronize products - parent of the **Product Sync Operation**.
 
