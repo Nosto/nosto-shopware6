@@ -195,10 +195,12 @@ View modes can be switched from the dashboard action bar on top of the job listi
 ![Switch View](images/job-scheduler-switch-view.png?raw=true)
 
 ###Listing View <a name="job-scheduling-view-listing"></a>
+
 List view is the default view of the dashboard with filtering support.
 ![Listing View](images/job-scheduler-listing-view.png?raw=true)
 
 ###Grouped view <a name="job-scheduling-view-group"></a>
+
 ![Grouped View](images/job-scheduler-grouped-view.gif?raw=true)
 The grouped view has 2 types of grouping itself.
 1. Group by status
@@ -209,6 +211,7 @@ Grouping types can be switched from the action bar at the top.
 ![Grouped View](images/job-scheduler-group-change.png?raw=true)
 
 ### Chart view <a name="job-scheduling-view-chart"></a>
+
 Charts view allows us to group the jobs by **type** or by **status** and show them divided by dates.
 At the top of the charts bar we have the dropdown selection where we can select the date range:
 **30 Days.<br>
@@ -224,6 +227,7 @@ type/status in front of it.
 At the bottom of the charts there are colored dot badges with the chart line name (corresponding to the chart grouping mode status/type).
 
 ##Auto Load <a name="job-scheduling-auto-load"></a>
+
 In the **Actions** at the top of the Nosto dashboard there is a switch field named **Auto Load**.
 
 ![Autoload](images/job-scheduler-autoload.png?raw=true)
