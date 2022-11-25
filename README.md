@@ -215,6 +215,7 @@ List view is the default view of the dashboard with filtering support.
 
 ![Grouped View](images/job-scheduler-grouped-view.gif?raw=true)
 The grouped view has 2 types of grouping itself.
+
 1. Group by status
 2. Group by Job type.
 
