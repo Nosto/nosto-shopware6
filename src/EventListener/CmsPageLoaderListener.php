@@ -6,6 +6,8 @@ use Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
 use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Od\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\{Cookie, RequestStack};
@@ -54,7 +56,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         }
 
         try {
-            $sessionId = $this->sessionLookupResolver->getSessionId();
+            $sessionId = $this->sessionLookupResolver->getSessionId(new Context(new SystemSource()));
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(
