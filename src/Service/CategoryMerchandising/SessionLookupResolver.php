@@ -28,11 +28,11 @@ class SessionLookupResolver
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    public function getSessionId(): string
+    public function getSessionId(Context $context): string
     {
         $request = $this->requestStack->getCurrentRequest();
         $customerId = $request->cookies->get(self::NOSTO_SESSION_COOKIE);
-        $account = $this->getNostoAccount();
+        $account = $this->getNostoAccount($context);
 
         if ($account && !$customerId) {
             $session = new NewSession($account->getNostoAccount(), '', false);
