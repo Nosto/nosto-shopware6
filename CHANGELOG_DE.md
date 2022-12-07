@@ -1,3 +1,7 @@
+# 1.0.3
+
+* Fix: Merchandiser der festen Kategorie
+
 # 1.0.2
 
 * Neu: Kompatibilität mit benutzerdefinierten Designs hinzugefügt
