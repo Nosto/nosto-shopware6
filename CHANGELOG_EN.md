@@ -1,3 +1,7 @@
+# 1.0.3
+
+* Fix: Fixed Category Merchandiser
+
 # 1.0.2
 
 * New: Added custom theme compatibility
