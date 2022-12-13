@@ -35,6 +35,12 @@ Component.register('nosto-integration-settings-general', {
     },
 
     computed: {
+        domainCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('salesChannelId', this.selectedSalesChannelId));
+            return criteria;
+        },
+
         languageRepository() {
             return this.repositoryFactory.create('language');
         },

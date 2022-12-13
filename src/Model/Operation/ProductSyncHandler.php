@@ -21,6 +21,8 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -127,7 +129,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         ProductCollection $productCollection,
         Job\JobResult $result
     ) {
-        $domainUrl = $context->getSalesChannel()->getDomains()->first()->getUrl();
+        $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
 
@@ -166,12 +168,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds)
     {
-        $domainUrl = $context->getSalesChannel()->getDomains()->first()->getUrl();
+        $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
 
         $operation = new DeleteProduct($account->getNostoAccount(), $domain);
         $operation->setProductIds($productIds);
         $this->eventDispatcher->dispatch(new BeforeDeleteProductsEvent($operation, $context->getContext()));
         $operation->delete();
+    }
+    
+    private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string {
+        if($domains == null || $domains->count() < 1) {
+            return '';
+        }
+        $domainId = $this->configProvider->getDomainId($channelId);
+        return $domainId !== null || $domains->get($domainId) instanceof SalesChannelDomainEntity ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
     }
 }
