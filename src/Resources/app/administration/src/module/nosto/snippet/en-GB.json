@@ -53,6 +53,10 @@
                 "notLoggedInCache": {
                     "label": "Enable PLP Cache for Not Logged In Customers.",
                     "helpText": "When merchandising feature is enabled, Whole PLP HTTP page cache is being disabled to prevent caching of the personalized PLP products for all customers. You can enable PLP HTTP cache for Not Logged In customers (not-personalized) to prevent storefront performance issues."
+                },
+                "domain": {
+                    "label": "Domain for generating product url",
+                    "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url"
                 }
             },
             "featuresFlags": {

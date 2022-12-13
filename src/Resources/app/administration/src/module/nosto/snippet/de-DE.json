@@ -54,6 +54,10 @@
                 "notLoggedInCache": {
                     "label": "Aktivieren Sie den PLP-Cache für nicht angemeldete Kunden.",
                     "helpText": "Wenn die Merchandising-Funktion aktiviert ist, wird der gesamte PLP-HTTP-Seiten-Cache deaktiviert, um das Caching der personalisierten PLP-Produkte für alle Kunden zu verhindern. Sie können den PLP-HTTP-Cache für nicht angemeldete Kunden (nicht personalisiert) aktivieren, um Leistungsprobleme im Schaufenster zu vermeiden."
+                },
+                "domain": {
+                    "label": "Domäne für die Erzeugung der Produkturl.",
+                    "helpText": "Diese Domain wird für Multi-Domain-Verkaufskanäle verwendet, und die ausgewählte Domain wird als Uri für die Produkt-Url verwendet."
                 }
             },
             "featuresFlags": {
