@@ -217,7 +217,7 @@ class Builder implements BuilderInterface
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = $this->configProvider->getDomainId($context->getSalesChannelId());
-            $domain = $domainId !== null || $domains->get($domainId) instanceof SalesChannelDomainEntity ? $domains->get($domainId) : $domains->first();
+            $domain = $domainId !== null && $domains->get($domainId) instanceof SalesChannelDomainEntity ? $domains->get($domainId) : $domains->first();
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $product->getId()]);
 
             return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
