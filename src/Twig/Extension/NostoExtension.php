@@ -36,10 +36,10 @@ class NostoExtension extends AbstractExtension
     }
 
 
-    public function getNostoProduct(SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
+    public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
     {
         try {
-            return $this->productProvider->get($product, $context);
+            return $product === null ? null : $this->productProvider->get($product, $context);
         } catch (\Throwable $throwable) {
             $this->logger->error(
                 $throwable->getMessage(),
