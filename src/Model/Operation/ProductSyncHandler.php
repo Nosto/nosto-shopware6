@@ -181,7 +181,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         if($domains == null || $domains->count() < 1) {
             return '';
         }
-        $domainId = $this->configProvider->getDomainId($channelId);
-        return $domainId !== null && $domains->get($domainId) instanceof SalesChannelDomainEntity ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+        $domainId = (string) $this->configProvider->getDomainId($channelId);
+        return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
     }
 }

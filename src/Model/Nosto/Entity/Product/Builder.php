@@ -216,10 +216,9 @@ class Builder implements BuilderInterface
     private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = $this->configProvider->getDomainId($context->getSalesChannelId());
-            $domain = $domainId !== null && $domains->get($domainId) instanceof SalesChannelDomainEntity ? $domains->get($domainId) : $domains->first();
+            $domainId = (string) $this->configProvider->getDomainId($context->getSalesChannelId());
+            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $product->getId()]);
-
             return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
         }
 
