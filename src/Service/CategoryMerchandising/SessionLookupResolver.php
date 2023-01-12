@@ -8,6 +8,7 @@ use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Model\Nosto\Account\Provider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class SessionLookupResolver
@@ -45,8 +46,7 @@ class SessionLookupResolver
     public function getNostoAccount(Context $context, ?string $channelId = null): ?Account
     {
         $request = $this->requestStack->getCurrentRequest();
-        $channelId = $channelId === null ? $request->attributes->get('sw-sales-channel-id') : '';
-
+        $channelId = $channelId ?? $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         return $this->accountProvider->get($context, $channelId);
     }
 }
