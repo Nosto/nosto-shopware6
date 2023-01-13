@@ -1,3 +1,10 @@
+# 1.0.4
+
+* Neu: Kompatibilität mit benutzerdefinierten Produktseiten hinzugefügt
+* Neu: Kompatibilität mit nicht-skalaren benutzerdefinierten Feldern hinzugefügt
+* Neu: Domainauswahl für Multidomainshops hinzugefügt
+* Fix: Problem mit dem Kategorie Merchandiser Konto behoben
+
 # 1.0.3
 
 * Fix: Merchandiser der festen Kategorie
