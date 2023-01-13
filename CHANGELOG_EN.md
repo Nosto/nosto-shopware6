@@ -1,3 +1,10 @@
+# 1.0.4
+
+* New: Added compatibility with custom product pages
+* New: Added compatibility with non-scalar custom fields
+* New: Added domain selection for multi-domain shops
+* Fix: Fixed Category Merchandiser account issue
+
 # 1.0.3
 
 * Fix: Fixed Category Merchandiser

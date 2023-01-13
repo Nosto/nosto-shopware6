@@ -20,6 +20,7 @@ class ConfigProvider
     public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
+    public const DOMAIN_ID = 'settings.domain';
     public const ACCOUNT_ENABLED = 'settings.accounts.isEnabled';
     public const ACCOUNT_ID = 'settings.accounts.accountID';
     public const ACCOUNT_NAME = 'settings.accounts.accountName';
@@ -82,6 +83,12 @@ class ConfigProvider
     public function isEnabledNotLoggedInCache($channelId = null): bool
     {
         return $this->systemConfig->getBool($this->path(self::ENABLE_NOT_LOGGED_IN_CACHE), $channelId);
+    }
+
+    public function getDomainId($channelId = null): ?string
+    {
+        $domainId = $this->systemConfig->get($this->path(self::DOMAIN_ID), $channelId);
+        return is_string($domainId) ? $domainId : null;
     }
 
     public function isDailyProductSyncEnabled($channelId = null): bool

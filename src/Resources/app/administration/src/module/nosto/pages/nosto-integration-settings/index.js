@@ -91,8 +91,9 @@ Component.register('nosto-integration-settings', {
                         delete this.$refs.configComponent.allConfigs[item][this.configurationKeys[key]];
                     }
                 })
+
                 if (this.$refs.configComponent.allConfigs[item].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') && typeof this.$refs.configComponent.allConfigs[item]['NostoIntegration.settings.accounts.isEnabled'] !== 'boolean') {
-                    delete this.$refs.configComponent[item]['NostoIntegration.settings.accounts.isEnabled'];
+                    delete this.$refs.configComponent.allConfigs[item]['NostoIntegration.settings.accounts.isEnabled'];
                 }
             });
         },
