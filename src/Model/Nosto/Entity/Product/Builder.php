@@ -2,6 +2,7 @@
 
 namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
@@ -119,7 +120,11 @@ class Builder implements BuilderInterface
             $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId);
             $tag1Values = $tag2Values = $tag3Values = [];
 
-            foreach ($product->getCustomFields() as $fieldName => $fieldValue) {
+            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+                // All non-scalar value should be serialized
+                $fieldValue = $fieldOriginalValue === null || \is_scalar($fieldOriginalValue) ?
+                    $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
+
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
                     $nostoProduct->addCustomField($fieldName, $fieldValue);
                 }
