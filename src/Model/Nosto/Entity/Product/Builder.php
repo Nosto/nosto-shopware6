@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -220,9 +221,10 @@ class Builder implements BuilderInterface
     private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
+            $domainId = (string) $this->configProvider->getDomainId($context->getSalesChannelId());
+            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $product->getId()]);
-
-            return $this->seoUrlReplacer->replace($raw, $domains->first()->getUrl(), $context);
+            return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
         }
 
         return null;
