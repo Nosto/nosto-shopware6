@@ -73,7 +73,10 @@ Component.register('nosto-integration-account-general', {
         },
 
         isActive() {
-            return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) && this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') ? this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+            return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) &&
+            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
+            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
+                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
         },
 
         removeErrorState(key) {
@@ -94,6 +97,10 @@ Component.register('nosto-integration-account-general', {
             }
 
             return value.length <= 0;
+        },
+
+        updateCurrentValue(value, props) {
+            props.updateCurrentValue(value === undefined || value.trim() === "" ? null : value);
         },
 
         validateApiCredentials() {

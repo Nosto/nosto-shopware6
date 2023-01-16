@@ -9,6 +9,7 @@ Component.register('nosto-integration-settings', {
 
     inject: [
         'repositoryFactory',
+        'OdNostoProviderService',
     ],
 
     mixins: [
@@ -83,27 +84,18 @@ Component.register('nosto-integration-settings', {
             });
         },
 
-
-        preprocessConfigData() {
-            Object.keys(this.$refs.configComponent.allConfigs).forEach(item => {
-                Object.keys(this.configurationKeys).forEach(key => {
-                    if (this.$refs.configComponent.allConfigs[item].hasOwnProperty(this.configurationKeys[key]) && !this.$refs.configComponent.allConfigs[item][this.configurationKeys[key]]) {
-                        delete this.$refs.configComponent.allConfigs[item][this.configurationKeys[key]];
-                    }
-                })
-
-                if (this.$refs.configComponent.allConfigs[item].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') && typeof this.$refs.configComponent.allConfigs[item]['NostoIntegration.settings.accounts.isEnabled'] !== 'boolean') {
-                    delete this.$refs.configComponent.allConfigs[item]['NostoIntegration.settings.accounts.isEnabled'];
-                }
-            });
-        },
-
         isActive(channelId) {
-            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) && this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') ? this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
+            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
+            typeof this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
+                this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled'];
         },
 
         getInheritedValue(channelId, key) {
-            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) && this.$refs.configComponent.allConfigs[channelId].hasOwnProperty(key) ? this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs[null][key]
+            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
+            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty(key) &&
+            this.$refs.configComponent.allConfigs[channelId][key] !== null ?
+                this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs[null][key]
         },
 
         checkErrorsBeforeSave() {
@@ -132,9 +124,23 @@ Component.register('nosto-integration-settings', {
             return result
         },
 
+        clearCaches() {
+            this.createNotificationInfo({
+                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
+            });
+            this.OdNostoProviderService.clearCaches().then(() => {
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.success')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                });
+            })
+        },
+
         onSave() {
             this.isLoading = true;
-            this.preprocessConfigData();
             const checkList = this.checkErrorsBeforeSave();
             if (checkList) {
                 this.isLoading = false;
@@ -142,12 +148,12 @@ Component.register('nosto-integration-settings', {
                     title: checkList['salesChannelName'], message: this.$tc('nosto.messages.error-message')
                 });
             }
-
             this.$refs.configComponent.save().then(() => {
                 this.isSaveSuccessful = true;
                 this.createNotificationSuccess({
                     message: this.$tc('nosto.messages.success-message')
                 });
+                this.clearCaches();
             }).finally(() => {
                 this.isLoading = false;
             });
