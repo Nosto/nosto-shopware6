@@ -8,7 +8,10 @@ use Od\Scheduler\OdScheduler;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -18,8 +21,27 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class overdose_nosto extends Plugin
 {
+    public function install(InstallContext $installContext): void
+    {
+        (new Utils\Lifecycle($this->container, true))->install($installContext);
+        parent::install($installContext);
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        (new Utils\Lifecycle($this->container, true))->update($updateContext);
+        parent::update($updateContext);
+    }
+
+    public function deactivate(DeactivateContext $deactivateContext): void
+    {
+        (new Utils\Lifecycle($this->container, true))->deactivate($deactivateContext);
+        parent::deactivate($deactivateContext);
+    }
+
     public function activate(ActivateContext $activateContext): void
     {
+        (new Utils\Lifecycle($this->container, true))->activate($activateContext);
         parent::activate($activateContext);
         /** @var AssetService $assetService */
         $assetService = $this->container->get('nosto.plugin.assetservice.public');
