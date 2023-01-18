@@ -3,11 +3,17 @@
 namespace Od\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
+use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Lifecycle
@@ -16,6 +22,7 @@ class Lifecycle
     private Connection $connection;
     private ContainerInterface $container;
     private bool $hasOtherSchedulerDependency;
+    private EntityRepositoryInterface $sortingRepository;
 
     public function __construct(
         ContainerInterface $container,
@@ -30,7 +37,54 @@ class Lifecycle
         $this->hasOtherSchedulerDependency = $hasOtherSchedulerDependency;
 
         $this->systemConfigRepository = $systemConfigRepository;
+        $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;
+    }
+
+    public function install(InstallContext $installContext) {
+        $this->importSorting($installContext->getContext());
+    }
+
+    public function update(UpdateContext $updateContext) {
+        $this->importSorting($updateContext->getContext());
+    }
+
+    public function deactivate(DeactivateContext $deactivateContext) {
+        $this->removeSorting($deactivateContext->getContext());
+    }
+
+    public function activate(ActivateContext $activateContext) {
+        $this->importSorting($activateContext->getContext());
+    }
+
+    public function removeSorting(Context $context) {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
+        $sorting = $this->sortingRepository->search($criteria, $context)->first();
+        if ($sorting == null) {
+            return;
+        }
+        $this->sortingRepository->delete([['id' => $sorting->getId()]], $context);
+    }
+
+    public function importSorting(Context $context)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
+        $sorting = $this->sortingRepository->search($criteria, $context);
+        if ($sorting->count() > 0) {
+            return;
+        }
+        $this->sortingRepository->upsert([
+            [
+                'key' => MerchandisingSearchApi::MERCHANDISING_SORTING_KEY,
+                'priority' => 0,
+                'active' => true,
+                'fields' => [],
+                'label' => 'Recommendation',
+                'locked' => false,
+            ],
+        ], $context);
     }
 
     public function uninstall(UninstallContext $context): void

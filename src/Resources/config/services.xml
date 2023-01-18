@@ -135,6 +135,7 @@
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="request_stack"/>
             <argument type="service" id="logger"/>
         </service>
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
@@ -222,6 +223,10 @@
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
             <argument type="service" id="Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
             <argument type="service" id="logger"/>
+        </service>
+        <service id="Od\NostoIntegration\EventListener\ListingPageEventListener">
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
         <!-- /Event Listeners -->
 
