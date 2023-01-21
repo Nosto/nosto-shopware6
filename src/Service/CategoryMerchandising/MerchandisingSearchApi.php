@@ -16,16 +16,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class MerchandisingSearchApi implements SalesChannelRepositoryInterface
 {
+    const MERCHANDISING_SORTING_KEY = 'od-recommendation';
+
     private SalesChannelRepositoryInterface $repository;
     private EntityRepositoryInterface $categoryRepository;
     private ResultTranslator $resultTranslator;
     private FilterTranslatorAggregate $filterTranslator;
     private SessionLookupResolver $resolver;
     private ConfigProvider $configProvider;
+    private RequestStack $requestStack;
     private LoggerInterface $logger;
 
     public function __construct(
@@ -35,6 +39,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         FilterTranslatorAggregate $filterTranslator,
         SessionLookupResolver $resolver,
         ConfigProvider $configProvider,
+        RequestStack $requestStack,
         LoggerInterface $logger
     ) {
         $this->repository = $repository;
@@ -43,6 +48,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
         $this->filterTranslator = $filterTranslator;
         $this->resolver = $resolver;
         $this->configProvider = $configProvider;
+        $this->requestStack = $requestStack;
         $this->logger = $logger;
     }
 
@@ -74,7 +80,7 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
 
         $account = $this->resolver->getNostoAccount($salesChannelContext->getContext(), $salesChannelContext->getSalesChannelId());
 
-        if (!$isMerchEnabled || !$account || !$sessionId || $criteria->getLimit() == 0) {
+        if (!$isMerchEnabled || $this->getSortingKey() !== self::MERCHANDISING_SORTING_KEY || !$account || !$sessionId || $criteria->getLimit() == 0) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
 
@@ -118,6 +124,12 @@ class MerchandisingSearchApi implements SalesChannelRepositoryInterface
             );
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
+    }
+
+    private function getSortingKey(): string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        return $request ? $request->get('order', '') : '';
     }
 
     private function getCategoryName(Criteria $criteria, SalesChannelContext $context): string

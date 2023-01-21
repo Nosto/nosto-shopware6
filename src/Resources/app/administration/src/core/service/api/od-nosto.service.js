@@ -12,6 +12,12 @@ class OdNostoService extends ApiService {
 
         return this.httpClient.post(apiRoute, {}, {headers});
     }
+
+    clearCaches() {
+        const apiRoute = `_action/od-nosto/clear-cache`,
+            headers = this.getBasicHeaders();
+        return this.httpClient.post(apiRoute, {}, {headers});
+    }
 }
 
 export default OdNostoService;

@@ -11,6 +11,7 @@ use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
 use Od\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
 use Od\NostoIntegration\Model\MockOperation\MockMarketingPermission;
 use Od\NostoIntegration\Model\MockOperation\MockUpsertProduct;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 
 class OdNostoController extends AbstractController
@@ -30,10 +32,12 @@ class OdNostoController extends AbstractController
     protected const APP_TOKEN = 'appToken';
 
     private OdNostoSyncRoute $nostoSyncRoute;
+    private TagAwareAdapterInterface $cache;
 
-    public function __construct(OdNostoSyncRoute $nostoSyncRoute)
+    public function __construct(OdNostoSyncRoute $nostoSyncRoute, TagAwareAdapterInterface $cache)
     {
         $this->nostoSyncRoute = $nostoSyncRoute;
+        $this->cache = $cache;
     }
 
     /**
@@ -49,6 +53,22 @@ class OdNostoController extends AbstractController
     public function fullCatalogSyncAction(Request $request, Context $context): JsonResponse
     {
         return $this->nostoSyncRoute->fullCatalogSync($request, $context);
+    }
+
+    /**
+     * @RouteScope(scopes={"api"})
+     * @Route(
+     *     "/api/_action/od-nosto/clear-cache",
+     *     name="api.action.od-nosto.clear.cache",
+     *     methods={"POST"}
+     * )
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function clearCache(): JsonResponse
+    {
+        $this->cache->clear(CachedProvider::CACHE_PREFIX);
+        return new JsonResponse();
     }
 
     /**

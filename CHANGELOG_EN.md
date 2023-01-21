@@ -1,3 +1,8 @@
+# 1.0.5
+
+* New: Added Recommended sorting option for merchandising
+* Fix: Fixed Nosto configuration saving and validation
+
 # 1.0.4
 
 * New: Added compatibility with custom product pages

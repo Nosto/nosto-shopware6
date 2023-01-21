@@ -40,7 +40,7 @@
                             :error="hasError(props.currentValue)"
                             required
                             name="NostoIntegration.settings.accounts.accountID"
-                            @input="props.updateCurrentValue"></sw-field>
+                            @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
@@ -59,7 +59,7 @@
                         :error="hasError(props.currentValue)"
                         required
                         name="NostoIntegration.settings.accounts.accountName"
-                        @input="props.updateCurrentValue"></sw-field>
+                        @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
@@ -78,7 +78,7 @@
                             required
                             :error="hasError(props.currentValue)"
                             name="NostoIntegration.settings.accounts.productToken"
-                            @input="props.updateCurrentValue"></sw-field>
+                            @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.emailToken']"
@@ -95,7 +95,7 @@
                             :error="hasError(props.currentValue)"
                             required
                             name="NostoIntegration.settings.accounts.emailToken"
-                            @input="props.updateCurrentValue"></sw-field>
+                            @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.accounts.appToken']"
@@ -112,7 +112,7 @@
                             :error="hasError(props.currentValue)"
                             required
                             name="NostoIntegration.settings.accounts.appToken"
-                            @input="props.updateCurrentValue"></sw-field>
+                            @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
