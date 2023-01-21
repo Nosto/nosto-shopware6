@@ -245,6 +245,7 @@
         <!-- Controllers -->
         <service id="Od\NostoIntegration\Api\Controller\OdNostoController" public="true">
             <argument type="service" id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute"/>
+            <argument type="service" id="cache.object"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
