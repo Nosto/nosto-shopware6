@@ -27,7 +27,8 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setName($name);
         }
 
-        $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
+        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock' ? $product->getStock() : $product->getAvailableStock();
+        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoSku->setAvailability($stockStatus);
 
         if ($product->getCover() && $product->getCover()->getMedia()) {
@@ -43,7 +44,7 @@ class SkuBuilder implements SkuBuilderInterface
         }
 
         if ($this->configProvider->isEnabledInventoryLevels()) {
-            $nostoSku->setInventoryLevel($product->getAvailableStock());
+            $nostoSku->setInventoryLevel($stock);
         }
 
         if ($ean = $product->getEan()) {

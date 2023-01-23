@@ -74,8 +74,8 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-
-        $stockStatus = $product->getAvailableStock() > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
+        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock' ? $product->getStock() : $product->getAvailableStock();
+        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoProduct->setAvailability($stockStatus);
 
         $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
@@ -164,7 +164,7 @@ class Builder implements BuilderInterface
         }
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId)) {
-            $nostoProduct->setInventoryLevel($product->getAvailableStock());
+            $nostoProduct->setInventoryLevel($stock);
         }
 
         if ($this->configProvider->isEnabledProductPublishedDateTagging()) {
