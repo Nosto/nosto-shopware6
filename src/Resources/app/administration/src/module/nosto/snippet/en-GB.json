@@ -73,6 +73,8 @@
                 "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
                 "enableRatingsReviews": "Enable Ratings & Reviews",
                 "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
+                "stockField": "Stock Field",
+                "stockFieldHelpText": "The selection for stock field.",
                 "enableInventory": "Enable Inventory Levels",
                 "enableInventoryHelpText": "The selection enables inventory levels tagging.",
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",

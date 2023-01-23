@@ -18,6 +18,7 @@ class ConfigProvider
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'settings.flags.reloadRecommendations';
     public const DAILY_PRODUCT_SYNC_ENABLED = 'settings.flags.dailySynchronization';
     public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
+    public const STOCK_FIELD = 'settings.flags.stockField';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
     public const DOMAIN_ID = 'settings.domain';
@@ -146,5 +147,10 @@ class ConfigProvider
     {
         $value = $this->systemConfig->get($this->path(self::SELECTED_CUSTOM_FIELDS), $channelId);
         return is_array($value) ? $value : [];
+    }
+
+    public function getStockField($channelId = null): ?string
+    {
+        return $this->systemConfig->getString($this->path(self::STOCK_FIELD), $channelId);
     }
 }
