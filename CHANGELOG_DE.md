@@ -1,3 +1,8 @@
+# 1.0.5
+
+* Neu: Recommended Sortieroption für Merchandising hinzugefügt
+* Fix: Speicherung und Validierung der Nosto-Konfiguration behoben
+
 # 1.0.4
 
 * Neu: Kompatibilität mit benutzerdefinierten Produktseiten hinzugefügt
