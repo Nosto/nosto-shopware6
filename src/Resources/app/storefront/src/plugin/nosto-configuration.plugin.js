@@ -56,8 +56,9 @@ export default class NostoConfiguration extends Plugin {
     }
 
     registerSubscribers() {
-        this._cartWidget = PluginManager.getPluginInstanceFromElement(
-            DomAccess.querySelector(document, '[data-cart-widget]', false),
+        this._cartWidgetElement = DomAccess.querySelector(document, '[data-cart-widget]', false);
+        this._cartWidget = this._cartWidgetElement === false ? false : PluginManager.getPluginInstanceFromElement(
+            this._cartWidgetElement,
             'CartWidget'
         );
 
@@ -67,11 +68,13 @@ export default class NostoConfiguration extends Plugin {
     }
 
     cartWidgetSubscriber() {
-        this._cartWidget.$emitter.subscribe('fetch', () => {
-            nostojs(api => {
-                api.resendCartTagging();
+        if(this._cartWidget !== false) {
+            this._cartWidget.$emitter.subscribe('fetch', () => {
+                nostojs(api => {
+                    api.resendCartTagging();
+                });
             });
-        });
+        }
     }
 
     nostoSubscriber() {
