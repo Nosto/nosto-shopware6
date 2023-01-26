@@ -1,3 +1,8 @@
+# 1.0.6
+
+* New: Added inventory selection in Nosto configuration
+* Fix: Fixed Nosto js issue on checkout page
+
 # 1.0.5
 
 * New: Added Recommended sorting option for merchandising

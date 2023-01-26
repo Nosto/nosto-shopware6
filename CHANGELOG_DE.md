@@ -1,3 +1,8 @@
+# 1.0.6
+
+* Neu: Inventarauswahl in der Nosto-Konfiguration hinzugefügt
+* Fix: Nosto js Problem auf der Kassenseite behoben
+
 # 1.0.5
 
 * Neu: Recommended Sortieroption für Merchandising hinzugefügt
