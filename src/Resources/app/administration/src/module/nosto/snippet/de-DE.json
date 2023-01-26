@@ -74,6 +74,8 @@
                 "enableAlternateImagesHelpText": "Das Kontrollkästchen aktiviert das Tagging alternativer Bilder.",
                 "enableRatingsReviews": "Bewertungen & Rezensionen aktivieren",
                 "enableRatingsReviewsHelpText": "Die Auswahl ermöglicht Bewertungen & Rezensionen.",
+                "stockField": "Lager Feld",
+                "stockFieldHelpText": "Die Auswahl für das Lagerfeld.",
                 "enableInventory": "Lagerbestände aktivieren",
                 "enableInventoryHelpText": "Die Auswahl aktiviert das Tagging von Inventarebenen.",
                 "enableCustomerDataToNosto": "Kundendaten an Nosto senden",

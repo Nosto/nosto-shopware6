@@ -45,6 +45,18 @@ Component.register('nosto-integration-features-flags', {
                 }
             ]
         },
+        createStockOptions() {
+            return [
+                {
+                    label: this.$tc('sw-product.settingsForm.labelAvailableStock'),
+                    value: 'available-stock'
+                },
+                {
+                    label: this.$tc('sw-product.settingsForm.labelStock'),
+                    value: 'actual-stock'
+                }
+            ]
+        },
     },
 
     created() {
