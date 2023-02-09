@@ -195,15 +195,16 @@ class Builder implements BuilderInterface
         $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
 
         if (!$isGross) {
-            $unitPrice = $listPrice = 0;
             $price = $this->calculator->calculate(
                 new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
+
             $priceList = $this->calculator->calculate(
                 new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
+            $unitPrice = $listPrice = 0;
 
             foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
                 $unitPrice += ($tax->getTax() + $tax->getPrice());
