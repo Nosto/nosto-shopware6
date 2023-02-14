@@ -19,6 +19,7 @@ class ConfigProvider
     public const DAILY_PRODUCT_SYNC_ENABLED = 'settings.flags.dailySynchronization';
     public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
     public const STOCK_FIELD = 'settings.flags.stockField';
+    public const CROSS_SELLING_SYNC_FIELD = 'settings.flags.crossSellingSync';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
     public const DOMAIN_ID = 'settings.domain';
@@ -152,5 +153,11 @@ class ConfigProvider
     public function getStockField($channelId = null): ?string
     {
         return $this->systemConfig->getString($this->path(self::STOCK_FIELD), $channelId);
+    }
+
+    public function getCrossSellingSyncOption($channelId = null): string
+    {
+        $value = $this->systemConfig->get($this->path(self::CROSS_SELLING_SYNC_FIELD), $channelId);
+        return is_string($value) ? $value : 'no-sync';
     }
 }

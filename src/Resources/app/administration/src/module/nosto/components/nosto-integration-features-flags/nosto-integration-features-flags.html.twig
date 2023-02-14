@@ -45,6 +45,27 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_cross_selling_sync %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.crossSellingSync']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.crossSellingSync']"
+                                :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
+                                :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')">
+
+                <template #content="props">
+                    <sw-single-select name="NostoIntegration.settings.flags.crossSellingSync"
+                                      labelProperty="label"
+                                      valueProperty="value"
+                                      :options="createCrossSellingSyncOptions"
+                                      :isInherited="props.isInherited"
+                                      :disabled="props.isInherited"
+                                      show-clearable-button
+                                      :value="props.currentValue"
+                                      @change="props.updateCurrentValue">
+                    </sw-single-select>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.variations']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.variations']">
