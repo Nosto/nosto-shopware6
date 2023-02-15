@@ -57,6 +57,22 @@ Component.register('nosto-integration-features-flags', {
                 }
             ]
         },
+        createCrossSellingSyncOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.noSync'),
+                    value: 'no-sync'
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.onlyActiveSync'),
+                    value: 'only-active-sync'
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.allSync'),
+                    value: 'all-sync'
+                },
+            ]
+        },
     },
 
     created() {
@@ -71,6 +87,7 @@ Component.register('nosto-integration-features-flags', {
                     productProperties: true,
                     alternateImages: true,
                     ratingsReviews: 'shopware-ratings',
+                    crossSellingSync: 'no-sync',
                     inventory: false,
                     customerDataToNosto: true,
                     syncInactiveProducts: false,

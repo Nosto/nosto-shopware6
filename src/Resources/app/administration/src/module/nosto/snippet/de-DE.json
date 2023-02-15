@@ -66,6 +66,13 @@
                     "shopwareRatings": "Shopware-Bewertungen",
                     "noRatings": "Keine Bewertungen"
                 },
+                "crossSellingSyncOptions": {
+                    "noSync": "Deaktivieren Sie die Cross-Selling-Synchronisierung",
+                    "onlyActiveSync": "Nur aktives Cross-Selling synchronisieren",
+                    "allSync": "Alle Cross-Sellings synchronisieren"
+                },
+                "crossSellingSync": "Cross-Selling-Synchronisierung",
+                "crossSellingSyncHelpText": "Produkt-Cross-Selling-Synchronisierungsoptionen",
                 "enableVariations": "Variationen aktivieren",
                 "enableVariationsHelpText": "Das Kontrollkästchen aktiviert das Tagging von Variationen.",
                 "enableProductProperties": "Produkteigenschaften aktivieren",
