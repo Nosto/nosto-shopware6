@@ -1,3 +1,8 @@
+# 1.0.7
+
+* New: Added Cross-Selling synchronization
+* Fix: Fixed gross price calculation for Nosto product
+
 # 1.0.6
 
 * New: Added inventory selection in Nosto configuration
