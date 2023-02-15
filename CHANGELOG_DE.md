@@ -1,3 +1,8 @@
+# 1.0.7
+
+* Neu: Cross-Selling-Synchronisation hinzugefügt
+* Fix: Berechnung des festen Bruttopreises für Nosto-Produkte
+
 # 1.0.6
 
 * Neu: Inventarauswahl in der Nosto-Konfiguration hinzugefügt

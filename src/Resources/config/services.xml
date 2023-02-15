@@ -88,6 +88,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
@@ -99,6 +100,14 @@
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
         <service id="Od\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
             <tag name="shopware.scheduled.task"/>
+        </service>
+        <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder">
+            <argument type="service" id="product_cross_selling.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
             <tag name="shopware.scheduled.task"/>

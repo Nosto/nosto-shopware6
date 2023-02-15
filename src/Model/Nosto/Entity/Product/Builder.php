@@ -9,6 +9,7 @@ use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
+use Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
 use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
 use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -19,7 +20,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +33,7 @@ class Builder implements BuilderInterface
     private EventDispatcherInterface $eventDispatcher;
     private NetPriceCalculator $calculator;
     private CashRounding $priceRounding;
+    private CrossSellingBuilderInterface $crossSellingBuilder;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
@@ -42,7 +43,8 @@ class Builder implements BuilderInterface
         CashRounding $priceRounding,
         SkuBuilderInterface $skuBuilder,
         TreeBuilderInterface $treeBuilder,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CrossSellingBuilderInterface $crossSellingBuilder
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
@@ -52,6 +54,7 @@ class Builder implements BuilderInterface
         $this->calculator = $calculator;
         $this->priceRounding = $priceRounding;
         $this->eventDispatcher = $eventDispatcher;
+        $this->crossSellingBuilder = $crossSellingBuilder;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
@@ -176,6 +179,13 @@ class Builder implements BuilderInterface
         }
 
         $this->setPrices($nostoProduct, $product, $context);
+
+        $crossSellings = $this->crossSellingBuilder->build($product->getId(), $context);
+
+        if(!empty($crossSellings)) {
+            $nostoProduct->addCustomField('cross-sellings', json_encode($crossSellings));
+        }
+
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
@@ -195,15 +205,16 @@ class Builder implements BuilderInterface
         $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
 
         if (!$isGross) {
-            $unitPrice = $listPrice = 0;
             $price = $this->calculator->calculate(
                 new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
+
             $priceList = $this->calculator->calculate(
                 new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding()
             );
+            $unitPrice = $listPrice = 0;
 
             foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
                 $unitPrice += ($tax->getTax() + $tax->getPrice());
