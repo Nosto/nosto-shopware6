@@ -10,43 +10,49 @@ export default class NostoPlugin extends Plugin {
     };
 
     init() {
-        var self = this;
         window.Nosto = {};
-        
-        Nosto.addProductToCart = function(id, element) {
-           self._onAddToCart(id);
+        Nosto.addProductToCart = (id, element, quantity) => {
+            this._addMultipleToCart([{'productId': id, 'skuId': id, 'quantity': quantity}], element);
         }
-
+        Nosto.addMultipleProductsToCart = (ids, element) => {
+            this._addMultipleToCart(ids, element);
+        }
+        Nosto.addSkuToCart = (idObject, element, quantity) => {
+            const quantityObject = {'quantity': quantity};
+            this._addMultipleToCart([{...idObject, ...quantityObject}], element);
+        }
         this._nostoElementId = (this.el.nextElementSibling.id ? this.el.nextElementSibling.id : '');
-
     }
 
-    _onAddToCart(id) {
-        this.csrf_token = document.querySelector('.nosto-csrf-token input').value;
+    _resolveContextSlotId(element) {
+        return element &&
+        element.closest('.nosto_element') &&
+        el.closest('.nosto_element').getAttribute('id') ?
+            el.closest('.nosto_element').getAttribute('id') : this._nostoElementId;
+    }
 
-        const productId = id;
-        const productData = {
-            id: productId,
-            type: 'product',
-            referencedId: productId,
-            stackable: 1,
-            removable: 1,
-        };
+    _addMultipleToCart(ids, element) {
+        this.csrf_token = document.querySelector('.nosto-csrf-token input').value;
         const data = {
             lineItems: {},
-            redirectParameters: {
-                productId: productId
-            },
             redirectTo: this.options.redirectTo,
             _csrf_token: this.csrf_token,
         };
-        data.lineItems[productId] = productData;
 
-        this.$emitter.publish('addRecommendationToCart', {
-            productId: productId,
-            elementId: this._nostoElementId
+        ids.forEach((item) => {
+            data.lineItems[item.skuId] = {
+                id: item.skuId,
+                quantity: Number.isInteger(item.quantity) ? item.quantity : 1,
+                type: 'product',
+                referencedId: item.skuId,
+                stackable: 1,
+                removable: 1,
+            };
+            this.$emitter.publish('addRecommendationToCart', {
+                productId: item.productId,
+                elementId: this._resolveContextSlotId(element)
+            });
         });
-
         this._openOffCanvasCarts(this.options.action, JSON.stringify(data));
     }
 
