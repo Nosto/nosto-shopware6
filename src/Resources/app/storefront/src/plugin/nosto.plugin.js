@@ -27,8 +27,8 @@ export default class NostoPlugin extends Plugin {
     _resolveContextSlotId(element) {
         return element &&
         element.closest('.nosto_element') &&
-        el.closest('.nosto_element').getAttribute('id') ?
-            el.closest('.nosto_element').getAttribute('id') : this._nostoElementId;
+        element.closest('.nosto_element').getAttribute('id') ?
+            element.closest('.nosto_element').getAttribute('id') : this._nostoElementId;
     }
 
     _addMultipleToCart(ids, element) {
