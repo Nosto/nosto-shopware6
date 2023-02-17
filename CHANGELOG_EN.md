@@ -1,3 +1,7 @@
+# 1.0.8
+
+* New: Added Nosto js object on CMS pages with addSkuToCart, addProductToCart, addMultipleProductsToCart methods
+
 # 1.0.7
 
 * New: Added Cross-Selling synchronization
