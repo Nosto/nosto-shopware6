@@ -72,6 +72,7 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setProductId($product->getId());
+        $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
         $name = $product->getTranslation('name');
         if (!empty($name)) {
             $nostoProduct->setName($name);
