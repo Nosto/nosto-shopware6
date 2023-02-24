@@ -1,3 +1,8 @@
+# 1.0.9
+
+* Neu: Hinzufügen von Produktbeschriftungen zu den benutzerdefinierten Feldern von Nosto Product
+* Neu: Produktnummer zu den benutzerdefinierten Feldern von Nosto Product hinzugefügt
+
 # 1.0.8
 
 * Neu: Nosto js Objekt auf CMS Seiten mit addSkuToCart, addProductToCart, addMultipleProductsToCart Methoden hinzugefügt
