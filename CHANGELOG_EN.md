@@ -1,3 +1,8 @@
+# 1.0.9
+
+* New: Added product labelling to the custom fields of Nosto Product
+* New: Added product number to the custom fields of Nosto Product
+
 # 1.0.8
 
 * New: Added Nosto js object on CMS pages with addSkuToCart, addProductToCart, addMultipleProductsToCart methods

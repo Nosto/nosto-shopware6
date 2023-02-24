@@ -6,6 +6,7 @@ use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\Types\Product\ProductInterface;
 use Od\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SkuBuilder implements SkuBuilderInterface
@@ -21,6 +22,7 @@ class SkuBuilder implements SkuBuilderInterface
     {
         $nostoSku = new NostoSku();
         $nostoSku->setId($product->getId());
+        $nostoSku->addCustomField('productNumber', $product->getProductNumber());
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {
@@ -51,12 +53,22 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setGtin($ean);
         }
 
-        if ($this->configProvider->isEnabledProductProperties() && $product->getOptions() !== null) {
+        if ($this->configProvider->isEnabledProductProperties($context->getSalesChannelId()) && $product->getOptions() !== null) {
             foreach ($product->getOptions() as $propertyOption) {
                 if ($propertyOption->getGroup() !== null) {
                     $nostoSku->addCustomField($propertyOption->getGroup()->getName(), $propertyOption->getName());
                 }
             }
+        }
+
+        if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
+            $nostoSku->addCustomField('product-labels', json_encode(
+                    [
+                        'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                        'mfg-part-number' => $product->getManufacturerNumber()
+                    ]
+                )
+            );
         }
 
         return $nostoSku;
