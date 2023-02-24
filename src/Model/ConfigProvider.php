@@ -31,6 +31,7 @@ class ConfigProvider
     public const GRAPHQL_TOKEN = 'settings.accounts.appToken';
     public const TAG_FIELD_TEMPLATE = 'settings.tag';
     public const SELECTED_CUSTOM_FIELDS = 'settings.selectedCustomFields';
+    public const ENABLE_PRODUCT_LABELLING_SYNC = 'settings.flags.enableLabelling';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -159,5 +160,9 @@ class ConfigProvider
     {
         $value = $this->systemConfig->get($this->path(self::CROSS_SELLING_SYNC_FIELD), $channelId);
         return is_string($value) ? $value : 'no-sync';
+    }
+
+    public function isEnabledProductLabellingSync($channelId = null): bool {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_PRODUCT_LABELLING_SYNC), $channelId);
     }
 }

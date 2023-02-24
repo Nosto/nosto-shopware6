@@ -93,6 +93,7 @@ Component.register('nosto-integration-features-flags', {
                     syncInactiveProducts: false,
                     productPublishedDateTagging: false,
                     reloadRecommendations: false,
+                    enableLabelling: false,
                     notLoggedInCache: false,
                     dailySynchronizationTime: false,
                     domain: null

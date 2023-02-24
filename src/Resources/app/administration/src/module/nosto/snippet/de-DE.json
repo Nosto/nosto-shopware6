@@ -91,12 +91,14 @@
                 "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden auch inaktive Produkte synchronisiert.",
                 "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",
                 "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
+                "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",
                 "timeDailySynchronizationHelp": "Die Option gibt an, zu welcher Uhrzeit die t\u00e4gliche Produktsynchronisierung synchronisiert werden soll",
                 "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
-                "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen"
+                "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
+                "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet."
             }
         },
         "listing": {

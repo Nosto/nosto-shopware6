@@ -202,6 +202,23 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_labelling %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.enableLabelling']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.enableLabelling']">
+
+                <template #content="props">
+                    <sw-switch-field
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.featuresFlags.enableLabelling')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.enableLabellingHelpText')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper v-if="selectedSalesChannelId === null"
                                 v-model="actualConfigData['NostoIntegration.settings.flags.dailySynchronization']"
