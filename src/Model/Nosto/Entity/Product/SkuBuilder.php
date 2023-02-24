@@ -21,6 +21,7 @@ class SkuBuilder implements SkuBuilderInterface
     {
         $nostoSku = new NostoSku();
         $nostoSku->setId($product->getId());
+        $nostoSku->addCustomField('productNumber', $product->getProductNumber());
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {
