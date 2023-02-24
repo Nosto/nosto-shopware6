@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -184,6 +185,16 @@ class Builder implements BuilderInterface
 
         if(!empty($crossSellings)) {
             $nostoProduct->addCustomField('cross-sellings', json_encode($crossSellings));
+        }
+
+        if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
+            $nostoProduct->addCustomField('product-labels', json_encode(
+                    [
+                        'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                        'mfg-part-number' => $product->getManufacturerNumber()
+                    ]
+                )
+            );
         }
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
