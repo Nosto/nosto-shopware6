@@ -89,6 +89,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder"/>
+            <argument type="service" id="tag.repository"/>
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>

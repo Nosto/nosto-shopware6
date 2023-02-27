@@ -21,7 +21,11 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tag\TagCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
@@ -35,6 +39,7 @@ class Builder implements BuilderInterface
     private NetPriceCalculator $calculator;
     private CashRounding $priceRounding;
     private CrossSellingBuilderInterface $crossSellingBuilder;
+    private EntityRepositoryInterface $tagRepository;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
@@ -45,7 +50,8 @@ class Builder implements BuilderInterface
         SkuBuilderInterface $skuBuilder,
         TreeBuilderInterface $treeBuilder,
         EventDispatcherInterface $eventDispatcher,
-        CrossSellingBuilderInterface $crossSellingBuilder
+        CrossSellingBuilderInterface $crossSellingBuilder,
+        EntityRepositoryInterface $tagRepository
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
@@ -56,6 +62,7 @@ class Builder implements BuilderInterface
         $this->priceRounding = $priceRounding;
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingBuilder = $crossSellingBuilder;
+        $this->tagRepository = $tagRepository;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
@@ -119,12 +126,8 @@ class Builder implements BuilderInterface
                 }
             }
 
-            $tag1Keys = $this->configProvider->getTagFieldKey(1, $channelId);
-            $tag2Keys = $this->configProvider->getTagFieldKey(2, $channelId);
-            $tag3Keys = $this->configProvider->getTagFieldKey(3, $channelId);
-
+            $this->initTags($product, $nostoProduct, $context);
             $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId);
-            $tag1Values = $tag2Values = $tag3Values = [];
 
             foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
                 // All non-scalar value should be serialized
@@ -134,20 +137,7 @@ class Builder implements BuilderInterface
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
                     $nostoProduct->addCustomField($fieldName, $fieldValue);
                 }
-                if (in_array($fieldName, $tag1Keys)) {
-                    $tag1Values[] = $fieldValue;
-                }
-                if (in_array($fieldName, $tag2Keys)) {
-                    $tag2Values[] = $fieldValue;
-                }
-                if (in_array($fieldName, $tag3Keys)) {
-                    $tag3Values[] = $fieldValue;
-                }
             }
-
-            $nostoProduct->setTag1($tag1Values);
-            $nostoProduct->setTag2($tag2Values);
-            $nostoProduct->setTag3($tag3Values);
         }
 
         if ($product->getCover()) {
@@ -251,5 +241,30 @@ class Builder implements BuilderInterface
         }
 
         return null;
+    }
+
+    private function initTags(ProductEntity $productEntity, NostoProduct $nostoProduct, SalesChannelContext $context): void
+    {
+        $tags = $this->loadTags($context->getContext());
+        $nostoProduct->setTag1($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(1, $context->getSalesChannelId()), $tags));
+        $nostoProduct->setTag2($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(2, $context->getSalesChannelId()), $tags));
+        $nostoProduct->setTag3($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(3, $context->getSalesChannelId()), $tags));
+    }
+
+    private function getTagValues(ProductEntity $productEntity, array $tagIds, TagCollection $allTags): array
+    {
+        $result = [];
+        foreach ($tagIds as $tagId) {
+            if ($allTags->has($tagId) && !empty($productEntity->getTagIds()) && in_array($tagId, $productEntity->getTagIds())) {
+                $result[] = $allTags->get($tagId)->getName();
+            }
+        }
+        return $result;
+    }
+
+    private function loadTags(Context $context): TagCollection
+    {
+        $criteria = new Criteria();
+        return $this->tagRepository->search($criteria, $context)->getEntities();
     }
 }

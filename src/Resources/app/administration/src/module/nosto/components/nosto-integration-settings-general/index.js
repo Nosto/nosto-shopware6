@@ -30,6 +30,7 @@ Component.register('nosto-integration-settings-general', {
         return {
             isLoading: false,
             productCustomFields: [],
+            productTags: [],
             languageCode: null
         };
     },
@@ -48,11 +49,16 @@ Component.register('nosto-integration-settings-general', {
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
+
+        tagRepository() {
+            return this.repositoryFactory.create('tag');
+        },
     },
 
     created() {
         this.initLanguageCode()
         this.getProductCustomFields();
+        this.getProductTags();
         this.createdComponent();
     },
 
@@ -122,6 +128,19 @@ Component.register('nosto-integration-settings-general', {
                                 id: customField.name
                             });
                         })
+                    });
+                });
+            });
+        },
+
+        getProductTags() {
+            this.initLanguageCode().then(() => {
+                const criteria = new Criteria();
+                return this.tagRepository.search(criteria, Shopware.Context.api).then((tags) => {
+                    tags.forEach((tag) => {
+                        this.productTags.push({
+                            label: tag.name, name: tag.name, id: tag.id
+                        });
                     });
                 });
             });

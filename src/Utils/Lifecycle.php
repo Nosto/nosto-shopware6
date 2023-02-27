@@ -3,18 +3,23 @@
 namespace Od\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
+use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use function version_compare;
 
 class Lifecycle
 {
@@ -23,6 +28,8 @@ class Lifecycle
     private ContainerInterface $container;
     private bool $hasOtherSchedulerDependency;
     private EntityRepositoryInterface $sortingRepository;
+    private SystemConfigService $systemConfigService;
+    private EntityRepositoryInterface $salesChannelRepository;
 
     public function __construct(
         ContainerInterface $container,
@@ -39,6 +46,8 @@ class Lifecycle
         $this->systemConfigRepository = $systemConfigRepository;
         $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;
+        $this->systemConfigService = $this->container->get(SystemConfigService::class);
+        $this->salesChannelRepository = $this->container->get('sales_channel.repository');
     }
 
     public function install(InstallContext $installContext) {
@@ -47,6 +56,9 @@ class Lifecycle
 
     public function update(UpdateContext $updateContext) {
         $this->importSorting($updateContext->getContext());
+        if (version_compare($updateContext->getUpdatePluginVersion(), '1.0.10', '==')) {
+            $this->removeOldTags($updateContext->getContext());
+        }
     }
 
     public function deactivate(DeactivateContext $deactivateContext) {
@@ -128,6 +140,26 @@ class Lifecycle
 
         if (!empty($configIds)) {
             $this->systemConfigRepository->delete(array_values($configIds), $context);
+        }
+    }
+
+    public function removeOldTags(Context $context): void
+    {
+        $channelCriteria = new Criteria();
+        $channelCriteria->addFilter(new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]));
+        $channelIds = $this->salesChannelRepository->searchIds($channelCriteria, $context);
+
+        foreach ($channelIds->getIds() as $channelId) {
+            $this->removeOldTagsForChannel($channelId);
+        }
+
+        $this->removeOldTagsForChannel();
+    }
+
+    protected function removeOldTagsForChannel(?string $channelId = null): void
+    {
+        for ($i = 1; $i < 4; ++$i) {
+            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 
