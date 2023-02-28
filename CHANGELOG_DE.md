@@ -1,3 +1,7 @@
+# 1.0.10
+
+* Neu: Tag-Auswahl von Tag-Werten anstelle von benutzerdefinierten Feldern hinzugefügt
+
 # 1.0.9
 
 * Neu: Hinzufügen von Produktbeschriftungen zu den benutzerdefinierten Feldern von Nosto Product
