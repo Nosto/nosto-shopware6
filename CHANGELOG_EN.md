@@ -1,3 +1,7 @@
+# 1.0.10
+
+* Fix: Added tag selection of tag values instead of custom fields
+
 # 1.0.9
 
 * New: Added product labelling to the custom fields of Nosto Product
