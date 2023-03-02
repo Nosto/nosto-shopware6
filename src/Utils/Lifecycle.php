@@ -56,7 +56,7 @@ class Lifecycle
 
     public function update(UpdateContext $updateContext) {
         $this->importSorting($updateContext->getContext());
-        if (version_compare($updateContext->getUpdatePluginVersion(), '1.0.10', '==')) {
+        if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
             $this->removeOldTags($updateContext->getContext());
         }
     }
