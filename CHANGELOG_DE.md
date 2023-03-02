@@ -1,3 +1,7 @@
+# 1.0.11
+
+* Fix: Problem der Tag-Ladebeschränkung behoben
+
 # 1.0.10
 
 * Neu: Tag-Auswahl von Tag-Werten anstelle von benutzerdefinierten Feldern hinzugefügt

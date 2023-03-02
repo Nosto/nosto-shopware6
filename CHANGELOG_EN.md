@@ -1,3 +1,7 @@
+# 1.0.11
+
+* Fix: Fixed tag loading limitation issue
+
 # 1.0.10
 
 * Fix: Added tag selection of tag values instead of custom fields
