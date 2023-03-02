@@ -115,6 +115,7 @@ Component.register('nosto-integration-settings-general', {
             this.initLanguageCode().then(() => {
                 var me = this;
                 const customFieldsCriteria = new Criteria();
+                customFieldsCriteria.setLimit(50000);
                 customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
                     .addAssociation('customFields')
                     .addAssociation('relations');
@@ -136,6 +137,7 @@ Component.register('nosto-integration-settings-general', {
         getProductTags() {
             this.initLanguageCode().then(() => {
                 const criteria = new Criteria();
+                criteria.setLimit(50000);
                 return this.tagRepository.search(criteria, Shopware.Context.api).then((tags) => {
                     tags.forEach((tag) => {
                         this.productTags.push({
