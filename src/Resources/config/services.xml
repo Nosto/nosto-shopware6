@@ -266,5 +266,11 @@
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
             <argument type="service" id="od_scheduler_job.repository"/>
         </service>
+
+        <!-- Utils -->
+        <service id="Od\NostoIntegration\Utils\RequestHelper\RequestHelper">
+            <argument type="service" id="plugin.repository"/>
+            <argument>%kernel.shopware_version%</argument>
+        </service>
     </services>
 </container>
