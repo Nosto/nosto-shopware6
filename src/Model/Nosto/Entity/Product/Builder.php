@@ -188,6 +188,10 @@ class Builder implements BuilderInterface
             );
         }
 
+        if($product->getVariantListingConfig()) {
+            $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
+        }
+
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
