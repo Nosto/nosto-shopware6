@@ -71,6 +71,10 @@ class SkuBuilder implements SkuBuilderInterface
             );
         }
 
+        if($product->getVariantListingConfig()) {
+            $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
+        }
+
         return $nostoSku;
     }
 }
