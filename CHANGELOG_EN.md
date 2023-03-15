@@ -1,3 +1,7 @@
+# 1.0.12
+
+* New: Added main product information
+
 # 1.0.11
 
 * Fix: Fixed tag loading limitation issue
