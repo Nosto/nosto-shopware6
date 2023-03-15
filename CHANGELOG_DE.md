@@ -1,3 +1,7 @@
+# 1.0.12
+
+* Neu: Hauptproduktinformation hinzugefügt
+
 # 1.0.11
 
 * Fix: Problem der Tag-Ladebeschränkung behoben
