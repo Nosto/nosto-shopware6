@@ -188,7 +188,7 @@ class Builder implements BuilderInterface
             );
         }
 
-        if($product->getVariantListingConfig()) {
+        if(method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
