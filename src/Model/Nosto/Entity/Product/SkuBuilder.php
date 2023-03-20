@@ -71,7 +71,7 @@ class SkuBuilder implements SkuBuilderInterface
             );
         }
 
-        if($product->getVariantListingConfig()) {
+        if(method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 

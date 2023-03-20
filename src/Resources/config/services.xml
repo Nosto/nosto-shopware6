@@ -107,8 +107,8 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
             <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="service_container"/>
         </service>
         <service id="Od\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
             <tag name="shopware.scheduled.task"/>
