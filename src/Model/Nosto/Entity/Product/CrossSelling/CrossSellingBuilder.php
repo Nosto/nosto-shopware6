@@ -7,8 +7,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use function count;
 
 
@@ -26,23 +27,23 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
     private ProductStreamBuilderInterface $productStreamBuilder;
     private SalesChannelRepositoryInterface $productRepository;
     private SystemConfigService $systemConfigService;
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
     private ConfigProvider $configProvider;
+    private ContainerInterface $container;
 
     public function __construct(
         EntityRepositoryInterface            $crossSellingRepository,
         ProductStreamBuilderInterface        $productStreamBuilder,
         SalesChannelRepositoryInterface      $productRepository,
         SystemConfigService                  $systemConfigService,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
+        ContainerInterface $container
     )
     {
         $this->crossSellingRepository = $crossSellingRepository;
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
         $this->systemConfigService = $systemConfigService;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+        $this->container = $container;
         $this->configProvider = $configProvider;
     }
 
@@ -114,7 +115,10 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             return $criteria;
         }
 
-        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
+        $closeoutFilter = $this->container->has('Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory') ?
+            $this->container->get('Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory')->create($context) :
+            new ProductCloseoutFilter();
+
         $criteria->addFilter($closeoutFilter);
 
         return $criteria;
