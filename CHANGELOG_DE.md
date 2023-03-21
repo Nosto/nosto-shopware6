@@ -1,3 +1,8 @@
+# 1.0.13
+
+* Fix: Ladevorgang von ProductCloseoutFilter für ältere Versionen korrigiert
+* Fix: Produkt-Hauptvarianten-Konfigurationslader für ältere Version entfernt
+
 # 1.0.12
 
 * Neu: Hauptproduktinformation hinzugefügt
