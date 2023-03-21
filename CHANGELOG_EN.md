@@ -1,3 +1,8 @@
+# 1.0.13
+
+* Fix: Fixed ProductCloseoutFilter loading process for older versions
+* Fix: Removed product main variant config loader for older version
+
 # 1.0.12
 
 * New: Added main product information
