@@ -61,6 +61,10 @@
             },
             "featuresFlags": {
                 "cardTitle": "Features flags",
+                "productIdentifierOptions": {
+                    "productId": "Product Id",
+                    "productNumber": "Product Number"
+                },
                 "ratingsOptions": {
                     "shopwareRatings": "Shopware ratings",
                     "noRatings": "No ratings"
@@ -78,6 +82,8 @@
                 "enableProductPropertiesHelpText": "The checkbox enables product properties tagging.",
                 "enableAlternateImages": "Enable Alternate Images",
                 "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
+                "productIdentifier": "Product Identifier",
+                "productIdentifierHelpText": "The selected field of the product will be synced as Nosto product id",
                 "enableRatingsReviews": "Enable Ratings & Reviews",
                 "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
                 "stockField": "Stock Field",

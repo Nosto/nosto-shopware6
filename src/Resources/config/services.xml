@@ -29,6 +29,7 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-entity-changelog-sync"/>

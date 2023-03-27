@@ -166,15 +166,38 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
     }
 
-    private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds)
+    private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds, ProductCollection $productCollection)
     {
+        $identifiers = $this->getIdentifiers($context, $productIds, $productCollection);
         $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
 
         $operation = new DeleteProduct($account->getNostoAccount(), $domain);
-        $operation->setProductIds($productIds);
+        $operation->setProductIds($identifiers);
         $this->eventDispatcher->dispatch(new BeforeDeleteProductsEvent($operation, $context->getContext()));
         $operation->delete();
+    }
+
+    private function getIdentifiers(SalesChannelContext $context, array $productIds, ProductCollection $productCollection): array
+    {
+        $identifierType = $this->configProvider->getProductIdentifier($context->getSalesChannelId());
+        if ($identifierType === 'product-number') {
+            return $this->getProductNumbers($productIds, $productCollection);
+        }
+        return $productIds;
+    }
+
+    private function getProductNumbers(array $productIds, ProductCollection $productCollection): array
+    {
+        $productNumbers = [];
+
+        foreach ($productIds as $productId) {
+            if ($productCollection->get($productId)) {
+                $productNumbers[] = $productCollection->get($productId)->getProductNumber();
+            }
+        }
+
+        return $productNumbers;
     }
 
     private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string {

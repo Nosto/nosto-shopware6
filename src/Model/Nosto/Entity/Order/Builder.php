@@ -58,7 +58,7 @@ class Builder implements BuilderInterface
         }
         foreach ($order->getLineItems() as $item) {
             if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                $nostoItem = $this->nostoOrderItemBuilder->build($item,$order->getCurrency());
+                $nostoItem = $this->nostoOrderItemBuilder->build($item, $order->getCurrency());
                 $nostoOrder->addPurchasedItems($nostoItem);
             }
         }

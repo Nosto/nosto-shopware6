@@ -78,8 +78,12 @@ class Builder implements BuilderInterface
             $nostoProduct->setUrl($url);
         }
 
-        $nostoProduct->setProductId($product->getId());
+        $nostoProduct->setProductId(
+            $this->configProvider->getProductIdentifier($context->getSalesChannelId()) === 'product-number' ?
+                $product->getProductNumber() : $product->getId()
+        );
         $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
+        $nostoProduct->addCustomField('productId', $product->getId());
         $name = $product->getTranslation('name');
         if (!empty($name)) {
             $nostoProduct->setName($name);
