@@ -29,7 +29,6 @@
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Od\NostoIntegration\Model\ConfigProvider"/>
         </service>
         <service id="Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
             <tag name="od.job_handler" code="od-nosto-entity-changelog-sync"/>
@@ -75,6 +74,7 @@
         </service>
         <service id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="event_dispatcher"/>
@@ -207,6 +207,13 @@
             <argument type="service"
                       id="Od\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner"/>
         </service>
+
+        <service id="Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
+                 decorates="product.repository">
+            <argument type="service"
+                      id="Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"/>
+            <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
+        </service>
         <!-- /Decorators -->
 
         <!-- Entity Definitions -->
@@ -219,6 +226,7 @@
         <service id="Od\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
+            <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
         </service>
         <service id="Od\NostoIntegration\EventListener\OrderWrittenEventListener">
             <tag name="kernel.event_subscriber"/>

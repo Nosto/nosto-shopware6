@@ -11,6 +11,7 @@ class ChangelogEntity extends Entity
 
     protected string $entityType;
     protected string $entityId;
+    protected ?string $productNumber;
 
     public function getEntityType(): string
     {
@@ -32,4 +33,13 @@ class ChangelogEntity extends Entity
         $this->entityId = $entityId;
     }
 
+    public function getProductNumber(): ?string
+    {
+        return $this->productNumber;
+    }
+
+    public function setProductNumber(?string $productNumber): void
+    {
+        $this->productNumber = $productNumber;
+    }
 }

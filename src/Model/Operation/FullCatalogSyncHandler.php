@@ -11,6 +11,7 @@ use Od\Scheduler\Model\Job\Message\InfoMessage;
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,14 +45,23 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $repositoryIterator = new RepositoryIterator($this->productRepository, $message->getContext(), $criteria);
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
-        while (($productIds = $repositoryIterator->fetchIds()) !== null) {
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $productIds, $message->getContext());
+        while (($products = $repositoryIterator->fetch()) !== null) {
+            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $this->getIdsForMessage($products->getEntities()), $message->getContext());
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s products has been scheduled.', count($productIds))
+                \sprintf('Job with payload of %s products has been scheduled.', count($products->count()))
             ));
         }
 
         return $result;
+    }
+
+    private function getIdsForMessage(EntityCollection $products): array
+    {
+        $data = [];
+        foreach ($products as $product) {
+            $data[$product->getId()] = $product->getProductNumber();
+        }
+        return $data;
     }
 }

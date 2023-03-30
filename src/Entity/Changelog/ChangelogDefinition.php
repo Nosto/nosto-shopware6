@@ -35,7 +35,8 @@ class ChangelogDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('entity_type', 'entityType'))->addFlags(new Required()),
-            (new IdField('entity_id', 'entityId'))->addFlags(new Required())
+            (new IdField('entity_id', 'entityId'))->addFlags(new Required()),
+            new StringField('product_number', 'productNumber')
         ]);
     }
 }
