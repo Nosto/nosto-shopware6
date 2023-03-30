@@ -97,8 +97,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         )->getIds();
     }
 
-    private function doOperation(Account $account, SalesChannelContext $context, array $productIds): Job\JobResult
+    private function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
     {
+        $productIds = array_keys($ids);
         $result = new Job\JobResult();
         $existentProductsCollection = $this->productHelper->loadProducts($productIds, $context);
         $deletedProductIds = array_diff($productIds, $existentProductsCollection->getIds());
@@ -114,7 +115,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
 
             if (!empty($deletedProductIds)) {
-                $this->doDeleteOperation($account, $context, $deletedProductIds);
+                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
             }
         } catch (\Throwable $e) {
             $result->addError($e);
@@ -166,15 +167,38 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
     }
 
-    private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds)
+    private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds, array $mapping)
     {
+        $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
         $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
 
         $operation = new DeleteProduct($account->getNostoAccount(), $domain);
-        $operation->setProductIds($productIds);
+        $operation->setProductIds($identifiers);
         $this->eventDispatcher->dispatch(new BeforeDeleteProductsEvent($operation, $context->getContext()));
         $operation->delete();
+    }
+
+    private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
+    {
+        $identifierType = $this->configProvider->getProductIdentifier($context->getSalesChannelId());
+        if ($identifierType === 'product-number') {
+            return $this->getProductNumbers($productIds, $mapping);
+        }
+        return $productIds;
+    }
+
+    private function getProductNumbers(array $productIds, array $mapping): array
+    {
+        $productNumbers = [];
+
+        foreach ($productIds as $productId) {
+            if (!empty($mapping[$productId])) {
+                $productNumbers[] = $mapping[$productId];
+            }
+        }
+
+        return $productNumbers;
     }
 
     private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string {

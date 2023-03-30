@@ -33,6 +33,18 @@ Component.register('nosto-integration-features-flags', {
     },
 
     computed: {
+        createProductIdentifierOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.productIdentifierOptions.productId'),
+                    value: 'product-id'
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.productIdentifierOptions.productNumber'),
+                    value: 'product-number'
+                }
+            ]
+        },
         createRatingsAndReviewOptions() {
             return [
                 {
@@ -86,6 +98,7 @@ Component.register('nosto-integration-features-flags', {
                     variations: true,
                     productProperties: true,
                     alternateImages: true,
+                    productIdentifier: 'product-id',
                     ratingsReviews: 'shopware-ratings',
                     crossSellingSync: 'no-sync',
                     inventory: false,

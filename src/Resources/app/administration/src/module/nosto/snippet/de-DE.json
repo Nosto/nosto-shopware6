@@ -62,6 +62,10 @@
             },
             "featuresFlags": {
                 "cardTitle": "Mit Flaggen",
+                "productIdentifierOptions": {
+                    "productId": "Produkt-ID",
+                    "productNumber": "Produktnummer"
+                },
                 "ratingsOptions": {
                     "shopwareRatings": "Shopware-Bewertungen",
                     "noRatings": "Keine Bewertungen"
@@ -79,6 +83,8 @@
                 "enableProductPropertiesHelpText": "Das Kontrollkästchen aktiviert das Tagging von Produkteigenschaften.",
                 "enableAlternateImages": "Alternative Bilder aktivieren",
                 "enableAlternateImagesHelpText": "Das Kontrollkästchen aktiviert das Tagging alternativer Bilder.",
+                "productIdentifier": "Produkt-Identifikator",
+                "productIdentifierHelpText": "Das ausgewählte Feld des Produkts wird als Nosto-Produkt-ID synchronisiert.",
                 "enableRatingsReviews": "Bewertungen & Rezensionen aktivieren",
                 "enableRatingsReviewsHelpText": "Die Auswahl ermöglicht Bewertungen & Rezensionen.",
                 "stockField": "Lager Feld",

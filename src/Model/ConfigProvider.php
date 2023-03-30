@@ -19,6 +19,7 @@ class ConfigProvider
     public const DAILY_PRODUCT_SYNC_ENABLED = 'settings.flags.dailySynchronization';
     public const DAILY_PRODUCT_SYNC_TIME = 'settings.flags.dailySynchronizationTime';
     public const STOCK_FIELD = 'settings.flags.stockField';
+    public const PRODUCT_IDENTIFIER_FIELD = 'settings.flags.productIdentifier';
     public const CROSS_SELLING_SYNC_FIELD = 'settings.flags.crossSellingSync';
     public const ENABLE_MERCH = 'settings.enableMerch';
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'settings.notLoggedInCache';
@@ -164,5 +165,11 @@ class ConfigProvider
 
     public function isEnabledProductLabellingSync($channelId = null): bool {
         return $this->systemConfig->getBool($this->path(self::ENABLE_PRODUCT_LABELLING_SYNC), $channelId);
+    }
+
+    public function getProductIdentifier($channelId = null): string
+    {
+        $value = $this->systemConfig->get($this->path(self::PRODUCT_IDENTIFIER_FIELD), $channelId);
+        return is_string($value) ? $value : 'product-id';
     }
 }
