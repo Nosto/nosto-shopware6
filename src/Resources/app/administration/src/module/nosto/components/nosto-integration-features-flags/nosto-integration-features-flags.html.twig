@@ -2,6 +2,26 @@
     <sw-card class="sw-card--grid"
              :title="$tc('nosto.configuration.featuresFlags.cardTitle')">
 
+        {% block nosto_integration_feature_product_identifier %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.productIdentifier']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.productIdentifier']"
+                                :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
+                                :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')">
+                <template #content="props">
+                    <sw-single-select name="NostoIntegration.settings.flags.productIdentifier"
+                                      labelProperty="label"
+                                      valueProperty="value"
+                                      :options="createProductIdentifierOptions"
+                                      :isInherited="props.isInherited"
+                                      :disabled="props.isInherited"
+                                      show-clearable-button
+                                      :value="props.currentValue"
+                                      @change="props.updateCurrentValue">
+                    </sw-single-select>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_ratings_reviews %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.settings.flags.ratingsReviews']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.settings.flags.ratingsReviews']"

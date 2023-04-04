@@ -21,8 +21,12 @@ class SkuBuilder implements SkuBuilderInterface
     public function build(ProductEntity $product, SalesChannelContext $context): NostoSku
     {
         $nostoSku = new NostoSku();
-        $nostoSku->setId($product->getId());
+        $nostoSku->setId(
+            $this->configProvider->getProductIdentifier($context->getSalesChannelId()) === 'product-number' ?
+                $product->getProductNumber() : $product->getId()
+        );
         $nostoSku->addCustomField('productNumber', $product->getProductNumber());
+        $nostoSku->addCustomField('productId', $product->getId());
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {

@@ -10,6 +10,7 @@ use Od\NostoIntegration\Async\ProductSyncMessage;
 use Od\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Od\Scheduler\Model\JobScheduler;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -74,7 +75,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
 
         while (($events = $iterator->fetch()) !== null) {
-            $ids = $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
+            $ids = $entityType === ProductDefinition::ENTITY_NAME ?
+                $events->reduce(function ($result, $event) {
+                    $result[$event->getEntityId()] = $event->getProductNumber();
+                    return $result;
+                }, []) :
+                $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
+
             $processCallback($ids);
             $deleteDataSet = array_map(function ($id) {
                 return ['id' => $id];

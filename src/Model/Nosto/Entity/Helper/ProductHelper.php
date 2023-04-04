@@ -11,6 +11,8 @@ use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEv
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -31,9 +33,11 @@ class ProductHelper
     private EntityRepositoryInterface $reviewRepository;
     private EventDispatcherInterface $eventDispatcher;
     private ConfigProvider $configProvider;
+    private EntityRepositoryInterface $pureProductRepository;
 
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
+        EntityRepositoryInterface $pureProductRepository,
         AbstractProductDetailRoute $productRoute,
         EntityRepositoryInterface $reviewRepository,
         EventDispatcherInterface $eventDispatcher,
@@ -44,6 +48,7 @@ class ProductHelper
         $this->reviewRepository = $reviewRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->configProvider = $configProvider;
+        $this->pureProductRepository = $pureProductRepository;
     }
 
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
@@ -112,5 +117,18 @@ class ProductHelper
         }
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
         return $this->productRepository->search($criteria, $context)->getEntities();
+    }
+
+    public function loadOrderNumberMapping(array $ids, Context $context): array
+    {
+        $criteria = new Criteria($ids);
+        $iterator = new RepositoryIterator($this->pureProductRepository, $context, $criteria);
+        $orderNumberMapping = [];
+        while (($result = $iterator->fetch()) !== null) {
+            foreach ($result as $product) {
+                $orderNumberMapping[$product->getId()] = $product->getProductNumber();
+            }
+        }
+        return $orderNumberMapping;
     }
 }
