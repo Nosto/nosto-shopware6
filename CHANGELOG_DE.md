@@ -1,3 +1,8 @@
+# 1.0.14
+
+* Neu: Hinzufügen der Auswahl des Nosto-Produktidentifikators
+* Neu: Hinzufügen aller Informationen im Zusammenhang mit Cross-Selling
+
 # 1.0.13
 
 * Fix: Ladevorgang von ProductCloseoutFilter für ältere Versionen korrigiert
