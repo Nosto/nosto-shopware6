@@ -45,7 +45,7 @@
                 "title": "Allgemeine Einstellungen",
                 "deferredInit": {
                     "label": "Initialisieren Sie das Nosto-Skript nach der Iteration der ersten Seite",
-                    "helpText": "Diese Einstellung ist eine Optimierung der Webseitenleistung. Diese Einstellung ist eine Optimierung der Webseitenleistung. Wenn diese Einstellung aktiviert ist, wird das Nosto-Skript direkt nach dem Scrollen der Seite nach unten (erste Interaktion) beim allerersten Seitenbesuch geladen und initialisiert. Bei jedem weiteren Neuladen/Besuchen der Seite wird das Nosto-Skript sofort geladen und initialisiert."
+                    "helpText": "Diese Einstellung ist eine Optimierung der Webseitenleistung. Wenn diese Einstellung aktiviert ist, wird das Nosto-Skript direkt nach dem Scrollen der Seite nach unten (erste Interaktion) beim allerersten Seitenbesuch geladen und initialisiert. Bei jedem weiteren Neuladen/Besuchen der Seite wird das Nosto-Skript sofort geladen und initialisiert."
                 },
                 "merch": {
                     "label": "Nosto-Merchandising aktivieren.",
