@@ -12,4 +12,6 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% set restoreLink = nosto_restore_cart_link(context) %}
+    <div class="restore2_link">{{ restoreLink }}</div>
 {% endblock %}
