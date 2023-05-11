@@ -252,7 +252,7 @@
         <!-- Extensions -->
         <service id="Od\NostoIntegration\Twig\Extension\CustomerExtension" public="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder"/>
-<!--            <argument type="service" id="Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService"/>-->
+            <argument type="service" id="Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService"/>
             <tag name="twig.extension"/>
         </service>
         <service id="Od\NostoIntegration\Twig\Extension\NostoExtension" public="true">
