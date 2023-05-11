@@ -278,7 +278,7 @@
         </service>
 
         <service id="Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition" public="true">
-            <tag name="nosto.entity.definition" entity="nosto_checkout_mapping"/>
+            <tag name="shopware.entity.definition" entity="nosto_checkout_mapping"/>
         </service>
 
         <!-- Cart restoration stuff -->
