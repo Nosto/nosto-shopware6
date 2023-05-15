@@ -14,12 +14,22 @@ class Migration1680010097 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
-        ALTER TABLE `od_nosto_entity_changelog`
-        ADD `product_number` VARCHAR(64) NULL;
-    SQL;
+        $this->addColumn($connection);
+    }
 
-        $connection->executeStatement($sql);
+    private function addColumn(Connection $connection): void
+    {
+        $table = 'od_nosto_entity_changelog';
+        $column = 'product_number';
+
+        if (!$this->hasColumn($table, $column, $connection)) {
+            $connection->executeStatement('ALTER TABLE `'. $table .'` ADD COLUMN `'. $column .'` VARCHAR(64) NULL');
+        }
+    }
+
+    private function hasColumn(string $table, string $columnName, Connection $connection): bool
+    {
+        return \in_array($columnName, array_column($connection->fetchAllAssociative(\sprintf('SHOW COLUMNS FROM `%s`', $table)), 'Field'), true);
     }
 
     public function updateDestructive(Connection $connection): void
