@@ -46,10 +46,13 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
         while (($products = $repositoryIterator->fetch()) !== null) {
+            if (is_int($products)) {
+                continue;
+            }
             $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $this->getIdsForMessage($products->getEntities()), $message->getContext());
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s products has been scheduled.', count($products->count()))
+                \sprintf('Job with payload of products has been scheduled.')
             ));
         }
 

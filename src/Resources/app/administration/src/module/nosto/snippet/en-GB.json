@@ -44,7 +44,7 @@
                 "title": "General settings",
                 "deferredInit": {
                     "label": "Initialize Nosto Script After First Page Iteration",
-                    "helpText": "This setting is a web page performance tweak. This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
+                    "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
                 "merch": {
                     "label": "Enable Nosto Merchandising.",
