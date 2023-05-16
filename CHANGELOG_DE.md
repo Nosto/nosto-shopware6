@@ -1,3 +1,8 @@
+# 1.0.15
+
+# Fix: Problem behoben, das bei einigen Benutzern bei der „vollständigen Produktsynchronisierung“ auftreten kann. Fehlermeldung: Countable|array int bereitgestellt
+# Fix: Doppelter Text für die Tooltip-Beschreibung der Nosto-Konfigurationsoption (Adminpanel)
+
 # 1.0.14
 
 * Neu: Hinzufügen der Auswahl des Nosto-Produktidentifikators
