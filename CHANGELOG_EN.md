@@ -1,3 +1,8 @@
+# 1.0.15
+
+# Fix: Fixed issue that some users can encounter upon "Full product sync". Error message: Countable|array int provided
+# Fix: Duplicate text for nosto config option tooltip description ( adminpanel )
+
 # 1.0.14
 
 * Fix: Added Nosto product identifier selection
