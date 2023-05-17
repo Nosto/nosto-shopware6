@@ -1,3 +1,7 @@
+# 1.0.16
+
+# Unterstützung für die Funktionalität „Warenkorb wiederherstellen“/„Warenkorb verlassen“ hinzugefügt. Jetzt erhält der Nosto-Dienst neben allen anderen Kartendaten auch den Link „restore_cart“. 
+
 # 1.0.15
 
 # Fix: Problem behoben, das bei einigen Benutzern bei der „vollständigen Produktsynchronisierung“ auftreten kann. Fehlermeldung: Countable|array int bereitgestellt
