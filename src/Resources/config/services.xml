@@ -252,6 +252,7 @@
         <!-- Extensions -->
         <service id="Od\NostoIntegration\Twig\Extension\CustomerExtension" public="true">
             <argument type="service" id="Od\NostoIntegration\Model\Nosto\Entity\Customer\Builder"/>
+            <argument type="service" id="Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService"/>
             <tag name="twig.extension"/>
         </service>
         <service id="Od\NostoIntegration\Twig\Extension\NostoExtension" public="true">
@@ -275,5 +276,31 @@
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
             <argument type="service" id="od_scheduler_job.repository"/>
         </service>
+
+        <service id="Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition" public="true">
+            <tag name="shopware.entity.definition" entity="nosto_checkout_mapping"/>
+        </service>
+
+        <!-- Cart restoration stuff -->
+        <service id="Od\NostoIntegration\Controller\Storefront\CartController" public="true">
+            <argument type="service" id="Od\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <service id="Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService" public="true">
+            <argument type="service" id="nosto_checkout_mapping.repository"/>
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+        <service id="Od\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerService" public="true">
+            <argument type="service" id="nosto_checkout_mapping.repository"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="logger"/>
+        </service>
+        <!-- /Cart restoration stuff -->
     </services>
 </container>

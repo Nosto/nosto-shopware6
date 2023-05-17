@@ -1,3 +1,7 @@
+# 1.0.16
+
+# Added "restore cart"/"abandoned cart" functionality support. Now Nosto service will receive "restore_cart" link alongside all other card data.
+
 # 1.0.15
 
 # Fix: Fixed issue that some users can encounter upon "Full product sync". Error message: Countable|array int provided
