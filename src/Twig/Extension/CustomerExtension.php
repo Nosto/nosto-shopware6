@@ -31,7 +31,7 @@ class CustomerExtension extends AbstractExtension
         ];
     }
 
-    public function getNostoCustomer(CustomerEntity $customer, Context $context, $cart)
+    public function getNostoCustomer(CustomerEntity $customer, Context $context)
     {
         return $this->builder->build($customer, $context);
     }
