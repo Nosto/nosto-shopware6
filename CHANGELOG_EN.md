@@ -1,3 +1,7 @@
+# 1.0.17
+
+# Minor bugfixes: Fixed issue when site visitor can encounter an error on storefront after reaching checkout and comming back to previous page.
+
 # 1.0.16
 
 # Added "restore cart"/"abandoned cart" functionality support. Now Nosto service will receive "restore_cart" link alongside all other card data.

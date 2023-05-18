@@ -1,3 +1,7 @@
+# 1.0.17
+
+# Kleinere Fehlerbehebungen: Es wurde ein Problem behoben, bei dem Website-Besucher auf der Storefront auf einen Fehler stoßen konnten, nachdem sie den Checkout erreicht und zur vorherigen Seite zurückgekehrt waren.
+
 # 1.0.16
 
 # Unterstützung für die Funktionalität „Warenkorb wiederherstellen“/„Warenkorb verlassen“ hinzugefügt. Jetzt erhält der Nosto-Dienst neben allen anderen Kartendaten auch den Link „restore_cart“. 
