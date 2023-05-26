@@ -84,19 +84,24 @@ class Lifecycle
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
         $sorting = $this->sortingRepository->search($criteria, $context);
+
         if ($sorting->count() > 0) {
-            return;
-        }
-        $this->sortingRepository->upsert([
-            [
+            $data = [
+                'id' => $sorting->first()->getId(),
+                'fields' => ["field" => "product.name", "order" => "desc", "priority" => 1, "naturalSorting" => 0]
+            ];
+        } else {
+            $data = [
                 'key' => MerchandisingSearchApi::MERCHANDISING_SORTING_KEY,
                 'priority' => 0,
                 'active' => true,
-                'fields' => [],
+                'fields' => [["field" => "product.name", "order" => "desc", "priority" => 1, "naturalSorting" => 0]],
                 'label' => 'Recommendation',
                 'locked' => false,
-            ],
-        ], $context);
+            ];
+        }
+
+        $this->sortingRepository->upsert([$data], $context);
     }
 
     public function uninstall(UninstallContext $context): void
