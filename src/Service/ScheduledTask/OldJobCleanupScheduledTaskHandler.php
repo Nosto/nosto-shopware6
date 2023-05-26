@@ -9,7 +9,7 @@ use Od\NostoIntegration\Async\AbstractMessage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -17,11 +17,11 @@ use function array_map;
 
 class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 {
-    private EntityRepositoryInterface $jobRepository;
+    private EntityRepository $jobRepository;
 
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
-        EntityRepositoryInterface $jobRepository
+        EntityRepository $scheduledTaskRepository,
+        EntityRepository $jobRepository
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->jobRepository = $jobRepository;

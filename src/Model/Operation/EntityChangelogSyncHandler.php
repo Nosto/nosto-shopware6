@@ -13,7 +13,7 @@ use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -24,10 +24,10 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     public const HANDLER_CODE = 'od-nosto-entity-changelog-sync';
     private const BATCH_SIZE = 100;
     private JobScheduler $jobScheduler;
-    private EntityRepositoryInterface $entityChangelogRepository;
+    private EntityRepository $entityChangelogRepository;
 
     public function __construct(
-        EntityRepositoryInterface $entityChangelogRepository,
+        EntityRepository $entityChangelogRepository,
         JobScheduler $jobScheduler
     ) {
         $this->entityChangelogRepository = $entityChangelogRepository;

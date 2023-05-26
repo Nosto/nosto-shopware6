@@ -10,7 +10,7 @@ use Od\Scheduler\Model\JobScheduler;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -19,17 +19,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('storefront')]
 class OdNostoSyncRoute
 {
     private JobScheduler $jobScheduler;
-    private EntityRepositoryInterface $jobRepository;
+    private EntityRepository $jobRepository;
 
     public function __construct(
         JobScheduler $jobScheduler,
-        EntityRepositoryInterface $jobRepository
+        EntityRepository $jobRepository
     ) {
         $this->jobScheduler = $jobScheduler;
         $this->jobRepository = $jobRepository;

@@ -4,15 +4,15 @@ namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, MultiFilter};
 
 class AttributeFilterTranslator implements TranslatorInterface
 {
-    private EntityRepositoryInterface $propertyGroupOptionRepository;
+    private EntityRepository $propertyGroupOptionRepository;
 
-    public function __construct(EntityRepositoryInterface $propertyGroupOptionRepository)
+    public function __construct(EntityRepository $propertyGroupOptionRepository)
     {
         $this->propertyGroupOptionRepository = $propertyGroupOptionRepository;
     }

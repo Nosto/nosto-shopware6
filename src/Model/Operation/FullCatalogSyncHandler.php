@@ -12,7 +12,7 @@ use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,11 +21,11 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     public const HANDLER_CODE = 'od-nosto-full-catalog-sync';
     private const BATCH_SIZE = 100;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
     private JobScheduler $jobScheduler;
 
     public function __construct(
-        EntityRepositoryInterface $productRepository,
+        EntityRepository $productRepository,
         JobScheduler $jobScheduler
     ) {
         $this->productRepository = $productRepository;
