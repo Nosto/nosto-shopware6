@@ -7,7 +7,7 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Model\Nosto\Account;
 use Od\NostoIntegration\Utils\Logger\ContextHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -16,13 +16,13 @@ use Psr\Log\LoggerInterface;
 class Provider
 {
     private ConfigProvider $configProvider;
-    private EntityRepositoryInterface $channelRepo;
+    private EntityRepository $channelRepo;
     private ?array $accounts = null;
     private LoggerInterface $logger;
 
     public function __construct(
         ConfigProvider $configProvider,
-        EntityRepositoryInterface $channelRepo,
+        EntityRepository $channelRepo,
         LoggerInterface $logger
     ) {
         $this->configProvider = $configProvider;

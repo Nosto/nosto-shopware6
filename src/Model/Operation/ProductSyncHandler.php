@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -33,7 +33,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-product-sync';
 
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
     private AbstractSalesChannelContextFactory $channelContextFactory;
     private ProductProviderInterface $productProvider;
     private Account\Provider $accountProvider;
@@ -43,7 +43,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
-        SalesChannelRepositoryInterface $productRepository,
+        SalesChannelRepository $productRepository,
         AbstractSalesChannelContextFactory $channelContextFactory,
         ProductProviderInterface $productProvider,
         Account\Provider $accountProvider,

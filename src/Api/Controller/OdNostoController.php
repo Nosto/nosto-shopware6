@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
-
+#[Route(defaults: ['_routeScope' => ['api']])]
 class OdNostoController extends AbstractController
 {
     protected const NAME_TOKEN = 'name';
@@ -40,55 +40,20 @@ class OdNostoController extends AbstractController
         $this->cache = $cache;
     }
 
-    /**
-     * @RouteScope(scopes={"api"})
-     * @Route(
-     *     "/api/_action/od-nosto/schedule-full-product-sync",
-     *     name="api.action.od-nosto.schedule.full.product.sync",
-     *     methods={"POST"}
-     * )
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route(path:"/api/_action/od-nosto/schedule-full-product-sync", name:"api.action.od-nosto.schedule.full.product.sync", options:["seo"=>"false"], methods:["POST"])]
     public function fullCatalogSyncAction(Request $request, Context $context): JsonResponse
     {
         return $this->nostoSyncRoute->fullCatalogSync($request, $context);
     }
 
-    /**
-     * @RouteScope(scopes={"api"})
-     * @Route(
-     *     "/api/_action/od-nosto/clear-cache",
-     *     name="api.action.od-nosto.clear.cache",
-     *     methods={"POST"}
-     * )
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route(path:"/api/_action/od-nosto/clear-cache", name:"api.action.od-nosto.clear.cache", options:["seo"=>"false"], methods:["POST"])]
     public function clearCache(): JsonResponse
     {
         $this->cache->clear(CachedProvider::CACHE_PREFIX);
         return new JsonResponse();
     }
 
-    /**
-     * @RouteScope(scopes={"api"})
-     * @OA\Post(
-     *     path="/_action/od-nosto-api-key-validate",
-     *     summary="Validate api keys for Nosto",
-     *     description="Validates if the given api keys are valid for Nosto",
-     *     operationId="od-api-validate",
-     *     tags={"Admin API", "Od Validation"},
-     *     @OA\RequestBody(
-     *         required=true
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a json response file with validation info."
-     *     )
-     * )
-     * @Route("/api/_action/od-nosto-api-key-validate", name="api.action.od_nosto_api_key_validate", methods={"POST"}, defaults={"auth_required"=false})
-     */
+    #[Route(path:"/api/_action/od-nosto-api-key-validate", name:"api.action.od_nosto_api_key_validate", options:["seo"=>"false","auth_required"=>"false"], methods:["POST"])]
     public function validate(RequestDataBag $post): JsonResponse
     {
         try {

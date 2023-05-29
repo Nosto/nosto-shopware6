@@ -11,9 +11,8 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"storefront"})
- */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class CartController extends StorefrontController
 {
     private RestorerServiceInterface $restorerService;

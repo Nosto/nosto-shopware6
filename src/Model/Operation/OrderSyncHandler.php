@@ -13,7 +13,7 @@ use Od\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepositoryInterface};
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -21,14 +21,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class OrderSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-order-sync';
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
     private Account\Provider $accountProvider;
     private NostoOrderBuilderInterface $nostoOrderbuilder;
     private NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder;
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         Account\Provider $accountProvider,
         NostoOrderBuilderInterface $nostoOrderbuilder,
         NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder,
