@@ -20,7 +20,7 @@
         "shopware/administration": ">=6.4.4.0, 6.5.*",
         "shopware/core": ">=6.4.4.0, 6.5.*",
         "shopware/storefront": ">=6.4.4.0, 6.5.*",
-        "od/sw6-job-scheduler": "^1.0.3",
+        "od/sw6-job-scheduler": "dev-dev-upgrade-6_5",
         "nosto/php-sdk": "^5.5.0"
     },
     "repositories": [
