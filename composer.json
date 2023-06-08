@@ -33,7 +33,7 @@
         }
     ],
     "extra": {
-        "shopware-plugin-class": "Od\\NostoIntegration\\overdose_nosto",
+        "shopware-plugin-class": "Od\\NostoIntegration\\NostoIntegration",
         "plugin-icon": "src/Resources/config/plugin.png",
         "label": {
             "de-DE": "Nosto-Integration",

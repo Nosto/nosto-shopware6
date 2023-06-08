@@ -40,20 +40,20 @@ class OdNostoController extends AbstractController
         $this->cache = $cache;
     }
 
-    #[Route(path:"/api/_action/od-nosto/schedule-full-product-sync", name:"api.action.od-nosto.schedule.full.product.sync", options:["seo"=>"false"], methods:["POST"])]
+    #[Route(path:"/api/_action/od-nosto/schedule-full-product-sync", name:"api.action.od-nosto.schedule.full.product.sync", methods:["POST"])]
     public function fullCatalogSyncAction(Request $request, Context $context): JsonResponse
     {
         return $this->nostoSyncRoute->fullCatalogSync($request, $context);
     }
 
-    #[Route(path:"/api/_action/od-nosto/clear-cache", name:"api.action.od-nosto.clear.cache", options:["seo"=>"false"], methods:["POST"])]
+    #[Route(path:"/api/_action/od-nosto/clear-cache", name:"api.action.od-nosto.clear.cache", methods:["POST"])]
     public function clearCache(): JsonResponse
     {
         $this->cache->clear(CachedProvider::CACHE_PREFIX);
         return new JsonResponse();
     }
 
-    #[Route(path:"/api/_action/od-nosto-api-key-validate", name:"api.action.od_nosto_api_key_validate", options:["seo"=>"false","auth_required"=>"false"], methods:["POST"])]
+    #[Route(path:"/api/_action/od-nosto-api-key-validate", name:"api.action.od_nosto_api_key_validate", options:["auth_required"=>"false"], methods:["POST"])]
     public function validate(RequestDataBag $post): JsonResponse
     {
         try {
