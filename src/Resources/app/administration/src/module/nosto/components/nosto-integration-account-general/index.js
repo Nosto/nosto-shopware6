@@ -32,11 +32,11 @@ Component.register('nosto-integration-account-general', {
         return {
             apiValidationInProgress: false,
             configurationKeys: {
-                accountID: 'NostoIntegration.config.accounts.accountID',
-                accountName: 'NostoIntegration.config.accounts.accountName',
-                productToken: 'NostoIntegration.config.accounts.productToken',
-                emailToken: 'NostoIntegration.config.accounts.emailToken',
-                appToken: 'NostoIntegration.config.accounts.appToken'
+                accountID: 'NostoIntegration.config.accountID',
+                accountName: 'NostoIntegration.config.accountName',
+                productToken: 'NostoIntegration.config.productToken',
+                emailToken: 'NostoIntegration.config.emailToken',
+                appToken: 'NostoIntegration.config.appToken'
             }
         }
     },
@@ -81,9 +81,9 @@ Component.register('nosto-integration-account-general', {
 
         isActive() {
             return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) &&
-            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.config.accounts.isEnabled') &&
-            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.accounts.isEnabled'] === 'boolean' ?
-                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.config.accounts.isEnabled']
+            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.config.isEnabled') &&
+            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.isEnabled'] === 'boolean' ?
+                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.isEnabled'] : this.allConfigs[null]['NostoIntegration.config.isEnabled']
         },
 
         removeErrorState(key) {

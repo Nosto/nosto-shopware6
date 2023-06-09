@@ -25,7 +25,7 @@
     {# Nosto connect script #}
     {% block od_nosto_integration_connect_script %}
         {% set configurationOptions = {
-            'accountID': config('NostoIntegration.config.accounts.accountID'),
+            'accountID': config('NostoIntegration.config.accountID'),
             'initializeAfter':  config('NostoIntegration.config.isInitializeNostoAfterInteraction'),
             'reloadRecommendations': config('NostoIntegration.config.reloadRecommendations')
         } %}
