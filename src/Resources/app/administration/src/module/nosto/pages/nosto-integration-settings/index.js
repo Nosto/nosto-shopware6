@@ -26,11 +26,11 @@ Component.register('nosto-integration-settings', {
             salesChannels: [],
             errorStates: {},
             configurationKeys: {
-                accountID: 'NostoIntegration.settings.accounts.accountID',
-                accountName: 'NostoIntegration.settings.accounts.accountName',
-                productToken: 'NostoIntegration.settings.accounts.productToken',
-                emailToken: 'NostoIntegration.settings.accounts.emailToken',
-                appToken: 'NostoIntegration.settings.accounts.appToken'
+                accountID: 'NostoIntegration.config.accounts.accountID',
+                accountName: 'NostoIntegration.config.accounts.accountName',
+                productToken: 'NostoIntegration.config.accounts.productToken',
+                emailToken: 'NostoIntegration.config.accounts.emailToken',
+                appToken: 'NostoIntegration.config.accounts.appToken'
             }
         };
     },
@@ -86,9 +86,9 @@ Component.register('nosto-integration-settings', {
 
         isActive(channelId) {
             return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
-            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
-            typeof this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
-                this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled'];
+            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.config.accounts.isEnabled') &&
+            typeof this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.config.accounts.isEnabled'] === 'boolean' ?
+                this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.config.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.config.accounts.isEnabled'];
         },
 
         getInheritedValue(channelId, key) {

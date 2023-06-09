@@ -93,7 +93,7 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.settings.flags.',
+            const configPrefix = 'NostoIntegration.config.',
                 defaultConfigs = {
                     variations: true,
                     productProperties: true,
@@ -108,8 +108,7 @@ Component.register('nosto-integration-features-flags', {
                     reloadRecommendations: false,
                     enableLabelling: false,
                     notLoggedInCache: false,
-                    dailySynchronizationTime: false,
-                    domain: null
+                    dailySynchronizationTime: false
                 };
 
             /**

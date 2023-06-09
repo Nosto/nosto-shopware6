@@ -32,11 +32,11 @@ Component.register('nosto-integration-account-general', {
         return {
             apiValidationInProgress: false,
             configurationKeys: {
-                accountID: 'NostoIntegration.settings.accounts.accountID',
-                accountName: 'NostoIntegration.settings.accounts.accountName',
-                productToken: 'NostoIntegration.settings.accounts.productToken',
-                emailToken: 'NostoIntegration.settings.accounts.emailToken',
-                appToken: 'NostoIntegration.settings.accounts.appToken'
+                accountID: 'NostoIntegration.config.accounts.accountID',
+                accountName: 'NostoIntegration.config.accounts.accountName',
+                productToken: 'NostoIntegration.config.accounts.productToken',
+                emailToken: 'NostoIntegration.config.accounts.emailToken',
+                appToken: 'NostoIntegration.config.accounts.appToken'
             }
         }
     },
@@ -48,6 +48,13 @@ Component.register('nosto-integration-account-general', {
     methods: {
         createdComponent() {
             this.checkErrorState();
+        },
+
+        getConfig(salesChannelId) {
+            const values =  this.systemConfigApiService
+                .getValues('NostoIntegration.config', salesChannelId);
+
+            return values.myKey;
         },
 
         createErrorState(key) {
@@ -74,9 +81,9 @@ Component.register('nosto-integration-account-general', {
 
         isActive() {
             return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) &&
-            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
-            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
-                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.config.accounts.isEnabled') &&
+            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.accounts.isEnabled'] === 'boolean' ?
+                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.config.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.config.accounts.isEnabled']
         },
 
         removeErrorState(key) {

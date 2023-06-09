@@ -1,7 +1,7 @@
 {% block od_nosto_integration_order_tagging %}
 
     {% set order = page.order %}
-    {% set customerDataToNosto = config('NostoIntegration.settings.flags.customerDataToNosto') %}
+    {% set customerDataToNosto = config('NostoIntegration.config.customerDataToNosto') %}
 
     {% if order %}
         <div class="nosto_purchase_order" style="display:none">
