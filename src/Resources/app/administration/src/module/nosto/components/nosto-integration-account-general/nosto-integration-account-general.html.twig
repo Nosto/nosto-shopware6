@@ -1,5 +1,4 @@
 {% block nosto_integration_account_component_general %}
-    {{ dump() }}
     <sw-card :title="$tc('nosto.configuration.account.title')" class="od-nosto-account-card">
         {% block nosto_integration_account_enabled %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.accounts.isEnabled']"
