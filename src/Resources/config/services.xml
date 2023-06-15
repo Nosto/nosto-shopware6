@@ -271,6 +271,14 @@
             </call>
         </service>
 
+        <service id="Od\NostoIntegration\Api\Controller\OdNostoCategoriesController" public="true">
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- Routes -->
         <service id="Od\NostoIntegration\Api\Route\OdNostoSyncRoute" public="true">
             <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>

@@ -5,7 +5,7 @@ const {Component, Mixin} = Shopware;
 Component.register('nosto-integration-account-general', {
     template,
 
-    inject: ['nostoApiKeyValidatorService'],
+    inject: ['nostoApiKeyValidatorService', 'OdNostoCategoriesProviderService'],
     mixins: [Mixin.getByName('notification')],
 
     props: {
@@ -167,6 +167,22 @@ Component.register('nosto-integration-account-general', {
                 return false
             }
             return true;
+        },
+
+        onTrackCategories() {
+
+            this.OdNostoCategoriesProviderService.sendCategories().then(response => {
+                this.createNotificationSuccess({
+                    message: 'Synched!'
+                });
+            }).catch((exception) => {
+                console.log('exception', exception);
+                this.createNotificationError({
+                    message: 'Something went wrong!'
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         }
     },
 });

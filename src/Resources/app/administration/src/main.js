@@ -9,11 +9,16 @@ import enGB from './snippet/en-GB.json';
 
 // Services
 import OdNostoService from './core/service/api/od-nosto.service';
+import OdNostoCategoriesService from './core/service/api/od-nosto-categories.service';
 
 const {Application} = Shopware;
 
 Application.addServiceProvider('OdNostoProviderService', () => {
     return new OdNostoService(Shopware.Application.getContainer('init').httpClient, Shopware.Service('loginService'),);
+})
+
+Application.addServiceProvider('OdNostoCategoriesProviderService', () => {
+    return new OdNostoCategoriesService(Shopware.Application.getContainer('init').httpClient, Shopware.Service('loginService'),);
 })
 
 Shopware.Locale.extend('de-DE', deDE);

@@ -17,6 +17,14 @@
         {% endblock %}
 
         {% block nosto_integration_account_api_validate %}
+            <sw-button
+                    size="small"
+                    variant="danger"
+                    @click="onTrackCategories"
+            >
+                Track Categories
+            </sw-button>
+
             <sw-button-process variant="ghost"
                                class="validate-btn"
                                :isLoading="apiValidationInProgress"
