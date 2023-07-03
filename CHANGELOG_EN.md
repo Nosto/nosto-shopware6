@@ -1,3 +1,6 @@
+# 1.0.18
+# Fixed the bug with added criteria to Nosto sorting method
+
 # 1.0.17
 
 # Minor bugfixes: Fixed issue when site visitor can encounter an error on storefront after reaching checkout and comming back to previous page.
