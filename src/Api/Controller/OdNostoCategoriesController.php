@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Od\NostoIntegration\Api\Controller;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Od\NostoIntegration\Utils\Lifecycle;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Composer\Repository\RepositoryInterface;
@@ -62,7 +63,7 @@ class OdNostoCategoriesController extends AbstractController
      * )
      * @param Request $request
      * @return JsonResponse
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function sync(Request $request, Context $context): JsonResponse
     {
@@ -157,14 +158,14 @@ mutation {
 }
 EOF;
 
-        dd($mutation);
+//        dd($mutation);
 
 
         $response = $this->client->post('https://api.nosto.com/v1/graphql', [
             'headers' => [
                 'Content-Type' => 'application/graphql',
             ],
-            'auth_basic' => ['', 'vuI0Mln0DyEgvsask4Gu6sIlOgG3q6hi4k28GKbjgQT3ig4EI8a0A9n9WwYpbRyu'], // Replace 'username' with your actual username
+            'auth_basic' => ['', 'wYxEyZ0R5ASJWGUMARmUeoE9NADNvjSACDBuU0eyz2AtcBIOHyRe9q7yJTDRPxDh'],
             'body' => $mutation
         ]);
 
