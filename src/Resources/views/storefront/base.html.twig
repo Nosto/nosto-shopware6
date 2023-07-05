@@ -25,9 +25,9 @@
     {# Nosto connect script #}
     {% block od_nosto_integration_connect_script %}
         {% set configurationOptions = {
-            'accountID': config('NostoIntegration.config.accountID'),
-            'initializeAfter':  config('NostoIntegration.config.isInitializeNostoAfterInteraction'),
-            'reloadRecommendations': config('NostoIntegration.config.reloadRecommendations')
+            'accountID': config('overdose_nosto.config.accountID'),
+            'initializeAfter':  config('overdose_nosto.config.isInitializeNostoAfterInteraction'),
+            'reloadRecommendations': config('overdose_nosto.config.reloadRecommendations')
         } %}
         <div hidden data-nosto-configuration="true" data-nosto-configuration-options="{{ configurationOptions|json_encode }}"></div>
     {% endblock %}

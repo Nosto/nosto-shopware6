@@ -19,7 +19,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-class NostoIntegration extends Plugin
+class overdose_nosto extends Plugin
 {
     public function install(InstallContext $installContext): void
     {

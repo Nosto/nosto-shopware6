@@ -132,7 +132,7 @@ class Lifecycle
     public function removeConfigs(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('configurationKey', 'NostoIntegration'));
+        $criteria->addFilter(new ContainsFilter('configurationKey', 'overdose_nosto'));
         $configIds = $this->systemConfigRepository->searchIds($criteria, $context)->getIds();
         $configIds = \array_map(static function ($id) {
             return ['id' => $id];
@@ -159,7 +159,7 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->systemConfigService->delete('overdose_nosto.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 

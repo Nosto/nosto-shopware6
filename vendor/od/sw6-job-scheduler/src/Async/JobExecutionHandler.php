@@ -5,26 +5,15 @@ namespace Od\Scheduler\Async;
 use Od\Scheduler\Model\Job\JobRunner;
 use Psr\Log\LoggerInterface;
 
-class JobExecutionHandler extends \Symfony\Component\Messenger\Attribute\AsMessageHandler
+class JobExecutionHandler implements \Symfony\Component\Messenger\Handler\MessageSubscriberInterface
 {
     private LoggerInterface $logger;
     private JobRunner $jobRunner;
 
     public function __construct(
-        ?string $bus = null,
-        ?string $fromTransport = null,
-        ?string $handles = null,
-        ?string $method = null,
         LoggerInterface $logger,
-        JobRunner $jobRunner,
-        int $priority = 0
+        JobRunner $jobRunner
     ) {
-        $this->bus = $bus;
-        $this->fromTransport = $fromTransport;
-        $this->handles = $handles;
-        $this->method = $method;
-        $this->priority = $priority;
-        parent::__construct($bus, $fromTransport, $handles, $method, $priority);
         $this->logger = $logger;
         $this->jobRunner = $jobRunner;
     }
@@ -37,7 +26,7 @@ class JobExecutionHandler extends \Symfony\Component\Messenger\Attribute\AsMessa
     /**
      * @param JobMessageInterface $message
      */
-    public function handle($message): void
+    public function handle(\Od\Scheduler\Async\JobMessageInterface $message): void
     {
         try {
             $this->jobRunner->execute($message);
