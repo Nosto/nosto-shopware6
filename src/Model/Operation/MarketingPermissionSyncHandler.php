@@ -10,7 +10,7 @@ use Od\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepositoryInterface};
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -18,12 +18,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'od-nosto-marketing-permission-sync';
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
     private Account\Provider $accountProvider;
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
+        EntityRepository $newsletterRecipientRepository,
         Account\Provider $accountProvider,
         EventDispatcherInterface $eventDispatcher
     ) {

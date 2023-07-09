@@ -210,6 +210,13 @@
 
         <service id="Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
                  decorates="product.repository">
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory"/>
             <argument type="service"
                       id="Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"/>
             <argument type="service" id="Od\NostoIntegration\Async\EventsWriter"/>
