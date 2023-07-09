@@ -7,7 +7,7 @@ use Od\NostoIntegration\Model\ConfigProvider;
 use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -23,19 +23,19 @@ use function version_compare;
 
 class Lifecycle
 {
-    private EntityRepositoryInterface $systemConfigRepository;
+    private EntityRepository $systemConfigRepository;
     private Connection $connection;
     private ContainerInterface $container;
     private bool $hasOtherSchedulerDependency;
-    private EntityRepositoryInterface $sortingRepository;
+    private EntityRepository $sortingRepository;
     private SystemConfigService $systemConfigService;
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     public function __construct(
         ContainerInterface $container,
         bool $hasOtherSchedulerDependency
     ) {
-        /** @var EntityRepositoryInterface $systemConfigRepository */
+        /** @var EntityRepository $systemConfigRepository */
         $systemConfigRepository = $container->get('system_config.repository');
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
@@ -137,7 +137,7 @@ class Lifecycle
     public function removeConfigs(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('configurationKey', 'NostoIntegration'));
+        $criteria->addFilter(new ContainsFilter('configurationKey', 'overdose_nosto'));
         $configIds = $this->systemConfigRepository->searchIds($criteria, $context)->getIds();
         $configIds = \array_map(static function ($id) {
             return ['id' => $id];
@@ -164,7 +164,7 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->systemConfigService->delete('overdose_nosto.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 

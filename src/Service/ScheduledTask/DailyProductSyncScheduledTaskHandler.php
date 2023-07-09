@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
-    private const LAST_EXECUTION_TIME_CONFIG = 'NostoIntegration.settings.hidden.dailySyncLastTime';
+    private const LAST_EXECUTION_TIME_CONFIG = 'overdose_nosto.config.hidden.dailySyncLastTime';
     private ConfigProvider $configProvider;
     private SystemConfigService $systemConfigService;
     private OdNostoSyncRoute $nostoSyncRoute;
@@ -28,7 +28,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
     private LoggerInterface $logger;
 
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
         OdNostoSyncRoute $nostoSyncRoute,

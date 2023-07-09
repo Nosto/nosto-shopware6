@@ -26,11 +26,11 @@ Component.register('nosto-integration-settings', {
             salesChannels: [],
             errorStates: {},
             configurationKeys: {
-                accountID: 'NostoIntegration.settings.accounts.accountID',
-                accountName: 'NostoIntegration.settings.accounts.accountName',
-                productToken: 'NostoIntegration.settings.accounts.productToken',
-                emailToken: 'NostoIntegration.settings.accounts.emailToken',
-                appToken: 'NostoIntegration.settings.accounts.appToken'
+                accountID: 'overdose_nosto.config.accountID',
+                accountName: 'overdose_nosto.config.accountName',
+                productToken: 'overdose_nosto.config.productToken',
+                emailToken: 'overdose_nosto.config.emailToken',
+                appToken: 'overdose_nosto.config.appToken'
             }
         };
     },
@@ -86,9 +86,9 @@ Component.register('nosto-integration-settings', {
 
         isActive(channelId) {
             return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
-            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
-            typeof this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
-                this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.settings.accounts.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled'];
+            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('overdose_nosto.config.isEnabled') &&
+            typeof this.$refs.configComponent.allConfigs[channelId]['overdose_nosto.config.isEnabled'] === 'boolean' ?
+                this.$refs.configComponent.allConfigs[channelId]['overdose_nosto.config.isEnabled'] : this.$refs.configComponent.allConfigs[null]['overdose_nosto.config.isEnabled'];
         },
 
         getInheritedValue(channelId, key) {

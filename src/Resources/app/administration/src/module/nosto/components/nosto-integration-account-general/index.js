@@ -32,11 +32,11 @@ Component.register('nosto-integration-account-general', {
         return {
             apiValidationInProgress: false,
             configurationKeys: {
-                accountID: 'NostoIntegration.settings.accounts.accountID',
-                accountName: 'NostoIntegration.settings.accounts.accountName',
-                productToken: 'NostoIntegration.settings.accounts.productToken',
-                emailToken: 'NostoIntegration.settings.accounts.emailToken',
-                appToken: 'NostoIntegration.settings.accounts.appToken'
+                accountID: 'overdose_nosto.config.accountID',
+                accountName: 'overdose_nosto.config.accountName',
+                productToken: 'overdose_nosto.config.productToken',
+                emailToken: 'overdose_nosto.config.emailToken',
+                appToken: 'overdose_nosto.config.appToken'
             }
         }
     },
@@ -48,6 +48,13 @@ Component.register('nosto-integration-account-general', {
     methods: {
         createdComponent() {
             this.checkErrorState();
+        },
+
+        getConfig(salesChannelId) {
+            const values =  this.systemConfigApiService
+                .getValues('overdose_nosto.config', salesChannelId);
+
+            return values.myKey;
         },
 
         createErrorState(key) {
@@ -74,9 +81,9 @@ Component.register('nosto-integration-account-general', {
 
         isActive() {
             return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) &&
-            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('NostoIntegration.settings.accounts.isEnabled') &&
-            typeof this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] === 'boolean' ?
-                this.allConfigs[this.selectedSalesChannelId]['NostoIntegration.settings.accounts.isEnabled'] : this.allConfigs[null]['NostoIntegration.settings.accounts.isEnabled']
+            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('overdose_nosto.config.isEnabled') &&
+            typeof this.allConfigs[this.selectedSalesChannelId]['overdose_nosto.config.isEnabled'] === 'boolean' ?
+                this.allConfigs[this.selectedSalesChannelId]['overdose_nosto.config.isEnabled'] : this.allConfigs[null]['overdose_nosto.config.isEnabled']
         },
 
         removeErrorState(key) {

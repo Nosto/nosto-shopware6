@@ -1,3 +1,14 @@
+# 2.0.0
+
+# Compatibility release with shopwrae 6.5^
+# Fix: Replaced usage of removed classes & files.
+# Fix: Resolved the issue that some plugin users was able to encounter during data syncronization via shopware admin panel.
+# Fix: Minor changes to extension configuration classes/templates ( at extension configuration page ).
+# New: Job Scheduler Update - implemented compatibility with Shopawre 6.5^ versions.
+# New: Job Scheduler Update - Job scheduler handlers now do extend recommended interfaces.
+# New: Controller routes now have annotation declaration in new format.
+# New: Some changes that was made do make the extension backward-incompatible. You can see the dependencies in composer.json file.
+
 # 1.0.18
 # Fixed the bug with added criteria to Nosto sorting method
 

@@ -8,25 +8,53 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductRepositoryDecorator implements EntityRepositoryInterface
+class ProductRepositoryDecorator extends EntityRepository
 {
-    private EntityRepositoryInterface $inner;
+    private EntityRepository $inner;
     private EventsWriter $eventsWriter;
 
-    public function __construct(EntityRepositoryInterface $inner, EventsWriter $eventsWriter)
-    {
-        $this->inner = $inner;
-        $this->eventsWriter = $eventsWriter;
+//    public function __construct(EntityRepository $inner, EventsWriter $eventsWriter)
+//    {
+//        $this->inner = $inner;
+//        $this->eventsWriter = $eventsWriter;
+//    }
+
+    public function __construct(
+        EntityDefinition $definition,
+        EntityReaderInterface $reader,
+        VersionManager $versionManager,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher,
+        EntityLoadedEventFactory $eventFactory,
+        EntityRepository $inner,
+        EventsWriter $eventsWriter
+    ) {
+        parent::__construct($definition, $reader, $versionManager, $searcher, $aggregator, $eventDispatcher, $eventFactory);
+            $this->inner = $inner;
+            $this->eventsWriter = $eventsWriter;
+//        $this->definition = $definition;
+//        $this->reader = $reader;
+//        $this->versionManager = $versionManager;
+//        $this->searcher = $searcher;
+//        $this->aggregator = $aggregator;
+//        $this->eventDispatcher = $eventDispatcher;
+//        $this->eventFactory = $eventFactory;
     }
 
     public function getDefinition(): EntityDefinition

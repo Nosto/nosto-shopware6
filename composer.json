@@ -2,7 +2,7 @@
     "name": "od/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "version": "1.0.18",
+    "version": "2.0.0",
     "license": "proprietary",
     "authors": [
         {
@@ -16,12 +16,12 @@
         }
     },
     "require": {
+        "od/sw6-job-scheduler": "^2.0.3",
+        "nosto/php-sdk": "^5.5.0",
         "php": "^7.4 || ^8.0",
-        "shopware/administration": ">=6.4.4.0, <6.5.0.0",
-        "shopware/core": ">=6.4.4.0, <6.5.0.0",
-        "shopware/storefront": ">=6.4.4.0, <6.5.0.0",
-        "od/sw6-job-scheduler": "^1.0.3",
-        "nosto/php-sdk": "^5.5.0"
+        "shopware/administration": "6.5.*",
+        "shopware/core": "6.5.*",
+        "shopware/storefront": "6.5.*"
     },
     "repositories": [
         {
@@ -50,6 +50,11 @@
         "supportLink": {
             "de-DE": "https://overdose.digital/",
             "en-GB": "https://overdose.digital/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": true
         }
     }
 }

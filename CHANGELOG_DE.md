@@ -1,3 +1,14 @@
+# 2.0.0
+
+# Kompatibilitätsfreigabe mit Shopwrae 6.5^
+# Fix: Verwendung entfernter Klassen und Dateien ersetzt.
+# Fix: Das Problem wurde behoben, das bei einigen Plugin-Benutzern während der Datensynchronisierung über das Shopware-Admin-Panel auftrat.
+# Fix: Kleinere Änderungen an Erweiterungskonfigurationsklassen/-vorlagen (auf der Erweiterungskonfigurationsseite).
+# Neu: Job Scheduler Update – Kompatibilität mit Shopawre 6.5^-Versionen implementiert.
+# Neu: Job-Scheduler-Update – Job-Scheduler-Handler erweitern jetzt empfohlene Schnittstellen.
+# Neu: Controller-Routen verfügen jetzt über eine Annotationsdeklaration im neuen Format.
+# Neu: Einige vorgenommene Änderungen machen die Erweiterung abwärtsinkompatibel. Sie können die Abhängigkeiten in der Datei „composer.json“ sehen.
+
 # 1.0.18
 # Der Fehler wurde behoben, indem Kriterien zur Nosto-Sortiermethode hinzugefügt wurden
 

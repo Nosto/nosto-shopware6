@@ -3,17 +3,17 @@
 namespace Od\NostoIntegration\Async;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 class EventsWriter
 {
-    private EntityRepositoryInterface $changelogRepository;
+    private EntityRepository $changelogRepository;
     public const ORDER_ENTITY_PLACED_NAME = 'order_placed';
     public const ORDER_ENTITY_UPDATED_NAME = 'order_updated';
     public const NEWSLETTER_ENTITY_NAME = 'newsletter';
     public const PRODUCT_ENTITY_NAME = 'product';
 
-    public function __construct(EntityRepositoryInterface $changelogRepository)
+    public function __construct(EntityRepository $changelogRepository)
     {
         $this->changelogRepository = $changelogRepository;
     }
