@@ -29,12 +29,12 @@
             'dev_requirement' => false,
         ),
         'od/sw6-job-scheduler' => array(
-            'pretty_version' => '2.0.3',
-            'version' => '2.0.3.0',
+            'pretty_version' => '2.0.4',
+            'version' => '2.0.4.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../od/sw6-job-scheduler',
             'aliases' => array(),
-            'reference' => '1888e6f6afbe963313ed26b5062563f05576642a',
+            'reference' => 'e30a8b12a1a7135bd7052262a1e693df2dd30119',
             'dev_requirement' => false,
         ),
         'paragonie/constant_time_encoding' => array(
@@ -65,12 +65,12 @@
             'dev_requirement' => false,
         ),
         'phpseclib/phpseclib' => array(
-            'pretty_version' => '3.0.20',
-            'version' => '3.0.20.0',
+            'pretty_version' => '3.0.21',
+            'version' => '3.0.21.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpseclib/phpseclib',
             'aliases' => array(),
-            'reference' => '543a1da81111a0bfd6ae7bbc2865c5e89ed3fc67',
+            'reference' => '4580645d3fc05c189024eb3b834c6c1e4f0f30a1',
             'dev_requirement' => false,
         ),
         'symfony/polyfill-ctype' => array(
