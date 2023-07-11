@@ -149,11 +149,13 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="logger"/>
         </service>
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
+        <service id="Od\NostoIntegration\Service\ProductListingRouteDecorator"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute">
             <argument type="service" id="nosto.product_listing_loader" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
         <service id="Od\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
