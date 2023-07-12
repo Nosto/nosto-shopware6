@@ -1,3 +1,6 @@
+# 2.0.1
+# Fix: Resolved the issue with configuration namings.
+
 # 2.0.0
 
 # Compatibility release with shopwrae 6.5^
