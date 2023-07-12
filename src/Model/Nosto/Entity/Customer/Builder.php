@@ -7,17 +7,17 @@ use Od\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEven
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute as Newsletter;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
 {
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
     private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(EntityRepositoryInterface $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepository $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->eventDispatcher = $eventDispatcher;

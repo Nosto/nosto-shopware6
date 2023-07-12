@@ -4,7 +4,7 @@ namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
@@ -12,9 +12,9 @@ class ManufacturerFilterTranslator implements TranslatorInterface
 {
     public const MANUFACTURER = "product.manufacturerId";
 
-    private EntityRepositoryInterface $manufacturerRepository;
+    private EntityRepository $manufacturerRepository;
 
-    public function __construct(EntityRepositoryInterface $manufacturerRepository)
+    public function __construct(EntityRepository $manufacturerRepository)
     {
         $this->manufacturerRepository = $manufacturerRepository;
     }

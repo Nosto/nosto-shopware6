@@ -22,7 +22,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
@@ -39,7 +39,7 @@ class Builder implements BuilderInterface
     private NetPriceCalculator $calculator;
     private CashRounding $priceRounding;
     private CrossSellingBuilderInterface $crossSellingBuilder;
-    private EntityRepositoryInterface $tagRepository;
+    private EntityRepository $tagRepository;
 
     public function __construct(
         SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
@@ -51,7 +51,7 @@ class Builder implements BuilderInterface
         TreeBuilderInterface $treeBuilder,
         EventDispatcherInterface $eventDispatcher,
         CrossSellingBuilderInterface $crossSellingBuilder,
-        EntityRepositoryInterface $tagRepository
+        EntityRepository $tagRepository
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;

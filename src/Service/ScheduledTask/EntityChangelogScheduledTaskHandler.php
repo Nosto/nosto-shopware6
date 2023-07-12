@@ -7,7 +7,7 @@ namespace Od\NostoIntegration\Service\ScheduledTask;
 use Od\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Od\Scheduler\Model\JobScheduler;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -16,7 +16,7 @@ class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implement
     private JobScheduler $jobScheduler;
 
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         JobScheduler $jobScheduler
     ) {
         parent::__construct($scheduledTaskRepository);

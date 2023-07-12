@@ -10,7 +10,7 @@ use Od\Scheduler\Model\JobScheduler;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -19,35 +19,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class OdNostoSyncRoute
 {
     private JobScheduler $jobScheduler;
-    private EntityRepositoryInterface $jobRepository;
+    private EntityRepository $jobRepository;
 
     public function __construct(
         JobScheduler $jobScheduler,
-        EntityRepositoryInterface $jobRepository
+        EntityRepository $jobRepository
     ) {
         $this->jobScheduler = $jobScheduler;
         $this->jobRepository = $jobRepository;
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/schedule-full-product-sync",
-     *      summary="Add all product data to queue",
-     *      operationId="OdSyncRouteFullProduct",
-     *      tags={"API", "App"},
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns different structures of results",
-     *     )
-     * )
-     * @Route("/api/schedule-full-product-sync", name="api.od_nosto_sync.full_sync", methods={"POST"})
-     */
+    #[Route(path:"/api/schedule-full-product-sync", name:"api.od_nosto_sync.full_sync", methods:["POST"])]
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
         $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);

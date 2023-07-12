@@ -5,7 +5,7 @@ namespace Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -17,14 +17,14 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RestoreUrlService implements RestoreUrlServiceInterface
 {
-    private EntityRepositoryInterface $mappingRepository;
+    private EntityRepository $mappingRepository;
 
     private UrlGeneratorInterface $urlGenerator;
 
     private RequestStack $requestStack;
 
     public function __construct(
-        EntityRepositoryInterface $mappingRepository,
+        EntityRepository $mappingRepository,
         UrlGeneratorInterface $urlGenerator,
         RequestStack $requestStack
     ) {
