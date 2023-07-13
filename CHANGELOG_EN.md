@@ -1,4 +1,4 @@
-# 2.0.1
+# 2.0.2
 # Fix: Resolved the issue when Recommendation filter was not working as intended for some users.
 
 # 2.0.1
