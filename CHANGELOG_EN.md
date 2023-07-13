@@ -1,4 +1,7 @@
 # 2.0.1
+# Fix: Resolved the issue when Recommendation filter was not working as intended for some users.
+
+# 2.0.1
 # Fix: Resolved the issue with configuration namings.
 
 # 2.0.0
