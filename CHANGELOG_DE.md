@@ -1,3 +1,6 @@
+# 2.0.1
+# Fix: Das Problem mit Konfigurationsbenennungen wurde behoben.
+
 # 2.0.0
 
 # Kompatibilitätsfreigabe mit Shopwrae 6.5^
