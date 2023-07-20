@@ -11,7 +11,10 @@
                 </div>
             {% endif %}
         {% endfor %}
-        {% set restoreLink = nosto_restore_cart_link(context) %}
-        <div class="restore_link">{{ restoreLink }}</div>
+        
+        {% if context.customer %}
+            {% set restoreLink = nosto_restore_cart_link(context) %}
+            <div class="restore_link">{{ restoreLink }}</div>
+        {% endif %}
     </div>
 {% endblock %}
