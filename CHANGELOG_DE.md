@@ -1,3 +1,6 @@
+# 2.0.2
+# Fix: Das Problem wurde behoben, wenn der Empfehlungsfilter für einige Benutzer nicht wie vorgesehen funktionierte.
+
 # 2.0.1
 # Fix: Das Problem mit Konfigurationsbenennungen wurde behoben.
 
