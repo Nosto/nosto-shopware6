@@ -1,5 +1,6 @@
 # 2.0.2
 # Fix: Resolved the issue when Recommendation filter was not working as intended for some users.
+# Fix: Resolved the issue when nosto widgets could cause error on the page where they were added.
 
 # 2.0.1
 # Fix: Resolved the issue with configuration namings.
