@@ -2,7 +2,7 @@ import './component';
 import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
-    name: 'od-nosto-block',
+    name: 'od-nosto',
     label: 'Nosto',
     category: 'od-nosto',
     component: 'sw-cms-block-od-nosto',

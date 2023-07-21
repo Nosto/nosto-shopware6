@@ -1,6 +1,11 @@
 .sw-cms-sidebar__block-preview {
     .od-sidebar-preview-container {
-       text-align: center;
-       padding: 8px;
+        text-align: center;
+        padding: 8px;
+        img {
+            width: 120px;
+            height: 120px;
+            margin: auto;
+        }
     }
 }
