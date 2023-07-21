@@ -1,3 +1,7 @@
+# 1.0.19
+# Das Problem wurde behoben, das bei Kunden mit hohen Besucherzahlen auf der Website auftrat, wenn viele Daten in der Datenbanktabelle „Warenkorb wiederherstellen“ gespeichert waren.
+# Das Problem, das bei einigen Kunden mit Fehlern in src-Build-Dateien auftreten konnte, wurde behoben
+
 # 1.0.18
 # Der Fehler wurde behoben, indem Kriterien zur Nosto-Sortiermethode hinzugefügt wurden
 

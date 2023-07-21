@@ -1,3 +1,7 @@
+# 1.0.19
+# Resolved the issue that customers with high site visitor counts experienced when alot of data was stored in "restore cart" db table.
+# Resolved the issue that some customers may encounter with error in src build files 
+
 # 1.0.18
 # Fixed the bug with added criteria to Nosto sorting method
 
