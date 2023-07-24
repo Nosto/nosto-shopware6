@@ -32,11 +32,9 @@ export default class NostoPlugin extends Plugin {
     }
 
     _addMultipleToCart(ids, element) {
-        this.csrf_token = document.querySelector('.nosto-csrf-token input').value;
         const data = {
             lineItems: {},
             redirectTo: this.options.redirectTo,
-            _csrf_token: this.csrf_token,
         };
 
         ids.forEach((item) => {
