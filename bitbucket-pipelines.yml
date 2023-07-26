@@ -4,4 +4,4 @@ pipelines:
   default:
     - step:
         script:
-          - git push --mirror git@github.com:gnikolai-overdose/nosto-shopware6-plugin.git
+          - git push --mirror git@github.com:nikolai-overdose/nosto-shopware6-plugin.git
