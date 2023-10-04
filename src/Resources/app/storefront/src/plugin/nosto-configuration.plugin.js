@@ -64,7 +64,6 @@ export default class NostoConfiguration extends Plugin {
 
         this.cartWidgetSubscriber();
         this.nostoSubscriber();
-
     }
 
     cartWidgetSubscriber() {

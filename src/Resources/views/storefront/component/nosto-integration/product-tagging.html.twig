@@ -1,7 +1,7 @@
-{% block od_nosto_integration_page_tagging %}
+{% block nosto_integration_page_tagging %}
 
     {% set product = page.product %}
-    {% set nostoProduct = od_nosto_product(product, context) %}
+    {% set nostoProduct = nosto_product(product, context) %}
 
     {% if product and nostoProduct %}
         <div class="nosto_product" style="display:none">

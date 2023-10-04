@@ -1,5 +1,5 @@
 {% block nosto_integration_account_component_general %}
-    <sw-card :title="$tc('nosto.configuration.account.title')" class="od-nosto-account-card">
+    <sw-card :title="$tc('nosto.configuration.account.title')" class="nosto-integration-account-card">
         {% block nosto_integration_account_enabled %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.isEnabled']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.isEnabled']">

@@ -6,24 +6,24 @@
     {{ parent() }}
 
     {# Nosto tagging #}
-    {% block od_nosto_integration_tagging %}
+    {% block nosto_integration_integration_tagging %}
 
-        {% set type = od_nosto_page_type(activeRoute, page.cmsPage.type) %}
+        {% set type = nosto_page_type(activeRoute, page.cmsPage.type) %}
 
-        {% block od_nosto_integration_tagging_global %}
+        {% block nosto_integration_tagging_global %}
             {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/page-tagging.html.twig' with {
                 type: type
             } %}
         {% endblock %}
 
-        {% block od_nosto_integration_tagging_advanced %}
+        {% block nosto_integration_tagging_advanced %}
             {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/'~type~'-tagging.html.twig' ignore missing %}
         {% endblock %}
 
     {% endblock %}
 
     {# Nosto connect script #}
-    {% block od_nosto_integration_connect_script %}
+    {% block nosto_integration_connect_script %}
         {% set configurationOptions = {
             'accountID': config('NostoIntegration.config.accountID'),
             'initializeAfter':  config('NostoIntegration.config.isInitializeNostoAfterInteraction'),

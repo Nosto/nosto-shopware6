@@ -21,7 +21,7 @@ use Throwable;
 
 class MerchandisingSearchApi extends \Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository
 {
-    const MERCHANDISING_SORTING_KEY = 'od-recommendation';
+    const MERCHANDISING_SORTING_KEY = 'nosto-recommendation';
 
     private SalesChannelRepository $repository;
     private EntityRepository $categoryRepository;

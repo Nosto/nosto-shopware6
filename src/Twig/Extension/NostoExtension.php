@@ -30,8 +30,8 @@ class NostoExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('od_nosto_product', [$this, 'getNostoProduct']),
-            new TwigFunction('od_nosto_page_type', [$this, 'getPageType'])
+            new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
+            new TwigFunction('nosto_page_type', [$this, 'getPageType'])
         ];
     }
 
