@@ -2,8 +2,8 @@ import './init/svg-icons.init';
 import './init/nosto-api-keys-validator-service-init';
 import './module/nosto';
 import './extension/sw-cms/component/sw-cms-sidebar';
-import './module/sw-cms/blocks/od-nosto/od-nosto-block';
-import './module/sw-cms/elements/od-nosto';
+import './module/sw-cms/blocks/nosto-integration/nosto-integration-block';
+import './module/sw-cms/elements/nosto-integration';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 

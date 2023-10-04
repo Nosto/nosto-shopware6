@@ -1,9 +1,9 @@
-import template from './sw-cms-el-od-nosto.html.twig';
-import './sw-cms-el-od-nosto.scss';
+import template from './sw-cms-el-nosto-integration.html.twig';
+import './sw-cms-el-nosto-integration.scss';
 
 const {Component, Mixin} = Shopware;
 
-Component.register('sw-cms-el-od-nosto', {
+Component.register('sw-cms-el-nosto-integration', {
     template,
 
     mixins: [
@@ -24,7 +24,7 @@ Component.register('sw-cms-el-od-nosto', {
 
     methods: {
         createdComponent() {
-            this.initElementConfig('od-nosto');
+            this.initElementConfig('nosto-integration');
         },
     }
 });

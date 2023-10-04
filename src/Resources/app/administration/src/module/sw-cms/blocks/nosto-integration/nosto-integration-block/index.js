@@ -2,11 +2,11 @@ import './component';
 import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
-    name: 'od-nosto',
+    name: 'nosto-integration',
     label: 'Nosto',
-    category: 'od-nosto',
-    component: 'sw-cms-block-od-nosto',
-    previewComponent: 'sw-cms-preview-od-nosto',
+    category: 'nosto-integration',
+    component: 'sw-cms-block-nosto-integration',
+    previewComponent: 'sw-cms-preview-nosto-integration',
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
@@ -15,6 +15,6 @@ Shopware.Service('cmsService').registerCmsBlock({
         sizingMode: 'boxed'
     },
     slots: {
-        od_nosto: 'od-nosto',
+        nosto_integration: 'nosto-integration',
     }
 });
