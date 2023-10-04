@@ -12,7 +12,7 @@ Component.register('nosto-job-listing', {
     ],
 
     inject: [
-        'OdNostoProviderService',
+        'NostoIntegrationProviderService',
         'repositoryFactory',
         'filterFactory',
         'feature',
@@ -107,7 +107,7 @@ Component.register('nosto-job-listing', {
 
         onScheduleProductSync() {
             this.isLoading = true;
-            this.OdNostoProviderService.scheduleFullProductSync().then(() => {
+            this.NostoIntegrationProviderService.scheduleFullProductSync().then(() => {
                 this.createNotificationSuccess({
                     message: this.$tc('nosto.job.notification.success')
                 });

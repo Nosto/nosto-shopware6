@@ -9,7 +9,7 @@ class NostoApiKeyValidatorService extends ApiService {
     validate(params) {
         const headers = this.getBasicHeaders();
         return this.httpClient
-            .post('/_action/od-nosto-api-key-validate', params, {headers});
+            .post('/_action/nosto-integration-api-key-validate', params, {headers});
     }
 }
 

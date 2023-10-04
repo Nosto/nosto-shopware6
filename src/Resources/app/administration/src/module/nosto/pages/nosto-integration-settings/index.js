@@ -9,7 +9,7 @@ Component.register('nosto-integration-settings', {
 
     inject: [
         'repositoryFactory',
-        'OdNostoProviderService',
+        'NostoIntegrationProviderService',
     ],
 
     mixins: [
@@ -128,7 +128,7 @@ Component.register('nosto-integration-settings', {
             this.createNotificationInfo({
                 message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
             });
-            this.OdNostoProviderService.clearCaches().then(() => {
+            this.NostoIntegrationProviderService.clearCaches().then(() => {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-settings-cache.notifications.clearCache.success')
                 });

@@ -10,7 +10,7 @@ class EntityChangelogScheduledTask extends ScheduledTask
 
     public static function getTaskName(): string
     {
-        return 'od_nosto_entity_changelog_task';
+        return 'nosto_integration_entity_changelog_task';
     }
 
     public static function getDefaultInterval(): int

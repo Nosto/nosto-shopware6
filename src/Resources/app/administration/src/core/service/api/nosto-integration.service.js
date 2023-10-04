@@ -1,23 +1,23 @@
 const ApiService = Shopware.Classes.ApiService;
 
-class OdNostoService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'od-nosto') {
+class NostoIntegrationService extends ApiService {
+    constructor(httpClient, loginService, apiEndpoint = 'nosto-integration') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'OdNostoService';
+        this.name = 'NostoIntegrationService';
     }
 
     scheduleFullProductSync() {
-        const apiRoute = `_action/od-nosto/schedule-full-product-sync`,
+        const apiRoute = `_action/nosto-integration/schedule-full-product-sync`,
             headers = this.getBasicHeaders();
 
         return this.httpClient.post(apiRoute, {}, {headers});
     }
 
     clearCaches() {
-        const apiRoute = `_action/od-nosto/clear-cache`,
+        const apiRoute = `_action/nosto-integration/clear-cache`,
             headers = this.getBasicHeaders();
         return this.httpClient.post(apiRoute, {}, {headers});
     }
 }
 
-export default OdNostoService;
+export default NostoIntegrationService;

@@ -10,7 +10,7 @@ class OldJobCleanupScheduledTask extends ScheduledTask
 
     public static function getTaskName(): string
     {
-        return 'od_nosto_old_job_cleanup_task';
+        return 'nosto_integration_old_job_cleanup_task';
     }
 
     public static function getDefaultInterval(): int

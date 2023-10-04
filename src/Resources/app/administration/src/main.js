@@ -8,12 +8,15 @@ import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
 // Services
-import OdNostoService from './core/service/api/od-nosto.service';
+import NostoIntegrationService from './core/service/api/nosto-integration.service';
 
 const {Application} = Shopware;
 
-Application.addServiceProvider('OdNostoProviderService', () => {
-    return new OdNostoService(Shopware.Application.getContainer('init').httpClient, Shopware.Service('loginService'),);
+Application.addServiceProvider('NostoIntegrationProviderService', () => {
+    return new NostoIntegrationService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service('loginService')
+    );
 })
 
 Shopware.Locale.extend('de-DE', deDE);

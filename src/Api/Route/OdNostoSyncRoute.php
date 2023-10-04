@@ -33,7 +33,7 @@ class OdNostoSyncRoute
         $this->jobRepository = $jobRepository;
     }
 
-    #[Route(path:"/api/schedule-full-product-sync", name:"api.od_nosto_sync.full_sync", methods:["POST"])]
+    #[Route(path:"/api/schedule-full-product-sync", name:"api.nosto_integration_sync.full_sync", methods:["POST"])]
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
         $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
