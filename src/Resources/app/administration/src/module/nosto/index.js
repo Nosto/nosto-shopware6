@@ -10,7 +10,7 @@ import deDE from './snippet/de-DE.json';
 
 const { Module } = Shopware;
 
-Module.register('nosto-integration', {
+Module.register('nosto-integration-module', {
     type: 'plugin',
     name: 'nosto-integration',
     title: 'nosto.title',
@@ -28,17 +28,30 @@ Module.register('nosto-integration', {
             component: 'nosto-job-listing',
             path: 'list'
         },
-        'settings': {
+        settings: {
             component: 'nosto-integration-settings',
             path: 'settings',
             meta: {
                 parentPath: 'sw.settings.index.plugins'
             }
+        },
+        index: {
+            component: 'nosto-integration-settings',
+            path: 'index',
+            meta: {
+                parentPath: 'sw.extension.my-extensions'
+            }
         }
     },
+
+    extensionEntryRoute: {
+        extensionName: 'overdose_nosto',
+        route: 'nosto.integration.module.index'
+    },
+
     settingsItem: {
         group: 'plugins',
-        to: 'nosto.integration.settings',
+        to: 'nosto.integration.module.settings',
         iconComponent: 'nosto-plugin-settings-icon',
         backgroundEnabled: true
     },
@@ -46,7 +59,7 @@ Module.register('nosto-integration', {
     navigation: [{
         label: 'nosto.job.navigation.label',
         color: '#ff3d58',
-        path: 'nosto.integration.list',
+        path: 'nosto.integration.module.list',
         icon: 'default-object-marketing',
         parent: 'sw-marketing',
         position: 100
