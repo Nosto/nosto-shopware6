@@ -45,7 +45,7 @@ Module.register('nosto-integration-module', {
     },
 
     extensionEntryRoute: {
-        extensionName: 'overdose_nosto',
+        extensionName: 'NostoIntegration',
         route: 'nosto.integration.module.index'
     },
 

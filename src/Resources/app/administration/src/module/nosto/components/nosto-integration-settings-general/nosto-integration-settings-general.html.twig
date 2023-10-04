@@ -4,8 +4,8 @@
                  :title="$tc('nosto.configuration.general.title')">
 
             {% block nosto_integration_setting_deferred_init %}
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.isInitializeNostoAfterInteraction']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.isInitializeNostoAfterInteraction']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.isInitializeNostoAfterInteraction']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.isInitializeNostoAfterInteraction']">
 
                 <template #content="props">
                     <sw-switch-field
@@ -21,8 +21,8 @@
             {% endblock %}
 
             {% block nosto_integration_setting_merch %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.enableMerch']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.enableMerch']">
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.enableMerch']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableMerch']">
 
                     <template #content="props">
                         <sw-switch-field
@@ -38,9 +38,9 @@
             {% endblock %}
 
             {% block nosto_integration_setting_notLoggedInCache %}
-                <sw-inherit-wrapper v-if="actualConfigData['overdose_nosto.config.enableMerch']"
-                                    v-model="actualConfigData['overdose_nosto.config.notLoggedInCache']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.notLoggedInCache']">
+                <sw-inherit-wrapper v-if="actualConfigData['NostoIntegration.config.enableMerch']"
+                                    v-model="actualConfigData['NostoIntegration.config.notLoggedInCache']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.notLoggedInCache']">
 
                     <template #content="props">
                         <sw-switch-field
@@ -64,7 +64,7 @@
                                          :criteria="domainCriteria"
                                          show-clearable-button
                                          entity="sales_channel_domain"
-                                         v-model="actualConfigData['overdose_nosto.config.domain']"
+                                         v-model="actualConfigData['NostoIntegration.config.domain']"
                 />
             {% endblock %}
         </sw-card>
@@ -72,12 +72,12 @@
         <sw-card class="sw-card--grid"
                  :title="$tc('nosto.configuration.tagAssignment.title')">
             {% block nosto_integration_settings_custom_fields %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.selectedCustomFields']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.selectedCustomFields']"
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.selectedCustomFields']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.selectedCustomFields']"
                                     :label="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsTitle')"
                                     :help-text="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsHelpText')">
                     <template #content="props">
-                        <sw-multi-select name="overdose_nosto.config.selectedCustomFields"
+                        <sw-multi-select name="NostoIntegration.config.selectedCustomFields"
                                           labelProperty="label"
                                           valueProperty="id"
                                           :options="productCustomFields"
@@ -91,12 +91,12 @@
             {% endblock %}
 
             {% block nosto_integration_settings_tag_1 %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.tag1']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.tag1']"
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.tag1']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.tag1']"
                                     :label="$tc('nosto.configuration.tagAssignment.tag1title')">
 
                     <template #content="props">
-                        <sw-multi-select name="overdose_nosto.config.tag1"
+                        <sw-multi-select name="NostoIntegration.config.tag1"
                                          labelProperty="label"
                                          valueProperty="id"
                                          :options="productTags"
@@ -110,12 +110,12 @@
             {% endblock %}
 
             {% block nosto_integration_settings_tag_2 %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.tag2']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.tag2']"
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.tag2']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.tag2']"
                                     :label="$tc('nosto.configuration.tagAssignment.tag2title')">
 
                     <template #content="props">
-                        <sw-multi-select name="overdose_nosto.config.tag2"
+                        <sw-multi-select name="NostoIntegration.config.tag2"
                                          labelProperty="label"
                                          valueProperty="id"
                                          :options="productTags"
@@ -129,12 +129,12 @@
             {% endblock %}
 
             {% block nosto_integration_settings_tag_3 %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.tag3']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.tag3']"
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.tag3']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.tag3']"
                                     :label="$tc('nosto.configuration.tagAssignment.tag3title')">
 
                     <template #content="props">
-                        <sw-multi-select name="overdose_nosto.config.tag3"
+                        <sw-multi-select name="NostoIntegration.config.tag3"
                                          labelProperty="label"
                                          valueProperty="id"
                                          :options="productTags"
@@ -148,13 +148,13 @@
             {% endblock %}
 
             {% block nosto_integration_settings_tag_google_category %}
-                <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.googleCategory']"
-                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.googleCategory']"
+                <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.googleCategory']"
+                                    :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.googleCategory']"
                                     :label="$tc('nosto.configuration.tagAssignment.googleCategoryTitle')"
                                     :help-text="$tc('nosto.configuration.tagAssignment.googleCategoryHelpText')">
                     <template #content="props">
 
-                        <sw-single-select name="overdose_nosto.config.googleCategory"
+                        <sw-single-select name="NostoIntegration.config.googleCategory"
                                           labelProperty="label"
                                           valueProperty="id"
                                           :options="productCustomFields"

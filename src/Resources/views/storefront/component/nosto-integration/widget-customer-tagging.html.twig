@@ -1,6 +1,6 @@
 {% block od_nosto_integration_customer_tagging %}
 
-    {% set isSendCustomerData = config('overdose_nosto.config.customerDataToNosto') %}
+    {% set isSendCustomerData = config('NostoIntegration.config.customerDataToNosto') %}
 
     {% if isSendCustomerData and context.customer %}
         {% set customer = od_nosto_customer(context.customer, context.context) %}

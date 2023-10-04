@@ -93,7 +93,7 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'overdose_nosto.config.',
+            const configPrefix = 'NostoIntegration.config.',
                 defaultConfigs = {
                     variations: true,
                     productProperties: true,

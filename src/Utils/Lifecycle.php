@@ -129,7 +129,7 @@ class Lifecycle
         $this->connection->executeStatement(
             "DELETE from `od_scheduler_job` WHERE `type` LIKE :prefix",
             [
-                'prefix' => 'od-nosto%',
+                'prefix' => 'nosto-integration%',
             ],
         );
     }
@@ -137,7 +137,7 @@ class Lifecycle
     public function removeConfigs(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('configurationKey', 'overdose_nosto'));
+        $criteria->addFilter(new ContainsFilter('configurationKey', 'NostoIntegration'));
         $configIds = $this->systemConfigRepository->searchIds($criteria, $context)->getIds();
         $configIds = \array_map(static function ($id) {
             return ['id' => $id];
@@ -164,12 +164,12 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete('overdose_nosto.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 
     public function removeTables(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `od_nosto_entity_changelog`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_entity_changelog`');
     }
 }

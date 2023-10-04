@@ -6,7 +6,7 @@ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 
 class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterface
 {
-    private const PLUGIN_TECH_NAME = 'overdose_nosto';
+    private const PLUGIN_TECH_NAME = 'NostoIntegration';
     private ThemeInheritanceBuilderInterface $inner;
 
     public function __construct(ThemeInheritanceBuilderInterface $inner)

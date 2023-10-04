@@ -1,5 +1,5 @@
 {
-    "od-nosto": {
+    "nosto-integration": {
         "cookie": {
             "value": "Nosto Cookies",
             "description": "Allow to identify the user when not logged in!"

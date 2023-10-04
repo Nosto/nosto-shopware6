@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ChangelogDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'od_nosto_entity_changelog';
+    public const ENTITY_NAME = 'nosto_integration_entity_changelog';
 
     public function getEntityName(): string
     {

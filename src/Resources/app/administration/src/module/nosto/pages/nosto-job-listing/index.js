@@ -56,11 +56,11 @@ Component.register('nosto-job-listing', {
 
         nostoJobTypes() {
             return [
-                'od-nosto-full-catalog-sync',
-                'od-nosto-marketing-permission-sync',
-                'od-nosto-order-sync',
-                'od-nosto-entity-changelog-sync',
-                'od-nosto-product-sync'
+                'nosto-integration-full-catalog-sync',
+                'nosto-integration-marketing-permission-sync',
+                'nosto-integration-order-sync',
+                'nosto-integration-entity-changelog-sync',
+                'nosto-integration-product-sync'
             ];
         },
 

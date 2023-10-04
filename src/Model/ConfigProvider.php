@@ -7,7 +7,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ConfigProvider
 {
     private SystemConfigService $systemConfig;
-    protected string $pathPrefix = 'overdose_nosto.';
+    protected string $pathPrefix = 'NostoIntegration.';
 
     public const ENABLE_VARIATIONS = 'config.variations';
     public const ENABLE_PRODUCT_PROPERTIES = 'config.productProperties';

@@ -64,7 +64,7 @@ Component.register('nosto-integration-settings-general', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'overdose_nosto.config.',
+            const configPrefix = 'NostoIntegration.config.',
                 defaultConfigs = {
                     tag1: null,
                     tag2: null,
@@ -85,7 +85,7 @@ Component.register('nosto-integration-settings-general', {
 
             // For old single select config
             for (let i = 1; i < 4; i++) {
-                let key = 'overdose_nosto.config.tag' + i
+                let key = 'NostoIntegration.config.tag' + i
                 if (typeof this.allConfigs['null'][key] === 'string' || this.allConfigs['null'][key] instanceof String) {
                     this.allConfigs['null'][key] = [this.allConfigs['null'][key]]
                 }
@@ -108,7 +108,7 @@ Component.register('nosto-integration-settings-general', {
         },
 
         clearTagValue(tag) {
-            this.allConfigs['null']['overdose_nosto.config.' + tag] = null;
+            this.allConfigs['null']['NostoIntegration.config.' + tag] = null;
         },
 
         getProductCustomFields() {
