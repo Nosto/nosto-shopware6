@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-full-catalog-sync';
+    public const HANDLER_CODE = 'nosto-integration-full-catalog-sync';
     private const BATCH_SIZE = 100;
 
     private EntityRepository $productRepository;

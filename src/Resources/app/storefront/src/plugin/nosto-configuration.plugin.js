@@ -10,7 +10,7 @@ export default class NostoConfiguration extends Plugin {
     };
 
     init() {
-        if (NostoCookie.getCookie('od-nosto-track-allow')) {
+        if (NostoCookie.getCookie('nosto-integration-track-allow')) {
             this.storage = Storage;
 
             if (this.options.initializeAfter) {

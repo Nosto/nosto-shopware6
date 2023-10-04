@@ -12,7 +12,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedProvider implements ProductProviderInterface
 {
-    public const CACHE_PREFIX = 'od_nosto_product_';
+    public const CACHE_PREFIX = 'nosto_integration_product_';
     private TagAwareAdapterInterface $cache;
     private Provider $innerProvider;
 

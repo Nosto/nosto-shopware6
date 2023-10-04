@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-entity-changelog-sync';
+    public const HANDLER_CODE = 'nosto-integration-entity-changelog-sync';
     private const BATCH_SIZE = 100;
     private JobScheduler $jobScheduler;
     private EntityRepository $entityChangelogRepository;

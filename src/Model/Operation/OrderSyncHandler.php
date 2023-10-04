@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-order-sync';
+    public const HANDLER_CODE = 'nosto-integration-order-sync';
     private EntityRepository $orderRepository;
     private Account\Provider $accountProvider;
     private NostoOrderBuilderInterface $nostoOrderbuilder;

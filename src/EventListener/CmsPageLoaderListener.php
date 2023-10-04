@@ -69,7 +69,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         }
 
         $isNeedCreateSessionCookie = $sessionId !== null
-            && $request->cookies->has('od-nosto-track-allow')
+            && $request->cookies->has('nosto-integration-track-allow')
             && !$request->cookies->has(SessionLookupResolver::NOSTO_SESSION_COOKIE);
 
         if ($isNeedCreateSessionCookie) {

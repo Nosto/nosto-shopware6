@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-marketing-permission-sync';
+    public const HANDLER_CODE = 'nosto-integration-marketing-permission-sync';
     private EntityRepository $newsletterRecipientRepository;
     private Account\Provider $accountProvider;
     private EventDispatcherInterface $eventDispatcher;

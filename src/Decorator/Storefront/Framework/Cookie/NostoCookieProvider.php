@@ -19,9 +19,9 @@ class NostoCookieProvider implements CookieProviderInterface
     {
         return array_merge($this->originalService->getCookieGroups(), [
             [
-                'snippet_name' => 'od-nosto.cookie.value',
-                'snippet_description' => 'od-nosto.cookie.description',
-                'cookie' => 'od-nosto-track-allow',
+                'snippet_name' => 'nosto-integration.cookie.value',
+                'snippet_description' => 'nosto-integration.cookie.description',
+                'cookie' => 'nosto-integration-track-allow',
                 'value' => true,
                 'expiration' => '30',
             ],

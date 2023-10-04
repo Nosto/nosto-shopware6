@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductSyncHandler implements Job\JobHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-product-sync';
+    public const HANDLER_CODE = 'nosto-integration-product-sync';
 
     private SalesChannelRepository $productRepository;
     private AbstractSalesChannelContextFactory $channelContextFactory;
