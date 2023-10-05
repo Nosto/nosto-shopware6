@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Api\Route;
+namespace Nosto\NostoIntegration\Api\Route;
 
-use Od\NostoIntegration\Async\FullCatalogSyncMessage;
+use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\JobScheduler;
 use OpenApi\Annotations as OA;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-class OdNostoSyncRoute
+class NostoSyncRoute
 {
     private JobScheduler $jobScheduler;
     private EntityRepository $jobRepository;

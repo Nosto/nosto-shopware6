@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Nosto\NostoException;
 use Nosto\Operation\Session\NewSession;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Nosto\Account\Provider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;

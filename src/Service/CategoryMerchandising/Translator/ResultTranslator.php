@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Result\Graphql\Recommendation\{CategoryMerchandisingResult, ResultItem};
 

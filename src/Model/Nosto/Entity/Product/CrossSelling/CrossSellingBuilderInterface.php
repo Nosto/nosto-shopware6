@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 

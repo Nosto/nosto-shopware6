@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
 
-use Od\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Order\Buyer;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer;
 
 use Nosto\Model\AbstractPerson;
 use Nosto\Model\Order\Buyer;
-use Od\NostoIntegration\Model\Nosto\Entity\Person\Builder as PersonBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder as PersonBuilder;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 

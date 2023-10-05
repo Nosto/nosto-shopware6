@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\EventListener;
+namespace Nosto\NostoIntegration\EventListener;
 
-use Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
-use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;

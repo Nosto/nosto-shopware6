@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model;
+namespace Nosto\NostoIntegration\Model;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 

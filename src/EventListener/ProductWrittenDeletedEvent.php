@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\EventListener;
+namespace Nosto\NostoIntegration\EventListener;
 
-use Od\NostoIntegration\Async\EventsWriter;
-use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

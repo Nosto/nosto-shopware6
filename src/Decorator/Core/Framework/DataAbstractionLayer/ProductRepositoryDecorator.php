@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer;
+namespace Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer;
 
-use Od\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\EventsWriter;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;

@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Api\Controller;
+namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\Model\Signup\Account as NostoSignupAccount;
 use Nosto\NostoException;
 use Nosto\Request\Api\Token as NostoToken;
-use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
-use Od\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
-use Od\NostoIntegration\Model\MockOperation\MockMarketingPermission;
-use Od\NostoIntegration\Model\MockOperation\MockUpsertProduct;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
-use OpenApi\Annotations as OA;
+use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
+use Nosto\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
+use Nosto\NostoIntegration\Model\MockOperation\MockMarketingPermission;
+use Nosto\NostoIntegration\Model\MockOperation\MockUpsertProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,17 +22,17 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-class OdNostoController extends AbstractController
+class NostoController extends AbstractController
 {
     protected const NAME_TOKEN = 'name';
     protected const PRODUCT_TOKEN = 'productToken';
     protected const EMAIL_TOKEN = 'emailToken';
     protected const APP_TOKEN = 'appToken';
 
-    private OdNostoSyncRoute $nostoSyncRoute;
+    private NostoSyncRoute $nostoSyncRoute;
     private TagAwareAdapterInterface $cache;
 
-    public function __construct(OdNostoSyncRoute $nostoSyncRoute, TagAwareAdapterInterface $cache)
+    public function __construct(NostoSyncRoute $nostoSyncRoute, TagAwareAdapterInterface $cache)
     {
         $this->nostoSyncRoute = $nostoSyncRoute;
         $this->cache = $cache;

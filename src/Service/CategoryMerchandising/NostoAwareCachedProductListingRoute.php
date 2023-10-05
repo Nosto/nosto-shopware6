@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\{AbstractProductListingRoute, ProductListingRouteResponse};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Utils;
+namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

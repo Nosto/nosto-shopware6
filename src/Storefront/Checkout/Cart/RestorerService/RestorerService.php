@@ -1,8 +1,8 @@
 <?php
-namespace Od\NostoIntegration\Storefront\Checkout\Cart\RestorerService;
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;

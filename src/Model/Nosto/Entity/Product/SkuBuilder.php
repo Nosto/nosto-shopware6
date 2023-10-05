@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\Types\Product\ProductInterface;
-use Od\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

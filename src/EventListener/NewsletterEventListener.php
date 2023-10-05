@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\EventListener;
+namespace Nosto\NostoIntegration\EventListener;
 
-use Od\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\EventsWriter;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

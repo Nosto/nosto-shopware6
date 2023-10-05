@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Utils\Logger;
+namespace Nosto\NostoIntegration\Utils\Logger;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;

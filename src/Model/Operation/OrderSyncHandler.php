@@ -1,15 +1,15 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Operation\AbstractGraphQLOperation;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
-use Od\NostoIntegration\Async\OrderSyncMessage;
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\BuilderInterface as NostoOrderBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Status\BuilderInterface as NostoOrderStatusBuilderInterface;
-use Od\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
+use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\BuilderInterface as NostoOrderBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\BuilderInterface as NostoOrderStatusBuilderInterface;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;

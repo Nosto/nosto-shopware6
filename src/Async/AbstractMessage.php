@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
 use Od\Scheduler\Async\JobMessageInterface;
 use Shopware\Core\Defaults;

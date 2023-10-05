@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\ScheduledTask;
+namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
-use Od\NostoIntegration\Async\EntityChangelogSyncMessage;
+use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

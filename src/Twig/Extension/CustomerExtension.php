@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\Twig\Extension;
+namespace Nosto\NostoIntegration\Twig\Extension;
 
-use Od\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;
-use Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;
+use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Twig\Extension\AbstractExtension;

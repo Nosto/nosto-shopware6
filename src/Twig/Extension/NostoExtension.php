@@ -1,10 +1,10 @@
 <?php
 
-namespace Od\NostoIntegration\Twig\Extension;
+namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

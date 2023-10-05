@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Utils;
+namespace Nosto\NostoIntegration\Utils;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Migration\MigrationCollection;

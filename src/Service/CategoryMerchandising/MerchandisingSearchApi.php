@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, IncludeFilters};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};

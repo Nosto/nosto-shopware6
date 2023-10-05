@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\MockOperation;
+namespace Nosto\NostoIntegration\Model\MockOperation;
 
 use Nosto\Model\Product\ProductCollection;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Api\Token;
-use Od\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
+use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 
 class MockUpsertProduct extends UpsertProduct
 {

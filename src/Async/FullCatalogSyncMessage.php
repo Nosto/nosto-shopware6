@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\FullCatalogSyncHandler;
+use Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler;
 
 class FullCatalogSyncMessage extends AbstractMessage
 {

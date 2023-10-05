@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Decorator\Storefront\Framework\Cookie;
+namespace Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie;
 
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 

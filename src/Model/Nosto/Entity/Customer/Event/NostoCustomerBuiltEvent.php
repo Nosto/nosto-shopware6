@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Customer\Event;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Event;
 
 use Nosto\Model\Customer as NostoCustomer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;

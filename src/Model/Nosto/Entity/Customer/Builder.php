@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Customer;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer;
 
 use Nosto\Model\Customer;
-use Od\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute as Newsletter;
 use Shopware\Core\Framework\Context;

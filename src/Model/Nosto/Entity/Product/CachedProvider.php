@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Psr\Cache\CacheItemPoolInterface;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Shopware\Core\Content\Category\SalesChannel\{AbstractCategoryRoute, CategoryRouteResponse};
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

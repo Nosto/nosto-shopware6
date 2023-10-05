@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Entity\Changelog;
+namespace Nosto\NostoIntegration\Entity\Changelog;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Order\Event;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event;
 
 use Nosto\Model\Order\Order as NostoOrder;
 use Shopware\Core\Checkout\Order\OrderEntity;

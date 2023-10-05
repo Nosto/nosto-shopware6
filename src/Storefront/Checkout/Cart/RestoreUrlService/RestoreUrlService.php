@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
+namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

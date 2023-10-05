@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Person;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Person;
 
 use Nosto\Model\AbstractPerson;
 

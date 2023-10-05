@@ -1,17 +1,17 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
-use Od\NostoIntegration\Async\ProductSyncMessage;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
-use Od\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
-use Od\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Od\Scheduler\Model\Job;
 use Od\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;

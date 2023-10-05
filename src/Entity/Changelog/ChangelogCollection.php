@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Entity\Changelog;
+namespace Nosto\NostoIntegration\Entity\Changelog;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

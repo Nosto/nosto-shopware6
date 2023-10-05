@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product\Category;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
 use Nosto\Types\Product\ProductInterface;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;

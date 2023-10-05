@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Order\Item;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item;
 
 use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;

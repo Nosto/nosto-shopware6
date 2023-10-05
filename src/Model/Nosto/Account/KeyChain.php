@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Account;
+namespace Nosto\NostoIntegration\Model\Nosto\Account;
 
 use Nosto\Request\Api\Token;
 

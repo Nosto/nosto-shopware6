@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\EntityChangelogSyncHandler;
+use Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler;
 
 class EntityChangelogSyncMessage extends AbstractMessage
 {

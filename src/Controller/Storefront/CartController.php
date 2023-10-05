@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Controller\Storefront;
+namespace Nosto\NostoIntegration\Controller\Storefront;
 
-use Od\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerServiceInterface;
+use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerServiceInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;

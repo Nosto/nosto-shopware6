@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto;
+namespace Nosto\NostoIntegration\Model\Nosto;
 
 use Nosto\Model\Signup\Account as NostoSignupAccount;
 

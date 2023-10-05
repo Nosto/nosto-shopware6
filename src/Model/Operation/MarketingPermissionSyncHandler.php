@@ -1,12 +1,12 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Operation\MarketingPermission;
 use Nosto\Types\Signup\AccountInterface;
-use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
+use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;

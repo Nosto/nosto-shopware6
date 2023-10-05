@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
-use Od\NostoIntegration\Async\FullCatalogSyncMessage;
-use Od\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Od\Scheduler\Model\Job\JobHandlerInterface;
 use Od\Scheduler\Model\Job\JobResult;

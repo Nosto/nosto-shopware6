@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\MockOperation\Result;
+namespace Nosto\NostoIntegration\Model\MockOperation\Result;
 
 use Nosto\Request\Http\HttpResponse;
 use Nosto\Result\ResultHandler;

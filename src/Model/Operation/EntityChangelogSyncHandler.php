@@ -1,13 +1,13 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
-use Od\NostoIntegration\Async\EntityChangelogSyncMessage;
-use Od\NostoIntegration\Async\EventsWriter;
-use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
-use Od\NostoIntegration\Async\OrderSyncMessage;
-use Od\NostoIntegration\Async\ProductSyncMessage;
-use Od\NostoIntegration\Entity\Changelog\ChangelogEntity;
+use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
+use Nosto\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
+use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Od\Scheduler\Model\JobScheduler;
 use Shopware\Core\Content\Product\ProductDefinition;

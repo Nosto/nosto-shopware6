@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration;
+namespace Nosto\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
-use Od\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
+use Nosto\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
 use Od\Scheduler\OdScheduler;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;

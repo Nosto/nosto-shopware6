@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Service\ScheduledTask;
+namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Order\Status;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status;
 
 use Exception;
 use Nosto\Model\Order\GraphQL\OrderStatus as NostoOrderStatus;

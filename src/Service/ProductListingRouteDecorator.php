@@ -1,5 +1,5 @@
 <?php
-namespace Od\NostoIntegration\Service;
+namespace Nosto\NostoIntegration\Service;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;

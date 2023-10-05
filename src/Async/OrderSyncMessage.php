@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\OrderSyncHandler;
+use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 

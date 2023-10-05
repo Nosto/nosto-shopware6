@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Decorator\Storefront\Theme\Twig;
+namespace Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig;
 
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 

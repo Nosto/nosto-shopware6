@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\ScheduledTask;
+namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
 use DateTime;
-use Od\NostoIntegration\Async\AbstractMessage;
+use Nosto\NostoIntegration\Async\AbstractMessage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;

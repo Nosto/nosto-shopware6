@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Order;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order;
 
 use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Nosto\Model\Order\Buyer;
 use Nosto\Model\Order\Order as NostoOrder;
 use Nosto\Model\Order\OrderStatus;
 use Nosto\NostoException;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
-use Od\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Order\Item\BuilderInterface as NostoOrderItemBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\BuilderInterface as NostoOrderItemBuilderInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
