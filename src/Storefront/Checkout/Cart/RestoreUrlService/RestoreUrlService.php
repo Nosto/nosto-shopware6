@@ -56,12 +56,14 @@ class RestoreUrlService implements RestoreUrlServiceInterface
     {
         // TODO: Change routing name
         return $this->requestStack->getCurrentRequest()->attributes->get(
-                RequestTransformer::STOREFRONT_URL
-            ).$this->urlGenerator->generate(
-                'frontend.cart.nosto-restore-cart',
-                ['mappingId' => $id],
-                UrlGeneratorInterface::ABSOLUTE_PATH
-            );
+            RequestTransformer::STOREFRONT_URL
+        ) . $this->urlGenerator->generate(
+            'frontend.cart.nosto-restore-cart',
+            [
+                'mappingId' => $id,
+            ],
+            UrlGeneratorInterface::ABSOLUTE_PATH
+        );
     }
 
     protected function createNew(string $token, Context $context): string

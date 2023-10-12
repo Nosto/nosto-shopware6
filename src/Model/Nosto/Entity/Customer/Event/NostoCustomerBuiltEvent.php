@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 class NostoCustomerBuiltEvent extends NestedEvent
 {
     private CustomerEntity $customer;
+
     private NostoCustomer $nostoCustomer;
+
     private Context $context;
 
     public function __construct(

@@ -20,14 +20,18 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use function count;
 
-
 class CrossSellingBuilder implements CrossSellingBuilderInterface
 {
     private EntityRepository $crossSellingRepository;
+
     private ProductStreamBuilderInterface $productStreamBuilder;
+
     private SalesChannelRepository $productRepository;
+
     private SystemConfigService $systemConfigService;
+
     private ConfigProvider $configProvider;
+
     private ContainerInterface $container;
 
     public function __construct(
@@ -37,8 +41,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         SystemConfigService                  $systemConfigService,
         ConfigProvider $configProvider,
         ContainerInterface $container
-    )
-    {
+    ) {
         $this->crossSellingRepository = $crossSellingRepository;
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
@@ -58,7 +61,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
                 'limit' => $crossSelling->getLimit(),
-                'name' => $crossSelling->getName()
+                'name' => $crossSelling->getName(),
             ];
         }
         return $result;
@@ -157,5 +160,4 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
 
         return $this->productRepository->searchIds($criteria, $context)->getIds();
     }
-
 }

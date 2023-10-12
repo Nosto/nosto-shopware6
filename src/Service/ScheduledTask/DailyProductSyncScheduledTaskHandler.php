@@ -21,10 +21,15 @@ use Symfony\Component\HttpFoundation\Request;
 class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
     private const LAST_EXECUTION_TIME_CONFIG = 'NostoIntegration.config.hidden.dailySyncLastTime';
+
     private ConfigProvider $configProvider;
+
     private SystemConfigService $systemConfigService;
+
     private NostoSyncRoute $nostoSyncRoute;
+
     private TagAwareAdapterInterface $cache;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -104,7 +109,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new \DateTime())->format(
-                Defaults::STORAGE_DATE_FORMAT
-            );
+            Defaults::STORAGE_DATE_FORMAT
+        );
     }
 }

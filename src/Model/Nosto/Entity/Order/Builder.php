@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order;
 
@@ -8,8 +10,8 @@ use Nosto\Model\Order\Order as NostoOrder;
 use Nosto\Model\Order\OrderStatus;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\BuilderInterface as NostoOrderItemBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -19,7 +21,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder implements BuilderInterface
 {
     private NostoBuyerBuilderInterface $buyerBuilder;
+
     private NostoOrderItemBuilderInterface $nostoOrderItemBuilder;
+
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
@@ -40,7 +44,7 @@ class Builder implements BuilderInterface
         $orderCreated = $order->getCreatedAt()->format('Y-m-d H:i:s');
         $nostoOrder->setCreatedAt($orderCreated);
         if ($order->getTransactions() instanceof OrderTransactionCollection) {
-            $nostoOrder->setPaymentProvider((string)$order->getTransactions()->first()->getPaymentMethod()->getName());
+            $nostoOrder->setPaymentProvider((string) $order->getTransactions()->first()->getPaymentMethod()->getName());
         } else {
             throw new NostoException('Order has no payment associated');
         }

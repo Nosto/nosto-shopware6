@@ -1,13 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\MockOperation;
 
-use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
+use Nosto\Operation\AbstractGraphQLOperation;
 
 class MockGraphQLOperation extends AbstractGraphQLOperation
 {
-
     public function getQuery()
     {
         return '';

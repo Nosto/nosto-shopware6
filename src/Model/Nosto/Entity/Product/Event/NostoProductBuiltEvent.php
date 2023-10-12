@@ -14,7 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class NostoProductBuiltEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     private ProductEntity $product;
+
     private NostoProduct $nostoProduct;
+
     private SalesChannelContext $salesChannelContext;
 
     public function __construct(

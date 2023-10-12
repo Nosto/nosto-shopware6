@@ -19,7 +19,7 @@ class NewsletterEventListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            NewsletterConfirmEvent::class     => 'onNewsletterConfirm',
+            NewsletterConfirmEvent::class => 'onNewsletterConfirm',
             NewsletterUnsubscribeEvent::class => 'onNewsletterUnsubscribe',
         ];
     }

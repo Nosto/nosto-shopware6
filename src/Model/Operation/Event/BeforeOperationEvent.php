@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 class BeforeOperationEvent extends NestedEvent
 {
     private AbstractOperation $operation;
+
     private Context $context;
 
     public function __construct(

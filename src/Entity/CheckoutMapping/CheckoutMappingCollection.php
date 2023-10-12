@@ -8,5 +8,4 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class CheckoutMappingCollection extends EntityCollection
 {
-
 }

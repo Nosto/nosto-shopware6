@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
@@ -9,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
 {
     private AbstractCategoryRoute $decoratedService;
+
     private NostoCacheResolver $cacheResolver;
 
     public function __construct(AbstractCategoryRoute $cachedCategoryRoute, NostoCacheResolver $cacheResolver)

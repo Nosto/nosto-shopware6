@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model;
 
@@ -7,31 +9,55 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ConfigProvider
 {
     private SystemConfigService $systemConfig;
+
     protected string $pathPrefix = 'NostoIntegration.';
 
     public const ENABLE_VARIATIONS = 'config.variations';
+
     public const ENABLE_PRODUCT_PROPERTIES = 'config.productProperties';
+
     public const ENABLE_ALTERNATE_IMAGES = 'config.alternateImages';
+
     public const ENABLE_INVENTORY_LEVELS = 'config.inventory';
+
     public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'config.syncInactiveProducts';
+
     public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'config.productPublishedDateTagging';
+
     public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'config.reloadRecommendations';
+
     public const DAILY_PRODUCT_SYNC_ENABLED = 'config.dailySynchronization';
+
     public const DAILY_PRODUCT_SYNC_TIME = 'config.dailySynchronizationTime';
+
     public const STOCK_FIELD = 'config.stockField';
+
     public const PRODUCT_IDENTIFIER_FIELD = 'config.productIdentifier';
+
     public const CROSS_SELLING_SYNC_FIELD = 'config.crossSellingSync';
+
     public const ENABLE_MERCH = 'config.enableMerch';
+
     public const ENABLE_NOT_LOGGED_IN_CACHE = 'config.notLoggedInCache';
+
     public const DOMAIN_ID = 'config.domain';
+
     public const ACCOUNT_ENABLED = 'config.isEnabled';
+
     public const ACCOUNT_ID = 'config.accountID';
+
     public const ACCOUNT_NAME = 'config.accountName';
+
     public const PRODUCT_TOKEN = 'config.productToken';
+
     public const EMAIL_TOKEN = 'config.emailToken';
+
     public const GRAPHQL_TOKEN = 'config.appToken';
+
     public const TAG_FIELD_TEMPLATE = 'config.tag';
+
     public const SELECTED_CUSTOM_FIELDS = 'config.selectedCustomFields';
+
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'config.enableLabelling';
 
     public function __construct(SystemConfigService $systemConfig)
@@ -163,7 +189,8 @@ class ConfigProvider
         return is_string($value) ? $value : 'no-sync';
     }
 
-    public function isEnabledProductLabellingSync($channelId = null): bool {
+    public function isEnabledProductLabellingSync($channelId = null): bool
+    {
         return $this->systemConfig->getBool($this->path(self::ENABLE_PRODUCT_LABELLING_SYNC), $channelId);
     }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto;
 
@@ -7,9 +9,13 @@ use Nosto\Model\Signup\Account as NostoSignupAccount;
 class Account
 {
     private string $channelId;
+
     private string $languageId;
+
     private string $accountName;
+
     private Account\KeyChain $keyChain;
+
     private ?NostoSignupAccount $nostoAccount = null;
 
     public function __construct(

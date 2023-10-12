@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ProductWrittenDeletedEvent implements EventSubscriberInterface
 {
     private EventsWriter $eventsWriter;
+
     private ProductHelper $productHelper;
 
     public function __construct(EventsWriter $eventsWriter, ProductHelper $productHelper)
@@ -22,7 +23,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten'
+            ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
         ];
     }
 

@@ -25,8 +25,11 @@
         "php": "^8.1"
     },
     "require-dev": {
+        "shopware/core": "^6.5",
         "shopware/administration": "^6.5",
-        "shopware/storefront": "^6.5"
+        "shopware/storefront": "^6.5",
+        "phpstan/phpstan": "^1.10",
+        "symplify/easy-coding-standard": "^12.0"
     },
     "autoload": {
         "psr-4": {
@@ -60,5 +63,9 @@
             "de-DE": "https://overdose.digital/",
             "en-GB": "https://overdose.digital/"
         }
+    },
+    "scripts": {
+        "lint": "./vendor/bin/ecs check",
+        "fix": "./vendor/bin/ecs check --fix"
     }
 }

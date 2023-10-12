@@ -27,7 +27,7 @@ class CustomerExtension extends AbstractExtension
     {
         return [
             new TwigFunction('nosto_customer', [$this, 'getNostoCustomer']),
-            new TwigFunction('nosto_restore_cart_link', [$this, 'getRestoreCartLink'])
+            new TwigFunction('nosto_restore_cart_link', [$this, 'getRestoreCartLink']),
         ];
     }
 

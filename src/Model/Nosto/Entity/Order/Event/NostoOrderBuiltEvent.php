@@ -9,11 +9,12 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
-
 class NostoOrderBuiltEvent extends NestedEvent
 {
     private OrderEntity $order;
+
     private NostoOrder $nostoOrder;
+
     private Context $context;
 
     public function __construct(

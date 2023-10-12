@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer;
 
@@ -40,13 +42,13 @@ class Builder extends PersonBuilder
         $postcode = null;
         $countryId = null;
         if ($address instanceof OrderAddressEntity) {
-            $telephone = $address->getPhoneNumber() ? (string)$address->getPhoneNumber() : null;
-            $postcode = $address->getZipcode() ? (string)$address->getZipcode() : null;
-            $countryId = $address->getCountryId() ? (string)$address->getCountryId() : null;
+            $telephone = $address->getPhoneNumber() ? (string) $address->getPhoneNumber() : null;
+            $postcode = $address->getZipcode() ? (string) $address->getZipcode() : null;
+            $countryId = $address->getCountryId() ? (string) $address->getCountryId() : null;
         }
-        $customerFirstname = $order->getOrderCustomer()->getFirstName() ? (string)$order->getOrderCustomer()->getFirstName() : '';
-        $customerLastname = $order->getOrderCustomer()->getLastName() ? (string)$order->getOrderCustomer()->getLastName() : '';
-        $customerEmail = $order->getOrderCustomer()->getEmail() ? (string)$order->getOrderCustomer()->getEmail() : '';
+        $customerFirstname = $order->getOrderCustomer()->getFirstName() ? (string) $order->getOrderCustomer()->getFirstName() : '';
+        $customerLastname = $order->getOrderCustomer()->getLastName() ? (string) $order->getOrderCustomer()->getLastName() : '';
+        $customerEmail = $order->getOrderCustomer()->getEmail() ? (string) $order->getOrderCustomer()->getEmail() : '';
 
         return $this->build(
             $customerFirstname,
