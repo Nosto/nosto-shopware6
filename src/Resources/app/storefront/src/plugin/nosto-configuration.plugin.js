@@ -57,7 +57,7 @@ export default class NostoConfiguration extends Plugin {
 
     registerSubscribers() {
         this._cartWidgetElement = DomAccess.querySelector(document, '[data-cart-widget]', false);
-        this._cartWidget = this._cartWidgetElement === false ? false : PluginManager.getPluginInstanceFromElement(
+        this._cartWidget = this._cartWidgetElement === false ? false : window.PluginManager.getPluginInstanceFromElement(
             this._cartWidgetElement,
             'CartWidget'
         );
@@ -69,7 +69,7 @@ export default class NostoConfiguration extends Plugin {
     cartWidgetSubscriber() {
         if(this._cartWidget !== false) {
             this._cartWidget.$emitter.subscribe('fetch', () => {
-                nostojs(api => {
+                window.nostojs(api => {
                     api.resendCartTagging();
                 });
             });
@@ -77,10 +77,10 @@ export default class NostoConfiguration extends Plugin {
     }
 
     nostoSubscriber() {
-        const instances = PluginManager.getPluginInstances('NostoPlugin');
+        const instances = window.PluginManager.getPluginInstances('NostoPlugin');
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('addRecommendationToCart', (event) => {
-                nostojs(api => {
+                window.nostojs(api => {
                     api.recommendedProductAddedToCart(event.detail.productId, event.detail.elementId);
 
                     if (this.options.reloadRecommendations) {
