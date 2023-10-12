@@ -9,11 +9,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: [ '8.1' ]
 
     name: ESLint
     steps:
@@ -24,7 +20,7 @@ jobs:
       - name: Setup PHP with Composer 2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: 8.1
           extensions: dom, gd, mbstring, pdo_mysql, zip
           coverage: xdebug
           tools: composer:2.1.5
