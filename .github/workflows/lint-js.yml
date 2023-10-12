@@ -1,0 +1,50 @@
+name: Lint JS
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: [ '8.1' ]
+
+    name: ESLint
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: shopware6-plugin
+
+      - name: Setup PHP with Composer 2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: dom, gd, mbstring, pdo_mysql, zip
+          coverage: xdebug
+          tools: composer:2.1.5
+
+      - name: Validate dependencies
+        working-directory: shopware6-plugin
+        run: composer validate
+
+      - name: Install plugin dependencies
+        working-directory: shopware6-plugin
+        run: |
+          npm ci
+          composer install --no-interaction
+
+      - name: Install Shopware dependencies
+        working-directory: shopware6-plugin
+        run: npm run install-sw-dependencies
+
+      - name: Run ESLint
+        working-directory: shopware6-plugin
+        run: |
+          npm run administration-lint
+          npm run storefront-lint
