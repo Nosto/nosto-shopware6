@@ -33,6 +33,6 @@ jobs:
         working-directory: shopware6-plugin
         run: composer install --no-interaction
 
-      - name: Run ESLint
+      - name: Run PHPLint
         working-directory: shopware6-plugin
         run: composer run lint
