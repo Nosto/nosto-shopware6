@@ -1,4 +1,4 @@
-name: Lint JS
+name: Lint PHP
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    name: ESLint
+    name: PHPLint
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,16 +31,8 @@ jobs:
 
       - name: Install plugin dependencies
         working-directory: shopware6-plugin
-        run: |
-          npm ci
-          composer install --no-interaction
-
-      - name: Install Shopware dependencies
-        working-directory: shopware6-plugin
-        run: npm run install-sw-dependencies
+        run: composer install --no-interaction
 
       - name: Run ESLint
         working-directory: shopware6-plugin
-        run: |
-          npm run administration-lint
-          npm run storefront-lint
+        run: composer run lint
