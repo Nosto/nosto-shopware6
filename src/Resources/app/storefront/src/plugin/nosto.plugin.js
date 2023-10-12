@@ -48,7 +48,7 @@ export default class NostoPlugin extends Plugin {
             };
             this.$emitter.publish('addRecommendationToCart', {
                 productId: item.productId,
-                elementId: this._resolveContextSlotId(element)
+                elementId: this._resolveContextSlotId(element),
             });
         });
         this._openOffCanvasCarts(this.options.action, JSON.stringify(data));

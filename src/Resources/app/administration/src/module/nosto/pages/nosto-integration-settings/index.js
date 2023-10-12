@@ -1,9 +1,10 @@
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 
-const {Component, Defaults, Mixin} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component, Defaults, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-integration-settings', {
     template,
 
@@ -13,7 +14,7 @@ Component.register('nosto-integration-settings', {
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -30,25 +31,25 @@ Component.register('nosto-integration-settings', {
                 accountName: 'NostoIntegration.config.accountName',
                 productToken: 'NostoIntegration.config.productToken',
                 emailToken: 'NostoIntegration.config.emailToken',
-                appToken: 'NostoIntegration.config.appToken'
-            }
+                appToken: 'NostoIntegration.config.appToken',
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        }
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
@@ -85,17 +86,19 @@ Component.register('nosto-integration-settings', {
         },
 
         isActive(channelId) {
-            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
-            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty('NostoIntegration.config.isEnabled') &&
-            typeof this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.config.isEnabled'] === 'boolean' ?
-                this.$refs.configComponent.allConfigs[channelId]['NostoIntegration.config.isEnabled'] : this.$refs.configComponent.allConfigs[null]['NostoIntegration.config.isEnabled'];
+            const configKey = 'NostoIntegration.config.isEnabled';
+            const channelConfig = this.$refs.configComponent.allConfigs[channelId] || null;
+
+            return channelConfig?.hasOwnProperty(configKey) && typeof channelConfig[configKey] === 'boolean'
+                ? channelConfig[configKey]
+                : this.$refs.configComponent.allConfigs.null[configKey];
         },
 
         getInheritedValue(channelId, key) {
             return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
             this.$refs.configComponent.allConfigs[channelId].hasOwnProperty(key) &&
             this.$refs.configComponent.allConfigs[channelId][key] !== null ?
-                this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs[null][key]
+                this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs.null[key];
         },
 
         checkErrorsBeforeSave() {
@@ -113,15 +116,15 @@ Component.register('nosto-integration-settings', {
                         )
                     ) {
                         result = {
-                            'salesChannelName': this.salesChannels.get(item == 'null' ? null : item).translated.name
-                        }
+                            salesChannelName: this.salesChannels.get(item === 'null' ? null : item).translated.name,
+                        };
                         throw BreakException;
                     }
-                })
+                });
             } catch (e) {
                 if (e !== BreakException) throw e;
             }
-            return result
+            return result;
         },
 
         clearCaches() {
@@ -130,13 +133,13 @@ Component.register('nosto-integration-settings', {
             });
             this.NostoIntegrationProviderService.clearCaches().then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.success')
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
                 });
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
                 });
-            })
+            });
         },
 
         onSave() {
@@ -144,19 +147,20 @@ Component.register('nosto-integration-settings', {
             const checkList = this.checkErrorsBeforeSave();
             if (checkList) {
                 this.isLoading = false;
-                return this.createNotificationError({
-                    title: checkList['salesChannelName'], message: this.$tc('nosto.messages.error-message')
+                this.createNotificationError({
+                    title: checkList.salesChannelName, message: this.$tc('nosto.messages.error-message'),
                 });
+                return;
             }
             this.$refs.configComponent.save().then(() => {
                 this.isSaveSuccessful = true;
                 this.createNotificationSuccess({
-                    message: this.$tc('nosto.messages.success-message')
+                    message: this.$tc('nosto.messages.success-message'),
                 });
                 this.clearCaches();
             }).finally(() => {
                 this.isLoading = false;
             });
-        }
-    }
+        },
+    },
 });

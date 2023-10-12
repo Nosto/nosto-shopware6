@@ -2,11 +2,11 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
-import NostoCookie from "../util/cookie";
+import NostoCookie from '../util/cookie';
 
 export default class NostoConfiguration extends Plugin {
     static options = {
-        nostoInitializedStorageKey: 'nostoInitializedStorageKey'
+        nostoInitializedStorageKey: 'nostoInitializedStorageKey',
     };
 
     init() {
@@ -38,7 +38,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _initNosto() {
-        const name = "nostojs";
+        const name = 'nostojs';
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
         };

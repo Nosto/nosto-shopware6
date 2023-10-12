@@ -1,30 +1,31 @@
 import template from './sw-cms-el-nosto-integration.html.twig';
 import './sw-cms-el-nosto-integration.scss';
 
-const {Component, Mixin} = Shopware;
+const { Component, Mixin } = Shopware;
 
+/** @private */
 Component.register('sw-cms-el-nosto-integration', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
-
-    created() {
-        this.createdComponent();
-    },
 
     computed: {
         labelPreview() {
             const label = this.element.config?.nostoElementID?.value;
 
-            return label ? label : this.$tc('sw-cms.detail.preview.emptyLabel');
-        }
+            return label || this.$tc('sw-cms.detail.preview.emptyLabel');
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
         createdComponent() {
             this.initElementConfig('nosto-integration');
         },
-    }
+    },
 });

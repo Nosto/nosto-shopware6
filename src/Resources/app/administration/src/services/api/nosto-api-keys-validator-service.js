@@ -1,4 +1,4 @@
-const {ApiService} = Shopware.Classes;
+const { ApiService } = Shopware.Classes;
 
 class NostoApiKeyValidatorService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'nosto') {
@@ -8,9 +8,11 @@ class NostoApiKeyValidatorService extends ApiService {
 
     validate(params) {
         const headers = this.getBasicHeaders();
+
         return this.httpClient
-            .post('/_action/nosto-integration-api-key-validate', params, {headers});
+            .post('/_action/nosto-integration-api-key-validate', params, { headers });
     }
 }
 
+/** @private */
 export default NostoApiKeyValidatorService;

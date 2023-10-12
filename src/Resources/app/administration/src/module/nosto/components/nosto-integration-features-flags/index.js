@@ -2,6 +2,7 @@ import template from './nosto-integration-features-flags.html.twig';
 
 const { Component } = Shopware;
 
+/** @private */
 Component.register('nosto-integration-features-flags', {
     template,
 
@@ -22,13 +23,13 @@ Component.register('nosto-integration-features-flags', {
             type: String,
             required: false,
             default: null,
-        }
+        },
     },
 
     data() {
         return {
             isLoading: false,
-            propertyGroups: []
+            propertyGroups: [],
         };
     },
 
@@ -37,53 +38,53 @@ Component.register('nosto-integration-features-flags', {
             return [
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.productIdentifierOptions.productId'),
-                    value: 'product-id'
+                    value: 'product-id',
                 },
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.productIdentifierOptions.productNumber'),
-                    value: 'product-number'
-                }
-            ]
+                    value: 'product-number',
+                },
+            ];
         },
         createRatingsAndReviewOptions() {
             return [
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.ratingsOptions.shopwareRatings'),
-                    value: 'shopware-ratings'
+                    value: 'shopware-ratings',
                 },
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.ratingsOptions.noRatings'),
-                    value: 'no-ratings'
-                }
-            ]
+                    value: 'no-ratings',
+                },
+            ];
         },
         createStockOptions() {
             return [
                 {
                     label: this.$tc('sw-product.settingsForm.labelAvailableStock'),
-                    value: 'available-stock'
+                    value: 'available-stock',
                 },
                 {
                     label: this.$tc('sw-product.settingsForm.labelStock'),
-                    value: 'actual-stock'
-                }
-            ]
+                    value: 'actual-stock',
+                },
+            ];
         },
         createCrossSellingSyncOptions() {
             return [
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.noSync'),
-                    value: 'no-sync'
+                    value: 'no-sync',
                 },
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.onlyActiveSync'),
-                    value: 'only-active-sync'
+                    value: 'only-active-sync',
                 },
                 {
                     label: this.$tc('nosto.configuration.featuresFlags.crossSellingSyncOptions.allSync'),
-                    value: 'all-sync'
+                    value: 'all-sync',
                 },
-            ]
+            ];
         },
     },
 
@@ -93,33 +94,33 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.config.',
-                defaultConfigs = {
-                    variations: true,
-                    productProperties: true,
-                    alternateImages: true,
-                    productIdentifier: 'product-id',
-                    ratingsReviews: 'shopware-ratings',
-                    crossSellingSync: 'no-sync',
-                    inventory: false,
-                    customerDataToNosto: true,
-                    syncInactiveProducts: false,
-                    productPublishedDateTagging: false,
-                    reloadRecommendations: false,
-                    enableLabelling: false,
-                    notLoggedInCache: false,
-                    dailySynchronizationTime: false,
-                    domain: null
-                };
+            const configPrefix = 'NostoIntegration.config.';
+            const defaultConfigs = {
+                variations: true,
+                productProperties: true,
+                alternateImages: true,
+                productIdentifier: 'product-id',
+                ratingsReviews: 'shopware-ratings',
+                crossSellingSync: 'no-sync',
+                inventory: false,
+                customerDataToNosto: true,
+                syncInactiveProducts: false,
+                productPublishedDateTagging: false,
+                reloadRecommendations: false,
+                enableLabelling: false,
+                notLoggedInCache: false,
+                dailySynchronizationTime: false,
+                domain: null,
+            };
 
             /**
              * Initialize config data with default values.
              */
-            for (const [key, defaultValue] of Object.entries(defaultConfigs)) {
-                if (this.allConfigs['null'][configPrefix + key] === undefined) {
-                    this.$set(this.allConfigs['null'], configPrefix + key, defaultValue);
+            Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
+                if (this.allConfigs.null[configPrefix + key] === undefined) {
+                    this.$set(this.allConfigs.null, configPrefix + key, defaultValue);
                 }
-            }
-        }
+            });
+        },
     },
 });
