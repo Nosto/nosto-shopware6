@@ -27,7 +27,6 @@
     "require-dev": {
         "shopware/administration": "^6.5",
         "shopware/storefront": "^6.5",
-        "phpstan/phpstan": "^1.10",
         "symplify/easy-coding-standard": "^12.0"
     },
     "autoload": {
