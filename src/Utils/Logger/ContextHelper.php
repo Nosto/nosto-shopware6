@@ -9,7 +9,9 @@ class ContextHelper
 {
     public static function createContextFromException(\Throwable $exception): array
     {
-        $context = ['exception' => $exception];
+        $context = [
+            'exception' => $exception,
+        ];
         if ($exception instanceof LoggableContextAwareExceptionInterface) {
             $exceptionContext = self::convertLoggableContextToPlainRepresentation($exception->getLoggableContext());
 

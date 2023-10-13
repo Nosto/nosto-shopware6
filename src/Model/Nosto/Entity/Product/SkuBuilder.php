@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Sku as NostoSku;
-use Nosto\Types\Product\ProductInterface;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,16 +68,18 @@ class SkuBuilder implements SkuBuilderInterface
         }
 
         if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
-            $nostoSku->addCustomField('product-labels', json_encode(
+            $nostoSku->addCustomField(
+                'product-labels',
+                json_encode(
                     [
                         'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-                        'mfg-part-number' => $product->getManufacturerNumber()
+                        'mfg-part-number' => $product->getManufacturerNumber(),
                     ]
                 )
             );
         }
 
-        if(method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
+        if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 

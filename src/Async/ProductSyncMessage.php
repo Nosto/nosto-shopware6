@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Context;
 class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
     protected static string $defaultName = 'Product Sync Operation';
+
     private string $parentJobId;
+
     private array $productIds;
 
     public function __construct(

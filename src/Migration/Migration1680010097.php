@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Migration;
 
@@ -23,7 +25,7 @@ class Migration1680010097 extends MigrationStep
         $column = 'product_number';
 
         if (!$this->hasColumn($table, $column, $connection)) {
-            $connection->executeStatement('ALTER TABLE `'. $table .'` ADD COLUMN `'. $column .'` VARCHAR(64) NULL');
+            $connection->executeStatement('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` VARCHAR(64) NULL');
         }
     }
 

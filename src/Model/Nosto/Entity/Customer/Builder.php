@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer;
 
@@ -15,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder implements BuilderInterface
 {
     private EntityRepository $newsletterRecipientRepository;
+
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(EntityRepository $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)

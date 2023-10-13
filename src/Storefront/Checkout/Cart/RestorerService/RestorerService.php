@@ -1,5 +1,7 @@
 <?php
+
 namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService;
+
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
@@ -13,14 +15,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
 class RestorerService implements RestorerServiceInterface
 {
     private EntityRepository $mappingRepository;
+
     private EntityRepository $orderRepository;
+
     private CartRuleLoader $cartRuleLoader;
+
     private CartService $cartService;
+
     private OrderConverter $orderConverter;
+
     private LoggerInterface $logger;
+
     public function __construct(
         EntityRepository $mappingRepository,
         EntityRepository $orderRepository,
@@ -36,6 +45,7 @@ class RestorerService implements RestorerServiceInterface
         $this->orderConverter = $orderConverter;
         $this->logger = $logger;
     }
+
     public function restore(string $mappingId, SalesChannelContext $context): void
     {
         try {
@@ -54,15 +64,18 @@ class RestorerService implements RestorerServiceInterface
             );
         }
     }
+
     protected function loadMapping(string $mappingId, Context $context): ?CheckoutMappingEntity
     {
         return $this->mappingRepository->search(new Criteria([$mappingId]), $context)->first();
     }
+
     protected function restoreCart(string $token, SalesChannelContext $context): void
     {
         $cart = $this->cartRuleLoader->loadByToken($context, $token)->getCart();
         $this->restoreByCart($cart, $context);
     }
+
     protected function restoreByCart(Cart $cart, SalesChannelContext $context): void
     {
         $result = [];
@@ -77,6 +90,7 @@ class RestorerService implements RestorerServiceInterface
             $this->cartService->add($currentCart, $result, $context);
         }
     }
+
     protected function restoreOrder(string $orderId, SalesChannelContext $context): void
     {
         $order = $this->getOrderById($orderId, $context->getContext());
@@ -86,6 +100,7 @@ class RestorerService implements RestorerServiceInterface
         $cart = $this->orderConverter->convertToCart($order, $context->getContext());
         $this->restoreByCart($cart, $context);
     }
+
     private function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))

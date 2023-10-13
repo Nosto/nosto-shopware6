@@ -11,7 +11,7 @@ Shopware.Service('cmsService').registerCmsElement({
     defaultConfig: {
         nostoElementID: {
             source: 'static',
-            value: ''
-        }
-    }
+            value: '',
+        },
+    },
 });

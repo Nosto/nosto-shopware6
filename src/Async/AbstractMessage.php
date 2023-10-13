@@ -10,8 +10,11 @@ use Shopware\Core\Framework\Context;
 abstract class AbstractMessage implements JobMessageInterface
 {
     private string $jobId;
+
     private string $name;
+
     protected static string $defaultName = 'Unnamed Operation';
+
     protected ?Context $context;
 
     public function __construct(
@@ -69,6 +72,4 @@ abstract class AbstractMessage implements JobMessageInterface
     {
         return new Context(new SystemSource());
     }
-
-
 }

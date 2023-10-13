@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Context;
 class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
     protected static string $defaultName = 'Order Sync Operation';
+
     private array $newOrderIds;
+
     private array $updatedOrderIds;
+
     private string $parentJobId;
 
     public function __construct(

@@ -10,7 +10,9 @@ class ChangelogEntity extends Entity
     use EntityIdTrait;
 
     protected string $entityType;
+
     protected string $entityId;
+
     protected ?string $productNumber;
 
     public function getEntityType(): string

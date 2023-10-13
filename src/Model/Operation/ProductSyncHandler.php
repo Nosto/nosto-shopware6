@@ -3,8 +3,6 @@
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
-use Nosto\Operation\DeleteProduct;
-use Nosto\Operation\UpsertProduct;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
@@ -12,6 +10,8 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\Operation\DeleteProduct;
+use Nosto\Operation\UpsertProduct;
 use Od\Scheduler\Model\Job;
 use Od\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
@@ -22,7 +22,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -34,12 +33,19 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     public const HANDLER_CODE = 'nosto-integration-product-sync';
 
     private SalesChannelRepository $productRepository;
+
     private AbstractSalesChannelContextFactory $channelContextFactory;
+
     private ProductProviderInterface $productProvider;
+
     private Account\Provider $accountProvider;
+
     private ConfigProvider $configProvider;
+
     private AbstractRuleLoader $ruleLoader;
+
     private ProductHelper $productHelper;
+
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
@@ -64,8 +70,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     /**
      * @param ProductSyncMessage $message
-     *
-     * @return Job\JobResult
      */
     public function execute(object $message): Job\JobResult
     {
@@ -75,7 +79,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelContext = $this->channelContextFactory->create(
                 Uuid::randomHex(),
                 $account->getChannelId(),
-                [SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId()]
+                [
+                    SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
+                ]
             );
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
@@ -163,7 +169,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return empty($message) ? null : new WarningMessage(
-            $message.'ignoring upsert for product with number. '.$productNumber
+            $message . 'ignoring upsert for product with number. ' . $productNumber
         );
     }
 
@@ -201,8 +207,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productNumbers;
     }
 
-    private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string {
-        if($domains == null || $domains->count() < 1) {
+    private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string
+    {
+        if ($domains == null || $domains->count() < 1) {
             return '';
         }
         $domainId = (string) $this->configProvider->getDomainId($channelId);

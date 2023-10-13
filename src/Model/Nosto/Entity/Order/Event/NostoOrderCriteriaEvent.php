@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 class NostoOrderCriteriaEvent extends NestedEvent
 {
     private Criteria $criteria;
+
     private Context $context;
 
     public function __construct(
