@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
-use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
-use Od\Scheduler\Model\JobScheduler;
+use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
+use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;

@@ -4,11 +4,11 @@ namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
-use Od\Scheduler\Model\Job\JobHandlerInterface;
-use Od\Scheduler\Model\Job\JobResult;
-use Od\Scheduler\Model\Job\Message\InfoMessage;
-use Od\Scheduler\Model\JobScheduler;
+use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
+use Nosto\Scheduler\Model\Job\JobHandlerInterface;
+use Nosto\Scheduler\Model\Job\JobResult;
+use Nosto\Scheduler\Model\Job\Message\InfoMessage;
+use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

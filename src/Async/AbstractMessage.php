@@ -2,7 +2,7 @@
 
 namespace Nosto\NostoIntegration\Async;
 
-use Od\Scheduler\Async\JobMessageInterface;
+use Nosto\Scheduler\Async\JobMessageInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;

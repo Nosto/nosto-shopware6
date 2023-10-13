@@ -44,7 +44,7 @@ Component.register('nosto-job-listing', {
             ],
             storeKey: 'nosto_filters',
             activeFilterNumber: 0,
-            searchConfigEntity: 'od_scheduler_job',
+            searchConfigEntity: 'nosto_scheduler_job',
             showBulkEditModal: false,
             hideFilters: false,
         };
@@ -52,7 +52,7 @@ Component.register('nosto-job-listing', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         },
 
         nostoJobTypes() {
@@ -66,7 +66,7 @@ Component.register('nosto-job-listing', {
         },
 
         listFilters() {
-            return this.filterFactory.create('od_scheduler_job', {
+            return this.filterFactory.create('nosto_scheduler_job', {
                 'job-status-filter': {
                     property: 'status',
                     type: 'multi-select-filter',

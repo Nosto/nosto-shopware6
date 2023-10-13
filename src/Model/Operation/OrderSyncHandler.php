@@ -10,7 +10,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\BuilderInterface as N
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
-use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
+use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

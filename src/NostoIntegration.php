@@ -6,7 +6,7 @@ namespace Nosto\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
 use Nosto\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
-use Od\Scheduler\OdScheduler;
+use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -59,7 +59,7 @@ class NostoIntegration extends Plugin
     private function getDependencyBundles(): array
     {
         return [
-            new OdScheduler(),
+            new NostoScheduler(),
         ];
     }
 
@@ -81,7 +81,7 @@ class NostoIntegration extends Plugin
             $schedulerDependencies = \array_filter(
                 $bundle->getAdditionalBundles($bundleParameters),
                 function (BundleInterface $bundle) {
-                    return $bundle instanceof OdScheduler;
+                    return $bundle instanceof NostoScheduler;
                 }
             );
 

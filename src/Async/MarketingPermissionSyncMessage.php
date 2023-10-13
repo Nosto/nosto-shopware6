@@ -3,7 +3,7 @@
 namespace Nosto\NostoIntegration\Async;
 
 use Nosto\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 
 class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAwareMessageInterface

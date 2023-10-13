@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2000b2840cbac627890aa3c4291f31bc",
+    "content-hash": "31adb79e1026a8fd070e383d152cdbfc",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -63,38 +63,30 @@
             "time": "2022-05-19T06:59:11+00:00"
         },
         {
-            "name": "od/sw6-job-scheduler",
+            "name": "nosto/shopware6-job-scheduler",
             "version": "2.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler.git",
+            "dist": {
+                "type": "path",
+                "url": "dependencies/shopware6-job-scheduler",
                 "reference": "e30a8b12a1a7135bd7052262a1e693df2dd30119"
             },
-            "dist": {
-                "type": "zip",
-                "url": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/get/e30a8b12a1a7135bd7052262a1e693df2dd30119.zip",
-                "reference": "e30a8b12a1a7135bd7052262a1e693df2dd30119",
-                "shasum": ""
-            },
             "require": {
-                "php": "^7.4 || ^8.0"
+                "php": "^8.1"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Od\\Scheduler\\": "src/"
+                    "Nosto\\Scheduler\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "proprietary"
             ],
             "description": "System library for async job scheduling for Shopware 6",
-            "homepage": "https://bitbucket.org/overdosedigital/shopware-job-scheduler",
-            "support": {
-                "source": "https://bitbucket.org/overdosedigital/shopware-job-scheduler/src/e30a8b12a1a7135bd7052262a1e693df2dd30119/?at=2.0.4"
-            },
-            "time": "2023-07-10T11:58:39+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -11260,16 +11252,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "4.7.14",
+            "version": "4.7.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "e53c0c7a6e250c435cc13ab50792247a8eb07da3"
+                "reference": "df8de8e484003f68cd2fa68db1e6cfb47a3a92cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/e53c0c7a6e250c435cc13ab50792247a8eb07da3",
-                "reference": "e53c0c7a6e250c435cc13ab50792247a8eb07da3",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/df8de8e484003f68cd2fa68db1e6cfb47a3a92cb",
+                "reference": "df8de8e484003f68cd2fa68db1e6cfb47a3a92cb",
                 "shasum": ""
             },
             "require": {
@@ -11332,9 +11324,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/4.7.14"
+                "source": "https://github.com/zircote/swagger-php/tree/4.7.15"
             },
-            "time": "2023-09-12T00:18:13+00:00"
+            "time": "2023-10-12T20:26:34+00:00"
         }
     ],
     "aliases": [],

@@ -7,12 +7,12 @@
     <services>
         <!-- Handlers -->
         <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
-            <tag name="od.job_handler" code="nosto-integration-full-catalog-sync"/>
+            <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync"/>
             <argument type="service" id="product.repository"/>
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler">
-            <tag name="od.job_handler" code="nosto-integration-product-sync"/>
+            <tag name="nosto.job_handler" code="nosto-integration-product-sync"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
@@ -23,7 +23,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
-            <tag name="od.job_handler" code="nosto-integration-order-sync"/>
+            <tag name="nosto.job_handler" code="nosto-integration-order-sync"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
@@ -31,19 +31,19 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
-            <tag name="od.job_handler" code="nosto-integration-entity-changelog-sync"/>
+            <tag name="nosto.job_handler" code="nosto-integration-entity-changelog-sync"/>
             <argument type="service" id="nosto_integration_entity_changelog.repository"/>
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
-            <argument type="service" id="od_scheduler_job.repository"/>
+            <argument type="service" id="nosto_scheduler_job.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
             <argument type="service" id="scheduled_task.repository"/>
@@ -55,7 +55,7 @@
             <argument type="service" id="logger"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
-            <tag name="od.job_handler" code="nosto-integration-marketing-permission-sync"/>
+            <tag name="nosto.job_handler" code="nosto-integration-marketing-permission-sync"/>
             <argument type="service" id="newsletter_recipient.repository"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="event_dispatcher"/>
@@ -159,25 +159,25 @@
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
-            <argument type="tagged_iterator" tag="od.nosto.merch.filter_translator" index-by="code" />
+            <argument type="tagged_iterator" tag="nosto.merch.filter_translator" index-by="code" />
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver">
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument type="service" id="request_stack"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ManufacturerFilterTranslator">
-            <tag name="od.nosto.merch.filter_translator" code="nosto-manufacturer-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-manufacturer-filter"/>
             <argument type="service" id="product_manufacturer.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator">
-            <tag name="od.nosto.merch.filter_translator" code="nosto-shipping-free-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-shipping-free-filter"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\AttributeFilterTranslator">
-            <tag name="od.nosto.merch.filter_translator" code="nosto-attribute-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-attribute-filter"/>
             <argument type="service" id="property_group_option.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
-            <tag name="od.nosto.merch.filter_translator" code="nosto-price-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-price-filter"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
             <argument type="service" id="request_stack"/>
@@ -282,8 +282,8 @@
 
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
-            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
-            <argument type="service" id="od_scheduler_job.repository"/>
+            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
+            <argument type="service" id="nosto_scheduler_job.repository"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition" public="true">

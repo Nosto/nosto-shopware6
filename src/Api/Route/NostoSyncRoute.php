@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Api\Route;
 
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
-use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\JobScheduler;
+use Nosto\Scheduler\Entity\Job\JobEntity;
+use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
