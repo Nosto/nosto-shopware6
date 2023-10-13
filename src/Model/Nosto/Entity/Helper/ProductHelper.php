@@ -29,10 +29,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductHelper
 {
     private SalesChannelRepository $productRepository;
+
     private AbstractProductDetailRoute $productRoute;
+
     private EntityRepository $reviewRepository;
+
     private EventDispatcherInterface $eventDispatcher;
+
     private ConfigProvider $configProvider;
+
     private EntityRepository $pureProductRepository;
 
     public function __construct(

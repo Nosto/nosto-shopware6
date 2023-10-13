@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\MockOperation;
 
+use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 use Nosto\Operation\MarketingPermission;
 use Nosto\Request\Api\Token;
-use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 
 class MockMarketingPermission extends MarketingPermission
 {

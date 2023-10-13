@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig;
 
@@ -7,6 +9,7 @@ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterface
 {
     private const PLUGIN_TECH_NAME = 'NostoIntegration';
+
     private ThemeInheritanceBuilderInterface $inner;
 
     public function __construct(ThemeInheritanceBuilderInterface $inner)
@@ -21,7 +24,9 @@ class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterfa
         if (isset($result[self::PLUGIN_TECH_NAME])) {
             unset($result[self::PLUGIN_TECH_NAME]);
             $result = \array_merge(
-                [self::PLUGIN_TECH_NAME => 1],
+                [
+                    self::PLUGIN_TECH_NAME => 1,
+                ],
                 $result
             );
         }

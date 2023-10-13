@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 
@@ -14,18 +16,19 @@ class TreeBuilder implements TreeBuilderInterface
         }
 
         $rootCategoryId = $categoriesRo
-            ->filter(fn(CategoryEntity $category) => $category->getParentId() === null)
+            ->filter(fn (CategoryEntity $category) => $category->getParentId() === null)
             ->first()->getId();
 
-        $categoryNameSets = \array_filter(\array_map(function(CategoryEntity $category) use ($rootCategoryId) {
+        $categoryNameSets = \array_filter(\array_map(function (CategoryEntity $category) use ($rootCategoryId) {
             return \array_filter(
                 $category->getPlainBreadcrumb(),
-                fn(string $categoryId) => $categoryId !== $rootCategoryId,
+                fn (string $categoryId) => $categoryId !== $rootCategoryId,
                 ARRAY_FILTER_USE_KEY
             );
         }, $categoriesRo->getElements()));
         $nostoCategoryNames = \array_map(function (array $nameSet) {
-            return array_reduce($nameSet,
+            return array_reduce(
+                $nameSet,
                 function (array $acc, $categoryName) {
                     $acc[] = (string) end($acc) . '/' . $categoryName;
                     return $acc;

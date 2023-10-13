@@ -3,13 +3,14 @@ import './components/nosto-integration-settings-general';
 import './components/nosto-integration-account-general';
 import './components/nosto-plugin-settings-icon';
 import './pages/nosto-job-listing';
-import './components/nosto-integration-features-flags'
+import './components/nosto-integration-features-flags';
 
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';
 
 const { Module } = Shopware;
 
+/** @private */
 Module.register('nosto-integration-module', {
     type: 'plugin',
     name: 'nosto-integration',
@@ -26,34 +27,34 @@ Module.register('nosto-integration-module', {
     routes: {
         list: {
             component: 'nosto-job-listing',
-            path: 'list'
+            path: 'list',
         },
         settings: {
             component: 'nosto-integration-settings',
             path: 'settings',
             meta: {
-                parentPath: 'sw.settings.index.plugins'
-            }
+                parentPath: 'sw.settings.index.plugins',
+            },
         },
         index: {
             component: 'nosto-integration-settings',
             path: 'index',
             meta: {
-                parentPath: 'sw.extension.my-extensions'
-            }
-        }
+                parentPath: 'sw.extension.my-extensions',
+            },
+        },
     },
 
     extensionEntryRoute: {
         extensionName: 'NostoIntegration',
-        route: 'nosto.integration.module.index'
+        route: 'nosto.integration.module.index',
     },
 
     settingsItem: {
         group: 'plugins',
         to: 'nosto.integration.module.settings',
         iconComponent: 'nosto-plugin-settings-icon',
-        backgroundEnabled: true
+        backgroundEnabled: true,
     },
 
     navigation: [{
@@ -62,6 +63,6 @@ Module.register('nosto-integration-module', {
         path: 'nosto.integration.module.list',
         icon: 'default-object-marketing',
         parent: 'sw-marketing',
-        position: 100
+        position: 100,
     }],
 });

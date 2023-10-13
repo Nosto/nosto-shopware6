@@ -22,8 +22,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-entity-changelog-sync';
+
     private const BATCH_SIZE = 100;
+
     private JobScheduler $jobScheduler;
+
     private EntityRepository $entityChangelogRepository;
 
     public function __construct(
@@ -36,8 +39,6 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     /**
      * @param EntityChangelogSyncMessage $message
-     *
-     * @return JobResult
      */
     public function execute(object $message): JobResult
     {
@@ -80,11 +81,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                     $result[$event->getEntityId()] = $event->getProductNumber();
                     return $result;
                 }, []) :
-                $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
+                $events->map(fn (ChangelogEntity $event) => $event->getEntityId());
 
             $processCallback($ids);
             $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
+                return [
+                    'id' => $id,
+                ];
             }, array_values($events->getIds()));
             $this->entityChangelogRepository->delete($deleteDataSet, $context);
         }

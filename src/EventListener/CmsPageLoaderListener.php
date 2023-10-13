@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\EventListener;
 
@@ -18,8 +20,11 @@ use Throwable;
 class CmsPageLoaderListener implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
+
     private SessionLookupResolver $sessionLookupResolver;
+
     private NostoCacheResolver $cacheResolver;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -37,7 +42,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => 'onKernelResponse'
+            KernelEvents::RESPONSE => 'onKernelResponse',
         ];
     }
 

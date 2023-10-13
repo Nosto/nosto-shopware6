@@ -14,6 +14,7 @@ use Twig\TwigFunction;
 class NostoExtension extends AbstractExtension
 {
     private ProductProviderInterface $productProvider;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -31,10 +32,9 @@ class NostoExtension extends AbstractExtension
     {
         return [
             new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
-            new TwigFunction('nosto_page_type', [$this, 'getPageType'])
+            new TwigFunction('nosto_page_type', [$this, 'getPageType']),
         ];
     }
-
 
     public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
     {
@@ -51,7 +51,6 @@ class NostoExtension extends AbstractExtension
 
     public function getPageType($activeRoute, $pageCmsType): string
     {
-
         $pageType = 'notfound';
 
         if (empty($activeRoute)) {
@@ -90,6 +89,5 @@ class NostoExtension extends AbstractExtension
         }
 
         return $pageType;
-
     }
 }

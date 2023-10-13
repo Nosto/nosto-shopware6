@@ -2,11 +2,11 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
-import NostoCookie from "../util/cookie";
+import NostoCookie from '../util/cookie';
 
 export default class NostoConfiguration extends Plugin {
     static options = {
-        nostoInitializedStorageKey: 'nostoInitializedStorageKey'
+        nostoInitializedStorageKey: 'nostoInitializedStorageKey',
     };
 
     init() {
@@ -38,7 +38,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _initNosto() {
-        const name = "nostojs";
+        const name = 'nostojs';
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
         };
@@ -57,7 +57,7 @@ export default class NostoConfiguration extends Plugin {
 
     registerSubscribers() {
         this._cartWidgetElement = DomAccess.querySelector(document, '[data-cart-widget]', false);
-        this._cartWidget = this._cartWidgetElement === false ? false : PluginManager.getPluginInstanceFromElement(
+        this._cartWidget = this._cartWidgetElement === false ? false : window.PluginManager.getPluginInstanceFromElement(
             this._cartWidgetElement,
             'CartWidget'
         );
@@ -69,7 +69,7 @@ export default class NostoConfiguration extends Plugin {
     cartWidgetSubscriber() {
         if(this._cartWidget !== false) {
             this._cartWidget.$emitter.subscribe('fetch', () => {
-                nostojs(api => {
+                window.nostojs(api => {
                     api.resendCartTagging();
                 });
             });
@@ -77,10 +77,10 @@ export default class NostoConfiguration extends Plugin {
     }
 
     nostoSubscriber() {
-        const instances = PluginManager.getPluginInstances('NostoPlugin');
+        const instances = window.PluginManager.getPluginInstances('NostoPlugin');
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('addRecommendationToCart', (event) => {
-                nostojs(api => {
+                window.nostojs(api => {
                     api.recommendedProductAddedToCart(event.detail.productId, event.detail.elementId);
 
                     if (this.options.reloadRecommendations) {

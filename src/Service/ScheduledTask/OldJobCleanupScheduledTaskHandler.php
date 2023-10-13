@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
 use DateTime;
-use Nosto\NostoIntegration\Async\AbstractMessage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -38,16 +37,22 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
         $context = new Context(new SystemSource());
         $numberOfDaysBeforeToday = new DateTime(' - 5 day'); // needed to add to the plugin`s configuration
         $criteria = new Criteria();
-        $criteria->addFilter(new RangeFilter(
-            'createdAt',
-            ['lt' => $numberOfDaysBeforeToday->format(Defaults::STORAGE_DATE_FORMAT)])
+        $criteria->addFilter(
+            new RangeFilter(
+                'createdAt',
+                [
+                    'lt' => $numberOfDaysBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
+                ]
+            )
         );
 
         $idSearchResult = $this->jobRepository->searchIds($criteria, $context);
 
         //Formatting IDs array and deleting config keys
         $ids = array_map(static function ($id) {
-            return ['id' => $id];
+            return [
+                'id' => $id,
+            ];
         }, $idSearchResult->getIds());
 
         $this->jobRepository->delete($ids, $context);

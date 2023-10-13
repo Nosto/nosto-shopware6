@@ -10,17 +10,18 @@ export default class NostoPlugin extends Plugin {
     };
 
     init() {
-        window.Nosto = {};
-        Nosto.addProductToCart = (id, element, quantity) => {
-            this._addMultipleToCart([{'productId': id, 'skuId': id, 'quantity': quantity}], element);
-        }
-        Nosto.addMultipleProductsToCart = (ids, element) => {
-            this._addMultipleToCart(ids, element);
-        }
-        Nosto.addSkuToCart = (idObject, element, quantity) => {
-            const quantityObject = {'quantity': quantity};
-            this._addMultipleToCart([{...idObject, ...quantityObject}], element);
-        }
+        window.Nosto = {
+            addProductToCart: (id, element, quantity) => {
+                this._addMultipleToCart([{'productId': id, 'skuId': id, 'quantity': quantity}], element);
+            },
+            addMultipleProductsToCart: (ids, element) => {
+                this._addMultipleToCart(ids, element);
+            },
+            addSkuToCart: (idObject, element, quantity) => {
+                const quantityObject = {'quantity': quantity};
+                this._addMultipleToCart([{...idObject, ...quantityObject}], element);
+            },
+        };
         this._nostoElementId = (this.el.nextElementSibling.id ? this.el.nextElementSibling.id : '');
     }
 
@@ -48,7 +49,7 @@ export default class NostoPlugin extends Plugin {
             };
             this.$emitter.publish('addRecommendationToCart', {
                 productId: item.productId,
-                elementId: this._resolveContextSlotId(element)
+                elementId: this._resolveContextSlotId(element),
             });
         });
         this._openOffCanvasCarts(this.options.action, JSON.stringify(data));

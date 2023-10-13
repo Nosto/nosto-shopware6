@@ -2,24 +2,27 @@
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
-use Nosto\Operation\MarketingPermission;
-use Nosto\Types\Signup\AccountInterface;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
+use Nosto\Operation\MarketingPermission;
+use Nosto\Types\Signup\AccountInterface;
 use Od\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-marketing-permission-sync';
+
     private EntityRepository $newsletterRecipientRepository;
+
     private Account\Provider $accountProvider;
+
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
@@ -34,8 +37,6 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
 
     /**
      * @param MarketingPermissionSyncMessage $message
-     *
-     * @return JobResult
      */
     public function execute(object $message): JobResult
     {
@@ -60,17 +61,22 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
         $operation = new MarketingPermission($account);
         $result = new JobResult();
         foreach ($this->getSubscribers($context, $subscriberIds) as $subscriber) {
-            $isSubscribed = in_array($subscriber->getStatus(),
+            $isSubscribed = in_array(
+                $subscriber->getStatus(),
                 [
                     NewsletterSubscribeRoute::OPTION_DIRECT,
-                    NewsletterSubscribeRoute::STATUS_OPT_IN
+                    NewsletterSubscribeRoute::STATUS_OPT_IN,
                 ]
             );
             try {
                 $this->eventDispatcher->dispatch(
                     new BeforeMarketingOperationEvent(
                         $operation,
-                        ['email' => $subscriber->getEmail(), 'isSubscribed' => $isSubscribed], $context
+                        [
+                            'email' => $subscriber->getEmail(),
+                            'isSubscribed' => $isSubscribed,
+                        ],
+                        $context
                     )
                 );
                 $operation->update($subscriber->getEmail(), $isSubscribed);
@@ -79,7 +85,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
             }
         }
 
-        return new JobResult;
+        return new JobResult();
     }
 
     private function getSubscribers(Context $context, array $subscriberIds): EntityCollection

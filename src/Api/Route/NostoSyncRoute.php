@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Api\Route;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\JobScheduler;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,10 +18,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(
+    defaults: [
+        '_routeScope' => ['api'],
+    ]
+)]
 class NostoSyncRoute
 {
     private JobScheduler $jobScheduler;
+
     private EntityRepository $jobRepository;
 
     public function __construct(
@@ -33,7 +37,11 @@ class NostoSyncRoute
         $this->jobRepository = $jobRepository;
     }
 
-    #[Route(path:"/api/schedule-full-product-sync", name:"api.nosto_integration_sync.full_sync", methods:["POST"])]
+    #[Route(
+        path: "/api/schedule-full-product-sync",
+        name: "api.nosto_integration_sync.full_sync",
+        methods: ["POST"]
+    )]
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
         $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
@@ -48,7 +56,7 @@ class NostoSyncRoute
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),
-                new EqualsAnyFilter('status', [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING])
+                new EqualsAnyFilter('status', [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING]),
             ])
         );
         /** @var JobEntity $job */

@@ -7,10 +7,11 @@ use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 
 class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
-
 {
     protected static string $defaultName = 'Marketing Permission Sync Operation';
+
     private string $parentJobId;
+
     private array $newsletterRecipientIds;
 
     public function __construct(

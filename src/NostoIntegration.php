@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration;
 
@@ -14,8 +16,8 @@ use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -57,7 +59,7 @@ class NostoIntegration extends Plugin
     private function getDependencyBundles(): array
     {
         return [
-            new OdScheduler()
+            new OdScheduler(),
         ];
     }
 
@@ -131,7 +133,7 @@ class NostoIntegration extends Plugin
         ]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
-        $path = $this->getPath().'/Resources/config/flexible_services.xml';
+        $path = $this->getPath() . '/Resources/config/flexible_services.xml';
         if (file_exists($path)) {
             $delegatingLoader->load($path);
         }

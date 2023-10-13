@@ -20,7 +20,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     {
         return [
             'state_machine.order.state_changed' => 'onOrderWritten',
-            CheckoutOrderPlacedEvent::class     => 'onCheckoutOrderPlaced',
+            CheckoutOrderPlacedEvent::class => 'onCheckoutOrderPlaced',
         ];
     }
 
