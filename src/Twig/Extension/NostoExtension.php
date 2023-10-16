@@ -1,10 +1,10 @@
 <?php
 
-namespace Od\NostoIntegration\Twig\Extension;
+namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,6 +14,7 @@ use Twig\TwigFunction;
 class NostoExtension extends AbstractExtension
 {
     private ProductProviderInterface $productProvider;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -30,11 +31,10 @@ class NostoExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('od_nosto_product', [$this, 'getNostoProduct']),
-            new TwigFunction('od_nosto_page_type', [$this, 'getPageType'])
+            new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
+            new TwigFunction('nosto_page_type', [$this, 'getPageType']),
         ];
     }
-
 
     public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
     {
@@ -51,7 +51,6 @@ class NostoExtension extends AbstractExtension
 
     public function getPageType($activeRoute, $pageCmsType): string
     {
-
         $pageType = 'notfound';
 
         if (empty($activeRoute)) {
@@ -90,6 +89,5 @@ class NostoExtension extends AbstractExtension
         }
 
         return $pageType;
-
     }
 }

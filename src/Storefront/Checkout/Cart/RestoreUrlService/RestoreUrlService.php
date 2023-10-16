@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
+namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
-use Od\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
+use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -56,12 +56,14 @@ class RestoreUrlService implements RestoreUrlServiceInterface
     {
         // TODO: Change routing name
         return $this->requestStack->getCurrentRequest()->attributes->get(
-                RequestTransformer::STOREFRONT_URL
-            ).$this->urlGenerator->generate(
-                'frontend.cart.nosto-restore-cart',
-                ['mappingId' => $id],
-                UrlGeneratorInterface::ABSOLUTE_PATH
-            );
+            RequestTransformer::STOREFRONT_URL
+        ) . $this->urlGenerator->generate(
+            'frontend.cart.nosto-restore-cart',
+            [
+                'mappingId' => $id,
+            ],
+            UrlGeneratorInterface::ABSOLUTE_PATH
+        );
     }
 
     protected function createNew(string $token, Context $context): string

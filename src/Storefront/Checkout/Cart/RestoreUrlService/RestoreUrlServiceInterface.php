@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
+namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 

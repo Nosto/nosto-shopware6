@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\Context;

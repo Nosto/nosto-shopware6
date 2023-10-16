@@ -1,8 +1,8 @@
 <?php
 
-namespace Od\NostoIntegration\EventListener;
+namespace Nosto\NostoIntegration\EventListener;
 
-use Od\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\EventsWriter;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -19,7 +19,7 @@ class NewsletterEventListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            NewsletterConfirmEvent::class     => 'onNewsletterConfirm',
+            NewsletterConfirmEvent::class => 'onNewsletterConfirm',
             NewsletterUnsubscribeEvent::class => 'onNewsletterUnsubscribe',
         ];
     }

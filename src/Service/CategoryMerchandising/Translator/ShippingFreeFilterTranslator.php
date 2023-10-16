@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -8,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class ShippingFreeFilterTranslator implements TranslatorInterface
 {
     public const SHIPPING_FREE_ATTR_NAME = 'Shipping Free';
+
     public const SHIPPING = "product.shippingFree";
 
     public function translate(IncludeFilters $includeFilters): IncludeFilters

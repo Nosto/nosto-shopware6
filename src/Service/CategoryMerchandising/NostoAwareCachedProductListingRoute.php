@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\{AbstractProductListingRoute, ProductListingRouteResponse};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
 {
     private AbstractProductListingRoute $decoratedService;
+
     private NostoCacheResolver $cacheResolver;
 
     public function __construct(

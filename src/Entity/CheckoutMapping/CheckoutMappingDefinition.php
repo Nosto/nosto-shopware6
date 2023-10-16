@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Entity\CheckoutMapping;
+namespace Nosto\NostoIntegration\Entity\CheckoutMapping;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,7 +15,7 @@ class CheckoutMappingDefinition extends EntityDefinition
 {
     public const CART_TABLE = 'cart';
 
-    public const ENTITY_NAME = 'nosto_checkout_mapping';
+    public const ENTITY_NAME = 'nosto_integration_checkout_mapping';
 
     public function getEntityName(): string
     {

@@ -1,0 +1,45 @@
+name: Lint PHP
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: PHPLint
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: shopware6-plugin
+
+      - name: Clone job scheduler repo
+        uses: actions/checkout@v2
+        with:
+          repository: Nosto/shopware6-job-scheduler
+          path: shopware6-plugin/dependencies/shopware6-job-scheduler
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Setup PHP with Composer 2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: dom, gd, mbstring, pdo_mysql, zip
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Validate dependencies
+        working-directory: shopware6-plugin
+        run: composer validate
+
+      - name: Install plugin dependencies
+        working-directory: shopware6-plugin
+        run: composer install --no-interaction
+
+      - name: Run PHPLint
+        working-directory: shopware6-plugin
+        run: composer run lint

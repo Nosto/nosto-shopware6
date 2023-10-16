@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Migration;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -23,7 +25,7 @@ class Migration1680010097 extends MigrationStep
         $column = 'product_number';
 
         if (!$this->hasColumn($table, $column, $connection)) {
-            $connection->executeStatement('ALTER TABLE `'. $table .'` ADD COLUMN `'. $column .'` VARCHAR(64) NULL');
+            $connection->executeStatement('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` VARCHAR(64) NULL');
         }
     }
 

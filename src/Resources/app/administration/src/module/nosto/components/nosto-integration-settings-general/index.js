@@ -1,8 +1,9 @@
 import template from './nosto-integration-settings-general.html.twig';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-integration-settings-general', {
     template,
 
@@ -23,7 +24,7 @@ Component.register('nosto-integration-settings-general', {
             type: String,
             required: false,
             default: null,
-        }
+        },
     },
 
     data() {
@@ -31,7 +32,7 @@ Component.register('nosto-integration-settings-general', {
             isLoading: false,
             productCustomFields: [],
             productTags: [],
-            languageCode: null
+            languageCode: null,
         };
     },
 
@@ -56,7 +57,7 @@ Component.register('nosto-integration-settings-general', {
     },
 
     created() {
-        this.initLanguageCode()
+        this.initLanguageCode();
         this.getProductCustomFields();
         this.getProductTags();
         this.createdComponent();
@@ -64,33 +65,35 @@ Component.register('nosto-integration-settings-general', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'overdose_nosto.config.',
-                defaultConfigs = {
-                    tag1: null,
-                    tag2: null,
-                    tag3: null,
-                    selectedCustomFields: null,
-                    googleCategory: null,
-                    isInitializeNostoAfterInteraction: null
-                };
+            const configPrefix = 'NostoIntegration.config.';
+            const defaultConfigs = {
+                tag1: null,
+                tag2: null,
+                tag3: null,
+                selectedCustomFields: null,
+                googleCategory: null,
+                isInitializeNostoAfterInteraction: null,
+            };
 
             /**
              * Initialize config data with default values.
              */
-            for (const [key, defaultValue] of Object.entries(defaultConfigs)) {
-                if (this.allConfigs['null'][configPrefix + key] === undefined) {
-                    this.$set(this.allConfigs['null'], configPrefix + key, defaultValue);
+            Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
+                if (this.allConfigs.null[configPrefix + key] === undefined) {
+                    this.$set(this.allConfigs.null, configPrefix + key, defaultValue);
                 }
-            }
+            });
 
             // For old single select config
-            for (let i = 1; i < 4; i++) {
-                let key = 'overdose_nosto.config.tag' + i
-                if (typeof this.allConfigs['null'][key] === 'string' || this.allConfigs['null'][key] instanceof String) {
-                    this.allConfigs['null'][key] = [this.allConfigs['null'][key]]
+            for (let i = 1; i < 4; i += 1) {
+                const key = `NostoIntegration.config.tag${i}`;
+                if (typeof this.allConfigs.null[key] === 'string' || this.allConfigs.null[key] instanceof String) {
+                    // eslint-disable-next-line vue/no-mutating-props
+                    this.allConfigs.null[key] = [this.allConfigs.null[key]];
                 }
                 if (typeof this.actualConfigData[key] === 'string' || this.actualConfigData[key] instanceof String) {
-                    this.actualConfigData[key] = [this.actualConfigData[key]]
+                    // eslint-disable-next-line vue/no-mutating-props
+                    this.actualConfigData[key] = [this.actualConfigData[key]];
                 }
             }
         },
@@ -108,29 +111,32 @@ Component.register('nosto-integration-settings-general', {
         },
 
         clearTagValue(tag) {
-            this.allConfigs['null']['overdose_nosto.config.' + tag] = null;
+            // eslint-disable-next-line vue/no-mutating-props
+            this.allConfigs.null[`NostoIntegration.config.${tag}`] = null;
         },
 
         getProductCustomFields() {
             this.initLanguageCode().then(() => {
-                var me = this;
+                const me = this;
                 const customFieldsCriteria = new Criteria();
                 customFieldsCriteria.setLimit(50000);
                 customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
                     .addAssociation('customFields')
                     .addAssociation('relations');
 
-                return this.customFieldSetRepository.search(customFieldsCriteria, Shopware.Context.api).then((customFieldSets) => {
-                    customFieldSets.forEach((customFieldSet) => {
-                        customFieldSet.customFields.forEach((customField) => {
-                            me.productCustomFields.push({
-                                label: me.languageCode && customField.config.label !== undefined && customField.config.label[me.languageCode] !== undefined ? customField.config.label[me.languageCode] : customField.name,
-                                name: customField.name,
-                                id: customField.name
+                return this.customFieldSetRepository.search(customFieldsCriteria, Shopware.Context.api)
+                    .then((customFieldSets) => {
+                        customFieldSets.forEach((customFieldSet) => {
+                            customFieldSet.customFields.forEach((customField) => {
+                                const label = customField.config.label[me.languageCode] || customField.name;
+                                me.productCustomFields.push({
+                                    label: label,
+                                    name: customField.name,
+                                    id: customField.name,
+                                });
                             });
-                        })
+                        });
                     });
-                });
             });
         },
 
@@ -141,11 +147,11 @@ Component.register('nosto-integration-settings-general', {
                 return this.tagRepository.search(criteria, Shopware.Context.api).then((tags) => {
                     tags.forEach((tag) => {
                         this.productTags.push({
-                            label: tag.name, name: tag.name, id: tag.id
+                            label: tag.name, name: tag.name, id: tag.id,
                         });
                     });
                 });
             });
-        }
+        },
     },
 });

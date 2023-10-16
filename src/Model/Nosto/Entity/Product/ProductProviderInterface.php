@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;

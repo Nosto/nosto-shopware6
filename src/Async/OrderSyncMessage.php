@@ -1,16 +1,19 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\OrderSyncHandler;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
+use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 
 class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
     protected static string $defaultName = 'Order Sync Operation';
+
     private array $newOrderIds;
+
     private array $updatedOrderIds;
+
     private string $parentJobId;
 
     public function __construct(

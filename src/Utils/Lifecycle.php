@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Utils;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,11 +26,17 @@ use function version_compare;
 class Lifecycle
 {
     private EntityRepository $systemConfigRepository;
+
     private Connection $connection;
+
     private ContainerInterface $container;
+
     private bool $hasOtherSchedulerDependency;
+
     private EntityRepository $sortingRepository;
+
     private SystemConfigService $systemConfigService;
+
     private EntityRepository $salesChannelRepository;
 
     public function __construct(
@@ -50,33 +58,40 @@ class Lifecycle
         $this->salesChannelRepository = $this->container->get('sales_channel.repository');
     }
 
-    public function install(InstallContext $installContext) {
+    public function install(InstallContext $installContext)
+    {
         $this->importSorting($installContext->getContext());
     }
 
-    public function update(UpdateContext $updateContext) {
+    public function update(UpdateContext $updateContext)
+    {
         $this->importSorting($updateContext->getContext());
         if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
             $this->removeOldTags($updateContext->getContext());
         }
     }
 
-    public function deactivate(DeactivateContext $deactivateContext) {
+    public function deactivate(DeactivateContext $deactivateContext)
+    {
         $this->removeSorting($deactivateContext->getContext());
     }
 
-    public function activate(ActivateContext $activateContext) {
+    public function activate(ActivateContext $activateContext)
+    {
         $this->importSorting($activateContext->getContext());
     }
 
-    public function removeSorting(Context $context) {
+    public function removeSorting(Context $context)
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
         if ($sorting == null) {
             return;
         }
-        $this->sortingRepository->delete([['id' => $sorting->getId()]], $context);
+        $this->sortingRepository->delete([[
+            'id' => $sorting->getId(),
+        ]], $context);
     }
 
     public function importSorting(Context $context)
@@ -88,14 +103,24 @@ class Lifecycle
         if ($sorting->count() > 0) {
             $data = [
                 'id' => $sorting->first()->getId(),
-                'fields' => [["field" => "product.name", "order" => "desc", "priority" => 1, "naturalSorting" => 0]]
+                'fields' => [[
+                    "field" => "product.name",
+                    "order" => "desc",
+                    "priority" => 1,
+                    "naturalSorting" => 0,
+                ]],
             ];
         } else {
             $data = [
                 'key' => MerchandisingSearchApi::MERCHANDISING_SORTING_KEY,
                 'priority' => 0,
                 'active' => true,
-                'fields' => [["field" => "product.name", "order" => "desc", "priority" => 1, "naturalSorting" => 0]],
+                'fields' => [[
+                    "field" => "product.name",
+                    "order" => "desc",
+                    "priority" => 1,
+                    "naturalSorting" => 0,
+                ]],
                 'label' => 'Recommendation',
                 'locked' => false,
             ];
@@ -110,13 +135,15 @@ class Lifecycle
             $this->removePendingJobs();
         } else {
             // TODO: OdScheduler must be responsible for its uninstallation - move such operations to it in future.
-            $this->connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job_message`');
-            $this->connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job`');
+            $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_scheduler_job_message`');
+            $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_scheduler_job`');
 
-            $schedulerMigrationClassWildcard = addcslashes('Od\Scheduler\Migration', '\\_%') . '%';
+            $schedulerMigrationClassWildcard = addcslashes('Nosto\Scheduler\Migration', '\\_%') . '%';
             $this->connection->executeUpdate(
                 'DELETE FROM migration WHERE class LIKE :class',
-                ['class' => $schedulerMigrationClassWildcard]
+                [
+                    'class' => $schedulerMigrationClassWildcard,
+                ]
             );
         }
 
@@ -127,9 +154,9 @@ class Lifecycle
     public function removePendingJobs()
     {
         $this->connection->executeStatement(
-            "DELETE from `od_scheduler_job` WHERE `type` LIKE :prefix",
+            "DELETE from `nosto_scheduler_job` WHERE `type` LIKE :prefix",
             [
-                'prefix' => 'od-nosto%',
+                'prefix' => 'nosto-integration%',
             ],
         );
     }
@@ -137,10 +164,12 @@ class Lifecycle
     public function removeConfigs(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('configurationKey', 'overdose_nosto'));
+        $criteria->addFilter(new ContainsFilter('configurationKey', 'NostoIntegration'));
         $configIds = $this->systemConfigRepository->searchIds($criteria, $context)->getIds();
         $configIds = \array_map(static function ($id) {
-            return ['id' => $id];
+            return [
+                'id' => $id,
+            ];
         }, $configIds);
 
         if (!empty($configIds)) {
@@ -164,12 +193,12 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete('overdose_nosto.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 
     public function removeTables(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `od_nosto_entity_changelog`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_entity_changelog`');
     }
 }

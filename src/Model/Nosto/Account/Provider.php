@@ -1,23 +1,28 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Account;
+declare(strict_types=1);
 
+namespace Nosto\NostoIntegration\Model\Nosto\Account;
+
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\Request\Api\Token;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Psr\Log\LoggerInterface;
 
 class Provider
 {
     private ConfigProvider $configProvider;
+
     private EntityRepository $channelRepo;
+
     private ?array $accounts = null;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -32,7 +37,7 @@ class Provider
 
     public function get(Context $context, string $channelId): ?Account
     {
-        return array_values(array_filter($this->all($context), function(Account $account) use ($channelId) {
+        return array_values(array_filter($this->all($context), function (Account $account) use ($channelId) {
             return $account->getChannelId() === $channelId;
         }))[0] ?? null;
     }
@@ -62,7 +67,7 @@ class Provider
                 $keyChain = new KeyChain([
                     new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),
                     new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channel->getId())),
-                    new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId()))
+                    new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId())),
                 ]);
                 $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $accountName, $keyChain);
             } catch (\Throwable $throwable) {

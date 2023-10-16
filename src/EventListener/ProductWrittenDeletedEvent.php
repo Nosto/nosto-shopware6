@@ -1,9 +1,9 @@
 <?php
 
-namespace Od\NostoIntegration\EventListener;
+namespace Nosto\NostoIntegration\EventListener;
 
-use Od\NostoIntegration\Async\EventsWriter;
-use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ProductWrittenDeletedEvent implements EventSubscriberInterface
 {
     private EventsWriter $eventsWriter;
+
     private ProductHelper $productHelper;
 
     public function __construct(EventsWriter $eventsWriter, ProductHelper $productHelper)
@@ -22,7 +23,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten'
+            ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
         ];
     }
 

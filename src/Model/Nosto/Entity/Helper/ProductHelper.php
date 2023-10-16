@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Helper;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -29,10 +29,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductHelper
 {
     private SalesChannelRepository $productRepository;
+
     private AbstractProductDetailRoute $productRoute;
+
     private EntityRepository $reviewRepository;
+
     private EventDispatcherInterface $eventDispatcher;
+
     private ConfigProvider $configProvider;
+
     private EntityRepository $pureProductRepository;
 
     public function __construct(

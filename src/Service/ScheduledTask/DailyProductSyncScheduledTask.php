@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Service\ScheduledTask;
+namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
@@ -10,7 +10,7 @@ class DailyProductSyncScheduledTask extends ScheduledTask
 
     public static function getTaskName(): string
     {
-        return 'od_nosto_daily_product_sync_task';
+        return 'nosto_integration_daily_product_sync_task';
     }
 
     public static function getDefaultInterval(): int

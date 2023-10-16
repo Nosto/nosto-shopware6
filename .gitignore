@@ -1,3 +1,5 @@
 dependencies/*
 !dependencies/.gitkeep
 .idea
+node_modules
+vendor

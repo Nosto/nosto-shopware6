@@ -1,19 +1,21 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Product as NostoProduct;
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedProvider implements ProductProviderInterface
 {
-    public const CACHE_PREFIX = 'od_nosto_product_';
+    public const CACHE_PREFIX = 'nosto_integration_product_';
+
     private TagAwareAdapterInterface $cache;
+
     private Provider $innerProvider;
 
     public function __construct(

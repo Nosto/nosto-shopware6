@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Nosto\NostoException;
+use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider;
 use Nosto\Operation\Session\NewSession;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
-use Od\NostoIntegration\Model\Nosto\Account;
-use Od\NostoIntegration\Model\Nosto\Account\Provider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -16,6 +18,7 @@ class SessionLookupResolver
     public const NOSTO_SESSION_COOKIE = '2c_cId';
 
     private Provider $accountProvider;
+
     private RequestStack $requestStack;
 
     public function __construct(Provider $accountProvider, RequestStack $requestStack)

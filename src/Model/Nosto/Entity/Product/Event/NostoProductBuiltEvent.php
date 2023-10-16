@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product\Event;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event;
 
 use Nosto\Model\Product\Product as NostoProduct;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -14,7 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class NostoProductBuiltEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     private ProductEntity $product;
+
     private NostoProduct $nostoProduct;
+
     private SalesChannelContext $salesChannelContext;
 
     public function __construct(

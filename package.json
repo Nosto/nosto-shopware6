@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "eslint": "^8.36.0"
+  },
+  "scripts": {
+    "install-sw-dependencies": "npm install --prefix vendor/shopware/administration/Resources/app/administration && npm install --prefix vendor/shopware/storefront/Resources/app/storefront",
+    "administration-lint": "eslint --config .eslintrc-administration.js --ext .js,.vue src/Resources/app/administration --resolve-plugins-relative-to ./vendor/shopware/administration/Resources/app/administration",
+    "administration-fix": "eslint --config .eslintrc-administration.js --ext .js,.vue src/Resources/app/administration --resolve-plugins-relative-to ./vendor/shopware/administration/Resources/app/administration --fix",
+    "storefront-lint": "eslint --config .eslintrc-storefront.js --ext .js,.vue src/Resources/app/storefront --resolve-plugins-relative-to ./vendor/shopware/storefront/Resources/app/storefront",
+    "storefront-fix": "eslint --config .eslintrc-storefront.js --ext .js,.vue src/Resources/app/storefront --resolve-plugins-relative-to ./vendor/shopware/storefront/Resources/app/storefront --fix"
+  }
+}

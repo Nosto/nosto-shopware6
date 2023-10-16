@@ -1,17 +1,19 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Nosto\Types\Product\ProductInterface;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -31,14 +33,23 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder implements BuilderInterface
 {
     private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
+
     private ConfigProvider $configProvider;
+
     private ProductHelper $productHelper;
+
     private SkuBuilderInterface $skuBuilder;
+
     private TreeBuilderInterface $treeBuilder;
+
     private EventDispatcherInterface $eventDispatcher;
+
     private NetPriceCalculator $calculator;
+
     private CashRounding $priceRounding;
+
     private CrossSellingBuilderInterface $crossSellingBuilder;
+
     private EntityRepository $tagRepository;
 
     public function __construct(
@@ -150,7 +161,7 @@ class Builder implements BuilderInterface
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId)) {
-            $alternateMediaUrls = $product->getMedia()->map(fn(ProductMediaEntity $media) => $media->getMedia()->getUrl());
+            $alternateMediaUrls = $product->getMedia()->map(fn (ProductMediaEntity $media) => $media->getMedia()->getUrl());
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
         }
 
@@ -178,21 +189,23 @@ class Builder implements BuilderInterface
 
         $crossSellings = $this->crossSellingBuilder->build($product->getId(), $context);
 
-        if(!empty($crossSellings)) {
+        if (!empty($crossSellings)) {
             $nostoProduct->addCustomField('cross-sellings', json_encode($crossSellings));
         }
 
         if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
-            $nostoProduct->addCustomField('product-labels', json_encode(
+            $nostoProduct->addCustomField(
+                'product-labels',
+                json_encode(
                     [
                         'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-                        'mfg-part-number' => $product->getManufacturerNumber()
+                        'mfg-part-number' => $product->getManufacturerNumber(),
                     ]
                 )
             );
         }
 
-        if(method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
+        if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
@@ -244,7 +257,9 @@ class Builder implements BuilderInterface
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = (string) $this->configProvider->getDomainId($context->getSalesChannelId());
             $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
-            $raw = $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $product->getId()]);
+            $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
+                'productId' => $product->getId(),
+            ]);
             return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
         }
 

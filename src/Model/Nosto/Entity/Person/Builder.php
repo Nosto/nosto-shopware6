@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Person;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Person;
 
 use Nosto\Model\AbstractPerson;
 

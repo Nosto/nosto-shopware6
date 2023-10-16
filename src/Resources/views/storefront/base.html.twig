@@ -6,28 +6,28 @@
     {{ parent() }}
 
     {# Nosto tagging #}
-    {% block od_nosto_integration_tagging %}
+    {% block nosto_integration_integration_tagging %}
 
-        {% set type = od_nosto_page_type(activeRoute, page.cmsPage.type) %}
+        {% set type = nosto_page_type(activeRoute, page.cmsPage.type) %}
 
-        {% block od_nosto_integration_tagging_global %}
-            {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/page-tagging.html.twig' with {
+        {% block nosto_integration_tagging_global %}
+            {% sw_include '@NostoIntegration/storefront/component/nosto-integration/page-tagging.html.twig' with {
                 type: type
             } %}
         {% endblock %}
 
-        {% block od_nosto_integration_tagging_advanced %}
-            {% sw_include '@OdNostoIntegration/storefront/component/nosto-integration/'~type~'-tagging.html.twig' ignore missing %}
+        {% block nosto_integration_tagging_advanced %}
+            {% sw_include '@NostoIntegration/storefront/component/nosto-integration/'~type~'-tagging.html.twig' ignore missing %}
         {% endblock %}
 
     {% endblock %}
 
     {# Nosto connect script #}
-    {% block od_nosto_integration_connect_script %}
+    {% block nosto_integration_connect_script %}
         {% set configurationOptions = {
-            'accountID': config('overdose_nosto.config.accountID'),
-            'initializeAfter':  config('overdose_nosto.config.isInitializeNostoAfterInteraction'),
-            'reloadRecommendations': config('overdose_nosto.config.reloadRecommendations')
+            'accountID': config('NostoIntegration.config.accountID'),
+            'initializeAfter':  config('NostoIntegration.config.isInitializeNostoAfterInteraction'),
+            'reloadRecommendations': config('NostoIntegration.config.reloadRecommendations')
         } %}
         <div hidden data-nosto-configuration="true" data-nosto-configuration-options="{{ configurationOptions|json_encode }}"></div>
     {% endblock %}

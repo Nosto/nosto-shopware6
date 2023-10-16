@@ -1,15 +1,15 @@
 <?php
 
-namespace Od\NostoIntegration\Model\Operation;
+namespace Nosto\NostoIntegration\Model\Operation;
 
-use Od\NostoIntegration\Async\EntityChangelogSyncMessage;
-use Od\NostoIntegration\Async\EventsWriter;
-use Od\NostoIntegration\Async\MarketingPermissionSyncMessage;
-use Od\NostoIntegration\Async\OrderSyncMessage;
-use Od\NostoIntegration\Async\ProductSyncMessage;
-use Od\NostoIntegration\Entity\Changelog\ChangelogEntity;
-use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
-use Od\Scheduler\Model\JobScheduler;
+use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
+use Nosto\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
+use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
+use Nosto\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
+use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -21,9 +21,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
-    public const HANDLER_CODE = 'od-nosto-entity-changelog-sync';
+    public const HANDLER_CODE = 'nosto-integration-entity-changelog-sync';
+
     private const BATCH_SIZE = 100;
+
     private JobScheduler $jobScheduler;
+
     private EntityRepository $entityChangelogRepository;
 
     public function __construct(
@@ -36,8 +39,6 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     /**
      * @param EntityChangelogSyncMessage $message
-     *
-     * @return JobResult
      */
     public function execute(object $message): JobResult
     {
@@ -80,11 +81,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                     $result[$event->getEntityId()] = $event->getProductNumber();
                     return $result;
                 }, []) :
-                $events->map(fn(ChangelogEntity $event) => $event->getEntityId());
+                $events->map(fn (ChangelogEntity $event) => $event->getEntityId());
 
             $processCallback($ids);
             $deleteDataSet = array_map(function ($id) {
-                return ['id' => $id];
+                return [
+                    'id' => $id,
+                ];
             }, array_values($events->getIds()));
             $this->entityChangelogRepository->delete($deleteDataSet, $context);
         }

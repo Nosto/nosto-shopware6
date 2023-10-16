@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Product;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Sku as NostoSku;
 use Shopware\Core\Content\Product\ProductEntity;

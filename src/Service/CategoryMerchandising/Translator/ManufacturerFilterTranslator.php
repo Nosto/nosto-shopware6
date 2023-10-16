@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 use Shopware\Core\Framework\Context;
@@ -19,9 +21,9 @@ class ManufacturerFilterTranslator implements TranslatorInterface
         $this->manufacturerRepository = $manufacturerRepository;
     }
 
-    public function translate(IncludeFilters $includeFilters, EqualsAnyFilter $filters = null, Context $context = null): IncludeFilters {
-        if (!$filters)
-        {
+    public function translate(IncludeFilters $includeFilters, EqualsAnyFilter $filters = null, Context $context = null): IncludeFilters
+    {
+        if (!$filters) {
             return $includeFilters;
         }
         $manufacturerIds = array_values($filters->getValue());
@@ -30,7 +32,7 @@ class ManufacturerFilterTranslator implements TranslatorInterface
         $manufacturers = $this->manufacturerRepository->search($criteria, $context)->getEntities();
         $manufacturerNames = [];
         foreach ($manufacturers as $manufacturer) {
-            $manufacturerNames[]= $manufacturer->getName();
+            $manufacturerNames[] = $manufacturer->getName();
         }
 
         $includeFilters->setBrands(array_map(static function ($name) {

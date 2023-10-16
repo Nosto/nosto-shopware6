@@ -1,19 +1,21 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+declare(strict_types=1);
 
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
+
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, IncludeFilters};
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\{Criteria, EntitySearchResult};
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,15 +23,22 @@ use Throwable;
 
 class MerchandisingSearchApi extends \Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository
 {
-    const MERCHANDISING_SORTING_KEY = 'od-recommendation';
+    public const MERCHANDISING_SORTING_KEY = 'nosto-recommendation';
 
     private SalesChannelRepository $repository;
+
     private EntityRepository $categoryRepository;
+
     private ResultTranslator $resultTranslator;
+
     private FilterTranslatorAggregate $filterTranslator;
+
     private SessionLookupResolver $resolver;
+
     private ConfigProvider $configProvider;
+
     private RequestStack $requestStack;
+
     private LoggerInterface $logger;
 
     public function __construct(

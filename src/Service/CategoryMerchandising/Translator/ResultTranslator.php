@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Result\Graphql\Recommendation\{CategoryMerchandisingResult, ResultItem};
 
@@ -11,7 +13,9 @@ class ResultTranslator
         return array_map(static function (ResultItem $item) {
             return [
                 'primaryKey' => $item->getProductId(),
-                'data' => ['id' => $item->getProductId()]
+                'data' => [
+                    'id' => $item->getProductId(),
+                ],
             ];
         }, iterator_to_array($result->getResultSet()));
     }

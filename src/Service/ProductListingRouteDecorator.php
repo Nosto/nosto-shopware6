@@ -1,11 +1,10 @@
 <?php
-namespace Od\NostoIntegration\Service;
 
-use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+namespace Nosto\NostoIntegration\Service;
+
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingRouteDecorator extends \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute

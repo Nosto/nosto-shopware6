@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Customer;
+declare(strict_types=1);
+
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer;
 
 use Nosto\Model\Customer;
-use Od\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute as Newsletter;
 use Shopware\Core\Framework\Context;
@@ -15,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder implements BuilderInterface
 {
     private EntityRepository $newsletterRecipientRepository;
+
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(EntityRepository $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)

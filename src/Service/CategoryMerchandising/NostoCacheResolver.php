@@ -1,25 +1,27 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising;
+declare(strict_types=1);
 
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Account\Provider;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
+
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class NostoCacheResolver
 {
     private RequestStack $requestStack;
+
     private ConfigProvider $configProvider;
+
     private Provider $accountProvider;
 
     public function __construct(
         RequestStack $requestStack,
         ConfigProvider $configProvider,
         Provider $accountProvider
-    )
-    {
+    ) {
         $this->requestStack = $requestStack;
         $this->configProvider = $configProvider;
         $this->accountProvider = $accountProvider;
@@ -41,9 +43,6 @@ class NostoCacheResolver
      *  3. Nosto account is set up;    (basic)
      *  4. User is NOT logged in;
      *  5. Not Logged In cache is NOT enabled in plugin config.
-     *
-     * @param SalesChannelContext|null $channelContext
-     * @return bool
      */
     public function isCachingAllowed(?SalesChannelContext $channelContext = null): bool
     {
@@ -61,10 +60,6 @@ class NostoCacheResolver
         return $isCachingAllowed;
     }
 
-    /**
-     * @param SalesChannelContext|null $channelContext
-     * @return bool
-     */
     public function isCachingAllowedNoRoute(?SalesChannelContext $channelContext = null): bool
     {
         $isCachingAllowed = true;

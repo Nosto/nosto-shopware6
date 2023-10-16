@@ -4,18 +4,19 @@ import './nosto-job-listing.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-job-listing', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
-
     inject: [
-        'OdNostoProviderService',
+        'NostoIntegrationProviderService',
         'repositoryFactory',
         'filterFactory',
         'feature',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -39,33 +40,33 @@ Component.register('nosto-job-listing', {
             defaultFilters: [
                 'job-status-filter',
                 'job-type-filter',
-                'job-date-filter'
+                'job-date-filter',
             ],
             storeKey: 'nosto_filters',
             activeFilterNumber: 0,
-            searchConfigEntity: 'od_scheduler_job',
+            searchConfigEntity: 'nosto_scheduler_job',
             showBulkEditModal: false,
-            hideFilters: false
-        }
+            hideFilters: false,
+        };
     },
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         },
 
         nostoJobTypes() {
             return [
-                'od-nosto-full-catalog-sync',
-                'od-nosto-marketing-permission-sync',
-                'od-nosto-order-sync',
-                'od-nosto-entity-changelog-sync',
-                'od-nosto-product-sync'
+                'nosto-integration-full-catalog-sync',
+                'nosto-integration-marketing-permission-sync',
+                'nosto-integration-order-sync',
+                'nosto-integration-entity-changelog-sync',
+                'nosto-integration-product-sync',
             ];
         },
 
         listFilters() {
-            return this.filterFactory.create('od_scheduler_job', {
+            return this.filterFactory.create('nosto_scheduler_job', {
                 'job-status-filter': {
                     property: 'status',
                     type: 'multi-select-filter',
@@ -73,7 +74,7 @@ Component.register('nosto-job-listing', {
                     placeholder: this.$tc('nosto.job.status-filter.placeholder'),
                     valueProperty: 'value',
                     labelProperty: 'name',
-                    options: this.statusFilterOptions
+                    options: this.statusFilterOptions,
                 },
                 'job-type-filter': {
                     property: 'name',
@@ -82,7 +83,7 @@ Component.register('nosto-job-listing', {
                     placeholder: this.$tc('nosto.job.type-filter.placeholder'),
                     valueProperty: 'value',
                     labelProperty: 'name',
-                    options: this.typeFilterOptions
+                    options: this.typeFilterOptions,
                 },
                 'job-date-filter': {
                     property: 'createdAt',
@@ -93,11 +94,11 @@ Component.register('nosto-job-listing', {
                     showTimeframe: true,
                 },
             });
-        }
+        },
     },
 
     created() {
-        this.createdComponent()
+        this.createdComponent();
     },
 
     methods: {
@@ -107,14 +108,14 @@ Component.register('nosto-job-listing', {
 
         onScheduleProductSync() {
             this.isLoading = true;
-            this.OdNostoProviderService.scheduleFullProductSync().then(() => {
+            this.NostoIntegrationProviderService.scheduleFullProductSync().then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('nosto.job.notification.success')
+                    message: this.$tc('nosto.job.notification.success'),
                 });
                 this.onRefresh();
             }).catch((exception) => {
                 this.createNotificationError({
-                    message: exception?.response?.data?.errors[0]?.detail ?? this.$tc('nosto.job.notification.unknownError')
+                    message: exception?.response?.data?.errors[0]?.detail ?? this.$tc('nosto.job.notification.unknownError'),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -122,18 +123,19 @@ Component.register('nosto-job-listing', {
         },
 
         onDisplayModeChange(mode) {
-            let innerBox = this.$el;
+            const innerBox = this.$el;
             innerBox.classList.remove('no-filter');
 
             if (mode !== 'list') {
                 innerBox.classList.add('no-filter');
                 this.$refs.odSidebar.closeSidebar();
 
-                if (this.$refs.odFilter.$el.length !== 0){
+                if (this.$refs.odFilter.$el.length !== 0) {
                     this.$refs.odFilter.resetAll();
                 }
 
-                return this.hideFilters = true
+                this.hideFilters = true;
+                return;
             }
 
             this.hideFilters = false;
@@ -168,17 +170,17 @@ Component.register('nosto-job-listing', {
 
                 statuses.forEach((status) => {
                     this.statusFilterOptions.push({
-                        name: this.$tc('job-listing.page.listing.grid.job-status.' + status),
-                        value: status
-                    })
-                })
+                        name: this.$tc(`job-listing.page.listing.grid.job-status.${status}`),
+                        value: status,
+                    });
+                });
 
                 types.forEach((type) => {
                     this.typeFilterOptions.push({
                         name: type,
-                        value: type
-                    })
-                })
+                        value: type,
+                    });
+                });
 
                 this.filterLoading = false;
 
@@ -187,5 +189,5 @@ Component.register('nosto-job-listing', {
                 this.filterLoading = false;
             });
         },
-    }
+    },
 });

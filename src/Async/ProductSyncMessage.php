@@ -1,15 +1,17 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\ProductSyncHandler;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
+use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 
 class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
 {
     protected static string $defaultName = 'Product Sync Operation';
+
     private string $parentJobId;
+
     private array $productIds;
 
     public function __construct(

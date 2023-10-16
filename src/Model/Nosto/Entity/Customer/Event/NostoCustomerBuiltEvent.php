@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Model\Nosto\Entity\Customer\Event;
+namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Event;
 
 use Nosto\Model\Customer as NostoCustomer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 class NostoCustomerBuiltEvent extends NestedEvent
 {
     private CustomerEntity $customer;
+
     private NostoCustomer $nostoCustomer;
+
     private Context $context;
 
     public function __construct(

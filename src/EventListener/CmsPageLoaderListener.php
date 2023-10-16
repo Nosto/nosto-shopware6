@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\EventListener;
+declare(strict_types=1);
 
-use Od\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
-use Od\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+namespace Nosto\NostoIntegration\EventListener;
+
+use Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -18,8 +20,11 @@ use Throwable;
 class CmsPageLoaderListener implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
+
     private SessionLookupResolver $sessionLookupResolver;
+
     private NostoCacheResolver $cacheResolver;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -37,7 +42,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => 'onKernelResponse'
+            KernelEvents::RESPONSE => 'onKernelResponse',
         ];
     }
 
@@ -69,7 +74,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         }
 
         $isNeedCreateSessionCookie = $sessionId !== null
-            && $request->cookies->has('od-nosto-track-allow')
+            && $request->cookies->has('nosto-integration-track-allow')
             && !$request->cookies->has(SessionLookupResolver::NOSTO_SESSION_COOKIE);
 
         if ($isNeedCreateSessionCookie) {

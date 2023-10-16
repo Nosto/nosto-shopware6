@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Service\ScheduledTask;
+namespace Nosto\NostoIntegration\Service\ScheduledTask;
 
-use Od\NostoIntegration\Api\Route\OdNostoSyncRoute;
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
-use Od\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
+use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -20,18 +20,23 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
-    private const LAST_EXECUTION_TIME_CONFIG = 'overdose_nosto.config.hidden.dailySyncLastTime';
+    private const LAST_EXECUTION_TIME_CONFIG = 'NostoIntegration.config.hidden.dailySyncLastTime';
+
     private ConfigProvider $configProvider;
+
     private SystemConfigService $systemConfigService;
-    private OdNostoSyncRoute $nostoSyncRoute;
+
+    private NostoSyncRoute $nostoSyncRoute;
+
     private TagAwareAdapterInterface $cache;
+
     private LoggerInterface $logger;
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
-        OdNostoSyncRoute $nostoSyncRoute,
+        NostoSyncRoute $nostoSyncRoute,
         TagAwareAdapterInterface $cache,
         LoggerInterface $logger
     ) {
@@ -104,7 +109,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new \DateTime())->format(
-                Defaults::STORAGE_DATE_FORMAT
-            );
+            Defaults::STORAGE_DATE_FORMAT
+        );
     }
 }

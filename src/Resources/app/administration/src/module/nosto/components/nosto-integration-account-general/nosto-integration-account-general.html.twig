@@ -1,8 +1,8 @@
 {% block nosto_integration_account_component_general %}
-    <sw-card :title="$tc('nosto.configuration.account.title')" class="od-nosto-account-card">
+    <sw-card :title="$tc('nosto.configuration.account.title')" class="nosto-integration-account-card">
         {% block nosto_integration_account_enabled %}
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.isEnabled']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.isEnabled']">
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.isEnabled']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.isEnabled']">
                 <template #content="props">
                     <sw-switch-field
                         :map-inheritance="props"
@@ -26,8 +26,8 @@
         {% endblock %}
 
         {% block nosto_integration_account_id %}
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.accountID']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.accountID']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.accountID']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.accountID']"
                                 :customInheritationCheckFunction="checkTextFieldInheritance">
                 <template #content="props">
                     <sw-field
@@ -39,14 +39,14 @@
                             :disabled="props.isInherited"
                             :error="hasError(props.currentValue)"
                             required
-                            name="overdose_nosto.config.accountID"
+                            name="NostoIntegration.config.accountID"
                             @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
         {% block nosto_integration_account_name %}
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.accountName']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.accountName']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.accountName']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.accountName']"
                                 :customInheritationCheckFunction="checkTextFieldInheritance">
                 <template #content="props">
                     <sw-field
@@ -58,14 +58,14 @@
                         :disabled="props.isInherited"
                         :error="hasError(props.currentValue)"
                         required
-                        name="overdose_nosto.config.accountName"
+                        name="NostoIntegration.config.accountName"
                         @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
         {% block nosto_integration_account_token %}
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.productToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.productToken']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.productToken']"
                                 :customInheritationCheckFunction="checkTextFieldInheritance">
                 <template #content="props">
                     <sw-field
@@ -77,12 +77,12 @@
                             :disabled="props.isInherited"
                             required
                             :error="hasError(props.currentValue)"
-                            name="overdose_nosto.config.productToken"
+                            name="NostoIntegration.config.productToken"
                             @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.emailToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.emailToken']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.emailToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.emailToken']"
                                 :customInheritationCheckFunction="checkTextFieldInheritance">
                 <template #content="props">
                     <sw-field
@@ -94,12 +94,12 @@
                             :disabled="props.isInherited"
                             :error="hasError(props.currentValue)"
                             required
-                            name="overdose_nosto.config.emailToken"
+                            name="NostoIntegration.config.emailToken"
                             @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
-            <sw-inherit-wrapper v-model="actualConfigData['overdose_nosto.config.appToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['overdose_nosto.config.appToken']"
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.appToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.appToken']"
                                 :customInheritationCheckFunction="checkTextFieldInheritance">
                 <template #content="props">
                     <sw-field
@@ -111,7 +111,7 @@
                             :disabled="props.isInherited"
                             :error="hasError(props.currentValue)"
                             required
-                            name="overdose_nosto.config.appToken"
+                            name="NostoIntegration.config.appToken"
                             @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>

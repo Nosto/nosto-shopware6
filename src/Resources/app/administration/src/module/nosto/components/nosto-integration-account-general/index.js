@@ -1,7 +1,8 @@
 import template from './nosto-integration-account-general.html.twig';
 
-const {Component, Mixin} = Shopware;
+const { Component, Mixin } = Shopware;
 
+/** @private */
 Component.register('nosto-integration-account-general', {
     template,
 
@@ -32,13 +33,13 @@ Component.register('nosto-integration-account-general', {
         return {
             apiValidationInProgress: false,
             configurationKeys: {
-                accountID: 'overdose_nosto.config.accountID',
-                accountName: 'overdose_nosto.config.accountName',
-                productToken: 'overdose_nosto.config.productToken',
-                emailToken: 'overdose_nosto.config.emailToken',
-                appToken: 'overdose_nosto.config.appToken'
-            }
-        }
+                accountID: 'NostoIntegration.config.accountID',
+                accountName: 'NostoIntegration.config.accountName',
+                productToken: 'NostoIntegration.config.productToken',
+                emailToken: 'NostoIntegration.config.emailToken',
+                appToken: 'NostoIntegration.config.appToken',
+            },
+        };
     },
 
     created() {
@@ -51,8 +52,8 @@ Component.register('nosto-integration-account-general', {
         },
 
         getConfig(salesChannelId) {
-            const values =  this.systemConfigApiService
-                .getValues('overdose_nosto.config', salesChannelId);
+            const values = this.systemConfigApiService
+                .getValues('NostoIntegration.config', salesChannelId);
 
             return values.myKey;
         },
@@ -60,30 +61,32 @@ Component.register('nosto-integration-account-general', {
         createErrorState(key) {
             this.$set(this.errorStates, key, {
                 code: 1,
-                detail: this.$tc('nosto.messages.blank-field-error')
-            })
+                detail: this.$tc('nosto.messages.blank-field-error'),
+            });
         },
 
         checkErrorState() {
-            for (const [key, value] of Object.entries(this.configurationKeys)) {
-                if (!this.allConfigs['null'][value]) {
+            Object.entries(this.configurationKeys).forEach(([key, value]) => {
+                if (!this.allConfigs.null[value]) {
                     this.createErrorState(key);
                 }
-            }
+            });
         },
 
         hasError(value) {
             return this.isActive() && !value ? {
                 code: 1,
-                detail: this.$tc('nosto.messages.blank-field-error')
+                detail: this.$tc('nosto.messages.blank-field-error'),
             } : null;
         },
 
         isActive() {
-            return this.allConfigs.hasOwnProperty(this.selectedSalesChannelId) &&
-            this.allConfigs[this.selectedSalesChannelId].hasOwnProperty('overdose_nosto.config.isEnabled') &&
-            typeof this.allConfigs[this.selectedSalesChannelId]['overdose_nosto.config.isEnabled'] === 'boolean' ?
-                this.allConfigs[this.selectedSalesChannelId]['overdose_nosto.config.isEnabled'] : this.allConfigs[null]['overdose_nosto.config.isEnabled']
+            const configKey = 'NostoIntegration.config.isEnabled';
+            const channelConfig = this.allConfigs[this.selectedSalesChannelId] || null;
+
+            return channelConfig?.hasOwnProperty(configKey) && typeof channelConfig[configKey] === 'boolean'
+                ? channelConfig[configKey]
+                : this.allConfigs.null[configKey];
         },
 
         removeErrorState(key) {
@@ -107,7 +110,7 @@ Component.register('nosto-integration-account-general', {
         },
 
         updateCurrentValue(value, props) {
-            props.updateCurrentValue(value === undefined || value.trim() === "" ? null : value);
+            props.updateCurrentValue(value === undefined || value.trim() === '' ? null : value);
         },
 
         validateApiCredentials() {
@@ -127,11 +130,11 @@ Component.register('nosto-integration-account-general', {
                 return;
             }
             this.nostoApiKeyValidatorService.validate({
-                'accountId': accountId,
-                'name': accountName,
-                'productToken': productToken,
-                'emailToken': emailToken,
-                'appToken': appToken
+                accountId: accountId,
+                name: accountName,
+                productToken: productToken,
+                emailToken: emailToken,
+                appToken: appToken,
             }).then((response) => {
                 if (response.status !== 200) {
                     this.createNotificationError({
@@ -139,20 +142,20 @@ Component.register('nosto-integration-account-general', {
                     });
                     return;
                 }
-                const data = response.data;
-                for (const prop in data) {
-                    if (data[prop].success) {
+
+                Object.entries(response.data).forEach(([prop, value]) => {
+                    if (value.success) {
                         this.createNotificationSuccess({
-                            title: this.$tc('nosto.configuration.account.' + prop + 'Title'),
+                            title: this.$tc(`nosto.configuration.account.${prop}Title`),
                             message: this.$tc('nosto.configuration.account.apiValidation.correctApiMessage'),
                         });
                     } else {
                         this.createNotificationError({
-                            title: this.$tc('nosto.configuration.account.' + prop + 'Title'),
-                            message: data[prop].message,
+                            title: this.$tc(`nosto.configuration.account.${prop}Title`),
+                            message: value.message,
                         });
                     }
-                }
+                });
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('nosto.configuration.account.apiValidation.generalErrorMessage'),
@@ -163,17 +166,23 @@ Component.register('nosto-integration-account-general', {
         },
 
         getInheritedConfig(key) {
-            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key] ? this.actualConfigData[key] : this.allConfigs[null][key];
+            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key]
+                ? this.actualConfigData[key]
+                : this.allConfigs.null[key];
         },
 
         credentialsEmptyValidation(key, value) {
             if (value === undefined || value === '' || value === null) {
                 this.createNotificationError({
-                    message: this.$tc('nosto.configuration.account.apiValidation.emptyErrorMessage', 0, {entityName: this.$tc('nosto.configuration.account.' + key + 'Title')}),
+                    message: this.$tc(
+                        'nosto.configuration.account.apiValidation.emptyErrorMessage',
+                        0,
+                        { entityName: this.$tc(`nosto.configuration.account.${key}Title`) },
+                    ),
                 });
-                return false
+                return false;
             }
             return true;
-        }
+        },
     },
 });

@@ -1,16 +1,17 @@
 <?php
 
-namespace Od\NostoIntegration\Async;
+namespace Nosto\NostoIntegration\Async;
 
-use Od\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Nosto\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler;
+use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
 
 class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
-
 {
     protected static string $defaultName = 'Marketing Permission Sync Operation';
+
     private string $parentJobId;
+
     private array $newsletterRecipientIds;
 
     public function __construct(

@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Entity\Changelog;
+namespace Nosto\NostoIntegration\Entity\Changelog;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,7 +10,9 @@ class ChangelogEntity extends Entity
     use EntityIdTrait;
 
     protected string $entityType;
+
     protected string $entityId;
+
     protected ?string $productNumber;
 
     public function getEntityType(): string

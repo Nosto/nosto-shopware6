@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Od\NostoIntegration\EventListener;
+declare(strict_types=1);
 
-use Od\NostoIntegration\Model\ConfigProvider;
-use Od\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
+namespace Nosto\NostoIntegration\EventListener;
+
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

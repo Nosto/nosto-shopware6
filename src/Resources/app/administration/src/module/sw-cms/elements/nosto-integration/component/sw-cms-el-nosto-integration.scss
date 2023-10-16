@@ -1,0 +1,15 @@
+.sw-cms-block-nosto-integration-block {
+    .sw-cms-slot-nosto_integration {
+        .nosto-integration-preview-container {
+            & {
+                padding: 20px;
+                margin: 15px auto 0;
+            }
+
+            & p{
+                float: right;
+                line-height: 60px;
+            }
+        }
+    }
+}

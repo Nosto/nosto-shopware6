@@ -4,18 +4,18 @@
             <sw-button
                     @click="onScheduleProductSync"
                     :isLoading="isLoading"
-                    class="od-nosto-detail__smart-bar-edit-button"
+                    class="nosto-integration-detail__smart-bar-edit-button"
                     variant="primary"
             >
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
         </template>
         <template slot="content">
-            <od-job-listing-index ref="jobListing"
+            <nosto-job-listing-index ref="jobListing"
                                   :filterCriteria="filterCriteria"
                                   @job-display-type-changed="onDisplayModeChange"
                                   :jobTypes="nostoJobTypes">
-            </od-job-listing-index>
+            </nosto-job-listing-index>
         </template>
         <template #sidebar>
             <sw-sidebar ref="odSidebar">
@@ -29,7 +29,7 @@
 
                 <sw-sidebar-filter-panel ref="odFilter"
                                          :hidden="hideFilters"
-                                         entity="od_scheduler_job"
+                                         entity="nosto_scheduler_job"
                                          :store-key="storeKey"
                                          :filters="listFilters"
                                          :defaults="defaultFilters"

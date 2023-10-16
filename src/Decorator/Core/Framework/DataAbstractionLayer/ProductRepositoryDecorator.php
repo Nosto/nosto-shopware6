@@ -1,9 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
-namespace Od\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer;
+namespace Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer;
 
-use Od\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\EventsWriter;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -26,13 +27,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductRepositoryDecorator extends EntityRepository
 {
     private EntityRepository $inner;
-    private EventsWriter $eventsWriter;
 
-//    public function __construct(EntityRepository $inner, EventsWriter $eventsWriter)
-//    {
-//        $this->inner = $inner;
-//        $this->eventsWriter = $eventsWriter;
-//    }
+    private EventsWriter $eventsWriter;
 
     public function __construct(
         EntityDefinition $definition,
@@ -46,15 +42,8 @@ class ProductRepositoryDecorator extends EntityRepository
         EventsWriter $eventsWriter
     ) {
         parent::__construct($definition, $reader, $versionManager, $searcher, $aggregator, $eventDispatcher, $eventFactory);
-            $this->inner = $inner;
-            $this->eventsWriter = $eventsWriter;
-//        $this->definition = $definition;
-//        $this->reader = $reader;
-//        $this->versionManager = $versionManager;
-//        $this->searcher = $searcher;
-//        $this->aggregator = $aggregator;
-//        $this->eventDispatcher = $eventDispatcher;
-//        $this->eventFactory = $eventFactory;
+        $this->inner = $inner;
+        $this->eventsWriter = $eventsWriter;
     }
 
     public function getDefinition(): EntityDefinition
@@ -114,7 +103,7 @@ class ProductRepositoryDecorator extends EntityRepository
 
         // Register event for Nosto processing
         foreach ($mainEvent->getEvents() as $event) {
-            if($event instanceof EntityDeletedEvent && $event->getEntityName() === ProductDefinition::ENTITY_NAME) {
+            if ($event instanceof EntityDeletedEvent && $event->getEntityName() === ProductDefinition::ENTITY_NAME) {
                 foreach ($event->getIds() as $productId) {
                     if (!empty($orderNumberMapping[$productId])) {
                         $this->eventsWriter->writeEvent($event->getEntityName(), $productId, $event->getContext(), $orderNumberMapping[$productId]);

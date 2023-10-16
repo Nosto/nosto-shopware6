@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\NostoIntegration\Service\CategoryMerchandising\Translator;
+namespace Nosto\NostoIntegration\Service\CategoryMerchandising\Translator;
 
 use Nosto\Operation\Recommendation\IncludeFilters;
 
