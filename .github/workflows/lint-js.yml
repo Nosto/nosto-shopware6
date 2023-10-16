@@ -17,6 +17,13 @@ jobs:
         with:
           path: shopware6-plugin
 
+      - name: Clone job scheduler repo
+        uses: actions/checkout@v2
+        with:
+          repository: Nosto/shopware6-job-scheduler
+          path: shopware6-plugin/dependencies/shopware6-job-scheduler
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Setup PHP with Composer 2
         uses: shivammathur/setup-php@v2
         with:
