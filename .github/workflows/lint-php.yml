@@ -17,6 +17,15 @@ jobs:
         with:
           path: shopware6-plugin
 
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Diagnose SSH
+        run: |
+          ssh -vT git@github.com
+
       - name: Clone job scheduler repo
         uses: actions/checkout@v2
         with:
