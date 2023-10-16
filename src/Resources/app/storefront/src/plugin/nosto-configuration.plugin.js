@@ -48,6 +48,9 @@ export default class NostoConfiguration extends Plugin {
             script.type = 'text/javascript';
             script.setAttribute('async', true);
             script.src = '//connect.nosto.com/include/' + this.options.accountID;
+            script.onload = () => {
+                this.$emitter.publish('scriptLoaded');
+            }
 
             document.body.appendChild(script);
 
