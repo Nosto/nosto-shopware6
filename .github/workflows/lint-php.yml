@@ -17,6 +17,11 @@ jobs:
         with:
           path: shopware6-plugin
 
+      - name: Test secret
+        run: |
+          cd shopware6-plugin/dependencies
+          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/Nosto/shopware6-job-scheduler.git
+
       - name: Setup PHP with Composer 2
         uses: shivammathur/setup-php@v2
         with:
