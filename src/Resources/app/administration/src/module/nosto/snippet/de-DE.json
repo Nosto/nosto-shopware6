@@ -105,6 +105,17 @@
                 "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet."
+            },
+            "search-navigation": {
+                "cardTitle": "Search/Navigation Einstellungen",
+                "enableSearch": {
+                    "label": "Suche aktivieren",
+                    "helpText": "Aktiviert die Integration mit der Shopware Suche. Beeinflusst nicht die Frontend Lösung."
+                },
+                "enableNavigation": {
+                    "label": "Navigation aktivieren",
+                    "helpText": "Aktiviert die Integration mit den Shopware Kategorieseiten. Beeinflusst nicht die Frontend Lösung."
+                }
             }
         },
         "listing": {

@@ -104,6 +104,17 @@
                 "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto"
+            },
+            "search-navigation": {
+                "cardTitle": "Search/Navigation settings",
+                "enableSearch": {
+                    "label": "Enable search",
+                    "helpText": "This enables the integration for the Shopware Search. This does not affect the frontend solution."
+                },
+                "enableNavigation": {
+                    "label": "Enable navigation",
+                    "helpText": "This enables the integration for the Shopware category pages. This does not affect the frontend solution."
+                }
             }
         },
         "listing": {

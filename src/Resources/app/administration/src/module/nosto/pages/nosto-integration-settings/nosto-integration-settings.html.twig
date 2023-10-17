@@ -57,7 +57,6 @@
                             {% block noto_integration_content_card_configs %}
                                 <template #content="{ actualConfigData, allConfigs, selectedSalesChannelId }">
                                     <div v-if="actualConfigData">
-
                                         {% block noto_integration_content_card_account_general %}
                                             <nosto-integration-account-general
                                                     :actualConfigData="actualConfigData"
@@ -65,6 +64,15 @@
                                                     :errorStates="errorStates"
                                                     :selectedSalesChannelId="selectedSalesChannelId">
                                             </nosto-integration-account-general>
+                                        {% endblock %}
+
+                                        {% block noto_integration_content_card_search_general %}
+                                            <nosto-integration-search-general
+                                                    :actualConfigData="actualConfigData"
+                                                    :allConfigs="allConfigs"
+                                                    :errorStates="errorStates"
+                                                    :selectedSalesChannelId="selectedSalesChannelId">
+                                            </nosto-integration-search-general>
                                         {% endblock %}
 
                                         {% block noto_integration_content_card_tags_general %}
