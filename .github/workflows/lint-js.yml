@@ -15,13 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: shopware6-plugin
+          path: nosto-shopware6
 
       - name: Clone job scheduler repo
         uses: actions/checkout@v2
         with:
           repository: Nosto/shopware6-job-scheduler
-          path: shopware6-plugin/dependencies/shopware6-job-scheduler
+          path: nosto-shopware6/dependencies/shopware6-job-scheduler
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Setup PHP with Composer 2
@@ -33,21 +33,21 @@ jobs:
           tools: composer:v2
 
       - name: Validate dependencies
-        working-directory: shopware6-plugin
+        working-directory: nosto-shopware6
         run: composer validate
 
       - name: Install plugin dependencies
-        working-directory: shopware6-plugin
+        working-directory: nosto-shopware6
         run: |
           npm ci
           composer install --no-interaction
 
       - name: Install Shopware dependencies
-        working-directory: shopware6-plugin
+        working-directory: nosto-shopware6
         run: npm run install-sw-dependencies
 
       - name: Run ESLint
-        working-directory: shopware6-plugin
+        working-directory: nosto-shopware6
         run: |
           npm run administration-lint
           npm run storefront-lint
