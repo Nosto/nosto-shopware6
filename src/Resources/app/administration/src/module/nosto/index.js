@@ -17,7 +17,6 @@ Module.register('nosto-integration-module', {
     title: 'nosto.title',
     description: 'nosto.description',
     color: '#ffd53d',
-    icon: 'small-default-stack-line2',
 
     snippets: {
         'en-GB': enGB,
