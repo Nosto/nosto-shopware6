@@ -6,8 +6,8 @@
     "license": "proprietary",
     "authors": [
         {
-            "name": "Overdose",
-            "homepage": "https://overdose.digital/"
+            "name": "Nosto Solutions Oy",
+            "homepage": "https://www.nosto.com/"
         }
     ],
     "repositories": [
@@ -54,12 +54,12 @@
             "en-GB": "Nosto's leading personalisation solution uses the power of Big Data (artificial intelligence) to understand your online shop and each of your visitors in detail!"
         },
         "manufacturerLink": {
-            "de-DE": "https://overdose.digital/",
-            "en-GB": "https://overdose.digital/"
+            "de-DE": "https://www.nosto.com/",
+            "en-GB": "https://www.nosto.com/"
         },
         "supportLink": {
-            "de-DE": "https://overdose.digital/",
-            "en-GB": "https://overdose.digital/"
+            "de-DE": "https://www.nosto.com/",
+            "en-GB": "https://www.nosto.com/"
         }
     },
     "scripts": {
