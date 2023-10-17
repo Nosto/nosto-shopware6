@@ -60,6 +60,10 @@ class ConfigProvider
 
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'config.enableLabelling';
 
+    public const ENABLE_SEARCH = 'config.enableSearch';
+
+    public const ENABLE_NAVIGATION = 'config.enableNavigation';
+
     public function __construct(SystemConfigService $systemConfig)
     {
         $this->systemConfig = $systemConfig;
@@ -198,5 +202,15 @@ class ConfigProvider
     {
         $value = $this->systemConfig->get($this->path(self::PRODUCT_IDENTIFIER_FIELD), $channelId);
         return is_string($value) ? $value : 'product-id';
+    }
+
+    public function isSearchEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_SEARCH), $channelId);
+    }
+
+    public function isNavigationEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_SEARCH), $channelId);
     }
 }
