@@ -31,4 +31,8 @@
         } %}
         <div hidden data-nosto-configuration="true" data-nosto-configuration-options="{{ configurationOptions|json_encode }}"></div>
     {% endblock %}
+
+    {% block nosto_integration_search_session_params %}
+        <div hidden data-nosto-search-session-params="true"></div>
+    {% endblock %}
 {% endblock %}
