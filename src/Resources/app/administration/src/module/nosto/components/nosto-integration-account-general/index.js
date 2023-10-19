@@ -38,6 +38,7 @@ Component.register('nosto-integration-account-general', {
                 productToken: 'NostoIntegration.config.productToken',
                 emailToken: 'NostoIntegration.config.emailToken',
                 appToken: 'NostoIntegration.config.appToken',
+                searchToken: 'NostoIntegration.config.searchToken',
             },
         };
     },
@@ -120,12 +121,14 @@ Component.register('nosto-integration-account-general', {
             const productToken = this.getInheritedConfig(this.configurationKeys.productToken);
             const emailToken = this.getInheritedConfig(this.configurationKeys.emailToken);
             const appToken = this.getInheritedConfig(this.configurationKeys.appToken);
+            const searchToken = this.getInheritedConfig(this.configurationKeys.searchToken);
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
                 this.credentialsEmptyValidation('productToken', productToken) *
                 this.credentialsEmptyValidation('emailToken', emailToken) *
-                this.credentialsEmptyValidation('appToken', appToken))) {
+                this.credentialsEmptyValidation('appToken', appToken) *
+                this.credentialsEmptyValidation('searchToken', searchToken))) {
                 this.apiValidationInProgress = false;
                 return;
             }
@@ -135,6 +138,7 @@ Component.register('nosto-integration-account-general', {
                 productToken: productToken,
                 emailToken: emailToken,
                 appToken: appToken,
+                searchToken: searchToken,
             }).then((response) => {
                 if (response.status !== 200) {
                     this.createNotificationError({

@@ -9,6 +9,7 @@ use Nosto\NostoException;
 use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
 use Nosto\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
 use Nosto\NostoIntegration\Model\MockOperation\MockMarketingPermission;
+use Nosto\NostoIntegration\Model\MockOperation\MockSearchOperation;
 use Nosto\NostoIntegration\Model\MockOperation\MockUpsertProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
 use Nosto\Request\Api\Token as NostoToken;
@@ -28,6 +29,8 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class NostoController extends AbstractController
 {
+    protected const ACCOUNT_ID = 'accountId';
+
     protected const NAME_TOKEN = 'name';
 
     protected const PRODUCT_TOKEN = 'productToken';
@@ -35,6 +38,8 @@ class NostoController extends AbstractController
     protected const EMAIL_TOKEN = 'emailToken';
 
     protected const APP_TOKEN = 'appToken';
+
+    protected const SEARCH_TOKEN = 'searchToken';
 
     private NostoSyncRoute $nostoSyncRoute;
 
@@ -91,11 +96,13 @@ class NostoController extends AbstractController
         $account->addApiToken(new NostoToken(NostoToken::API_PRODUCTS, $post->get(self::PRODUCT_TOKEN)));
         $account->addApiToken(new NostoToken(NostoToken::API_EMAIL, $post->get(self::EMAIL_TOKEN)));
         $account->addApiToken(new NostoToken(NostoToken::API_GRAPHQL, $post->get(self::APP_TOKEN)));
+        $account->addApiToken(new NostoToken(NostoToken::API_SEARCH, $post->get(self::SEARCH_TOKEN)));
 
         $result = [];
         $result[self::PRODUCT_TOKEN] = (new MockUpsertProduct($account))->upsert();
         $result[self::EMAIL_TOKEN] = (new MockMarketingPermission($account))->mockUpdate();
         $result[self::APP_TOKEN] = (new MockGraphQLOperation($account))->execute();
+        $result[self::SEARCH_TOKEN] = (new MockSearchOperation($post->get(self::ACCOUNT_ID), $account))->execute();
 
         return new JsonResponse($result, Response::HTTP_OK);
     }

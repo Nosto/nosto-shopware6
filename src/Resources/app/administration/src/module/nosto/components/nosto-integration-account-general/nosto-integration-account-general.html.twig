@@ -120,6 +120,24 @@
                             @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.searchToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.searchToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.searchTokenTitle')"
+                            :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="hasError(props.currentValue)"
+                            required
+                            name="NostoIntegration.config.searchToken"
+                            @input="updateCurrentValue($event, props)">
+                    </sw-field>
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
     </sw-card>
 {% endblock %}

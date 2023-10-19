@@ -6,14 +6,14 @@
 >
     <services>
         <service
-                id="Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber"
+                id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber"
                 decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber"
                 public="true"
                 autowire="true"
         />
 
         <service
-            id="Nosto\NostoIntegration\Storefront\Controller\SearchController"
+            id="Nosto\NostoIntegration\Decorator\Storefront\Controller\SearchController"
             decorates="Shopware\Storefront\Controller\SearchController"
             public="true"
             autowire="true"
@@ -27,7 +27,7 @@
         </service>
 
         <service
-            id="Nosto\NostoIntegration\Storefront\Page\Search\SearchPageLoader"
+            id="Nosto\NostoIntegration\Decorator\Storefront\Page\Search\SearchPageLoader"
             decorates="Shopware\Storefront\Page\Search\SearchPageLoader"
             public="true"
             autowire="true"
@@ -41,7 +41,7 @@
         </service>
 
         <service
-            id="Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+            id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-on-invalid="ignore"
             autowire="true"
@@ -50,14 +50,14 @@
         </service>
 
         <service
-            id="Nosto\NostoIntegration\Elasticsearch\Product\ProductSearchBuilder"
+            id="Nosto\NostoIntegration\Decorator\Elasticsearch\Product\ProductSearchBuilder"
             decorates="Shopware\Elasticsearch\Product\ProductSearchBuilder"
             decoration-priority="-51000"
             autowire="true"
         />
 
         <service
-            id="Nosto\NostoIntegration\Core\Content\Product\SearchKeyword\ProductSearchBuilder"
+            id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SearchKeyword\ProductSearchBuilder"
             decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
             autowire="true"
         >

@@ -32,6 +32,7 @@ Component.register('nosto-integration-settings', {
                 productToken: 'NostoIntegration.config.productToken',
                 emailToken: 'NostoIntegration.config.emailToken',
                 appToken: 'NostoIntegration.config.appToken',
+                searchToken: 'NostoIntegration.config.searchToken',
             },
         };
     },
@@ -112,7 +113,8 @@ Component.register('nosto-integration-settings', {
                             !this.getInheritedValue(item, this.configurationKeys.accountName) ||
                             !this.getInheritedValue(item, this.configurationKeys.productToken) ||
                             !this.getInheritedValue(item, this.configurationKeys.emailToken) ||
-                            !this.getInheritedValue(item, this.configurationKeys.appToken)
+                            !this.getInheritedValue(item, this.configurationKeys.appToken) ||
+                            !this.getInheritedValue(item, this.configurationKeys.searchToken)
                         )
                     ) {
                         result = {
