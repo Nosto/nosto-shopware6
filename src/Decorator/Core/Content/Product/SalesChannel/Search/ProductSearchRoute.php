@@ -1,6 +1,6 @@
 <?php
 
-namespace Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Search;
+namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Nosto\NostoIntegration\Storefront\Page\Search;
+namespace Nosto\NostoIntegration\Decorator\Storefront\Page\Search;
 
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -19,9 +20,11 @@ use Symfony\Component\HttpFoundation\Request;
 class SearchPageLoader extends ShopwareSearchPageLoader
 {
     public function __construct(
+        private readonly ShopwareSearchPageLoader $decorated,
         private readonly GenericPageLoader $genericLoader,
         private readonly ?AbstractProductSearchRoute $productSearchRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
@@ -31,11 +34,22 @@ class SearchPageLoader extends ShopwareSearchPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): SearchPage
     {
+        if (!$this->configProvider->isSearchEnabled()) {
+            return $this->decorated->load($request, $salesChannelContext);
+        }
+
         $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = SearchPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('search-page');
+
         $result = $this->productSearchRoute
-            ->load($request, $salesChannelContext, new Criteria())
+            ->load($request, $salesChannelContext, $criteria)
             ->getListingResult();
 
         $page->setListing($result);

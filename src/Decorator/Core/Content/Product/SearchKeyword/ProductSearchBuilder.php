@@ -1,6 +1,6 @@
 <?php
 
-namespace Nosto\NostoIntegration\Core\Content\Product\SearchKeyword;
+namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;

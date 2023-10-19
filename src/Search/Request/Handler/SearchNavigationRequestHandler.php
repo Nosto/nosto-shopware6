@@ -4,21 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use FINDOLOGIC\Api\Client as ApiClient;
-use FINDOLOGIC\Api\Config as ApiConfig;
-use FINDOLOGIC\Api\Exceptions\ServiceNotAliveException;
-use FINDOLOGIC\Api\Requests\SearchNavigation\SearchNavigationRequest;
-use FINDOLOGIC\Api\Responses\Response;
-use FINDOLOGIC\FinSearch\Findologic\Request\FindologicRequestFactory;
-use FINDOLOGIC\FinSearch\Findologic\Resource\ServiceConfigResource;
-use FINDOLOGIC\FinSearch\Findologic\Response\ResponseParser;
-use FINDOLOGIC\FinSearch\Struct\Config;
-use FINDOLOGIC\FinSearch\Struct\QueryInfoMessage\QueryInfoMessage;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use stdClass;
 
 abstract class SearchNavigationRequestHandler
 {
@@ -32,11 +25,7 @@ abstract class SearchNavigationRequestHandler
     ];
 
     public function __construct(
-        protected readonly ServiceConfigResource $serviceConfigResource,
-        protected readonly FindologicRequestFactory $findologicRequestFactory,
-        protected readonly Config $config,
-        protected readonly ApiConfig $apiConfig,
-        protected readonly ApiClient $apiClient,
+        protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected ?FilterHandler $filterHandler = null
     ) {
@@ -50,23 +39,20 @@ abstract class SearchNavigationRequestHandler
      *
      * @param int|null $limit limited amount of products
      */
-    abstract public function doRequest(ShopwareEvent $event, ?int $limit = null): Response;
+    abstract public function doRequest(ShopwareEvent $event, ?int $limit = null): stdClass;
 
-    /**
-     * @throws ServiceNotAliveException
-     */
-    public function sendRequest(SearchNavigationRequest $searchNavigationRequest): Response
+    public function sendRequest(SearchRequest $searchNavigationRequest): stdClass
     {
-        return $this->apiClient->send($searchNavigationRequest);
+        return $searchNavigationRequest->execute();
     }
 
     protected function setPaginationParams(
         ShopwareEvent|ProductSearchCriteriaEvent $event,
-        SearchNavigationRequest $request,
+        SearchRequest $request,
         ?int $limit,
     ): void {
-        $request->setFirst($event->getCriteria()->getOffset());
-        $request->setCount($limit ?? $event->getCriteria()->getLimit());
+        $request->setFrom($event->getCriteria()->getOffset());
+        $request->setSize($limit ?? $event->getCriteria()->getLimit());
     }
 
     protected function assignCriteriaToEvent(ShopwareEvent|ProductListingCriteriaEvent $event, Criteria $criteria): void
@@ -89,37 +75,11 @@ abstract class SearchNavigationRequestHandler
 
     protected function setPagination(
         Criteria $criteria,
-        ResponseParser $responseParser,
+        GraphQLResponseParser $responseParser,
         ?int $limit,
         ?int $offset
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('flPagination', $pagination);
-    }
-
-    protected function setQueryInfoMessage(ShopwareEvent $event, QueryInfoMessage $queryInfoMessage): void
-    {
-        $event->getContext()->addExtension('flQueryInfoMessage', $queryInfoMessage);
-    }
-
-    protected function setPromotionExtension(
-        ShopwareEvent|ProductSearchCriteriaEvent $event,
-        ResponseParser $responseParser
-    ): void {
-        if ($promotion = $responseParser->getPromotionExtension()) {
-            $event->getContext()->addExtension('flPromotion', $promotion);
-        }
-    }
-
-    protected function setUserGroup(
-        SalesChannelContext $salesChannelContext,
-        SearchNavigationRequest $request
-    ): void {
-        $group = $salesChannelContext->getCurrentCustomerGroup() ?? $salesChannelContext->getFallbackCustomerGroup();
-        if (!$group?->getId()) {
-            return;
-        }
-
-        $request->addUserGroup($group->getId());
     }
 }

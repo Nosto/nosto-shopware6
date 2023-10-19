@@ -1,6 +1,6 @@
 <?php
 
-namespace Nosto\NostoIntegration\Elasticsearch\Product;
+namespace Nosto\NostoIntegration\Decorator\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;

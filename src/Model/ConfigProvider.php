@@ -54,6 +54,8 @@ class ConfigProvider
 
     public const GRAPHQL_TOKEN = 'config.appToken';
 
+    public const SEARCH_TOKEN = 'config.searchToken';
+
     public const TAG_FIELD_TEMPLATE = 'config.tag';
 
     public const SELECTED_CUSTOM_FIELDS = 'config.selectedCustomFields';
@@ -158,6 +160,11 @@ class ConfigProvider
     public function getAppToken($channelId = null): string
     {
         return $this->systemConfig->getString($this->path(self::GRAPHQL_TOKEN), $channelId);
+    }
+
+    public function getSearchToken($channelId = null): string
+    {
+        return $this->systemConfig->getString($this->path(self::SEARCH_TOKEN), $channelId);
     }
 
     public function getTagFieldKey(int $tagNumber, $channelId = null): array

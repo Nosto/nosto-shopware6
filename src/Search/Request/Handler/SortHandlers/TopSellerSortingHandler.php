@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
-use Nosto\NostoIntegration\Search\Request\SearchNavigationRequest;
+use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class TopSellerSortingHandler implements SortingHandlerInterface
@@ -14,7 +14,7 @@ class TopSellerSortingHandler implements SortingHandlerInterface
         return $fieldSorting->getField() === 'product.sales';
     }
 
-    public function generateSorting(FieldSorting $fieldSorting, SearchNavigationRequest $searchNavigationRequest): void
+    public function generateSorting(FieldSorting $fieldSorting, SearchRequest $searchNavigationRequest): void
     {
         $searchNavigationRequest->setSort('stats.orders', $fieldSorting->getDirection());
     }

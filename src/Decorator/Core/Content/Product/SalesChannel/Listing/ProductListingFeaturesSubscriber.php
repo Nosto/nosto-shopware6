@@ -1,7 +1,8 @@
 <?php
 
-namespace Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Listing;
+namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing;
 
+use Nosto\NostoIntegration\Search\Api\SearchService;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
@@ -13,7 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        protected readonly ShopwareProductListingFeaturesSubscriber $decorated
+        protected readonly ShopwareProductListingFeaturesSubscriber $decorated,
+        protected readonly SearchService $searchService,
     ) {
     }
 
@@ -47,9 +49,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $limitOverride = $limit ?? $event->getCriteria()->getLimit();
 
-        $event->getCriteria()->setIds(['2a88d9b59d474c7e869d8071649be43c', '11dc680240b04f469ccba354cbf0b967']);
-
-//        $this->findologicSearchService->doSearch($event, $limitOverride);
+        $this->searchService->doSearch($event, $limitOverride);
     }
 
     public function __call($method, $args)

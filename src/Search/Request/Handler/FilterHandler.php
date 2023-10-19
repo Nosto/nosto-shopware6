@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use Nosto\NostoIntegration\Search\Request\SearchNavigationRequest;
 use FINDOLOGIC\FinSearch\Findologic\Response\Filter\BaseFilter;
 use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\CategoryFilter;
 use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\RangeSliderFilter;
@@ -12,6 +11,7 @@ use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\RatingFilter;
 use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\CategoryFilterValue;
 use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\FilterValue;
 use FINDOLOGIC\FinSearch\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 
@@ -22,7 +22,9 @@ use function in_array;
 class FilterHandler
 {
     public const FILTER_DELIMITER = '|';
+
     protected const MIN_PREFIX = 'min-';
+
     protected const MAX_PREFIX = 'max-';
 
     /**
@@ -30,7 +32,7 @@ class FilterHandler
      */
     public function handleFilters(
         ShopwareEvent|ProductListingCriteriaEvent $event,
-        SearchNavigationRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest
     ): void {
         $request = $event->getRequest();
         $selectedFilters = $request->query->all();
@@ -56,7 +58,7 @@ class FilterHandler
     protected function handleFilter(
         string $filterName,
         string $filterValue,
-        SearchNavigationRequest $searchNavigationRequest,
+        SearchRequest $searchNavigationRequest,
         array $availableFilterNames
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
@@ -86,7 +88,7 @@ class FilterHandler
     protected function handleRangeSliderFilter(
         string $filterName,
         mixed $filterValue,
-        SearchNavigationRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest
     ): void {
         if (mb_strpos($filterName, self::MIN_PREFIX) === 0) {
             $filterName = mb_substr($filterName, mb_strlen(self::MIN_PREFIX));
@@ -156,7 +158,7 @@ class FilterHandler
     private function handlePropertyFilter(
         string $filterName,
         string $filterValue,
-        SearchNavigationRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest
     ): void {
         $parsedFilterValue = explode(sprintf('%s%s', $filterName, FilterValue::DELIMITER), $filterValue);
         $filterValue = end($parsedFilterValue);
@@ -207,20 +209,24 @@ class FilterHandler
                         $valueId = $value->getUuid() ?? $value->getId();
                         $filterValues[] = [
                             'id' => $valueId,
-                            'translated' => ['name' => $valueId]
+                            'translated' => [
+                                'name' => $valueId,
+                            ],
                         ];
                         $filterValues[] = [
                             'id' => $value->getTranslated()->getName(),
-                            'translated' => ['name' => $value->getTranslated()->getName()]
+                            'translated' => [
+                                'name' => $value->getTranslated()->getName(),
+                            ],
                         ];
                     }
                 }
 
                 $entityValues = [
                     'translated' => [
-                        'name' => $filter instanceof CategoryFilter ? $filter->getId() : $filter->getName()
+                        'name' => $filter instanceof CategoryFilter ? $filter->getId() : $filter->getName(),
                     ],
-                    'options' => $filterValues
+                    'options' => $filterValues,
                 ];
 
                 $result[$filterName]['entities'][] = $entityValues;
@@ -243,7 +249,9 @@ class FilterHandler
             $valueId = $value->getId();
             $filterValues[] = [
                 'id' => $valueId,
-                'translated' => ['name' => $valueId]
+                'translated' => [
+                    'name' => $valueId,
+                ],
             ];
             if ($value->getValues()) {
                 $this->handleCategoryFilters($value->getValues(), $filterValues);

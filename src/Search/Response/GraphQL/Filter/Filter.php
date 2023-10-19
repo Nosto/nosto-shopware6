@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 abstract class Filter
 {
     private const FILTER_RANGE_MIN = 'min';
+
     private const FILTER_RANGE_MAX = 'max';
 
     /**

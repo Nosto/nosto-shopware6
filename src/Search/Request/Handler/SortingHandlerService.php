@@ -10,12 +10,12 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ReleaseDateSortin
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
-use Nosto\NostoIntegration\Search\Request\SearchNavigationRequest;
+use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class SortingHandlerService
 {
-    public function handle(SearchNavigationRequest $searchNavigationRequest, Criteria $criteria): void
+    public function handle(SearchRequest $searchNavigationRequest, Criteria $criteria): void
     {
         foreach ($this->getSortingHandlers() as $handler) {
             foreach ($criteria->getSorting() as $fieldSorting) {
