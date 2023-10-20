@@ -94,18 +94,19 @@ class SearchService
         //        }
 
         $this->handleFilters($request, $criteria, $handler);
-        $this->handleSelectableFilters($event, $handler, self::FILTER_REQUEST_LIMIT);
+        $this->handleSelectableFilters($request, $criteria, $handler, self::FILTER_REQUEST_LIMIT);
     }
 
     protected function handleSelectableFilters(
-        ProductListingCriteriaEvent $event,
+        Request $request,
+        Criteria $criteria,
         SearchNavigationRequestHandler $requestHandler,
         ?int $limit
     ): void {
-        $response = $requestHandler->doRequest($event, $limit);
-        $response = $this->parseFiltersFromResponse($response, $event);
+        $response = $requestHandler->doRequest($request, $criteria, $limit);
+        $response = $this->parseFiltersFromResponse($response);
 
-        $event->getCriteria()->addExtension('nostoAvailableFilters', $response);
+        $criteria->addExtension('nostoAvailableFilters', $response);
     }
 
     protected function parseFiltersFromResponse(stdClass $response): FiltersExtension

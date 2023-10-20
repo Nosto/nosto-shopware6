@@ -33,23 +33,6 @@ trait SearchResultHelper
         );
     }
 
-    protected function assignPaginationToCriteria(Criteria $criteria): void
-    {
-        /** @var Pagination $pagination */
-        $pagination = $criteria->getExtension('nostoPagination');
-        if ($pagination) {
-            // Pagination is handled by FINDOLOGIC. If there is an existing limit set, we respect that,
-            // otherwise use the default limit.
-            $criteria->setLimit($criteria->getLimit() ?? Pagination::DEFAULT_LIMIT);
-            $criteria->setOffset($criteria->getOffset() ?? 0);
-        }
-    }
-
-    protected function addOptionsGroupAssociation(Criteria $criteria): void
-    {
-        $criteria->addAssociation('options.group');
-    }
-
     protected function fetchProducts(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
@@ -67,7 +50,7 @@ trait SearchResultHelper
     /**
      * When search results are fetched from the database, the ordering of the products is based on the
      * database structure, which is not what we want. We manually re-order them by the ID, so the
-     * ordering matches the result that the FINDOLOGIC API returned.
+     * ordering matches the result that the Nosto API returned.
      */
     private function fixResultOrder(EntitySearchResult $result, Criteria $criteria): EntitySearchResult
     {

@@ -66,7 +66,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $this->listingProcessor->prepare($request, $criteria, $context);
 
         $query = $request->query->get('search');
-        $result = $this->doSearch($criteria, $context, $query);
+        $result = $this->fetchProductsById($criteria, $context, $query);
         $result = ProductListingResult::createFrom($result);
         $result->addCurrentFilter('search', $query);
 
@@ -75,18 +75,18 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         return new ProductSearchRouteResponse($result);
     }
 
-    protected function doSearch(
+    protected function fetchProductsById(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query
     ): EntitySearchResult {
-        $this->assignPaginationToCriteria($criteria);
-        $this->addOptionsGroupAssociation($criteria);
+        $productCriteria = clone $criteria;
+        $productCriteria->setOffset(0);
 
-        if (empty($criteria->getIds())) {
-            return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
+        if (empty($productCriteria->getIds())) {
+            return $this->createEmptySearchResult($productCriteria, $salesChannelContext->getContext());
         }
 
-        return $this->fetchProducts($criteria, $salesChannelContext, $query);
+        return $this->fetchProducts($productCriteria, $salesChannelContext, $query);
     }
 }
