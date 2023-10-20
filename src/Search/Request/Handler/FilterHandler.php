@@ -12,9 +12,9 @@ use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\CategoryFilter
 use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\FilterValue;
 use FINDOLOGIC\FinSearch\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
-use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+use Symfony\Component\HttpFoundation\Request;
 use function array_merge;
 use function end;
 use function in_array;
@@ -31,12 +31,12 @@ class FilterHandler
      * Sets all requested filters to the FINDOLOGIC API request.
      */
     public function handleFilters(
-        ShopwareEvent|ProductListingCriteriaEvent $event,
+        Request $request,
+        Criteria $criteria,
         SearchRequest $searchNavigationRequest
     ): void {
-        $request = $event->getRequest();
         $selectedFilters = $request->query->all();
-        $availableFilterNames = $this->fetchAvailableFilterNames($event);
+        $availableFilterNames = $this->fetchAvailableFilterNames($criteria);
 
         if ($selectedFilters) {
             foreach ($selectedFilters as $filterName => $filterValues) {
@@ -110,11 +110,11 @@ class FilterHandler
 
      * @return string[]
      */
-    protected function fetchAvailableFilterNames(ShopwareEvent|ProductListingCriteriaEvent $event): array
+    protected function fetchAvailableFilterNames(Criteria $criteria): array
     {
         $availableFilters = [];
         /** @var FiltersExtension $filtersExtension */
-        $filtersExtension = $event->getCriteria()->getExtension('flFilters');
+        $filtersExtension = $criteria->getExtension('nostoFilters');
 
         $filters = $filtersExtension->getFilters();
         foreach ($filters as $filter) {
@@ -165,13 +165,12 @@ class FilterHandler
         $searchNavigationRequest->addValueAttribute($filterName, $filterValue);
     }
 
-    public function handleAvailableFilters(ShopwareEvent $event): array
+    public function handleAvailableFilters(Criteria $criteria): array
     {
-        $criteria = $event->getCriteria();
-
         /** @var FiltersExtension $availableFilters */
-        $availableFilters = $criteria->getExtension('flAvailableFilters');
-        $allFilters = $criteria->getExtension('flFilters');
+        $availableFilters = $criteria->getExtension('nostoAvailableFilters');
+        /** @var FiltersExtension $allFilters */
+        $allFilters = $criteria->getExtension('nostoFilters');
 
         return $this->parseFindologicFiltersForShopware($availableFilters, $allFilters);
     }

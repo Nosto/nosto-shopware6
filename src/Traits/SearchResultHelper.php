@@ -36,7 +36,7 @@ trait SearchResultHelper
     protected function assignPaginationToCriteria(Criteria $criteria): void
     {
         /** @var Pagination $pagination */
-        $pagination = $criteria->getExtension('flPagination');
+        $pagination = $criteria->getExtension('nostoPagination');
         if ($pagination) {
             // Pagination is handled by FINDOLOGIC. If there is an existing limit set, we respect that,
             // otherwise use the default limit.

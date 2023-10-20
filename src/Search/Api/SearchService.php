@@ -11,7 +11,9 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use stdClass;
+use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 class SearchService
@@ -26,41 +28,43 @@ class SearchService
     ) {
     }
 
-    public function doSearch(ProductSearchCriteriaEvent $event): void
+    public function doSearch(Request $request, Criteria $criteria): void
     {
-        if ($this->allowRequest($event)) {
+        if ($this->allowRequest()) {
             $searchRequestHandler = $this->buildSearchRequestHandler();
 
-            $this->handleRequest($event, $searchRequestHandler);
+            $this->handleRequest($request, $criteria, $searchRequestHandler);
         }
     }
 
     protected function handleRequest(
-        ProductListingCriteriaEvent $event,
+        Request $request,
+        Criteria $criteria,
         SearchNavigationRequestHandler $requestHandler,
     ): void {
-        $limit = $event->getCriteria()->getLimit();
-        $event->getCriteria()->setLimit($limit);
-        $event->getCriteria()->setOffset($this->paginationService->getRequestOffset($event->getRequest(), $limit));
+        $limit = $criteria->getLimit();
+        $criteria->setLimit($limit);
+        $criteria->setOffset($this->paginationService->getRequestOffset($request, $limit));
 
-        $this->handleFilters($event, $requestHandler);
-        $requestHandler->handleRequest($event);
+        $this->handleFilters($request, $criteria, $requestHandler);
+        $requestHandler->handleRequest($request, $criteria);
     }
 
-    protected function allowRequest(ProductListingCriteriaEvent $event): bool
+    protected function allowRequest(): bool
     {
         return $this->configProvider->isSearchEnabled();
     }
 
     protected function handleFilters(
-        ProductListingCriteriaEvent $event,
+        Request $request,
+        Criteria $criteria,
         SearchNavigationRequestHandler $requestHandler
     ): void {
         try {
-            $response = $requestHandler->doRequest($event, self::FILTER_REQUEST_LIMIT);
-            $filters = $this->parseFiltersFromResponse($response, $event);
+            $response = $requestHandler->doRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
+            $filters = $this->parseFiltersFromResponse($response);
 
-            $event->getCriteria()->addExtension('nostoFilters', $filters);
+            $criteria->addExtension('nostoFilters', $filters);
         } catch (Throwable $e) {
         }
     }
@@ -73,22 +77,23 @@ class SearchService
         );
     }
 
-    public function doFilter(ProductListingCriteriaEvent $event): void
+    public function doFilter(Request $request, Criteria $criteria): void
     {
-        if (!$this->allowRequest($event)) {
+        if (!$this->allowRequest()) {
             return;
         }
 
         $handler = $this->buildSearchRequestHandler();
-        if (!$event instanceof ProductSearchCriteriaEvent) {
-            return;
-        }
+        // TODO: Add correct check for search
+        //        if (!$event instanceof ProductSearchCriteriaEvent) {
+        //            return;
+        //        }
 
         //        if (!$this->isCategoryPage($handler, $event)) {
         //            $handler = $this->buildSearchRequestHandler();
         //        }
 
-        $this->handleFilters($event, $handler);
+        $this->handleFilters($request, $criteria, $handler);
         $this->handleSelectableFilters($event, $handler, self::FILTER_REQUEST_LIMIT);
     }
 
@@ -103,10 +108,8 @@ class SearchService
         $event->getCriteria()->addExtension('nostoAvailableFilters', $response);
     }
 
-    protected function parseFiltersFromResponse(
-        stdClass $response,
-        ProductListingCriteriaEvent $event
-    ): FiltersExtension {
+    protected function parseFiltersFromResponse(stdClass $response): FiltersExtension
+    {
         $responseParser = new GraphQLResponseParser($response, $this->configProvider);
         return $responseParser->getFiltersExtension();
     }

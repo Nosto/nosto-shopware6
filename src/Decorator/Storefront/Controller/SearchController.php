@@ -8,7 +8,6 @@ use Nosto\NostoIntegration\Decorator\Storefront\Page\Search\SearchPageLoader;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
-use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\SearchController as ShopwareSearchController;
@@ -108,11 +107,11 @@ class SearchController extends StorefrontController
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
-        $event = new ProductSearchCriteriaEvent($request, new Criteria(), $salesChannelContext);
-        $this->searchService->doFilter($event);
+        $criteria = new Criteria();
+        $this->searchService->doFilter($request, $criteria);
 
-        $result = $this->filterHandler->handleAvailableFilters($event);
-        if (!$event->getCriteria()->hasExtension('flAvailableFilters')) {
+        $result = $this->filterHandler->handleAvailableFilters($criteria);
+        if (!$criteria->hasExtension('nostoAvailableFilters')) {
             return $this->decorated->filter($request, $salesChannelContext);
         }
 

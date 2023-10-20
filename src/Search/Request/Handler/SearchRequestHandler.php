@@ -6,11 +6,11 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
-use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use stdClass;
+use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 class SearchRequestHandler extends SearchNavigationRequestHandler
@@ -18,21 +18,17 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function handleRequest(ShopwareEvent|ProductSearchCriteriaEvent $event): void
+    public function handleRequest(Request $request, Criteria $criteria): void
     {
-        $request = $event->getRequest();
-
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));
-        $originalCriteria = clone $event->getCriteria();
-        $this->sortingHandlerService->handle($searchRequest, $event->getCriteria());
+        $originalCriteria = clone $criteria;
+        $this->sortingHandlerService->handle($searchRequest, $criteria);
 
         try {
-            $response = $this->doRequest($event);
-            $responseParser = new GraphQLResponseParser($response, $this->configProvider);
+            $response = $this->doRequest($request, $criteria);
+            $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
-            $this->assignCriteriaToEvent($event, $originalCriteria);
-
             return;
         }
 
@@ -47,10 +43,11 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
 //            $responseParser->getSmartDidYouMeanExtension($event->getRequest())
 //        );
 
-        $criteria = new Criteria(
-            $responseParser->getProductIds() === [] ? null : $responseParser->getProductIds()
-        );
-        $criteria->addExtensions($event->getCriteria()->getExtensions());
+        $criteria->setIds($responseParser->getProductIds() === [] ? null : $responseParser->getProductIds());
+        //        $criteria = new Criteria(
+        //            $responseParser->getProductIds() === [] ? null : $responseParser->getProductIds()
+        //        );
+        //        $criteria->addExtensions($criteria->getExtensions());
 
         //        $this->setPromotionExtension($event, $responseParser);
 
@@ -62,19 +59,16 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
         );
 
         //        $this->setQueryInfoMessage($event, $responseParser->getQueryInfoMessage($event));
-        $this->assignCriteriaToEvent($event, $criteria);
     }
 
-    public function doRequest(ShopwareEvent|ProductSearchCriteriaEvent $event, ?int $limit = null): stdClass
+    public function doRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass
     {
-        $request = $event->getRequest();
-
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));
-        $this->setPaginationParams($event, $searchRequest, $limit);
-        $this->sortingHandlerService->handle($searchRequest, $event->getCriteria());
-        if ($event->getCriteria()->hasExtension('flFilters')) {
-            $this->filterHandler->handleFilters($event, $searchRequest);
+        $this->setPaginationParams($criteria, $searchRequest, $limit);
+        $this->sortingHandlerService->handle($searchRequest, $criteria);
+        if ($criteria->hasExtension('nostoFilters')) {
+            $this->filterHandler->handleFilters($request, $criteria, $searchRequest);
         }
 
         return $searchRequest->execute();

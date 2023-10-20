@@ -3,24 +3,20 @@
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
-use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
@@ -32,12 +28,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
         private readonly ProductSearchBuilderInterface $searchBuilder,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly ProductDefinition $definition,
-        private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly CompositeListingProcessor $listingProcessor,
-        private readonly SearchService $searchService,
         private readonly ConfigProvider $configProvider
     ) {
     }
@@ -50,22 +42,17 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     public function load(
         Request $request,
         SalesChannelContext $context,
-        ?Criteria $criteria = null
+        Criteria $criteria
     ): ProductSearchRouteResponse {
         if (!$this->configProvider->isSearchEnabled()) {
             return $this->decorated->load($request, $context, $criteria);
         }
 
+        if (!$request->get('order')) {
+            $request->request->set('order', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT);
+        }
+
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        $criteria ??= $this->criteriaBuilder->handleRequest(
-            $request,
-            new Criteria(),
-            $this->definition,
-            $context->getContext()
-        );
-
-        $event = new ProductSearchCriteriaEvent($request, new Criteria(), $context);
 
         $criteria->addFilter(
             new ProductAvailableFilter(
@@ -74,15 +61,16 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             )
         );
 
-        $this->searchBuilder->build($event->getRequest(), $event->getCriteria(), $event->getSalesChannelContext());
-        $this->listingProcessor->prepare($event->getRequest(), $event->getCriteria(), $event->getSalesChannelContext());
+        $this->searchBuilder->build($request, $criteria, $context);
 
-        $query = $event->getRequest()->query->get('search');
-        $result = $this->doSearch($event->getCriteria(), $event->getSalesChannelContext(), $query);
+        $this->listingProcessor->prepare($request, $criteria, $context);
+
+        $query = $request->query->get('search');
+        $result = $this->doSearch($criteria, $context, $query);
         $result = ProductListingResult::createFrom($result);
         $result->addCurrentFilter('search', $query);
 
-        $this->listingProcessor->process($event->getRequest(), $result, $event->getSalesChannelContext());
+        $this->listingProcessor->process($request, $result, $context);
 
         return new ProductSearchRouteResponse($result);
     }
