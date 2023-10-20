@@ -26,22 +26,20 @@ class SearchService
     ) {
     }
 
-    public function doSearch(ProductSearchCriteriaEvent $event, ?int $limitOverride = null): void
+    public function doSearch(ProductSearchCriteriaEvent $event): void
     {
-        $limit = $limitOverride ?? $event->getCriteria()->getLimit();
-
         if ($this->allowRequest($event)) {
             $searchRequestHandler = $this->buildSearchRequestHandler();
 
-            $this->handleRequest($event, $searchRequestHandler, $limit);
+            $this->handleRequest($event, $searchRequestHandler);
         }
     }
 
     protected function handleRequest(
         ProductListingCriteriaEvent $event,
         SearchNavigationRequestHandler $requestHandler,
-        ?int $limit
     ): void {
+        $limit = $event->getCriteria()->getLimit();
         $event->getCriteria()->setLimit($limit);
         $event->getCriteria()->setOffset($this->paginationService->getRequestOffset($event->getRequest(), $limit));
 
