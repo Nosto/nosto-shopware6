@@ -20,7 +20,6 @@ class SearchService
 
     public function __construct(
         private readonly ConfigProvider $configProvider,
-        private readonly SortingService $sortingService,
         private readonly PaginationService $paginationService,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly EntityRepository $categoryRepository
@@ -48,8 +47,6 @@ class SearchService
 
         $this->handleFilters($event, $requestHandler);
         $requestHandler->handleRequest($event);
-
-        $this->sortingService->handleRequest($event, $requestHandler);
     }
 
     protected function allowRequest(ProductListingCriteriaEvent $event): bool
