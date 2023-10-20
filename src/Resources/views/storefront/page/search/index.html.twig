@@ -1,0 +1,16 @@
+{% sw_extends '@Storefront/storefront/page/search/index.html.twig' %}
+
+{% block page_search_headline_text %}
+    {% if not config('NostoIntegration.config.enableSearch') %}
+        {{ parent() }}
+    {% else %}
+        {% set hits = page.searchResult.criteria.extensions.nostoPagination.total
+            ? page.searchResult.criteria.extensions.nostoPagination.total
+            : page.listing.criteria.extensions.nostoPagination.total
+        %}
+        {{ "search.headline"|trans({
+            '%count%': hits,
+            '%searchTerm%': page.searchTerm,
+        }) }}
+    {% endif %}
+{% endblock %}

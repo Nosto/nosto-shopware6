@@ -1,0 +1,24 @@
+{% sw_extends '@Storefront/storefront/component/listing/filter-panel.html.twig' %}
+
+{% block component_filter_panel_items_container %}
+    {% if page.listing.criteria.extensions.nostoFilters.filters %}
+        {% set filters = page.listing.criteria.extensions.nostoFilters.filters %}
+    {% elseif not (slot.data.listing.criteria.extensions.nostoFilters.filters) %}
+        {% set filters = page.searchResult.criteria.extensions.nostoFilters.filters %}
+    {% else %}
+        {% set filters = slot.data.listing.criteria.extensions.nostoFilters.filters %}
+    {% endif %}
+
+    {% block component_filter_panel_item_test_filter %}
+        {% if filters %}
+            {% for filter in filters %}
+
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+
+    {% if not filters %}
+        {{ parent() }}
+    {% endif %}
+
+{% endblock %}

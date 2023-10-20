@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/storefront/component/pagination.html.twig' %}
+
+{% block component_pagination_nav %}
+    {% if not config('NostoIntegration.config.enableSearch') %}
+        {{ parent() }}
+    {% else %}
+        {% if not (searchResult.criteria.extensions.nostoPagination) %}
+            {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
+            {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
+        {% else %}
+            {% set currentPage = ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') %}
+            {% set totalPages = (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') %}
+        {% endif %}
+
+        {% set paginationSuffix = '' %}
+        {% if paginationLocation %}
+            {% set paginationSuffix = '-' ~ paginationLocation %}
+        {% endif %}
+
+        {% if totalPages > 1 %}
+            <nav aria-label="pagination" class="pagination-nav">
+                {% block component_pagination %}
+                    {{ parent() }}
+                {% endblock %}
+            </nav>
+        {% endif %}
+    {% endif %}
+{% endblock %}
