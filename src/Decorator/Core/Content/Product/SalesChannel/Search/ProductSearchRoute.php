@@ -22,6 +22,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
+ */
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
     use SearchResultHelper;
@@ -49,7 +52,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         ?Criteria $criteria = null
     ): ProductSearchRouteResponse {
-        $this->addElasticSearchContext($context);
+        if (!$this->configProvider->isSearchEnabled()) {
+            return $this->decorated->load($request, $context, $criteria);
+        }
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria ??= $this->criteriaBuilder->handleRequest(
             $request,
@@ -59,7 +66,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         );
 
         $event = new ProductSearchCriteriaEvent($request, new Criteria(), $context);
-        $shouldHandleRequest = $this->configProvider->isSearchEnabled();
 
         $criteria->addFilter(
             new ProductAvailableFilter(
@@ -68,13 +74,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             )
         );
 
-        $this->searchBuilder->build($request, $criteria, $context);
-
+        $this->searchBuilder->build($event->getRequest(), $event->getCriteria(), $event->getSalesChannelContext());
         $this->listingProcessor->prepare($event->getRequest(), $event->getCriteria(), $event->getSalesChannelContext());
-
-        if (!$shouldHandleRequest) {
-            return $this->decorated->load($request, $context, $criteria);
-        }
 
         $query = $event->getRequest()->query->get('search');
         $result = $this->doSearch($event->getCriteria(), $event->getSalesChannelContext(), $query);
@@ -99,10 +100,5 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         }
 
         return $this->fetchProducts($criteria, $salesChannelContext, $query);
-    }
-
-    private function addElasticSearchContext(SalesChannelContext $context): void
-    {
-        $context->getContext()->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
     }
 }

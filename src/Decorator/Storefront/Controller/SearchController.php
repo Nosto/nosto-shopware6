@@ -19,9 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: [
-    '_routeScope' => ['storefront'],
-])]
+/**
+ * @see ShopwareSearchController
+ */
+#[Route(
+    defaults: [
+        '_routeScope' => ['storefront'],
+    ]
+)]
 class SearchController extends StorefrontController
 {
     public function __construct(
@@ -35,9 +40,14 @@ class SearchController extends StorefrontController
         $this->container = $container;
     }
 
-    #[Route(path: '/search', name: 'frontend.search.page', defaults: [
-        '_httpCache' => true,
-    ], methods: ['GET'])]
+    #[Route(
+        path: '/search',
+        name: 'frontend.search.page',
+        defaults: [
+            '_httpCache' => true,
+        ],
+        methods: ['GET']
+    )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
         if (!$this->configProvider->isSearchEnabled()) {
@@ -53,30 +63,45 @@ class SearchController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: [
-        'XmlHttpRequest' => true,
-        '_httpCache' => true,
-    ], methods: ['GET'])]
+    #[Route(
+        path: '/suggest',
+        name: 'frontend.search.suggest',
+        defaults: [
+            'XmlHttpRequest' => true,
+            '_httpCache' => true,
+        ],
+        methods: ['GET']
+    )]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         return $this->decorated->suggest($context, $request);
     }
 
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: [
-        'XmlHttpRequest' => true,
-        '_routeScope' => ['storefront'],
-        '_httpCache' => true,
-    ], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search',
+        name: 'widgets.search.pagelet.v2',
+        defaults: [
+            'XmlHttpRequest' => true,
+            '_routeScope' => ['storefront'],
+            '_httpCache' => true,
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         return $this->decorated->ajax($request, $context);
     }
 
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: [
-        'XmlHttpRequest' => true,
-        '_routeScope' => ['storefront'],
-        '_httpCache' => true,
-    ], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search/filter',
+        name: 'widgets.search.filter',
+        defaults: [
+            'XmlHttpRequest' => true,
+            '_routeScope' => ['storefront'],
+            '_httpCache' => true,
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function filter(Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$this->configProvider->isSearchEnabled()) {

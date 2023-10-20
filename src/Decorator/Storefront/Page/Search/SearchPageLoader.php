@@ -17,6 +17,9 @@ use Shopware\Storefront\Page\Search\SearchPageLoader as ShopwareSearchPageLoader
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @see ShopwareSearchPageLoader
+ */
 class SearchPageLoader extends ShopwareSearchPageLoader
 {
     public function __construct(
