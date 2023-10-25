@@ -80,13 +80,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $salesChannelContext,
         ?string $query
     ): EntitySearchResult {
-        $productCriteria = clone $criteria;
-        $productCriteria->setOffset(0);
-
-        if (empty($productCriteria->getIds())) {
-            return $this->createEmptySearchResult($productCriteria, $salesChannelContext->getContext());
+        if (empty($criteria->getIds())) {
+            return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
 
-        return $this->fetchProducts($productCriteria, $salesChannelContext, $query);
+        return $this->fetchProducts($criteria, $salesChannelContext, $query);
     }
 }

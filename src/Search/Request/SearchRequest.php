@@ -27,7 +27,7 @@ class SearchRequest extends AbstractSearchOperation
 
     private array $sort = [];
 
-    private array $attributes = [];
+    private array $filters = [];
 
     public function setQuery(string $query): void
     {
@@ -52,15 +52,15 @@ class SearchRequest extends AbstractSearchOperation
         $this->size = $size;
     }
 
-    public function addValueAttribute(string $filterName, string $value): void
+    public function addValueFilter(string $filterName, string $value): void
     {
-        $this->attributes[] = [
+        $this->filters[] = [
             'field' => $filterName,
             'value' => $value,
         ];
     }
 
-    public function addRangeAttribute(string $filterName, ?string $min = null, ?string $max = null): void
+    public function addRangeFilter(string $filterName, ?string $min = null, ?string $max = null): void
     {
         $range = [];
 
@@ -71,7 +71,7 @@ class SearchRequest extends AbstractSearchOperation
             $range['lt'] = $max;
         }
 
-        $this->attributes[] = [
+        $this->filters[] = [
             'field' => $filterName,
             'range' => $range,
         ];
@@ -141,7 +141,7 @@ class SearchRequest extends AbstractSearchOperation
             'sort' => $this->sort,
             'size' => $this->size,
             'from' => $this->from,
-            'filter' => [],
+            'filter' => $this->filters,
         ];
     }
 }

@@ -42,9 +42,28 @@ trait SearchResultHelper
             $this->modifyCriteriaFromQuery($query, $criteria, $salesChannelContext);
         }
 
-        $result = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
+        $result = $this->salesChannelProductRepository->search(
+            $this->cleanDatabaseCriteria($criteria),
+            $salesChannelContext
+        );
 
         return $this->fixResultOrder($result, $criteria);
+    }
+
+    /**
+     * When search results are fetched from the database, we don't want to have any filters or limits.
+     * All the filtering/limiting is already done within the API. We need the extensions and the associations.
+     */
+    private function cleanDatabaseCriteria(Criteria $criteria): Criteria
+    {
+        $productCriteria = clone $criteria;
+        $productCriteria->setOffset(0);
+        $productCriteria->resetQueries();
+        $productCriteria->resetFilters();
+        $productCriteria->resetSorting();
+        $productCriteria->resetAggregations();
+
+        return $productCriteria;
     }
 
     /**

@@ -70,7 +70,7 @@ class FilterHandler
         }
 
         if ($this->isRatingFilter($filterName)) {
-            $searchNavigationRequest->addRangeAttribute($filterName, $filterValue);
+            $searchNavigationRequest->addRangeFilter($filterName, $filterValue);
 
             return;
         }
@@ -80,7 +80,7 @@ class FilterHandler
             if ($filterName !== BaseFilter::CAT_FILTER_NAME && $this->isPropertyFilter($filterName, $filterValue)) {
                 $this->handlePropertyFilter($filterName, $filterValue, $searchNavigationRequest);
             } else {
-                $searchNavigationRequest->addValueAttribute($filterName, $filterValue);
+                $searchNavigationRequest->addValueFilter($filterName, $filterValue);
             }
         }
     }
@@ -92,10 +92,10 @@ class FilterHandler
     ): void {
         if (mb_strpos($filterName, self::MIN_PREFIX) === 0) {
             $filterName = mb_substr($filterName, mb_strlen(self::MIN_PREFIX));
-            $searchNavigationRequest->addRangeAttribute($filterName, $filterValue, null);
+            $searchNavigationRequest->addRangeFilter($filterName, $filterValue, null);
         } else {
             $filterName = mb_substr($filterName, mb_strlen(self::MAX_PREFIX));
-            $searchNavigationRequest->addRangeAttribute($filterName, null, $filterValue);
+            $searchNavigationRequest->addRangeFilter($filterName, null, $filterValue);
         }
     }
 
@@ -162,7 +162,7 @@ class FilterHandler
     ): void {
         $parsedFilterValue = explode(sprintf('%s%s', $filterName, FilterValue::DELIMITER), $filterValue);
         $filterValue = end($parsedFilterValue);
-        $searchNavigationRequest->addValueAttribute($filterName, $filterValue);
+        $searchNavigationRequest->addValueFilter($filterName, $filterValue);
     }
 
     public function handleAvailableFilters(Criteria $criteria): array
