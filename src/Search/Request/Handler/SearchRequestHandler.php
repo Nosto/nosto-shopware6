@@ -55,6 +55,7 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));
         $this->setPaginationParams($criteria, $searchRequest, $limit);
+        $this->setSessionParamsFromCookies($request, $searchRequest);
         $this->sortingHandlerService->handle($searchRequest, $criteria);
         if ($criteria->hasExtension('nostoFilters')) {
             $this->filterHandler->handleFilters($request, $criteria, $searchRequest);

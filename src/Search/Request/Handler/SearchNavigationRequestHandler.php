@@ -54,4 +54,12 @@ abstract class SearchNavigationRequestHandler
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);
     }
+
+    protected function setSessionParamsFromCookies(Request $request, SearchRequest $searchRequest): void
+    {
+        if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
+            $sessionParams = json_decode($sessionParamsString, true);
+            $searchRequest->setSessionParams($sessionParams);
+        }
+    }
 }

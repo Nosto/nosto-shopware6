@@ -101,6 +101,7 @@ class SearchRequest extends AbstractSearchOperation
             \$query: String,
             \$sort: [InputSearchSort!],
             \$filter: [InputSearchTopLevelFilter!],
+            \$sessionParams: InputSearchQuery,
             \$size: Int,
             \$from: Int,
         ) {
@@ -113,6 +114,7 @@ class SearchRequest extends AbstractSearchOperation
                     size: \$size,
                     from: \$from,
                 },
+                sessionParams: \$sessionParams,
             ) {
                 redirect,
                 products {
@@ -147,7 +149,7 @@ class SearchRequest extends AbstractSearchOperation
         GRAPHQL;
     }
 
-    public function getVariables()
+    public function getVariables(): array
     {
         return [
             'accountId' => $this->configProvider->getAccountId(),
@@ -156,6 +158,7 @@ class SearchRequest extends AbstractSearchOperation
             'size' => $this->size,
             'from' => $this->from,
             'filter' => array_values($this->filters),
+            'sessionParams' => $this->sessionParams,
         ];
     }
 }
