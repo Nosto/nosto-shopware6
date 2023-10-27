@@ -24,7 +24,7 @@ abstract class SearchNavigationRequestHandler
     abstract public function handleRequest(Request $request, Criteria $criteria): void;
 
     /**
-     * Sends a request to the FINDOLOGIC service based on the given event and the responsible request handler.
+     * Sends a request to the Nosto service based on the given event and the responsible request handler.
      *
      * @param int|null $limit limited amount of products
      */
@@ -40,7 +40,7 @@ abstract class SearchNavigationRequestHandler
         SearchRequest $request,
         ?int $limit,
     ): void {
-        $request->setFrom($criteria->getOffset());
+        $request->setFrom($criteria->getOffset() ?? 0);
         $request->setSize($limit ?? $criteria->getLimit());
     }
 

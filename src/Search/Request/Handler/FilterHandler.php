@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use FINDOLOGIC\FinSearch\Findologic\Response\Filter\BaseFilter;
-use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\CategoryFilter;
-use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\RangeSliderFilter;
-use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\RatingFilter;
-use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\CategoryFilterValue;
-use FINDOLOGIC\FinSearch\Findologic\Response\Json10\Filter\Values\FilterValue;
-use FINDOLOGIC\FinSearch\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
+use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 use Symfony\Component\HttpFoundation\Request;
 use function array_merge;
-use function end;
 use function in_array;
 
 class FilterHandler
@@ -28,7 +23,7 @@ class FilterHandler
     protected const MAX_PREFIX = 'max-';
 
     /**
-     * Sets all requested filters to the FINDOLOGIC API request.
+     * Sets all requested filters to the Nosto API request.
      */
     public function handleFilters(
         Request $request,
@@ -36,19 +31,23 @@ class FilterHandler
         SearchRequest $searchNavigationRequest
     ): void {
         $selectedFilters = $request->query->all();
-        $availableFilterNames = $this->fetchAvailableFilterNames($criteria);
+        $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
+        /** @var IdToFieldMapping $filterMapping */
+        $filterMapping = $criteria->getExtension('nostoFilterMapping');
 
         if ($selectedFilters) {
-            foreach ($selectedFilters as $filterName => $filterValues) {
+            foreach ($selectedFilters as $filterId => $filterValues) {
                 if (!is_string($filterValues)) {
                     continue;
                 }
+
                 foreach ($this->getFilterValues($filterValues) as $filterValue) {
                     $this->handleFilter(
-                        $filterName,
+                        $filterId,
                         $filterValue,
                         $searchNavigationRequest,
-                        $availableFilterNames
+                        $availableFilterIds,
+                        $filterMapping
                     );
                 }
             }
@@ -56,52 +55,45 @@ class FilterHandler
     }
 
     protected function handleFilter(
-        string $filterName,
+        string $filterId,
         string $filterValue,
         SearchRequest $searchNavigationRequest,
-        array $availableFilterNames
+        array $availableFilterIds,
+        IdToFieldMapping $filterMapping
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
         // the appropriate parameters to our API.
-        if ($this->isRangeSliderFilter($filterName)) {
-            $this->handleRangeSliderFilter($filterName, $filterValue, $searchNavigationRequest);
+        if ($this->isRangeSliderFilter($filterId)) {
+            $this->handleRangeSliderFilter($filterId, $filterValue, $searchNavigationRequest, $filterMapping);
 
             return;
         }
 
-        if ($this->isRatingFilter($filterName)) {
-            $searchNavigationRequest->addRangeFilter($filterName, $filterValue);
-
-            return;
-        }
-
-        if (in_array($filterName, $availableFilterNames, true)) {
-            // This resolves the SW-451 issue about filter value conflict in storefront
-            if ($filterName !== BaseFilter::CAT_FILTER_NAME && $this->isPropertyFilter($filterName, $filterValue)) {
-                $this->handlePropertyFilter($filterName, $filterValue, $searchNavigationRequest);
-            } else {
-                $searchNavigationRequest->addValueFilter($filterName, $filterValue);
-            }
+        if (in_array($filterId, $availableFilterIds, true)) {
+            $this->handlePropertyFilter($filterId, $filterValue, $searchNavigationRequest, $filterMapping);
         }
     }
 
     protected function handleRangeSliderFilter(
-        string $filterName,
+        string $filterId,
         mixed $filterValue,
-        SearchRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest,
+        IdToFieldMapping $fieldMapping,
     ): void {
-        if (mb_strpos($filterName, self::MIN_PREFIX) === 0) {
-            $filterName = mb_substr($filterName, mb_strlen(self::MIN_PREFIX));
+        if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
+            $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
+            $filterName = $fieldMapping->getMapping($filterId);
             $searchNavigationRequest->addRangeFilter($filterName, $filterValue, null);
         } else {
-            $filterName = mb_substr($filterName, mb_strlen(self::MAX_PREFIX));
+            $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
+            $filterName = $fieldMapping->getMapping($filterId);
             $searchNavigationRequest->addRangeFilter($filterName, null, $filterValue);
         }
     }
 
-    protected function isRangeSliderFilter(string $name): bool
+    protected function isRangeSliderFilter(string $id): bool
     {
-        return $this->isMinRangeSlider($name) || $this->isMaxRangeSlider($name);
+        return $this->isMinRangeSlider($id) || $this->isMaxRangeSlider($id);
     }
 
     /**
@@ -110,7 +102,7 @@ class FilterHandler
 
      * @return string[]
      */
-    protected function fetchAvailableFilterNames(Criteria $criteria): array
+    protected function fetchAvailableFilterIds(Criteria $criteria): array
     {
         $availableFilters = [];
         /** @var FiltersExtension $filtersExtension */
@@ -135,33 +127,23 @@ class FilterHandler
         return explode(self::FILTER_DELIMITER, $filterValues);
     }
 
-    private function isMinRangeSlider(string $name): bool
+    private function isMinRangeSlider(string $id): bool
     {
-        return mb_strpos($name, self::MIN_PREFIX) === 0;
+        return mb_strpos($id, self::MIN_PREFIX) === 0;
     }
 
-    private function isMaxRangeSlider(string $name): bool
+    private function isMaxRangeSlider(string $id): bool
     {
-        return mb_strpos($name, self::MAX_PREFIX) === 0;
-    }
-
-    private function isRatingFilter(string $filterName): bool
-    {
-        return $filterName === BaseFilter::RATING_FILTER_NAME;
-    }
-
-    private function isPropertyFilter(string $filterName, string $filterValue): bool
-    {
-        return mb_strpos($filterValue, sprintf('%s%s', $filterName, FilterValue::DELIMITER)) === 0;
+        return mb_strpos($id, self::MAX_PREFIX) === 0;
     }
 
     private function handlePropertyFilter(
-        string $filterName,
+        string $filterId,
         string $filterValue,
-        SearchRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest,
+        IdToFieldMapping $fieldMapping,
     ): void {
-        $parsedFilterValue = explode(sprintf('%s%s', $filterName, FilterValue::DELIMITER), $filterValue);
-        $filterValue = end($parsedFilterValue);
+        $filterName = $fieldMapping->getMapping($filterId);
         $searchNavigationRequest->addValueFilter($filterName, $filterValue);
     }
 
@@ -172,16 +154,14 @@ class FilterHandler
         /** @var FiltersExtension $allFilters */
         $allFilters = $criteria->getExtension('nostoFilters');
 
-        return $this->parseFindologicFiltersForShopware($availableFilters, $allFilters);
+        return $this->parseNostoFiltersForShopware($availableFilters, $allFilters);
     }
 
-    private function parseFindologicFiltersForShopware(
+    private function parseNostoFiltersForShopware(
         FiltersExtension $availableFilters,
         FiltersExtension $allFilters
     ): array {
         $result = [];
-        $result[BaseFilter::RATING_FILTER_NAME]['max'] = 0;
-
         foreach ($allFilters->getFilters() as $filterWithAllValues) {
             $filterName = $filterWithAllValues->getId();
             if (!$filter = $availableFilters->getFilter($filterName)) {
@@ -190,71 +170,36 @@ class FilterHandler
             }
 
             $values = $filter->getValues();
+            $filterValues = [];
 
-            if ($filter instanceof RatingFilter) {
-                $result[RatingFilter::RATING_FILTER_NAME]['max'] = $filter->getMaxPoints();
-            } else {
-                $filterValues = [];
-
-                if ($filter instanceof CategoryFilter) {
-                    $this->handleCategoryFilters($values, $filterValues);
-                } elseif ($filter instanceof RangeSliderFilter) {
-                    $filterValues[] = [
-                        'selectedRange' => $filter->getSelectedRange(),
-                        'totalRange' => $filter->getTotalRange(),
-                    ];
-                } else {
-                    foreach ($values as $value) {
-                        $valueId = $value->getUuid() ?? $value->getId();
-                        $filterValues[] = [
-                            'id' => $valueId,
-                            'translated' => [
-                                'name' => $valueId,
-                            ],
-                        ];
-                        $filterValues[] = [
-                            'id' => $value->getTranslated()->getName(),
-                            'translated' => [
-                                'name' => $value->getTranslated()->getName(),
-                            ],
-                        ];
-                    }
-                }
-
-                $entityValues = [
-                    'translated' => [
-                        'name' => $filter instanceof CategoryFilter ? $filter->getId() : $filter->getName(),
-                    ],
-                    'options' => $filterValues,
+            if ($filter instanceof RangeSliderFilter) {
+                $filterValues[] = [
+                    'min' => $filter->getMin(),
+                    'max' => $filter->getMax(),
                 ];
-
-                $result[$filterName]['entities'][] = $entityValues;
+            } else {
+                foreach ($values as $value) {
+                    $filterValues[] = [
+                        'id' => $value->getTranslated()->getName(),
+                        'translated' => [
+                            'name' => $value->getTranslated()->getName(),
+                        ],
+                    ];
+                }
             }
+
+            $entityValues = [
+                'translated' => [
+                    'name' => $filter->getName(),
+                ],
+                'options' => $filterValues,
+            ];
+
+            $result[$filterName]['entities'][] = $entityValues;
         }
 
         $actualResult['properties']['entities'] = $result;
 
         return array_merge($actualResult, $result);
-    }
-
-    /**
-     * @param FilterValue[] $values
-     * @param array<string,array> $filterValues
-     */
-    private function handleCategoryFilters(array $values, array &$filterValues): void
-    {
-        /** @var CategoryFilterValue $value */
-        foreach ($values as $value) {
-            $valueId = $value->getId();
-            $filterValues[] = [
-                'id' => $valueId,
-                'translated' => [
-                    'name' => $valueId,
-                ],
-            ];
-            if ($value->getValues()) {
-                $this->handleCategoryFilters($value->getValues(), $filterValues);
-            }
-        }
     }
 }

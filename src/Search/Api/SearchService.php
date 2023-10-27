@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,8 +63,10 @@ class SearchService
         try {
             $response = $requestHandler->doRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
             $filters = $this->parseFiltersFromResponse($response);
+            $filterMapping = $this->parseFilterMappingFromResponse($response);
 
             $criteria->addExtension('nostoFilters', $filters);
+            $criteria->addExtension('nostoFilterMapping', $filterMapping);
         } catch (Throwable $e) {
         }
     }
@@ -93,16 +96,15 @@ class SearchService
         //        }
 
         $this->handleFilters($request, $criteria, $handler);
-        $this->handleSelectableFilters($request, $criteria, $handler, self::FILTER_REQUEST_LIMIT);
+        $this->handleSelectableFilters($request, $criteria, $handler);
     }
 
     protected function handleSelectableFilters(
         Request $request,
         Criteria $criteria,
-        SearchNavigationRequestHandler $requestHandler,
-        ?int $limit
+        SearchNavigationRequestHandler $requestHandler
     ): void {
-        $response = $requestHandler->doRequest($request, $criteria, $limit);
+        $response = $requestHandler->doRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
         $response = $this->parseFiltersFromResponse($response);
 
         $criteria->addExtension('nostoAvailableFilters', $response);
@@ -110,7 +112,13 @@ class SearchService
 
     protected function parseFiltersFromResponse(stdClass $response): FiltersExtension
     {
-        $responseParser = new GraphQLResponseParser($response, $this->configProvider);
+        $responseParser = new GraphQLResponseParser($response);
         return $responseParser->getFiltersExtension();
+    }
+
+    protected function parseFilterMappingFromResponse(stdClass $response): IdToFieldMapping
+    {
+        $responseParser = new GraphQLResponseParser($response);
+        return $responseParser->getFilterMapping();
     }
 }

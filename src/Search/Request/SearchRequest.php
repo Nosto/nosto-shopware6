@@ -54,10 +54,14 @@ class SearchRequest extends AbstractSearchOperation
 
     public function addValueFilter(string $filterName, string $value): void
     {
-        $this->filters[] = [
-            'field' => $filterName,
-            'value' => $value,
-        ];
+        if (array_key_exists($filterName, $this->filters)) {
+            $this->filters[$filterName]['value'][] = $value;
+        } else {
+            $this->filters[$filterName] = [
+                'field' => $filterName,
+                'value' => [$value],
+            ];
+        }
     }
 
     public function addRangeFilter(string $filterName, ?string $min = null, ?string $max = null): void
@@ -67,14 +71,21 @@ class SearchRequest extends AbstractSearchOperation
         if (!is_null($min)) {
             $range['gt'] = $min;
         }
-        if (!is_null($min)) {
+        if (!is_null($max)) {
             $range['lt'] = $max;
         }
 
-        $this->filters[] = [
-            'field' => $filterName,
-            'range' => $range,
-        ];
+        if (array_key_exists($filterName, $this->filters)) {
+            $this->filters[$filterName]['range'] = array_merge(
+                $this->filters[$filterName]['range'],
+                $range
+            );
+        } else {
+            $this->filters[$filterName] = [
+                'field' => $filterName,
+                'range' => $range,
+            ];
+        }
     }
 
     protected function getResultHandler()
@@ -113,7 +124,9 @@ class SearchRequest extends AbstractSearchOperation
                             id,
                             name
                             field,
-                            type
+                            type,
+                            min,
+                            max
                         }
                         ... on SearchTermsFacet {
                             id,
@@ -141,7 +154,7 @@ class SearchRequest extends AbstractSearchOperation
             'sort' => $this->sort,
             'size' => $this->size,
             'from' => $this->from,
-            'filter' => $this->filters,
+            'filter' => array_values($this->filters),
         ];
     }
 }

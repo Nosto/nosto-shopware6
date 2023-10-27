@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/storefront/component/listing/filter/filter-range.html.twig' %}
+
+{% block component_filter_range %}
+    {% set filterRangeOptions = {
+        name,
+        minKey,
+        maxKey,
+        lowerBound,
+        unit,
+        propertyName,
+        minInputValue,
+        maxInputValue,
+        snippets: {
+            filterRangeActiveMinLabel,
+            filterRangeActiveMaxLabel,
+            filterRangeErrorMessage,
+            filterRangeLowerBoundErrorMessage
+        }
+    } %}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block component_filter_range_container %}
+    {{ parent() }}
+
+    <div class="nosto--range-slider"></div>
+{% endblock %}

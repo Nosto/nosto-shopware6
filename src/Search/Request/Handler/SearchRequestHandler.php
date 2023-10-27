@@ -29,6 +29,7 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
             $response = $this->doRequest($request, $criteria);
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
+            dd($e);
             return;
         }
 
@@ -38,18 +39,7 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
 //            return;
 //        }
 
-//        $event->getContext()->addExtension(
-//            'flSmartDidYouMean',
-//            $responseParser->getSmartDidYouMeanExtension($event->getRequest())
-//        );
-
-        $criteria->setIds($responseParser->getProductIds() === [] ? null : $responseParser->getProductIds());
-        //        $criteria = new Criteria(
-        //            $responseParser->getProductIds() === [] ? null : $responseParser->getProductIds()
-        //        );
-        //        $criteria->addExtensions($criteria->getExtensions());
-
-        //        $this->setPromotionExtension($event, $responseParser);
+        $criteria->setIds($responseParser->getProductIds());
 
         $this->setPagination(
             $criteria,
@@ -57,8 +47,6 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
             $originalCriteria->getLimit(),
             $originalCriteria->getOffset()
         );
-
-        //        $this->setQueryInfoMessage($event, $responseParser->getQueryInfoMessage($event));
     }
 
     public function doRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass

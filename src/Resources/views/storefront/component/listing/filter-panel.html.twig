@@ -12,7 +12,31 @@
     {% block component_filter_panel_item_test_filter %}
         {% if filters %}
             {% for filter in filters %}
+                {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\LabelTextFilter") %}
+                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-property-select.html.twig' with {
+                        elements: filter.values,
+                        sidebar: sidebar,
+                        name: filter.id,
+                        displayName: filter.name,
+                        displayType: 'text',
+                        pluginSelector: 'filter-property-select',
+                        propertyName: filter.name
+                    } %}
+                {% endif %}
 
+                {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\RangeSliderFilter") %}
+                    {% sw_include '@NostoIntegration/storefront/component/listing/filter/filter-range-slider.html.twig' with {
+                        sidebar: sidebar,
+                        name: filter.id,
+                        minKey: filter.minKey,
+                        maxKey: filter.maxKey,
+                        lowerBound: 0,
+                        displayName: filter.name,
+                        minInputValue: filter.min,
+                        maxInputValue: filter.max,
+                        propertyName: filter.name
+                    } %}
+                {% endif %}
             {% endfor %}
         {% endif %}
     {% endblock %}

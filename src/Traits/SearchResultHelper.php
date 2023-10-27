@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Traits;
 
-use FINDOLOGIC\FinSearch\Struct\Pagination;
-use FINDOLOGIC\FinSearch\Utils\Utils;
+use Nosto\NostoIntegration\Struct\Pagination;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -23,13 +22,13 @@ trait SearchResultHelper
     {
         // Return an empty response, as Shopware would search for all products if no explicit
         // product ids are submitted.
-        return Utils::buildEntitySearchResult(
+        return new EntitySearchResult(
             ProductEntity::class,
             0,
             new EntityCollection(),
             new AggregationResultCollection(),
             $criteria,
-            $context
+            $context,
         );
     }
 

@@ -2,7 +2,9 @@
 
 namespace Nosto\NostoIntegration\Search\Response\GraphQL;
 
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Pagination;
 use stdClass;
 
@@ -15,7 +17,24 @@ class GraphQLResponseParser
 
     public function getFiltersExtension(): FiltersExtension
     {
-        return new FiltersExtension();
+        $filters = new FiltersExtension();
+
+        foreach ($this->response->search->products->facets as $facet) {
+            $filters->addFilter(Filter::getInstance($facet));
+        }
+
+        return $filters;
+    }
+
+    public function getFilterMapping(): IdToFieldMapping
+    {
+        $map = new IdToFieldMapping();
+
+        foreach ($this->response->search->products->facets as $facet) {
+            $map->addMapping($facet->id, $facet->field);
+        }
+
+        return $map;
     }
 
     public function getPaginationExtension(int $limit, $offset): Pagination
