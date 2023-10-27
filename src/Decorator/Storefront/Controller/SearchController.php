@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Decorator\Storefront\Page\Search\SearchPageLoader;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
+use Nosto\NostoIntegration\Struct\Redirect;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\SearchController as ShopwareSearchController;
@@ -55,7 +56,10 @@ class SearchController extends StorefrontController
 
         $page = $this->searchPageLoader->load($request, $context);
 
-        // TODO: redirects/landingpages
+        /** @var Redirect $redirect */
+        if ($redirect = $context->getContext()->getExtension('nostoRedirect')) {
+            return $this->redirect($redirect->getLink(), 301);
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', [
             'page' => $page,

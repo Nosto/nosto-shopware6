@@ -12,6 +12,7 @@ use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -28,18 +29,19 @@ class SearchService
     ) {
     }
 
-    public function doSearch(Request $request, Criteria $criteria): void
+    public function doSearch(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if ($this->allowRequest()) {
             $searchRequestHandler = $this->buildSearchRequestHandler();
 
-            $this->handleRequest($request, $criteria, $searchRequestHandler);
+            $this->handleRequest($request, $criteria, $context, $searchRequestHandler);
         }
     }
 
     protected function handleRequest(
         Request $request,
         Criteria $criteria,
+        SalesChannelContext $context,
         SearchNavigationRequestHandler $requestHandler,
     ): void {
         $limit = $criteria->getLimit();
@@ -47,7 +49,7 @@ class SearchService
         $criteria->setOffset($this->paginationService->getRequestOffset($request, $limit));
 
         $this->handleFilters($request, $criteria, $requestHandler);
-        $requestHandler->handleRequest($request, $criteria);
+        $requestHandler->handleRequest($request, $criteria, $context);
     }
 
     protected function allowRequest(): bool

@@ -6,6 +6,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Pagination;
+use Nosto\NostoIntegration\Struct\Redirect;
 use stdClass;
 
 class GraphQLResponseParser
@@ -40,6 +41,13 @@ class GraphQLResponseParser
     public function getPaginationExtension(int $limit, $offset): Pagination
     {
         return new Pagination($limit, $offset, $this->response->search->products->total);
+    }
+
+    public function getRedirectExtension(): ?Redirect
+    {
+        return $this->response->search->redirect
+            ? new Redirect($this->response->search->redirect)
+            : null;
     }
 
     /**

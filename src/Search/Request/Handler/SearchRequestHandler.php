@@ -6,9 +6,10 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
+use Nosto\NostoIntegration\Struct\Redirect;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -18,7 +19,7 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function handleRequest(Request $request, Criteria $criteria): void
+    public function handleRequest(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));
@@ -33,11 +34,11 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
             return;
         }
 
-//        if ($responseParser->getLandingPageExtension()) {
-//            $this->handleLandingPage($responseParser, $event);
-//
-//            return;
-//        }
+        if ($redirect = $responseParser->getRedirectExtension()) {
+            $this->handleRedirect($context, $redirect);
+
+            return;
+        }
 
         $criteria->setIds($responseParser->getProductIds());
 
@@ -62,11 +63,11 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
         return $searchRequest->execute();
     }
 
-    //    protected function handleLandingPage(ResponseParser $responseParser, ShopwareEvent $event): void
-    //    {
-    //        $event->getContext()->addExtension(
-    //            'flLandingPage',
-    //            $responseParser->getLandingPageExtension()
-    //        );
-    //    }
+    protected function handleRedirect(SalesChannelContext $context, Redirect $redirectExtension): void
+    {
+        $context->getContext()->addExtension(
+            'nostoRedirect',
+            $redirectExtension
+        );
+    }
 }

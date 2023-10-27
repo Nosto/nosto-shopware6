@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +22,7 @@ abstract class SearchNavigationRequestHandler
         $this->filterHandler = $filterHandler ?? new FilterHandler();
     }
 
-    abstract public function handleRequest(Request $request, Criteria $criteria): void;
+    abstract public function handleRequest(Request $request, Criteria $criteria, SalesChannelContext $context): void;
 
     /**
      * Sends a request to the Nosto service based on the given event and the responsible request handler.

@@ -114,6 +114,7 @@ class SearchRequest extends AbstractSearchOperation
                     from: \$from,
                 },
             ) {
+                redirect,
                 products {
                     total,
                     hits {

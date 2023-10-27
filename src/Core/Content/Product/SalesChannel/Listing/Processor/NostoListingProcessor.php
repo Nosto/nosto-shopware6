@@ -23,6 +23,6 @@ class NostoListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $this->searchService->doSearch($request, $criteria);
+        $this->searchService->doSearch($request, $criteria, $context);
     }
 }
