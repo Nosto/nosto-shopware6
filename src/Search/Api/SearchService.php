@@ -3,7 +3,7 @@
 namespace Nosto\NostoIntegration\Search\Api;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
-use Nosto\NostoIntegration\Search\Request\Handler\SearchNavigationRequestHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
@@ -38,49 +38,6 @@ class SearchService
         }
     }
 
-    protected function handleRequest(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context,
-        SearchNavigationRequestHandler $requestHandler,
-    ): void {
-        $limit = $criteria->getLimit();
-        $criteria->setLimit($limit);
-        $criteria->setOffset($this->paginationService->getRequestOffset($request, $limit));
-
-        $this->handleFilters($request, $criteria, $requestHandler);
-        $requestHandler->handleRequest($request, $criteria, $context);
-    }
-
-    protected function allowRequest(): bool
-    {
-        return $this->configProvider->isSearchEnabled();
-    }
-
-    protected function handleFilters(
-        Request $request,
-        Criteria $criteria,
-        SearchNavigationRequestHandler $requestHandler
-    ): void {
-        try {
-            $response = $requestHandler->doRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
-            $filters = $this->parseFiltersFromResponse($response);
-            $filterMapping = $this->parseFilterMappingFromResponse($response);
-
-            $criteria->addExtension('nostoFilters', $filters);
-            $criteria->addExtension('nostoFilterMapping', $filterMapping);
-        } catch (Throwable $e) {
-        }
-    }
-
-    protected function buildSearchRequestHandler(): SearchRequestHandler
-    {
-        return new SearchRequestHandler(
-            $this->configProvider,
-            $this->sortingHandlerService
-        );
-    }
-
     public function doFilter(Request $request, Criteria $criteria): void
     {
         if (!$this->allowRequest()) {
@@ -97,19 +54,63 @@ class SearchService
         //            $handler = $this->buildSearchRequestHandler();
         //        }
 
-        $this->handleFilters($request, $criteria, $handler);
-        $this->handleSelectableFilters($request, $criteria, $handler);
+        $this->fetchFilters($request, $criteria, $handler);
+        $this->fetchSelectableFilters($request, $criteria, $handler);
     }
 
-    protected function handleSelectableFilters(
+    protected function allowRequest(): bool
+    {
+        return $this->configProvider->isSearchEnabled();
+    }
+
+    protected function handleRequest(
         Request $request,
         Criteria $criteria,
-        SearchNavigationRequestHandler $requestHandler
+        SalesChannelContext $context,
+        AbstractRequestHandler $requestHandler,
     ): void {
-        $response = $requestHandler->doRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
-        $response = $this->parseFiltersFromResponse($response);
+        $criteria->setOffset($this->paginationService->getRequestOffset($request, $criteria->getLimit()));
 
-        $criteria->addExtension('nostoAvailableFilters', $response);
+        $this->fetchFilters($request, $criteria, $requestHandler);
+        $requestHandler->fetchProducts($request, $criteria, $context);
+    }
+
+    protected function fetchFilters(
+        Request $request,
+        Criteria $criteria,
+        AbstractRequestHandler $requestHandler
+    ): void {
+        try {
+            $response = $requestHandler->sendRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
+            $filters = $this->parseFiltersFromResponse($response);
+            $filterMapping = $this->parseFilterMappingFromResponse($response);
+
+            $criteria->addExtension('nostoFilters', $filters);
+            $criteria->addExtension('nostoFilterMapping', $filterMapping);
+        } catch (Throwable $e) {
+        }
+    }
+
+    protected function fetchSelectableFilters(
+        Request $request,
+        Criteria $criteria,
+        AbstractRequestHandler $requestHandler
+    ): void {
+        try {
+            $response = $requestHandler->sendRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
+            $response = $this->parseFiltersFromResponse($response);
+
+            $criteria->addExtension('nostoAvailableFilters', $response);
+        } catch (Throwable $e) {
+        }
+    }
+
+    protected function buildSearchRequestHandler(): SearchRequestHandler
+    {
+        return new SearchRequestHandler(
+            $this->configProvider,
+            $this->sortingHandlerService
+        );
     }
 
     protected function parseFiltersFromResponse(stdClass $response): FiltersExtension

@@ -14,12 +14,12 @@ use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
-class SearchRequestHandler extends SearchNavigationRequestHandler
+class SearchRequestHandler extends AbstractRequestHandler
 {
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function handleRequest(Request $request, Criteria $criteria, SalesChannelContext $context): void
+    public function fetchProducts(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));
@@ -27,10 +27,9 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
         $this->sortingHandlerService->handle($searchRequest, $criteria);
 
         try {
-            $response = $this->doRequest($request, $criteria);
+            $response = $this->sendRequest($request, $criteria);
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
-            dd($e);
             return;
         }
 
@@ -50,7 +49,7 @@ class SearchRequestHandler extends SearchNavigationRequestHandler
         );
     }
 
-    public function doRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass
+    public function sendRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass
     {
         $searchRequest = new SearchRequest($this->configProvider);
         $searchRequest->setQuery((string) $request->query->get('search'));

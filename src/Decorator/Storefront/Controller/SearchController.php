@@ -136,11 +136,12 @@ class SearchController extends StorefrontController
         $criteria = new Criteria();
         $this->searchService->doFilter($request, $criteria);
 
-        $result = $this->filterHandler->handleAvailableFilters($criteria);
         if (!$criteria->hasExtension('nostoAvailableFilters')) {
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
-        return new JsonResponse($result);
+        return new JsonResponse(
+            $this->filterHandler->handleAvailableFilters($criteria)
+        );
     }
 }

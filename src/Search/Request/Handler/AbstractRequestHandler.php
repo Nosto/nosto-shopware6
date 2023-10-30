@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class SearchNavigationRequestHandler
+abstract class AbstractRequestHandler
 {
     public function __construct(
         protected readonly ConfigProvider $configProvider,
@@ -22,19 +22,14 @@ abstract class SearchNavigationRequestHandler
         $this->filterHandler = $filterHandler ?? new FilterHandler();
     }
 
-    abstract public function handleRequest(Request $request, Criteria $criteria, SalesChannelContext $context): void;
+    abstract public function fetchProducts(Request $request, Criteria $criteria, SalesChannelContext $context): void;
 
     /**
      * Sends a request to the Nosto service based on the given event and the responsible request handler.
      *
      * @param int|null $limit limited amount of products
      */
-    abstract public function doRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass;
-
-    public function sendRequest(SearchRequest $searchNavigationRequest): stdClass
-    {
-        return $searchNavigationRequest->execute();
-    }
+    abstract public function sendRequest(Request $request, Criteria $criteria, ?int $limit = null): stdClass;
 
     protected function setPaginationParams(
         Criteria $criteria,
