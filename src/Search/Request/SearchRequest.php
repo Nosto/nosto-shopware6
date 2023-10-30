@@ -29,6 +29,8 @@ class SearchRequest extends AbstractSearchOperation
 
     private array $filters = [];
 
+    private array $sessionParams = [];
+
     public function setQuery(string $query): void
     {
         $this->query = $query;
@@ -86,6 +88,11 @@ class SearchRequest extends AbstractSearchOperation
                 'range' => $range,
             ];
         }
+    }
+
+    public function setSessionParams(array $sessionParams): void
+    {
+        $this->sessionParams = $sessionParams;
     }
 
     protected function getResultHandler()
