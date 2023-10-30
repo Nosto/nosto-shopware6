@@ -20,11 +20,16 @@
         </service>
 
         <service
-            id="Nosto\NostoIntegration\Decorator\Storefront\Page\Search\SearchPageLoader"
-            decorates="Shopware\Storefront\Page\Search\SearchPageLoader"
+            id="Shopware\Storefront\Page\Search\SearchPageLoader"
             public="true"
             autowire="true"
         >
+            <argument
+                type="service"
+                key="$genericLoader"
+                id="Shopware\Storefront\Page\GenericPageLoader"
+                on-invalid="null"
+            />
             <argument
                 type="service"
                 key="$productSearchRoute"
@@ -37,25 +42,11 @@
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-on-invalid="ignore"
+            decoration-priority="-5000"
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
         </service>
-
-        <service
-            id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SearchKeyword\ProductSearchBuilder"
-            decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
-            autowire="true"
-        >
-            <argument type="service" key="$interpreter" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter" />
-        </service>
-
-        <service
-            id="Nosto\NostoIntegration\Decorator\Elasticsearch\Product\ProductSearchBuilder"
-            decorates="Shopware\Elasticsearch\Product\ProductSearchBuilder"
-            decoration-priority="-51000"
-            autowire="true"
-        />
 
         <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
             <argument key="$categoryRepository" type="service" id="category.repository" />

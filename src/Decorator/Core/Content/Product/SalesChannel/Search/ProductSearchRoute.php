@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +47,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     ): ProductSearchRouteResponse {
         if (!$this->configProvider->isSearchEnabled()) {
             return $this->decorated->load($request, $context, $criteria);
+        }
+
+        if (!$request->get('search')) {
+            throw RoutingException::missingRequestParameter('search');
         }
 
         if (!$request->get('order')) {

@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Storefront\Controller;
 
-use Nosto\NostoIntegration\Decorator\Storefront\Page\Search\SearchPageLoader;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
 use Nosto\NostoIntegration\Struct\Redirect;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\SearchController as ShopwareSearchController;
 use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
+use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +36,7 @@ class SearchController extends StorefrontController
         private readonly FilterHandler $filterHandler,
         private readonly ConfigProvider $configProvider,
         private readonly SearchService $searchService,
-        private readonly ?SearchPageLoader $searchPageLoader,
+        private readonly SearchPageLoader $searchPageLoader,
         ContainerInterface $container
     ) {
         $this->container = $container;
@@ -54,12 +56,32 @@ class SearchController extends StorefrontController
             return $this->decorated->search($context, $request);
         }
 
-        $page = $this->searchPageLoader->load($request, $context);
+        try {
+            $page = $this->searchPageLoader->load($request, $context);
+            if ($page->getListing()->getTotal() === 1) {
+                $product = $page->getListing()->first();
+                if ($request->get('search') === $product->getProductNumber()) {
+                    $productId = $product->getId();
+
+                    return $this->forwardToRoute('frontend.detail.page', [], [
+                        'productId' => $productId,
+                    ]);
+                }
+            }
+        } catch (RoutingException $e) {
+            if ($e->getErrorCode() !== RoutingException::MISSING_REQUEST_PARAMETER_CODE) {
+                throw $e;
+            }
+
+            return $this->forwardToRoute('frontend.home.page');
+        }
 
         /** @var Redirect $redirect */
         if ($redirect = $context->getContext()->getExtension('nostoRedirect')) {
             return $this->redirect($redirect->getLink(), 301);
         }
+
+        $this->hook(new SearchPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', [
             'page' => $page,
