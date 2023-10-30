@@ -25,5 +25,7 @@
 {% block component_filter_range_container %}
     {{ parent() }}
 
-    <div class="nosto--range-slider"></div>
+    {% if context.context.extensions.nostoService.enabled %}
+        <div class="nosto--range-slider"></div>
+    {% endif %}
 {% endblock %}

@@ -25,7 +25,7 @@
                 {% endif %}
 
                 {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\RangeSliderFilter") %}
-                    {% sw_include '@NostoIntegration/storefront/component/listing/filter/filter-range-slider.html.twig' with {
+                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
                         sidebar: sidebar,
                         name: filter.id,
                         minKey: filter.minKey,
