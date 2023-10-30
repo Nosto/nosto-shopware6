@@ -2,7 +2,7 @@
 
 {# Get rid of "if listing.aggregations.elements|length > 0" check #}
 {% block element_sidebar_filter %}
-    {% if not config('NostoIntegration.config.enableSearch') %}
+    {% if not context.context.extensions.nostoService.enabled %}
         {{ parent() }}
     {% else %}
         {# Use values from cms data if context is a cmsPage, otherwise `listing` and `sidebar` must be set manually #}

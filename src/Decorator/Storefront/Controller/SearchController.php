@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
 use Nosto\NostoIntegration\Struct\Redirect;
+use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -129,12 +130,12 @@ class SearchController extends StorefrontController
     )]
     public function filter(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!$this->configProvider->isSearchEnabled()) {
+        if (!SearchHelper::shouldHandleRequest($salesChannelContext->getContext(), $this->configProvider)) {
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
         $criteria = new Criteria();
-        $this->searchService->doFilter($request, $criteria);
+        $this->searchService->doFilter($request, $criteria, $salesChannelContext);
 
         if (!$criteria->hasExtension('nostoAvailableFilters')) {
             return $this->decorated->filter($request, $salesChannelContext);

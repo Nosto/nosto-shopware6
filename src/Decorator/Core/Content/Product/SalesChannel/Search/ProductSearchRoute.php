@@ -4,6 +4,7 @@ namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Sea
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
+use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -45,7 +46,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria
     ): ProductSearchRouteResponse {
-        if (!$this->configProvider->isSearchEnabled()) {
+        if (!SearchHelper::shouldHandleRequest($context->getContext(), $this->configProvider)) {
             return $this->decorated->load($request, $context, $criteria);
         }
 

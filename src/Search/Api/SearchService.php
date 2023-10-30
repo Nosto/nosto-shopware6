@@ -9,7 +9,10 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Nosto\NostoIntegration\Struct\NostoService;
+use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,36 +34,40 @@ class SearchService
 
     public function doSearch(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($this->allowRequest()) {
+        if ($this->allowRequest($request, $context->getContext())) {
             $searchRequestHandler = $this->buildSearchRequestHandler();
 
             $this->handleRequest($request, $criteria, $context, $searchRequestHandler);
         }
     }
 
-    public function doFilter(Request $request, Criteria $criteria): void
+    public function doFilter(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if (!$this->allowRequest()) {
+        if (!$this->allowRequest($request, $context->getContext())) {
             return;
         }
 
         $handler = $this->buildSearchRequestHandler();
         // TODO: Add correct check for search
-        //        if (!$event instanceof ProductSearchCriteriaEvent) {
-        //            return;
-        //        }
+//        if (!$event instanceof ProductSearchCriteriaEvent) {
+//            return;
+//        }
 
-        //        if (!$this->isCategoryPage($handler, $event)) {
-        //            $handler = $this->buildSearchRequestHandler();
-        //        }
+//        if (!$this->isCategoryPage($handler, $event)) {
+//            $handler = $this->buildSearchRequestHandler();
+//        }
 
-        $this->fetchFilters($request, $criteria, $handler);
-        $this->fetchSelectableFilters($request, $criteria, $handler);
+        $this->fetchFilters($request, $criteria, $context, $handler);
+        $this->fetchSelectableFilters($request, $criteria, $context, $handler);
     }
 
-    protected function allowRequest(): bool
+    protected function allowRequest(Request $request, Context $context): bool
     {
-        return $this->configProvider->isSearchEnabled();
+        return SearchHelper::shouldHandleRequest(
+            $context,
+            $this->configProvider,
+            SearchHelper::isNavigationPage($request)
+        );
     }
 
     protected function handleRequest(
@@ -71,13 +78,14 @@ class SearchService
     ): void {
         $criteria->setOffset($this->paginationService->getRequestOffset($request, $criteria->getLimit()));
 
-        $this->fetchFilters($request, $criteria, $requestHandler);
+        $this->fetchFilters($request, $criteria, $context, $requestHandler);
         $requestHandler->fetchProducts($request, $criteria, $context);
     }
 
     protected function fetchFilters(
         Request $request,
         Criteria $criteria,
+        SalesChannelContext $context,
         AbstractRequestHandler $requestHandler
     ): void {
         try {
@@ -87,13 +95,17 @@ class SearchService
 
             $criteria->addExtension('nostoFilters', $filters);
             $criteria->addExtension('nostoFilterMapping', $filterMapping);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
+            /** @var NostoService $nostoService */
+            $nostoService = $context->getContext()->getExtension('nostoService');
+            $nostoService->disable();
         }
     }
 
     protected function fetchSelectableFilters(
         Request $request,
         Criteria $criteria,
+        SalesChannelContext $context,
         AbstractRequestHandler $requestHandler
     ): void {
         try {
@@ -101,7 +113,10 @@ class SearchService
             $response = $this->parseFiltersFromResponse($response);
 
             $criteria->addExtension('nostoAvailableFilters', $response);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
+            /** @var NostoService $nostoService */
+            $nostoService = $context->getContext()->getExtension('nostoService');
+            $nostoService->disable();
         }
     }
 
