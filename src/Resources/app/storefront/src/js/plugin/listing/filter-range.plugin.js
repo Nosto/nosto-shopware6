@@ -336,7 +336,7 @@ export default class NostoFilterSliderRange extends FilterRange {
     refreshDisabledState(filter) {
         const properties = filter[this.options.name];
         const entities = properties.entities;
-        // console.log(properties, entities);
+
         if (!entities || !entities.length) {
             this.disableFilter();
             return;
