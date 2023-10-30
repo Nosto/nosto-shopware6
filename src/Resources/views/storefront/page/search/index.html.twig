@@ -8,9 +8,13 @@
             ? page.searchResult.criteria.extensions.nostoPagination.total
             : page.listing.criteria.extensions.nostoPagination.total
         %}
-        {{ "search.headline"|trans({
-            '%count%': hits,
-            '%searchTerm%': page.searchTerm,
-        }) }}
+        {% if hits %}
+            {{ "search.headline"|trans({
+                '%count%': hits,
+                '%searchTerm%': page.searchTerm,
+            }) }}
+        {% else %}
+            {{ parent() }}
+        {% endif %}
     {% endif %}
 {% endblock %}
