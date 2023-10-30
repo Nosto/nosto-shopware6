@@ -9,9 +9,15 @@ export default class NostoFilterSliderRange extends FilterRange {
         minInputValue: 0,
         maxInputValue: null,
         unit: '',
+        shouldExtend: false,
     });
 
     init() {
+        if (!this.options.shouldExtend) {
+            super.init();
+            return;
+        }
+
         this.resetState();
 
         this._container = DomAccess.querySelector(this.el, this.options.containerSelector);
@@ -52,6 +58,11 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @private
      */
     _registerEvents() {
+        if (!this.options.shouldExtend) {
+            super._registerEvents();
+            return;
+        }
+
         // Register slider events
         this.slider.noUiSlider.on('update', this.onUpdateValues.bind(this));
         this.slider.noUiSlider.on('end', this._onChangeInput.bind(this));
@@ -77,6 +88,10 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @public
      */
     getValues() {
+        if (!this.options.shouldExtend) {
+            return super.getValues();
+        }
+
         const values = {};
 
         this.validateMinInput();
@@ -104,72 +119,14 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     /**
-     * @private
-     */
-    _onChangeInput() {
-        clearTimeout(this._timeout);
-
-        this._timeout = setTimeout(() => {
-            if (this._isInputInvalid()) {
-                this._setError();
-            } else {
-                this._removeError();
-            }
-            this.listing.changeListing();
-        }, this.options.inputTimeout);
-    }
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    _isInputInvalid() {
-        return parseInt(this._inputMin.value) > parseInt(this._inputMax.value);
-    }
-
-    /**
-     * @return {string}
-     * @private
-     */
-    _getErrorMessageTemplate() {
-        return `<div class="${this.options.errorContainerClass}">${this.options.snippets.filterRangeErrorMessage}</div>`;
-    }
-
-    /**
-     * @private
-     */
-    _setError() {
-        if (this._hasError) {
-            return;
-        }
-
-        this._inputMin.classList.add(this.options.inputInvalidCLass);
-        this._inputMax.classList.add(this.options.inputInvalidCLass);
-        this._container.insertAdjacentHTML('afterend', this._getErrorMessageTemplate());
-        this._hasError = true;
-    }
-
-    /**
-     * @private
-     */
-    _removeError() {
-        this._inputMin.classList.remove(this.options.inputInvalidCLass);
-        this._inputMax.classList.remove(this.options.inputInvalidCLass);
-
-        const error = DomAccess.querySelector(this.el, `.${this.options.errorContainerClass}`, false);
-
-        if (error) {
-            error.remove();
-        }
-
-        this._hasError = false;
-    }
-
-    /**
      * @return {Array}
      * @public
      */
     getLabels() {
+        if (!this.options.shouldExtend) {
+            return super.getLabels();
+        }
+
         let labels = [];
 
         if (this._inputMin.value.length || this._inputMax.value.length) {
@@ -199,6 +156,10 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @return {boolean}
      */
     setValuesFromUrl(params) {
+        if (!this.options.shouldExtend) {
+            return super.setValuesFromUrl(params);
+        }
+
         let stateChanged = false;
         Object.keys(params).forEach(key => {
             if (key === this.options.minKey) {
@@ -236,6 +197,11 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @public
      */
     reset(id) {
+        if (!this.options.shouldExtend) {
+            super.reset(id);
+            return;
+        }
+
         if (id === this.options.minKey) {
             this.resetMin();
         }
@@ -251,6 +217,11 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @public
      */
     resetAll() {
+        if (!this.options.shouldExtend) {
+            super.resetAll();
+            return;
+        }
+
         this.resetMin();
         this.resetMax();
         this._removeError();
@@ -334,6 +305,10 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     refreshDisabledState(filter) {
+        if (!this.options.shouldExtend) {
+            return;
+        }
+
         const properties = filter[this.options.name];
         const entities = properties.entities;
 
