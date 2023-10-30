@@ -218,6 +218,6 @@ class ConfigProvider
 
     public function isNavigationEnabled($channelId = null): bool
     {
-        return $this->systemConfig->getBool($this->path(self::ENABLE_SEARCH), $channelId);
+        return $this->systemConfig->getBool($this->path(self::ENABLE_NAVIGATION), $channelId);
     }
 }
