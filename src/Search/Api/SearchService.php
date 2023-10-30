@@ -49,13 +49,13 @@ class SearchService
 
         $handler = $this->buildSearchRequestHandler();
         // TODO: Add correct check for search
-//        if (!$event instanceof ProductSearchCriteriaEvent) {
-//            return;
-//        }
+        //        if (!$event instanceof ProductSearchCriteriaEvent) {
+        //            return;
+        //        }
 
-//        if (!$this->isCategoryPage($handler, $event)) {
-//            $handler = $this->buildSearchRequestHandler();
-//        }
+        //        if (!$this->isCategoryPage($handler, $event)) {
+        //            $handler = $this->buildSearchRequestHandler();
+        //        }
 
         $this->fetchFilters($request, $criteria, $context, $handler);
         $this->fetchSelectableFilters($request, $criteria, $context, $handler);

@@ -2,7 +2,6 @@
 
 namespace Nosto\NostoIntegration\Subscriber;
 
-use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Struct\PageInformation;
 use Nosto\NostoIntegration\Utils\SearchHelper;
@@ -18,7 +17,7 @@ class FrontendSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            HeaderPageletLoadedEvent::class => 'onHeaderLoaded'
+            HeaderPageletLoadedEvent::class => 'onHeaderLoaded',
         ];
     }
 
