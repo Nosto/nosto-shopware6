@@ -13,7 +13,6 @@ use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use stdClass;
