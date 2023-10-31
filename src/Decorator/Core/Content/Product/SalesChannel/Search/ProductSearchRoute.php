@@ -73,12 +73,12 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
         $query = $request->query->get('search');
         $result = $this->fetchProductsById($criteria, $context, $query);
-        $result = ProductListingResult::createFrom($result);
-        $result->addCurrentFilter('search', $query);
+        $productListing = ProductListingResult::createFrom($result);
+        $productListing->addCurrentFilter('search', $query);
 
-        $this->listingProcessor->process($request, $result, $context);
+        $this->listingProcessor->process($request, $productListing, $context);
 
-        return new ProductSearchRouteResponse($result);
+        return new ProductSearchRouteResponse($productListing);
     }
 
     protected function fetchProductsById(

@@ -21,6 +21,8 @@ class SearchRequest extends AbstractSearchOperation
 
     private string $query = '';
 
+    private ?string $categoryId = null;
+
     private int $size = 20;
 
     private int $from = 0;
@@ -34,6 +36,11 @@ class SearchRequest extends AbstractSearchOperation
     public function setQuery(string $query): void
     {
         $this->query = $query;
+    }
+
+    public function setCategoryId(string $categoryId): void
+    {
+        $this->categoryId = $categoryId;
     }
 
     public function setSort(string $field, string $order): void
@@ -106,6 +113,7 @@ class SearchRequest extends AbstractSearchOperation
         query(
             \$accountId: String,
             \$query: String,
+            \$categoryId: String,
             \$sort: [InputSearchSort!],
             \$filter: [InputSearchTopLevelFilter!],
             \$sessionParams: InputSearchQuery,
@@ -116,6 +124,7 @@ class SearchRequest extends AbstractSearchOperation
                 accountId: \$accountId,
                 query: \$query,
                 products: {
+                    categoryId: \$categoryId,
                     sort: \$sort,
                     filter: \$filter,
                     size: \$size,
@@ -161,6 +170,7 @@ class SearchRequest extends AbstractSearchOperation
         return [
             'accountId' => $this->configProvider->getAccountId(),
             'query' => $this->query,
+            'categoryId' => $this->categoryId,
             'sort' => $this->sort,
             'size' => $this->size,
             'from' => $this->from,
