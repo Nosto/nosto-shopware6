@@ -109,6 +109,7 @@ class Builder implements BuilderInterface
         if (!empty($nostoCategoryNames)) {
             $nostoProduct->setCategories($nostoCategoryNames);
         }
+        $nostoProduct->setCategoryIds($product->getCategoryIds() ?? []);
 
         if ($ratingAvg = $product->getRatingAverage()) {
             $nostoProduct->setRatingValue(round($ratingAvg, 1));
