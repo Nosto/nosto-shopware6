@@ -33,7 +33,7 @@ class SearchHelper
         }
 
         if (
-            !$configProvider->isSearchEnabled() ||
+            (!$isNavigationPage && !$configProvider->isSearchEnabled()) ||
             ($isNavigationPage && !$configProvider->isNavigationEnabled())
         ) {
             return $nostoService->disable();
