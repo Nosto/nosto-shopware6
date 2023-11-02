@@ -30,6 +30,9 @@ class SearchRequestHandler extends AbstractRequestHandler
             $response = $this->sendRequest($request, $criteria);
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
+            $this->logger->error(
+                sprintf('Error while fetching the products: %s', $e->getMessage())
+            );
             return;
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use Monolog\Logger;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
@@ -17,6 +18,7 @@ abstract class AbstractRequestHandler
     public function __construct(
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
+        protected readonly Logger $logger,
         protected ?FilterHandler $filterHandler = null
     ) {
         $this->filterHandler = $filterHandler ?? new FilterHandler();

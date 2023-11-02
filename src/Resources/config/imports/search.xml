@@ -50,6 +50,7 @@
 
         <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
             <argument key="$categoryRepository" type="service" id="category.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
 
         <service
