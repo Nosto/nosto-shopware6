@@ -83,7 +83,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         return new ProductSearchRouteResponse($result);
     }
 
-    protected function fetchProductsById(
+    private function fetchProductsById(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query
