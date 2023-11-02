@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Utils;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;

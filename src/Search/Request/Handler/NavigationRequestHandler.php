@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Search\Request\SearchRequest;

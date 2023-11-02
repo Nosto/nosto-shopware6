@@ -89,7 +89,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         return new ProductListingRouteResponse($productListing);
     }
 
-    protected function isRouteSupported(Request $request): bool
+    private function isRouteSupported(Request $request): bool
     {
         // Nosto should never trigger on home page, even if there are categories that would allow it.
         if ($this->isHomePage($request)) {
@@ -104,12 +104,12 @@ class ProductListingRoute extends AbstractProductListingRoute
         return true;
     }
 
-    protected function isHomePage(Request $request): bool
+    private function isHomePage(Request $request): bool
     {
         return $request->getPathInfo() === '/';
     }
 
-    protected function isRequestFromHomePage(Request $request): bool
+    private function isRequestFromHomePage(Request $request): bool
     {
         if (!$request->isXmlHttpRequest()) {
             return false;
@@ -154,7 +154,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         return null;
     }
 
-    protected function fetchProductsById(
+    private function fetchProductsById(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext
     ): EntitySearchResult {

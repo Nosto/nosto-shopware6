@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Utils\Logger;
 
 use GuzzleHttp\Psr7\Request;

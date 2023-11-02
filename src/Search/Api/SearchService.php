@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Search\Api;
 
+use Monolog\Logger;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
@@ -27,6 +30,7 @@ class SearchService
         private readonly ConfigProvider $configProvider,
         private readonly PaginationService $paginationService,
         private readonly SortingHandlerService $sortingHandlerService,
+        private readonly Logger $logger,
     ) {
     }
 
@@ -99,10 +103,14 @@ class SearchService
 
             $criteria->addExtension('nostoFilters', $filters);
             $criteria->addExtension('nostoFilterMapping', $filterMapping);
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
+
+            $this->logger->error(
+                sprintf('Error while fetching all filters: %s', $e->getMessage())
+            );
         }
     }
 
@@ -117,10 +125,14 @@ class SearchService
             $response = $this->parseFiltersFromResponse($response);
 
             $criteria->addExtension('nostoAvailableFilters', $response);
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
+
+            $this->logger->error(
+                sprintf('Error while fetching the available filters: %s', $e->getMessage())
+            );
         }
     }
 
@@ -128,7 +140,8 @@ class SearchService
     {
         return new SearchRequestHandler(
             $this->configProvider,
-            $this->sortingHandlerService
+            $this->sortingHandlerService,
+            $this->logger,
         );
     }
 
@@ -136,7 +149,8 @@ class SearchService
     {
         return new NavigationRequestHandler(
             $this->configProvider,
-            $this->sortingHandlerService
+            $this->sortingHandlerService,
+            $this->logger,
         );
     }
 

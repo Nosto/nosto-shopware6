@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;

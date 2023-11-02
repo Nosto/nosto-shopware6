@@ -74,6 +74,10 @@
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
         </service>
 
+        <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
+        </service>
+
         <service
             id="Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Listing\Processor\NostoListingProcessor"
             autowire="true"
@@ -81,7 +85,6 @@
             <tag name="shopware.listing.processor"/>
         </service>
 
-        <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true" />
         <service id="Nosto\NostoIntegration\Search\Api\SortingService" autowire="true" />
         <service id="Nosto\NostoIntegration\Search\Api\PaginationService" />
         <service id="Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService" />

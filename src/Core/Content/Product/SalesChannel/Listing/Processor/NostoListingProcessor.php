@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Listing\Processor;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;

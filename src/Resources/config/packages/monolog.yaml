@@ -1,0 +1,9 @@
+monolog:
+  channels: ['nosto_integration']
+
+  handlers:
+    myPluginLogHandler:
+      type: rotating_file
+      path: "%kernel.logs_dir%/nosto_integration_%kernel.environment%.log"
+      level: error
+      channels: [ "nosto_integration" ]

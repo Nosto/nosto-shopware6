@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;

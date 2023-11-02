@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;

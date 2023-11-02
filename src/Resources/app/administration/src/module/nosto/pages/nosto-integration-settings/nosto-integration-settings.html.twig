@@ -54,10 +54,10 @@
                                 </template>
                             {% endblock %}
 
-                            {% block noto_integration_content_card_configs %}
+                            {% block nosto_integration_content_card_configs %}
                                 <template #content="{ actualConfigData, allConfigs, selectedSalesChannelId }">
                                     <div v-if="actualConfigData">
-                                        {% block noto_integration_content_card_account_general %}
+                                        {% block nosto_integration_content_card_account_general %}
                                             <nosto-integration-account-general
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"
@@ -66,7 +66,7 @@
                                             </nosto-integration-account-general>
                                         {% endblock %}
 
-                                        {% block noto_integration_content_card_search_general %}
+                                        {% block nosto_integration_content_card_search_general %}
                                             <nosto-integration-search-general
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"
@@ -75,7 +75,7 @@
                                             </nosto-integration-search-general>
                                         {% endblock %}
 
-                                        {% block noto_integration_content_card_tags_general %}
+                                        {% block nosto_integration_content_card_tags_general %}
                                             <nosto-integration-settings-general
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"
@@ -83,7 +83,7 @@
                                             </nosto-integration-settings-general>
                                         {% endblock %}
 
-                                        {% block noto_integration_content_card_features_flags %}
+                                        {% block nosto_integration_content_card_features_flags %}
                                             <nosto-integration-features-flags
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"

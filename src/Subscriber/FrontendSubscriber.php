@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Subscriber;
 
 use Nosto\NostoIntegration\Struct\NostoService;
