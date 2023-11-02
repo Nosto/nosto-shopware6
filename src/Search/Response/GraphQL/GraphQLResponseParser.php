@@ -7,12 +7,13 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Pagination;
 use Nosto\NostoIntegration\Struct\Redirect;
-use stdClass;
+use Nosto\Result\Graphql\Search\SearchResult;
+use Nosto\Result\Graphql\Search\SearchResult\Products\Hit;
 
 class GraphQLResponseParser
 {
     public function __construct(
-        private readonly stdClass $response
+        private readonly SearchResult $searchResult
     ) {
     }
 
@@ -20,7 +21,7 @@ class GraphQLResponseParser
     {
         $filters = new FiltersExtension();
 
-        foreach ($this->response->search->products->facets as $facet) {
+        foreach ($this->searchResult->getProducts()->getFacets() as $facet) {
             $filters->addFilter(Filter::getInstance($facet));
         }
 
@@ -31,8 +32,8 @@ class GraphQLResponseParser
     {
         $map = new IdToFieldMapping();
 
-        foreach ($this->response->search->products->facets as $facet) {
-            $map->addMapping($facet->id, $facet->field);
+        foreach ($this->searchResult->getProducts()->getFacets() as $facet) {
+            $map->addMapping($facet->getId(), $facet->getField());
         }
 
         return $map;
@@ -40,13 +41,13 @@ class GraphQLResponseParser
 
     public function getPaginationExtension(int $limit, $offset): Pagination
     {
-        return new Pagination($limit, $offset, $this->response->search->products->total);
+        return new Pagination($limit, $offset, $this->searchResult->getProducts()->getTotal());
     }
 
     public function getRedirectExtension(): ?Redirect
     {
-        return $this->response->search->redirect
-            ? new Redirect($this->response->search->redirect)
+        return $this->searchResult->getRedirect()
+            ? new Redirect($this->searchResult->getRedirect())
             : null;
     }
 
@@ -56,8 +57,8 @@ class GraphQLResponseParser
     public function getProductIds(): array
     {
         return array_map(
-            fn ($product) => $product->productId,
-            $this->response->search->products->hits
+            fn (Hit $product) => $product->getProductId(),
+            $this->searchResult->getProducts()->getHits()
         );
     }
 }

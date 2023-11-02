@@ -12,10 +12,10 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
+use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
@@ -140,13 +140,13 @@ class SearchService
         );
     }
 
-    protected function parseFiltersFromResponse(stdClass $response): FiltersExtension
+    protected function parseFiltersFromResponse(SearchResult $response): FiltersExtension
     {
         $responseParser = new GraphQLResponseParser($response);
         return $responseParser->getFiltersExtension();
     }
 
-    protected function parseFilterMappingFromResponse(stdClass $response): IdToFieldMapping
+    protected function parseFilterMappingFromResponse(SearchResult $response): IdToFieldMapping
     {
         $responseParser = new GraphQLResponseParser($response);
         return $responseParser->getFilterMapping();
