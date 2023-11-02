@@ -3,12 +3,17 @@
 declare(strict_types=1);
 
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
+use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return function (ECSConfig $ecsConfig): void {
     $ecsConfig->paths([
         __DIR__ . '/src',
+    ]);
+
+    $ecsConfig->rules([
+        DeclareStrictTypesFixer::class
     ]);
 
     $ecsConfig->skip([

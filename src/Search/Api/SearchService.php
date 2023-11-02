@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Search\Api;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
