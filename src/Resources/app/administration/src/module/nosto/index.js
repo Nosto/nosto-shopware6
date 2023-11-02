@@ -4,6 +4,7 @@ import './components/nosto-integration-account-general';
 import './components/nosto-plugin-settings-icon';
 import './pages/nosto-job-listing';
 import './components/nosto-integration-features-flags';
+import './components/nosto-integration-search-general';
 
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';
@@ -17,7 +18,6 @@ Module.register('nosto-integration-module', {
     title: 'nosto.title',
     description: 'nosto.description',
     color: '#ffd53d',
-    icon: 'small-default-stack-line2',
 
     snippets: {
         'en-GB': enGB,

@@ -54,11 +54,17 @@ class ConfigProvider
 
     public const GRAPHQL_TOKEN = 'config.appToken';
 
+    public const SEARCH_TOKEN = 'config.searchToken';
+
     public const TAG_FIELD_TEMPLATE = 'config.tag';
 
     public const SELECTED_CUSTOM_FIELDS = 'config.selectedCustomFields';
 
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'config.enableLabelling';
+
+    public const ENABLE_SEARCH = 'config.enableSearch';
+
+    public const ENABLE_NAVIGATION = 'config.enableNavigation';
 
     public function __construct(SystemConfigService $systemConfig)
     {
@@ -156,6 +162,11 @@ class ConfigProvider
         return $this->systemConfig->getString($this->path(self::GRAPHQL_TOKEN), $channelId);
     }
 
+    public function getSearchToken($channelId = null): string
+    {
+        return $this->systemConfig->getString($this->path(self::SEARCH_TOKEN), $channelId);
+    }
+
     public function getTagFieldKey(int $tagNumber, $channelId = null): array
     {
         $config = $this->systemConfig->get($this->path(self::TAG_FIELD_TEMPLATE) . $tagNumber, $channelId);
@@ -198,5 +209,15 @@ class ConfigProvider
     {
         $value = $this->systemConfig->get($this->path(self::PRODUCT_IDENTIFIER_FIELD), $channelId);
         return is_string($value) ? $value : 'product-id';
+    }
+
+    public function isSearchEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_SEARCH), $channelId);
+    }
+
+    public function isNavigationEnabled($channelId = null): bool
+    {
+        return $this->systemConfig->getBool($this->path(self::ENABLE_NAVIGATION), $channelId);
     }
 }

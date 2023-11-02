@@ -111,7 +111,7 @@ class Builder implements BuilderInterface
         }
 
         if ($ratingAvg = $product->getRatingAverage()) {
-            $nostoProduct->setRatingValue($ratingAvg);
+            $nostoProduct->setRatingValue(round($ratingAvg, 1));
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 

@@ -4,7 +4,7 @@
             <template #smart-bar-header>
                 <h2>
                     {{ $tc('sw-settings.index.title') }}
-                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                    <sw-icon name="regular-chevron-right-xs" small></sw-icon>
                     {{ $tc('nosto.configuration.title') }}
                 </h2>
             </template>
@@ -17,6 +17,7 @@
                                        variant="primary"
                                        :isLoading="isLoading"
                                        :disabled="isLoading"
+                                       :processSuccess="false"
                                        @click="onSave">
                         {{ $tc('global.default.save') }}
                     </sw-button-process>
@@ -34,8 +35,11 @@
                             {% block nosto_integration_content_card_channel_config_sales_channel %}
                                 <template #select="{ onInput, selectedSalesChannelId }">
                                     {% block nosto_integration_content_card_channel_config_sales_channel_card %}
-                                        <sw-card class="sw-card--grid channel-card-container"
-                                                 :title="$tc('global.entities.sales_channel', 2)">
+                                        <sw-card
+                                            class="sw-card--grid channel-card-container"
+                                            :title="$tc('global.entities.sales_channel', 2)"
+                                            positionIdentifier="nosto-integration-settings-salesChannel"
+                                        >
                                             {% block nosto_integration_content_card_channel_config_sales_channel_card_title %}
                                                 <sw-single-select v-model="selectedSalesChannelId"
                                                                   labelProperty="translated.name"
@@ -50,11 +54,10 @@
                                 </template>
                             {% endblock %}
 
-                            {% block noto_integration_content_card_configs %}
+                            {% block nosto_integration_content_card_configs %}
                                 <template #content="{ actualConfigData, allConfigs, selectedSalesChannelId }">
                                     <div v-if="actualConfigData">
-
-                                        {% block noto_integration_content_card_account_general %}
+                                        {% block nosto_integration_content_card_account_general %}
                                             <nosto-integration-account-general
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"
@@ -63,7 +66,16 @@
                                             </nosto-integration-account-general>
                                         {% endblock %}
 
-                                        {% block noto_integration_content_card_tags_general %}
+                                        {% block nosto_integration_content_card_search_general %}
+                                            <nosto-integration-search-general
+                                                    :actualConfigData="actualConfigData"
+                                                    :allConfigs="allConfigs"
+                                                    :errorStates="errorStates"
+                                                    :selectedSalesChannelId="selectedSalesChannelId">
+                                            </nosto-integration-search-general>
+                                        {% endblock %}
+
+                                        {% block nosto_integration_content_card_tags_general %}
                                             <nosto-integration-settings-general
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"
@@ -71,7 +83,7 @@
                                             </nosto-integration-settings-general>
                                         {% endblock %}
 
-                                        {% block noto_integration_content_card_features_flags %}
+                                        {% block nosto_integration_content_card_features_flags %}
                                             <nosto-integration-features-flags
                                                     :actualConfigData="actualConfigData"
                                                     :allConfigs="allConfigs"

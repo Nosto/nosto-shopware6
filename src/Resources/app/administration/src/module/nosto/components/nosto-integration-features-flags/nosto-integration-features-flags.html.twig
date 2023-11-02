@@ -1,6 +1,9 @@
 {% block nosto_integration_content_card_channel_config_features_flags_card %}
-    <sw-card class="sw-card--grid"
-             :title="$tc('nosto.configuration.featuresFlags.cardTitle')">
+    <sw-card
+        class="sw-card--grid"
+        :title="$tc('nosto.configuration.featuresFlags.cardTitle')"
+        positionIdentifier="nosto-integration-features-flags"
+    >
 
         {% block nosto_integration_feature_product_identifier %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productIdentifier']"

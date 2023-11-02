@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+    <services>
+        <service
+            id="Nosto\NostoIntegration\Decorator\Storefront\Controller\SearchController"
+            decorates="Shopware\Storefront\Controller\SearchController"
+            public="true"
+            autowire="true"
+        >
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service
+            id="Shopware\Storefront\Page\Search\SearchPageLoader"
+            public="true"
+            autowire="true"
+        >
+            <argument
+                type="service"
+                key="$genericLoader"
+                id="Shopware\Storefront\Page\GenericPageLoader"
+                on-invalid="null"
+            />
+            <argument
+                type="service"
+                key="$productSearchRoute"
+                id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+                on-invalid="null"
+            />
+        </service>
+
+        <service
+            id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+            decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+            decoration-on-invalid="ignore"
+            decoration-priority="-5000"
+            autowire="true"
+        >
+            <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
+            <argument key="$categoryRepository" type="service" id="category.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
+        </service>
+
+        <service
+            id="Nosto\NostoIntegration\Core\Content\Product\SalesChannel\Listing\Processor\NostoListingProcessor"
+            autowire="true"
+        >
+            <tag name="shopware.listing.processor"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Search\Api\SortingService" autowire="true" />
+        <service id="Nosto\NostoIntegration\Search\Api\PaginationService" />
+        <service id="Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService" />
+        <service id="Nosto\NostoIntegration\Search\Request\Handler\FilterHandler" />
+    </services>
+</container>

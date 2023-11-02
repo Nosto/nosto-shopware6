@@ -28,11 +28,12 @@
                 "idHelpText": "Die eindeutige Kennung des Nosto-Kontos. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
                 "productTokenTitle": "Produkt-Token (API_PRODUCTS)",
                 "productTokenHelpText": "Ein Token für den Zugriff auf die Produkt-API. Sie können ein API-Token (API_PRODUCTS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgelistet.",
-                "emailTokenTitle": "E-Mail-Token (API_EMAIL).",
                 "emailTokenTitle": "E-Mail-Token (API_EMAIL)",
                 "emailTokenHelpText": "Ein Token zum Verwalten von Kunden mithilfe der Blacklist- und GDPR-APIs. Sie können ein API-Token (API_EMAIL) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
                 "appTokenTitle": "GraphQL-Token (API_APPS)",
                 "appTokenHelpText": "Ein Token für den Zugriff auf die neuen GraphQL-APIs. Sie können ein API-Token (API_APPS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
+                "searchTokenTitle": "Search-Token (API_SEARCH)",
+                "searchTokenHelpText": "Ein Token für den Zugriff auf die GraphQL Search-API. Sie können ein API-Token (API_SEARCH) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
                 "apiValidation": {
                     "buttonLabel": "API-key Prüfung",
                     "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
@@ -105,6 +106,17 @@
                 "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet."
+            },
+            "search-navigation": {
+                "cardTitle": "Search/Navigation Einstellungen",
+                "enableSearch": {
+                    "label": "Suche aktivieren",
+                    "helpText": "Aktiviert die Integration mit der Shopware Suche. Beeinflusst nicht die Frontend Lösung."
+                },
+                "enableNavigation": {
+                    "label": "Navigation aktivieren",
+                    "helpText": "Aktiviert die Integration mit den Shopware Kategorieseiten. Beeinflusst nicht die Frontend Lösung."
+                }
             }
         },
         "listing": {

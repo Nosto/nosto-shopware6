@@ -1,5 +1,9 @@
 {% block nosto_integration_account_component_general %}
-    <sw-card :title="$tc('nosto.configuration.account.title')" class="nosto-integration-account-card">
+    <sw-card
+        :title="$tc('nosto.configuration.account.title')"
+        class="nosto-integration-account-card"
+        positionIdentifier="nosto-integration-account-general"
+    >
         {% block nosto_integration_account_enabled %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.isEnabled']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.isEnabled']">
@@ -20,6 +24,7 @@
             <sw-button-process variant="ghost"
                                class="validate-btn"
                                :isLoading="apiValidationInProgress"
+                               :processSuccess="false"
                                @click="validateApiCredentials">
                 {{ $tc('nosto.configuration.account.apiValidation.buttonLabel') }}
             </sw-button-process>
@@ -113,6 +118,24 @@
                             required
                             name="NostoIntegration.config.appToken"
                             @input="updateCurrentValue($event, props)"></sw-field>
+                </template>
+            </sw-inherit-wrapper>
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.searchToken']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.searchToken']"
+                                :customInheritationCheckFunction="checkTextFieldInheritance">
+                <template #content="props">
+                    <sw-field
+                            :label="$tc('nosto.configuration.account.searchTokenTitle')"
+                            :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
+                            type="password"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            :error="hasError(props.currentValue)"
+                            required
+                            name="NostoIntegration.config.searchToken"
+                            @input="updateCurrentValue($event, props)">
+                    </sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}

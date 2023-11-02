@@ -1,0 +1,20 @@
+{% sw_extends '@Storefront/storefront/page/search/index.html.twig' %}
+
+{% block page_search_headline_text %}
+    {% if not context.context.extensions.nostoService.enabled %}
+        {{ parent() }}
+    {% else %}
+        {% set hits = page.searchResult.criteria.extensions.nostoPagination.total
+            ? page.searchResult.criteria.extensions.nostoPagination.total
+            : page.listing.criteria.extensions.nostoPagination.total
+        %}
+        {% if hits %}
+            {{ "search.headline"|trans({
+                '%count%': hits,
+                '%searchTerm%': page.searchTerm,
+            }) }}
+        {% else %}
+            {{ parent() }}
+        {% endif %}
+    {% endif %}
+{% endblock %}

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status;
 
 use Nosto\Model\Order\GraphQL\OrderStatus as NostoOrderStatus;

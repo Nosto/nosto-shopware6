@@ -1,0 +1,43 @@
+{% block nosto_integration_content_card_channel_config_features_flags_card %}
+    <sw-card
+        class="sw-card--grid"
+        :title="$tc('nosto.configuration.search-navigation.cardTitle')"
+        positionIdentifier="nosto-integratoion-search-general"
+    >
+        {% block nosto_integration_search_active %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['NostoIntegration.config.enableSearch']"
+                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableSearch']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.search-navigation.enableSearch.label')"
+                        :help-text="$tc('nosto.configuration.search-navigation.enableSearch.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_navigation_active %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['NostoIntegration.config.enableNavigation']"
+                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableNavigation']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.search-navigation.enableNavigation.label')"
+                        :help-text="$tc('nosto.configuration.search-navigation.enableNavigation.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-card>
+{% endblock %}
