@@ -39,7 +39,7 @@
                 {% endif %}
 
                 {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\RatingFilter") %}
-                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' ignore missing with {
+                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' with {
                         elements: filter.values,
                         maxPoints: filter.maxPoints,
                         sidebar: sidebar,
