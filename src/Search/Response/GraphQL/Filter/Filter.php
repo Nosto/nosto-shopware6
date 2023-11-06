@@ -12,9 +12,7 @@ use Nosto\Result\Graphql\Search\SearchResult\Products\TermsFacet;
 
 abstract class Filter
 {
-    private const FILTER_RANGE_MIN = 'min';
-
-    private const FILTER_RANGE_MAX = 'max';
+    public const RATING_FILTER_FIELD = 'ratingValue';
 
     /**
      * @param FilterValue[] $values
@@ -34,7 +32,9 @@ abstract class Filter
     public static function getInstance(Facet $facet): ?Filter
     {
         return match (true) {
-            $facet instanceof StatsFacet => static::handleRangeSliderFilter($facet),
+            $facet instanceof StatsFacet => $facet->getField() === self::RATING_FILTER_FIELD
+                ? static::handleRatingSlider($facet)
+                : static::handleRangeSliderFilter($facet),
             $facet instanceof TermsFacet => static::handleLabelTextFilter($facet),
             default => throw new InvalidArgumentException('The submitted filter is unknown.'),
         };
@@ -86,6 +86,16 @@ abstract class Filter
             $facet->getField(),
             $facet->getMin(),
             $facet->getMax(),
+        );
+    }
+
+    private static function handleRatingSlider(StatsFacet $facet): RatingFilter
+    {
+        return new RatingFilter(
+            $facet->getId(),
+            $facet->getName(),
+            $facet->getField(),
+            ceil($facet->getMax()),
         );
     }
 }

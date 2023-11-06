@@ -63,19 +63,19 @@ class SearchRequest extends AbstractSearchOperation
         $this->size = $size;
     }
 
-    public function addValueFilter(string $filterName, string $value): void
+    public function addValueFilter(string $filterField, string $value): void
     {
-        if (array_key_exists($filterName, $this->filters)) {
-            $this->filters[$filterName]['value'][] = $value;
+        if (array_key_exists($filterField, $this->filters)) {
+            $this->filters[$filterField]['value'][] = $value;
         } else {
-            $this->filters[$filterName] = [
-                'field' => $filterName,
+            $this->filters[$filterField] = [
+                'field' => $filterField,
                 'value' => [$value],
             ];
         }
     }
 
-    public function addRangeFilter(string $filterName, ?string $min = null, ?string $max = null): void
+    public function addRangeFilter(string $filterField, ?string $min = null, ?string $max = null): void
     {
         $range = [];
 
@@ -86,14 +86,14 @@ class SearchRequest extends AbstractSearchOperation
             $range['lt'] = $max;
         }
 
-        if (array_key_exists($filterName, $this->filters)) {
-            $this->filters[$filterName]['range'] = array_merge(
-                $this->filters[$filterName]['range'],
+        if (array_key_exists($filterField, $this->filters)) {
+            $this->filters[$filterField]['range'] = array_merge(
+                $this->filters[$filterField]['range'],
                 $range
             );
         } else {
-            $this->filters[$filterName] = [
-                'field' => $filterName,
+            $this->filters[$filterField] = [
+                'field' => $filterField,
                 'range' => $range,
             ];
         }

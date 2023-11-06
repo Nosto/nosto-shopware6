@@ -37,6 +37,19 @@
                         propertyName: filter.name
                     } %}
                 {% endif %}
+
+                {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\RatingFilter") %}
+                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' ignore missing with {
+                        elements: filter.values,
+                        maxPoints: filter.maxPoints,
+                        sidebar: sidebar,
+                        name: filter.id,
+                        hidden: filter.hidden,
+                        displayName: filter.name,
+                        pluginSelector: 'filter-rating-select',
+                        propertyName: filter.name
+                    } %}
+                {% endif %}
             {% endfor %}
         {% endif %}
     {% endblock %}
