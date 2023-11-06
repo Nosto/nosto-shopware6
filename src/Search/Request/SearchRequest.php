@@ -33,7 +33,7 @@ class SearchRequest extends AbstractSearchOperation
 
     private array $filters = [];
 
-    private array $sessionParams = [];
+    private ?array $sessionParams = null;
 
     public function setQuery(string $query): void
     {
