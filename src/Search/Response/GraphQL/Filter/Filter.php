@@ -6,7 +6,9 @@ namespace Nosto\NostoIntegration\Search\Response\GraphQL\Filter;
 
 use InvalidArgumentException;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
-use stdClass;
+use Nosto\Result\Graphql\Search\SearchResult\Products\Facet;
+use Nosto\Result\Graphql\Search\SearchResult\Products\StatsFacet;
+use Nosto\Result\Graphql\Search\SearchResult\Products\TermsFacet;
 
 abstract class Filter
 {
@@ -29,11 +31,11 @@ abstract class Filter
      * Builds a new filter instance. May return null for unsupported filter types. Throws an exception for unknown
      * filter types.
      */
-    public static function getInstance(stdClass $filter): ?Filter
+    public static function getInstance(Facet $facet): ?Filter
     {
-        return match ($filter->type) {
-            'stats' => static::handleRangeSliderFilter($filter),
-            'terms' => static::handleLabelTextFilter($filter),
+        return match (true) {
+            $facet instanceof StatsFacet => static::handleRangeSliderFilter($facet),
+            $facet instanceof TermsFacet => static::handleLabelTextFilter($facet),
             default => throw new InvalidArgumentException('The submitted filter is unknown.'),
         };
     }
@@ -65,25 +67,25 @@ abstract class Filter
         return $this->values;
     }
 
-    private static function handleLabelTextFilter(stdClass $facet): LabelTextFilter
+    private static function handleLabelTextFilter(TermsFacet $facet): LabelTextFilter
     {
-        $filter = new LabelTextFilter($facet->id, $facet->name, $facet->field);
+        $filter = new LabelTextFilter($facet->getId(), $facet->getName(), $facet->getField());
 
-        foreach ($facet->data as $item) {
-            $filter->addValue(new FilterValue($item->value, $item->value));
+        foreach ($facet->getData() as $item) {
+            $filter->addValue(new FilterValue($item->getValue(), $item->getValue()));
         }
 
         return $filter;
     }
 
-    private static function handleRangeSliderFilter(stdClass $facet): RangeSliderFilter
+    private static function handleRangeSliderFilter(StatsFacet $facet): RangeSliderFilter
     {
         return new RangeSliderFilter(
-            $facet->id,
-            $facet->name,
-            $facet->field,
-            $facet->min,
-            $facet->max,
+            $facet->getId(),
+            $facet->getName(),
+            $facet->getField(),
+            $facet->getMin(),
+            $facet->getMax(),
         );
     }
 }

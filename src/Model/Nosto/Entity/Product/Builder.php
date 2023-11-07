@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -108,6 +110,11 @@ class Builder implements BuilderInterface
         $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
         if (!empty($nostoCategoryNames)) {
             $nostoProduct->setCategories($nostoCategoryNames);
+        }
+
+        $categoryIds = $this->getCategoryIds($product->getCategoriesRo());
+        if (!empty($categoryIds)) {
+            $nostoProduct->setCategoryIds($categoryIds);
         }
 
         if ($ratingAvg = $product->getRatingAverage()) {
@@ -289,5 +296,14 @@ class Builder implements BuilderInterface
     {
         $criteria = new Criteria();
         return $this->tagRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function getCategoryIds(CategoryCollection $categoriesRo): array
+    {
+        return array_values(
+            array_map(function (CategoryEntity $category) {
+                return $category->getId();
+            }, $categoriesRo->getElements())
+        );
     }
 }

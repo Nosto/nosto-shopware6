@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 class DailyProductSyncScheduledTask extends ScheduledTask
 {
-    private const EXECUTION_INTERVAL = '300';
+    private const EXECUTION_INTERVAL = 300;
 
     public static function getTaskName(): string
     {

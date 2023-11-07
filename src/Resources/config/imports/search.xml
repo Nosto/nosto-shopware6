@@ -20,6 +20,20 @@
         </service>
 
         <service
+            id="Nosto\NostoIntegration\Decorator\Storefront\Controller\CmsController"
+            decorates="Shopware\Storefront\Controller\CmsController"
+            public="true"
+            autowire="true"
+        >
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service
             id="Shopware\Storefront\Page\Search\SearchPageLoader"
             public="true"
             autowire="true"
@@ -48,8 +62,19 @@
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
         </service>
 
+        <service
+            id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"
+            decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"
+            decoration-on-invalid="ignore"
+            decoration-priority="-5000"
+            autowire="true"
+        >
+            <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
+            <argument type="service" key="$categoryRepository" id="category.repository" />
+            <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
+        </service>
+
         <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
-            <argument key="$categoryRepository" type="service" id="category.repository" />
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
 
