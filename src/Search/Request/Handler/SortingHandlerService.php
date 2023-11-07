@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\CustomFieldSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\PriceSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ProductNameSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ProductNumberSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RatingSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ReleaseDateSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\StockSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,10 +36,14 @@ class SortingHandlerService
     protected function getSortingHandlers(): array
     {
         return [
-            new ScoreSortingHandler(),
+            new CustomFieldSortingHandler(),
             new PriceSortingHandler(),
             new ProductNameSortingHandler(),
+            new ProductNumberSortingHandler(),
+            new RatingSortingHandler(),
             new ReleaseDateSortingHandler(),
+            new ScoreSortingHandler(),
+            new StockSortingHandler(),
             new TopSellerSortingHandler(),
         ];
     }
