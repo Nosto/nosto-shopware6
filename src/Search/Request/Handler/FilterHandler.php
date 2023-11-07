@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -69,8 +71,18 @@ class FilterHandler
             return;
         }
 
+        if (!$filterField = $filterMapping->getMapping($filterId)) {
+            return;
+        }
+
+        if ($this->isRatingFilter($filterField)) {
+            $this->handleRatingFilter($filterField, $filterValue, $searchNavigationRequest);
+
+            return;
+        }
+
         if (in_array($filterId, $availableFilterIds, true)) {
-            $this->handlePropertyFilter($filterId, $filterValue, $searchNavigationRequest, $filterMapping);
+            $this->handlePropertyFilter($filterField, $filterValue, $searchNavigationRequest);
         }
     }
 
@@ -82,18 +94,31 @@ class FilterHandler
     ): void {
         if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
             $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
-            $filterName = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterName, $filterValue, null);
+            $filterField = $fieldMapping->getMapping($filterId);
+            $searchNavigationRequest->addRangeFilter($filterField, $filterValue, null);
         } else {
             $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
-            $filterName = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterName, null, $filterValue);
+            $filterField = $fieldMapping->getMapping($filterId);
+            $searchNavigationRequest->addRangeFilter($filterField, null, $filterValue);
         }
+    }
+
+    protected function handleRatingFilter(
+        string $filterField,
+        mixed $filterValue,
+        SearchRequest $searchNavigationRequest,
+    ): void {
+        $searchNavigationRequest->addRangeFilter($filterField, $filterValue);
     }
 
     protected function isRangeSliderFilter(string $id): bool
     {
         return $this->isMinRangeSlider($id) || $this->isMaxRangeSlider($id);
+    }
+
+    protected function isRatingFilter(string $field): bool
+    {
+        return $field === Filter::RATING_FILTER_FIELD;
     }
 
     /**
@@ -138,13 +163,11 @@ class FilterHandler
     }
 
     private function handlePropertyFilter(
-        string $filterId,
+        string $filterField,
         string $filterValue,
         SearchRequest $searchNavigationRequest,
-        IdToFieldMapping $fieldMapping,
     ): void {
-        $filterName = $fieldMapping->getMapping($filterId);
-        $searchNavigationRequest->addValueFilter($filterName, $filterValue);
+        $searchNavigationRequest->addValueFilter($filterField, $filterValue);
     }
 
     public function handleAvailableFilters(Criteria $criteria): array
@@ -162,6 +185,7 @@ class FilterHandler
         FiltersExtension $allFilters
     ): array {
         $result = [];
+
         foreach ($allFilters->getFilters() as $filterWithAllValues) {
             $filterName = $filterWithAllValues->getId();
             if (!$filter = $availableFilters->getFilter($filterName)) {
@@ -170,32 +194,37 @@ class FilterHandler
             }
 
             $values = $filter->getValues();
-            $filterValues = [];
 
-            if ($filter instanceof RangeSliderFilter) {
-                $filterValues[] = [
-                    'min' => $filter->getMin(),
-                    'max' => $filter->getMax(),
-                ];
+            if ($filter instanceof RatingFilter) {
+                $result[Filter::RATING_FILTER_FIELD]['max'] = $filter->getMaxPoints();
             } else {
-                foreach ($values as $value) {
+                $filterValues = [];
+
+                if ($filter instanceof RangeSliderFilter) {
                     $filterValues[] = [
-                        'id' => $value->getTranslated()->getName(),
-                        'translated' => [
-                            'name' => $value->getTranslated()->getName(),
-                        ],
+                        'min' => $filter->getMin(),
+                        'max' => $filter->getMax(),
                     ];
+                } else {
+                    foreach ($values as $value) {
+                        $filterValues[] = [
+                            'id' => $value->getTranslated()->getName(),
+                            'translated' => [
+                                'name' => $value->getTranslated()->getName(),
+                            ],
+                        ];
+                    }
                 }
+
+                $entityValues = [
+                    'translated' => [
+                        'name' => $filter->getName(),
+                    ],
+                    'options' => $filterValues,
+                ];
+
+                $result[$filterName]['entities'][] = $entityValues;
             }
-
-            $entityValues = [
-                'translated' => [
-                    'name' => $filter->getName(),
-                ],
-                'options' => $filterValues,
-            ];
-
-            $result[$filterName]['entities'][] = $entityValues;
         }
 
         $actualResult['properties']['entities'] = $result;
