@@ -86,6 +86,18 @@ Component.register('nosto-integration-features-flags', {
                 },
             ];
         },
+        createCategoryNamingOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.categoryNamingOptions.nameWithoutId'),
+                    value: 'no-id',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.categoryNamingOptions.nameWithId'),
+                    value: 'with-id',
+                },
+            ];
+        },
     },
 
     created() {
@@ -102,6 +114,7 @@ Component.register('nosto-integration-features-flags', {
                 productIdentifier: 'product-id',
                 ratingsReviews: 'shopware-ratings',
                 crossSellingSync: 'no-sync',
+                categoryNaming: 'no-id',
                 inventory: false,
                 customerDataToNosto: true,
                 syncInactiveProducts: false,

@@ -89,6 +89,27 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_category_naming %}
+            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.categoryNaming']"
+                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.categoryNaming']"
+                                :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
+                                :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')">
+
+                <template #content="props">
+                    <sw-single-select name="NostoIntegration.config.categoryNaming"
+                                      labelProperty="label"
+                                      valueProperty="value"
+                                      :options="createCategoryNamingOptions"
+                                      :isInherited="props.isInherited"
+                                      :disabled="props.isInherited"
+                                      show-clearable-button
+                                      :value="props.currentValue"
+                                      @change="props.updateCurrentValue">
+                    </sw-single-select>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.variations']"
                                 :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.variations']">

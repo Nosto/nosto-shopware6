@@ -62,6 +62,8 @@ class ConfigProvider
 
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'config.enableLabelling';
 
+    public const CATEGORY_NAMING_FIELD = 'config.categoryNaming';
+
     public const ENABLE_SEARCH = 'config.enableSearch';
 
     public const ENABLE_NAVIGATION = 'config.enableNavigation';
@@ -209,6 +211,11 @@ class ConfigProvider
     {
         $value = $this->systemConfig->get($this->path(self::PRODUCT_IDENTIFIER_FIELD), $channelId);
         return is_string($value) ? $value : 'product-id';
+    }
+
+    public function getCategoryNamingOption($channelId = null): string
+    {
+        return $this->systemConfig->getString($this->path(self::CATEGORY_NAMING_FIELD), $channelId);
     }
 
     public function isSearchEnabled($channelId = null): bool

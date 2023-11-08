@@ -76,6 +76,10 @@
                     "onlyActiveSync": "Nur aktives Cross-Selling synchronisieren",
                     "allSync": "Alle Cross-Sellings synchronisieren"
                 },
+                "categoryNamingOptions": {
+                    "nameWithoutId": "Kategoriename ohne ID",
+                    "nameWithId": "Kategoriename mit ID"
+                },
                 "crossSellingSync": "Cross-Selling-Synchronisierung",
                 "crossSellingSyncHelpText": "Produkt-Cross-Selling-Synchronisierungsoptionen",
                 "enableVariations": "Variationen aktivieren",
@@ -105,7 +109,9 @@
                 "timeDailySynchronizationHelp": "Die Option gibt an, zu welcher Uhrzeit die t\u00e4gliche Produktsynchronisierung synchronisiert werden soll",
                 "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
-                "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet."
+                "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
+                "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
+                "categoryNaming": "Produktkategorienamen"
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation Einstellungen",

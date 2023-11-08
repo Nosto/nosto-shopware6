@@ -271,6 +271,7 @@
         <service id="Nosto\NostoIntegration\Twig\Extension\NostoExtension" public="true">
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="sales_channel.product.repository" />
             <tag name="twig.extension"/>
         </service>
         <!-- /Extensions -->

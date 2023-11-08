@@ -76,6 +76,10 @@
                     "onlyActiveSync": "Sync Only Active Cross-Sellings",
                     "allSync": "Sync All Cross-Sellings"
                 },
+                "categoryNamingOptions": {
+                    "nameWithoutId": "Category Name Without ID",
+                    "nameWithId": "Category Name With ID"
+                },
                 "crossSellingSync": "Cross-Selling Synchronization",
                 "crossSellingSyncHelpText": "Product Cross-Selling Synchronization Options",
                 "enableVariations": "Enable variations",
@@ -105,7 +109,9 @@
                 "timeDailySynchronizationHelp": "The option specifies at which time to sync daily product synchronization",
                 "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
-                "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto"
+                "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
+                "categoryNamingHelpText": "Product category names will contain the category ID or not",
+                "categoryNaming": "Product Category Names"
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation settings",

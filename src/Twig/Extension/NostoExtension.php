@@ -9,6 +9,9 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -19,12 +22,16 @@ class NostoExtension extends AbstractExtension
 
     private LoggerInterface $logger;
 
+    private SalesChannelRepository $salesChannelProductRepository;
+
     public function __construct(
         ProductProviderInterface $productProvider,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SalesChannelRepository $salesChannelProductRepository
     ) {
         $this->productProvider = $productProvider;
         $this->logger = $logger;
+        $this->salesChannelProductRepository = $salesChannelProductRepository;
     }
 
     /**
@@ -35,6 +42,7 @@ class NostoExtension extends AbstractExtension
         return [
             new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
             new TwigFunction('nosto_page_type', [$this, 'getPageType']),
+            new TwigFunction('nosto_product_by_id', [$this, 'getNostoProductByID']),
         ];
     }
 
@@ -49,6 +57,16 @@ class NostoExtension extends AbstractExtension
             );
             return null;
         }
+    }
+
+    public function getNostoProductByID($id, SalesChannelContext $context)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $id));
+
+        return $this-> salesChannelProductRepository
+            ->search($criteria, $context)
+            ->first();
     }
 
     public function getPageType($activeRoute, $pageCmsType): string

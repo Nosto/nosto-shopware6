@@ -103,11 +103,18 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock' ? $product->getStock() : $product->getAvailableStock();
+        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock'
+            ? $product->getStock()
+            : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoProduct->setAvailability($stockStatus);
 
-        $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
+        if ($this->configProvider->getCategoryNamingOption($channelId) === 'with-id') {
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
+        } else {
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
+        }
+
         if (!empty($nostoCategoryNames)) {
             $nostoProduct->setCategories($nostoCategoryNames);
         }
@@ -205,7 +212,7 @@ class Builder implements BuilderInterface
                 'product-labels',
                 json_encode(
                     [
-                        'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                        'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                         'mfg-part-number' => $product->getManufacturerNumber(),
                     ]
                 )
@@ -230,7 +237,11 @@ class Builder implements BuilderInterface
         if (!($productPrice instanceof CalculatedPrice)) {
             return;
         }
-        $listPrice = $productPrice->getListPrice() ? $productPrice->getListPrice()->getPrice() : $productPrice->getUnitPrice();
+
+        $listPrice = $productPrice->getListPrice() ?
+            $productPrice->getListPrice()->getPrice() :
+            $productPrice->getUnitPrice();
+
         $unitPrice = $productPrice->getUnitPrice();
         $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
 
@@ -273,19 +284,38 @@ class Builder implements BuilderInterface
         return null;
     }
 
-    private function initTags(ProductEntity $productEntity, NostoProduct $nostoProduct, SalesChannelContext $context): void
-    {
+    private function initTags(
+        ProductEntity $productEntity,
+        NostoProduct $nostoProduct,
+        SalesChannelContext $context
+    ): void {
         $tags = $this->loadTags($context->getContext());
-        $nostoProduct->setTag1($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(1, $context->getSalesChannelId()), $tags));
-        $nostoProduct->setTag2($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(2, $context->getSalesChannelId()), $tags));
-        $nostoProduct->setTag3($this->getTagValues($productEntity, $this->configProvider->getTagFieldKey(3, $context->getSalesChannelId()), $tags));
+        $nostoProduct->setTag1($this->getTagValues(
+            $productEntity,
+            $this->configProvider->getTagFieldKey(1, $context->getSalesChannelId()),
+            $tags
+        ));
+        $nostoProduct->setTag2($this->getTagValues(
+            $productEntity,
+            $this->configProvider->getTagFieldKey(2, $context->getSalesChannelId()),
+            $tags
+        ));
+        $nostoProduct->setTag3($this->getTagValues(
+            $productEntity,
+            $this->configProvider->getTagFieldKey(3, $context->getSalesChannelId()),
+            $tags
+        ));
     }
 
     private function getTagValues(ProductEntity $productEntity, array $tagIds, TagCollection $allTags): array
     {
         $result = [];
         foreach ($tagIds as $tagId) {
-            if ($allTags->has($tagId) && !empty($productEntity->getTagIds()) && in_array($tagId, $productEntity->getTagIds())) {
+            if (
+                $allTags->has($tagId) &&
+                !empty($productEntity->getTagIds()) &&
+                in_array($tagId, $productEntity->getTagIds())
+            ) {
                 $result[] = $allTags->get($tagId)->getName();
             }
         }
@@ -295,6 +325,7 @@ class Builder implements BuilderInterface
     private function loadTags(Context $context): TagCollection
     {
         $criteria = new Criteria();
+
         return $this->tagRepository->search($criteria, $context)->getEntities();
     }
 

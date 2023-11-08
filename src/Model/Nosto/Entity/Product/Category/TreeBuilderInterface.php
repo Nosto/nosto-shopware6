@@ -9,4 +9,6 @@ use Shopware\Core\Content\Category\CategoryCollection;
 interface TreeBuilderInterface
 {
     public function fromCategoriesRo(CategoryCollection $categoriesRo): array;
+
+    public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array;
 }
