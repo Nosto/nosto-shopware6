@@ -39,7 +39,8 @@
                     "emptyErrorMessage": "\"{entityName}\" should not be blank!",
                     "generalErrorMessage": "Unable to validate API-keys",
                     "incorrectCredentialsTitle": "Incorrect Credentials",
-                    "correctApiMessage": "Key is valid"
+                    "correctApiMessage": "Key is valid",
+                    "sendCategoriesLabel": "Update categories"
                 }
             },
             "general": {

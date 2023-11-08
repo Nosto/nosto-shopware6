@@ -1,5 +1,12 @@
+# 2.3.0
+
+* Fix: Resolved the issue with assigning a dynamic group of merchandising products to categories.
+* Feature: Added functionality for accounting categories with dynamic product groups.
+* Feature: Added a new GraphQL API to collect the list of categories in order to better support our Category Merchandising product.
+
 # 2.2.1
-# Fix: Resolved the issue that some customers may have upon nosto recommendation/merchandising page crashing if the product identifier was set to "Product Number".
+
+* Fix: Resolved the issue that some customers may have upon nosto recommendation/merchandising page crashing if the product identifier was set to "Product Number".
 
 # 2.2.0
 

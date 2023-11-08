@@ -1,5 +1,12 @@
+# 2.3.0
+
+* Fix: Das Problem beim Zuweisen einer dynamischen Gruppe von Merchandising-Produkten zu Kategorien wurde behoben.
+* Neu: Funktionalität für Buchhaltungskategorien mit dynamischen Produktgruppen hinzugefügt.
+* Neu: Es wurde eine neue GraphQL-API zum Sammeln der Kategorienliste hinzugefügt, um unser Category Merchandising-Produkt besser zu unterstützen.
+
 # 2.2.1
-# Behebung: Das Problem wurde behoben, das bei einigen Kunden auftreten konnte, wenn die Nosto-Empfehlungs-/Merchandising-Seite abstürzte, wenn die Produktkennung auf „Produktnummer“ eingestellt war.
+
+* Behebung: Das Problem wurde behoben, das bei einigen Kunden auftreten konnte, wenn die Nosto-Empfehlungs-/Merchandising-Seite abstürzte, wenn die Produktkennung auf „Produktnummer“ eingestellt war.
 
 # 2.2.0
 

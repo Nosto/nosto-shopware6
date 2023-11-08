@@ -25,6 +25,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="sales_channel.category.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-order-sync"/>
@@ -280,6 +281,14 @@
         <service id="Nosto\NostoIntegration\Api\Controller\NostoController" public="true">
             <argument type="service" id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute"/>
             <argument type="service" id="cache.object"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoCategoriesController" public="true">
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

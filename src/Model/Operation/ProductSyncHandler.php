@@ -18,10 +18,15 @@ use Nosto\Scheduler\Model\Job;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -33,6 +38,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductSyncHandler implements Job\JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-product-sync';
+
+    public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
 
     private SalesChannelRepository $productRepository;
 
@@ -50,6 +57,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private SalesChannelRepository $categoryRepository;
+
     public function __construct(
         SalesChannelRepository $productRepository,
         AbstractSalesChannelContextFactory $channelContextFactory,
@@ -58,7 +67,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         ConfigProvider $configProvider,
         AbstractRuleLoader $ruleLoader,
         ProductHelper $productHelper,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SalesChannelRepository $categoryRepository
     ) {
         $this->productRepository = $productRepository;
         $this->channelContextFactory = $channelContextFactory;
@@ -68,6 +78,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $this->ruleLoader = $ruleLoader;
         $this->productHelper = $productHelper;
         $this->eventDispatcher = $eventDispatcher;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -132,25 +143,56 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $result;
     }
 
+    /**
+     * @throws NostoException
+     * @throws AbstractHttpException
+     */
     private function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
         ProductCollection $productCollection,
         Job\JobResult $result
-    ) {
+    ): void {
         $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
+        $dynamicGroupCategoryIds = $this->getCategoryIdsByDynamicGroups($context);
 
         /** @var SalesChannelProductEntity $product */
         foreach ($productCollection as $product) {
+            // Preparing categories for dynamic group products
+            if (!empty($dynamicGroupCategoryIds) && $product->getStreamIds()) {
+                $allProductCategoryPaths = '';
+                $productCategoriesRo = $product->getCategoriesRo();
+
+                foreach ($product->getStreamIds() as $streamId) {
+                    if (array_key_exists($streamId, $dynamicGroupCategoryIds)) {
+                        $allProductCategoryPaths .= $dynamicGroupCategoryIds[$streamId];
+                    }
+                }
+
+                if ($productCategoriesRo && $productCategoriesRo->count()) {
+                    foreach ($productCategoriesRo as $category) {
+                        $allProductCategoryPaths .= '|' . $category->getId();
+                    }
+                }
+
+                $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
+
+                if ($productCategoriesCollection->count() > 0) {
+                    $product->setCategoriesRo($productCategoriesCollection);
+                }
+            }
+
             // TODO: up to 2MB payload !
             $nostoProduct = $this->productProvider->get($product, $context);
             $invalidMessage = $this->validateProduct($product->getProductNumber(), $nostoProduct);
+
             if ($invalidMessage) {
                 $result->addMessage($invalidMessage);
                 continue;
             }
+
             $operation->addProduct($nostoProduct);
         }
         $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
@@ -160,12 +202,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
     {
         $message = '';
+
         if (!$product->getImageUrl()) {
             $message .= 'Product image url is empty, ';
         }
+
         if (!$product->getUrl()) {
             $message .= 'Product url is empty, ';
         }
+
         if (!$product->getName()) {
             $message .= 'Product name is empty, ';
         }
@@ -175,8 +220,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
     }
 
-    private function doDeleteOperation(Account $account, SalesChannelContext $context, array $productIds, array $mapping)
-    {
+    private function doDeleteOperation(
+        Account $account,
+        SalesChannelContext $context,
+        array $productIds,
+        array $mapping
+    ): void {
         $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
         $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
@@ -193,6 +242,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         if ($identifierType === 'product-number') {
             return $this->getProductNumbers($productIds, $mapping);
         }
+
         return $productIds;
     }
 
@@ -214,7 +264,44 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         if ($domains == null || $domains->count() < 1) {
             return '';
         }
+
         $domainId = (string) $this->configProvider->getDomainId($channelId);
+
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+    }
+
+    private function getCategoryIdsByDynamicGroups(SalesChannelContext $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter(self::PRODUCT_ASSIGNMENT_TYPE, CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM)
+        );
+
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $result = [];
+
+        if ($categories->count() > 0) {
+            foreach ($categories as $category) {
+                if (!$category->getProductStreamId()) {
+                    continue;
+                }
+
+                $result[$category->getProductStreamId()] = $category->getPath() . $category->getId();
+            }
+        }
+
+        return $result;
+    }
+
+    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): CategoryCollection
+    {
+        $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsAnyFilter('id', $categoriesPaths)
+        );
+
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 }

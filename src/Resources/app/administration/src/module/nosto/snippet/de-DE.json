@@ -39,7 +39,8 @@
                     "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
                     "generalErrorMessage": "API-Schlüssel können nicht validiert werden",
                     "incorrectCredentialsTitle": "Falsche Anmeldeinformationen",
-                    "correctApiMessage": "Key ist gültig"
+                    "correctApiMessage": "Key ist gültig",
+                    "sendCategoriesLabel": "Kategorien aktualisieren"
                 }
             },
             "general": {

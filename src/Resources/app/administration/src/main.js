@@ -9,11 +9,19 @@ import enGB from './snippet/en-GB.json';
 
 // Services
 import NostoIntegrationService from './core/service/api/nosto-integration.service';
+import NostoCategoriesService from './core/service/api/nosto-categories.service';
 
 const { Application } = Shopware;
 
 Application.addServiceProvider('NostoIntegrationProviderService', () => {
     return new NostoIntegrationService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service('loginService'),
+    );
+});
+
+Application.addServiceProvider('NostoCategoriesProviderService', () => {
+    return new NostoCategoriesService(
         Shopware.Application.getContainer('init').httpClient,
         Shopware.Service('loginService'),
     );

@@ -9,7 +9,9 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\Operation\AbstractGraphQLOperation;
-use Nosto\Operation\Recommendation\{CategoryMerchandising, ExcludeFilters, IncludeFilters};
+use Nosto\Operation\Recommendation\CategoryMerchandising;
+use Nosto\Operation\Recommendation\ExcludeFilters;
+use Nosto\Operation\Recommendation\IncludeFilters;
 use Nosto\Result\Graphql\Recommendation\CategoryMerchandisingResult;
 use Nosto\Result\Graphql\Recommendation\ResultSet;
 use Psr\Log\LoggerInterface;
@@ -81,6 +83,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
         $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
+
         try {
             $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext());
         } catch (Throwable $throwable) {
@@ -94,22 +97,51 @@ class MerchandisingSearchApi extends SalesChannelRepository
             );
         }
 
-        $account = $this->resolver->getNostoAccount($salesChannelContext->getContext(), $salesChannelContext->getSalesChannelId());
+        $account = $this->resolver->getNostoAccount(
+            $salesChannelContext->getContext(),
+            $salesChannelContext->getSalesChannelId()
+        );
 
-        if (!$isMerchEnabled || $this->getSortingKey() !== self::MERCHANDISING_SORTING_KEY || !$account || !$sessionId || $criteria->getLimit() == 0) {
+        if (
+            !$isMerchEnabled ||
+            $this->getSortingKey() !== self::MERCHANDISING_SORTING_KEY ||
+            !$account ||
+            !$sessionId ||
+            $criteria->getLimit() == 0
+        ) {
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
 
-        $category = $this->getCategoryName($criteria, $salesChannelContext);
+        $categoryName = $this->getCategoryName($criteria, $salesChannelContext);
+
+        if (!$categoryName) {
+            $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
+
+            if ($requestUri) {
+                $categoryIdArr = explode('/', $requestUri);
+                $categoryId = array_pop($categoryIdArr);
+
+                $category = $this->categoryRepository->search(
+                    new Criteria([$categoryId]),
+                    $salesChannelContext->getContext()
+                )->first();
+
+                $categoryName = $this->getCategoryNameByBreadcrumbs($category->getPlainBreadcrumb());
+            }
+        }
+
         $includeFilters = !empty($criteria->getPostFilters())
-            ? $this->filterTranslator->buildIncludeFilters($criteria->getPostFilters(), $salesChannelContext->getContext())
+            ? $this->filterTranslator->buildIncludeFilters(
+                $criteria->getPostFilters(),
+                $salesChannelContext->getContext()
+            )
             : new IncludeFilters();
 
         try {
             $operation = new CategoryMerchandising(
                 $account->getNostoAccount(),
                 $sessionId,
-                $category,
+                $categoryName,
                 $criteria->getOffset() / $criteria->getLimit(),
                 $includeFilters,
                 new ExcludeFilters(),
@@ -142,6 +174,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $e->getMessage(),
                 ContextHelper::createContextFromException($e)
             );
+
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }
     }
@@ -170,6 +203,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
         // Just a sorting/mapping for easier access later on.
         $replaceSkusWithIds = [];
+
         foreach ($products as $product) {
             $replaceSkusWithIds[$product->getId()] = $product->getProductNumber();
         }
@@ -209,6 +243,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
     private function getSortingKey(): string
     {
         $request = $this->requestStack->getCurrentRequest();
+
         return $request ? $request->get('order', '') : '';
     }
 
@@ -218,15 +253,12 @@ class MerchandisingSearchApi extends SalesChannelRepository
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $categoryId));
         $category = $this->categoryRepository->search($criteria, $context->getContext())->first();
-        $plainCategoryBreadcrumbs = $category->getPlainBreadcrumb();
-        $categoryBreadcrumbs = \array_slice($plainCategoryBreadcrumbs, 1);
-        $categoryName = '';
 
-        foreach ($categoryBreadcrumbs as $breadcrumb) {
-            $categoryName .= '/' . $breadcrumb;
+        if ($category === null) {
+            return '';
         }
 
-        return $categoryName;
+        return $this->getCategoryNameByBreadcrumbs($category->getPlainBreadcrumb());
     }
 
     private function getCategoryId(Criteria $criteria): ?string
@@ -239,5 +271,17 @@ class MerchandisingSearchApi extends SalesChannelRepository
         }
 
         return $categoryId;
+    }
+
+    private function getCategoryNameByBreadcrumbs($categoryBreadcrumbs): string
+    {
+        $breadcrumbs = \array_slice($categoryBreadcrumbs, 1);
+        $categoryFullName = '';
+
+        foreach ($breadcrumbs as $breadcrumb) {
+            $categoryFullName .= '/' . $breadcrumb;
+        }
+
+        return $categoryFullName;
     }
 }
