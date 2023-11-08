@@ -1,3 +1,6 @@
+# 2.2.1
+# Behebung: Das Problem wurde behoben, das bei einigen Kunden auftreten konnte, wenn die Nosto-Empfehlungs-/Merchandising-Seite abstürzte, wenn die Produktkennung auf „Produktnummer“ eingestellt war.
+
 # 2.2.0
 
 * Besonderheit: Die Nosto-Cookies sind First-Party-Cookies. Das Plugin setzt die Cookies als unbedingt erforderlich und lädt sie immer, anstatt sie als etwas zu bewerten und sie optional nach der Auswahl des Benutzers zu laden

@@ -1,3 +1,6 @@
+# 2.2.1
+# Fix: Resolved the issue that some customers may have upon nosto recommendation/merchandising page crashing if the product identifier was set to "Product Number".
+
 # 2.2.0
 
 * Feature: The Nosto cookies are 1st Party Cookies. The plugin sets the cookies as essential and always loads them instead of rating is as something and loading them optionally after the user's selection
