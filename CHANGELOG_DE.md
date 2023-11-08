@@ -1,3 +1,7 @@
+# 2.2.0
+
+* Besonderheit: Die Nosto-Cookies sind First-Party-Cookies. Das Plugin setzt die Cookies als unbedingt erforderlich und lädt sie immer, anstatt sie als etwas zu bewerten und sie optional nach der Auswahl des Benutzers zu laden
+
 # 2.1.0
 
 * Hinzugefügt: ID jeder Produktkategorie zu einem Produktdatenobjekt hinzugefügt, bevor es an den Nosto-Service gesendet wird.

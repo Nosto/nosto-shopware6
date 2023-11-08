@@ -1,3 +1,7 @@
+# 2.2.0
+
+* Feature: The Nosto cookies are 1st Party Cookies. The plugin sets the cookies as essential and always loads them instead of rating is as something and loading them optionally after the user's selection
+
 # 2.1.0
 
 * Added: Added id of each of the product's categories to a product data object before sending it to Nosto service.

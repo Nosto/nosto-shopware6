@@ -73,6 +73,13 @@ class CmsPageLoaderListener implements EventSubscriberInterface
             );
         }
 
+        if (!$request->cookies->has('nosto-integration-track-allow')) {
+            $cookie = Cookie::create('nosto-integration-track-allow', '1', strtotime('+30 days'))
+                ->withHttpOnly(false);
+            $cookie->setSecureDefault($request->isSecure());
+            $response->headers->setCookie($cookie);
+        }
+
         $isNeedCreateSessionCookie = $sessionId !== null
             && $request->cookies->has('nosto-integration-track-allow')
             && !$request->cookies->has(SessionLookupResolver::NOSTO_SESSION_COOKIE);
