@@ -1,36 +1,44 @@
+# 2.1.0
+
+* Hinzugefügt: ID jeder Produktkategorie zu einem Produktdatenobjekt hinzugefügt, bevor es an den Nosto-Service gesendet wird.
+* Fix: Das Problem wurde behoben, wenn der Schalter „Variationen aktivieren" keinen Einfluss auf die Produktdatenstruktur hatte, die an den Nosto-Dienst gesendet wurde.
+
 # 2.0.2
-# Fix: Das Problem wurde behoben, wenn der Empfehlungsfilter für einige Benutzer nicht wie vorgesehen funktionierte.
-# Fix: Das Problem wurde behoben, bei dem Nosto-Widgets auf der Seite, auf der sie hinzugefügt wurden, Fehler verursachen konnten.
+
+* Fix: Das Problem wurde behoben, wenn der Empfehlungsfilter für einige Benutzer nicht wie vorgesehen funktionierte.
+* Fix: Das Problem wurde behoben, bei dem Nosto-Widgets auf der Seite, auf der sie hinzugefügt wurden, Fehler verursachen konnten.
 
 # 2.0.1
-# Fix: Das Problem mit Konfigurationsbenennungen wurde behoben.
+
+* Fix: Das Problem mit Konfigurationsbenennungen wurde behoben.
 
 # 2.0.0
 
-# Kompatibilitätsfreigabe mit Shopwrae 6.5^
-# Fix: Verwendung entfernter Klassen und Dateien ersetzt.
-# Fix: Das Problem wurde behoben, das bei einigen Plugin-Benutzern während der Datensynchronisierung über das Shopware-Admin-Panel auftrat.
-# Fix: Kleinere Änderungen an Erweiterungskonfigurationsklassen/-vorlagen (auf der Erweiterungskonfigurationsseite).
-# Neu: Job Scheduler Update – Kompatibilität mit Shopawre 6.5^-Versionen implementiert.
-# Neu: Job-Scheduler-Update – Job-Scheduler-Handler erweitern jetzt empfohlene Schnittstellen.
-# Neu: Controller-Routen verfügen jetzt über eine Annotationsdeklaration im neuen Format.
-# Neu: Einige vorgenommene Änderungen machen die Erweiterung abwärtsinkompatibel. Sie können die Abhängigkeiten in der Datei „composer.json“ sehen.
+* Kompatibilitätsfreigabe mit Shopwrae 6.5^
+* Fix: Verwendung entfernter Klassen und Dateien ersetzt.
+* Fix: Das Problem wurde behoben, das bei einigen Plugin-Benutzern während der Datensynchronisierung über das Shopware-Admin-Panel auftrat.
+* Fix: Kleinere Änderungen an Erweiterungskonfigurationsklassen/-vorlagen (auf der Erweiterungskonfigurationsseite).
+* Neu: Job Scheduler Update – Kompatibilität mit Shopawre 6.5^-Versionen implementiert.
+* Neu: Job-Scheduler-Update – Job-Scheduler-Handler erweitern jetzt empfohlene Schnittstellen.
+* Neu: Controller-Routen verfügen jetzt über eine Annotationsdeklaration im neuen Format.
+* Neu: Einige vorgenommene Änderungen machen die Erweiterung abwärtsinkompatibel. Sie können die Abhängigkeiten in der Datei „composer.json“ sehen.
 
 # 1.0.18
-# Der Fehler wurde behoben, indem Kriterien zur Nosto-Sortiermethode hinzugefügt wurden
+
+* Der Fehler wurde behoben, indem Kriterien zur Nosto-Sortiermethode hinzugefügt wurden
 
 # 1.0.17
 
-# Kleinere Fehlerbehebungen: Es wurde ein Problem behoben, bei dem Website-Besucher auf der Storefront auf einen Fehler stoßen konnten, nachdem sie den Checkout erreicht und zur vorherigen Seite zurückgekehrt waren.
+* Kleinere Fehlerbehebungen: Es wurde ein Problem behoben, bei dem Website-Besucher auf der Storefront auf einen Fehler stoßen konnten, nachdem sie den Checkout erreicht und zur vorherigen Seite zurückgekehrt waren.
 
 # 1.0.16
 
-# Unterstützung für die Funktionalität „Warenkorb wiederherstellen“/„Warenkorb verlassen“ hinzugefügt. Jetzt erhält der Nosto-Dienst neben allen anderen Kartendaten auch den Link „restore_cart“. 
+* Unterstützung für die Funktionalität „Warenkorb wiederherstellen“/„Warenkorb verlassen“ hinzugefügt. Jetzt erhält der Nosto-Dienst neben allen anderen Kartendaten auch den Link „restore_cart“. 
 
 # 1.0.15
 
-# Fix: Problem behoben, das bei einigen Benutzern bei der „vollständigen Produktsynchronisierung“ auftreten kann. Fehlermeldung: Countable|array int bereitgestellt
-# Fix: Doppelter Text für die Tooltip-Beschreibung der Nosto-Konfigurationsoption (Adminpanel)
+* Fix: Problem behoben, das bei einigen Benutzern bei der „vollständigen Produktsynchronisierung“ auftreten kann. Fehlermeldung: Countable|array int bereitgestellt
+* Fix: Doppelter Text für die Tooltip-Beschreibung der Nosto-Konfigurationsoption (Adminpanel)
 
 # 1.0.14
 

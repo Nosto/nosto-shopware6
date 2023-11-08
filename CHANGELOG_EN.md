@@ -1,36 +1,44 @@
+# 2.1.0
+
+* Added: Added id of each of the product's categories to a product data object before sending it to Nosto service.
+* Fix: Resolved the issue when "Enable Variations" toggle was not affecting product data structure that was being sent to Nosto service.
+
 # 2.0.2
-# Fix: Resolved the issue when Recommendation filter was not working as intended for some users.
-# Fix: Resolved the issue when nosto widgets could cause error on the page where they were added.
+
+* Fix: Resolved the issue when Recommendation filter was not working as intended for some users.
+* Fix: Resolved the issue when nosto widgets could cause error on the page where they were added.
 
 # 2.0.1
-# Fix: Resolved the issue with configuration namings.
+
+* Fix: Resolved the issue with configuration namings.
 
 # 2.0.0
 
-# Compatibility release with shopwrae 6.5^
-# Fix: Replaced usage of removed classes & files.
-# Fix: Resolved the issue that some plugin users was able to encounter during data syncronization via shopware admin panel.
-# Fix: Minor changes to extension configuration classes/templates ( at extension configuration page ).
-# New: Job Scheduler Update - implemented compatibility with Shopawre 6.5^ versions.
-# New: Job Scheduler Update - Job scheduler handlers now do extend recommended interfaces.
-# New: Controller routes now have annotation declaration in new format.
-# New: Some changes that was made do make the extension backward-incompatible. You can see the dependencies in composer.json file.
+* Compatibility release with shopwrae 6.5^
+* Fix: Replaced usage of removed classes & files.
+* Fix: Resolved the issue that some plugin users was able to encounter during data syncronization via shopware admin panel.
+* Fix: Minor changes to extension configuration classes/templates ( at extension configuration page ).
+* New: Job Scheduler Update - implemented compatibility with Shopawre 6.5^ versions.
+* New: Job Scheduler Update - Job scheduler handlers now do extend recommended interfaces.
+* New: Controller routes now have annotation declaration in new format.
+* New: Some changes that was made do make the extension backward-incompatible. You can see the dependencies in composer.json file.
 
 # 1.0.18
-# Fixed the bug with added criteria to Nosto sorting method
+
+* Fixed the bug with added criteria to Nosto sorting method
 
 # 1.0.17
 
-# Minor bugfixes: Fixed issue when site visitor can encounter an error on storefront after reaching checkout and comming back to previous page.
+* Minor bugfixes: Fixed issue when site visitor can encounter an error on storefront after reaching checkout and comming back to previous page.
 
 # 1.0.16
 
-# Added "restore cart"/"abandoned cart" functionality support. Now Nosto service will receive "restore_cart" link alongside all other card data.
+* Added "restore cart"/"abandoned cart" functionality support. Now Nosto service will receive "restore_cart" link alongside all other card data.
 
 # 1.0.15
 
-# Fix: Fixed issue that some users can encounter upon "Full product sync". Error message: Countable|array int provided
-# Fix: Duplicate text for nosto config option tooltip description ( adminpanel )
+* Fix: Fixed issue that some users can encounter upon "Full product sync". Error message: Countable|array int provided
+* Fix: Duplicate text for nosto config option tooltip description ( adminpanel )
 
 # 1.0.14
 
