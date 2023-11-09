@@ -34,7 +34,7 @@ class ListingPageEventListener implements EventSubscriberInterface
         }
         $sortings = $event->getResult()->getAvailableSortings();
         foreach ($sortings as $sorting) {
-            if (MerchandisingSearchApi::MERCHANDISING_SORTING_KEY === $sorting->getKey()) {
+            if ($sorting->getKey() === MerchandisingSearchApi::MERCHANDISING_SORTING_KEY) {
                 $sortings->remove($sorting->getId());
             }
         }

@@ -46,7 +46,7 @@ class NostoCookieProvider implements CookieProviderInterface
 
     private function isRequiredCookieGroup(array $cookie): bool
     {
-        return (\array_key_exists('isRequired', $cookie) && true === $cookie['isRequired'])
-            && (\array_key_exists('snippet_name', $cookie) && 'cookie.groupRequired' === $cookie['snippet_name']);
+        return (\array_key_exists('isRequired', $cookie) && $cookie['isRequired'] === true)
+            && (\array_key_exists('snippet_name', $cookie) && $cookie['snippet_name'] === 'cookie.groupRequired');
     }
 }

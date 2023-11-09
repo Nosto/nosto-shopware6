@@ -1,3 +1,10 @@
+# 2.3.1
+
+* Fix: Logik zur „Vollständigen Katalogsynchronisierung“ hinzugefügt, die Probleme mit Produktvarianten löst (Produkte werden basierend auf der Darstellung der Produktvariantenkonfiguration im Laden rabattiert)
+* Fix: Ein Problem, bei dem einige Produkte in Nosto Merchandising und Katalog eingestellt wurden.
+* Fix: Die Produkte werden nicht vertauscht, nachdem die Positionen der Produkte geändert wurden
+* Fix: Das Problem, wenn Produkt-Tags/benutzerdefinierte Felder nicht synchronisiert werden können
+
 # 2.3.0
 
 * Fix: Das Problem beim Zuweisen einer dynamischen Gruppe von Merchandising-Produkten zu Kategorien wurde behoben.

@@ -34,40 +34,18 @@ class MerchandisingSearchApi extends SalesChannelRepository
 {
     public const MERCHANDISING_SORTING_KEY = 'nosto-recommendation';
 
-    private SalesChannelRepository $repository;
-
-    private EntityRepository $categoryRepository;
-
-    private ResultTranslator $resultTranslator;
-
-    private FilterTranslatorAggregate $filterTranslator;
-
-    private SessionLookupResolver $resolver;
-
-    private ConfigProvider $configProvider;
-
-    private RequestStack $requestStack;
-
-    private LoggerInterface $logger;
+    private string $currentCategoryId;
 
     public function __construct(
-        SalesChannelRepository $repository,
-        EntityRepository $categoryRepository,
-        ResultTranslator $resultTranslator,
-        FilterTranslatorAggregate $filterTranslator,
-        SessionLookupResolver $resolver,
-        ConfigProvider $configProvider,
-        RequestStack $requestStack,
-        LoggerInterface $logger
+        private readonly SalesChannelRepository $repository,
+        private readonly EntityRepository $categoryRepository,
+        private readonly ResultTranslator $resultTranslator,
+        private readonly FilterTranslatorAggregate $filterTranslator,
+        private readonly SessionLookupResolver $resolver,
+        private readonly ConfigProvider $configProvider,
+        private readonly RequestStack $requestStack,
+        private readonly LoggerInterface $logger
     ) {
-        $this->repository = $repository;
-        $this->categoryRepository = $categoryRepository;
-        $this->resultTranslator = $resultTranslator;
-        $this->filterTranslator = $filterTranslator;
-        $this->resolver = $resolver;
-        $this->configProvider = $configProvider;
-        $this->requestStack = $requestStack;
-        $this->logger = $logger;
     }
 
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
@@ -126,6 +104,8 @@ class MerchandisingSearchApi extends SalesChannelRepository
                     $salesChannelContext->getContext()
                 )->first();
 
+                $this->currentCategoryId = $categoryId;
+
                 $categoryName = $this->getCategoryNameByBreadcrumbs($category->getPlainBreadcrumb());
             }
         }
@@ -138,6 +118,10 @@ class MerchandisingSearchApi extends SalesChannelRepository
             : new IncludeFilters();
 
         try {
+            if ($this->configProvider->getCategoryNamingOption($salesChannelContext->getSalesChannelId()) === 'with-id') {
+                $categoryName .= ' (ID = ' . $this->currentCategoryId . ')';
+            }
+
             $operation = new CategoryMerchandising(
                 $account->getNostoAccount(),
                 $sessionId,
@@ -257,6 +241,8 @@ class MerchandisingSearchApi extends SalesChannelRepository
         if ($category === null) {
             return '';
         }
+
+        $this->currentCategoryId = $categoryId;
 
         return $this->getCategoryNameByBreadcrumbs($category->getPlainBreadcrumb());
     }

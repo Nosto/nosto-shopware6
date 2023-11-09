@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
@@ -13,7 +14,7 @@ return function (ECSConfig $ecsConfig): void {
     ]);
 
     $ecsConfig->rules([
-        DeclareStrictTypesFixer::class
+        DeclareStrictTypesFixer::class,
     ]);
 
     $ecsConfig->skip([
@@ -27,5 +28,11 @@ return function (ECSConfig $ecsConfig): void {
          SetList::NAMESPACES,
          SetList::COMMENTS,
          SetList::PSR_12,
+    ]);
+
+    $ecsConfig->ruleWithConfiguration(YodaStyleFixer::class, [
+        'equal' => false,
+        'identical' => false,
+        'less_and_greater' => false,
     ]);
 };

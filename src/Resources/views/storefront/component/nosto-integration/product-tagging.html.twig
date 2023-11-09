@@ -10,7 +10,7 @@
                 {% set parentId = product.parentId %}
                 {% set nostoParentProduct = nosto_product_by_id(parentId, context) %}
 
-                <span class="product_id">{{ parentId }}</span>
+                <span class="product_id">{{ nostoProduct.productId }}</span>
                 <span class="name">{{ nostoParentProduct.name }}</span>
                 <span class="url">{{ seoUrl('frontend.detail.page', {'productId': parentId}) }}</span>
                 <span class="image_url">{{ nostoParentProduct.cover.media.url }}</span>

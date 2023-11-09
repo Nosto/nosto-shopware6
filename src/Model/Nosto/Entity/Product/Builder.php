@@ -132,8 +132,10 @@ class Builder implements BuilderInterface
         if ($this->configProvider->isEnabledVariations($channelId) && $product->getChildCount() !== 0) {
             $skuCollection = new SkuCollection();
 
-            foreach ($product->getChildren()->getElements() as $variationProduct) {
-                $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+            if ($product->getChildren()) {
+                foreach ($product->getChildren()->getElements() as $variationProduct) {
+                    $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                }
             }
 
             $nostoProduct->setSkus($skuCollection);

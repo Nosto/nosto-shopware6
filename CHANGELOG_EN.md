@@ -1,3 +1,10 @@
+# 2.3.1
+
+* Fix: Added logic to "Full Catalog Sync" that will resolve variant product issues ( it will discountinue products based on store-front representaion of variant product configuration )
+* Fix: An issue when some products became discontinued in Nosto Merchandising and Catalog.
+* Fix: The products are not switched after changing the positions of the products
+* Fix: The issue when product tags/custom fields can't be synced
+
 # 2.3.0
 
 * Fix: Resolved the issue with assigning a dynamic group of merchandising products to categories.

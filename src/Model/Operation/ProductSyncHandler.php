@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
@@ -14,6 +15,7 @@ use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
+use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
@@ -130,7 +132,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         try {
             if ($products->count() !== 0) {
-                $this->doUpsertOperation($account, $context, $products->getEntities(), $result);
+                $this->doUpsertOperation($account, $context, $products->getEntities(), $result, $ids);
             }
 
             if (!empty($deletedProductIds)) {
@@ -151,7 +153,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         Account $account,
         SalesChannelContext $context,
         ProductCollection $productCollection,
-        Job\JobResult $result
+        Job\JobResult $result,
+        array $ids
     ): void {
         $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
         $domain = parse_url($domainUrl, PHP_URL_HOST);
@@ -185,18 +188,61 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
 
             // TODO: up to 2MB payload !
-            $nostoProduct = $this->productProvider->get($product, $context);
-            $invalidMessage = $this->validateProduct($product->getProductNumber(), $nostoProduct);
+            if ($product->getChildCount() && $product->getVariantListingConfig()?->getDisplayParent() === null) {
+                $nostoProducts = $this->resolveVariantProducts($product, $context);
+                $this->doDeleteOperation($account, $context, [$product->getId()], $ids);
+            } elseif ($product->getChildCount() && $product->getVariantListingConfig()?->getDisplayParent() !== null) {
+                $idsToDelete = [];
 
-            if ($invalidMessage) {
-                $result->addMessage($invalidMessage);
-                continue;
+                foreach ($product->getChildren() as $prod) {
+                    $idsToDelete[] = $prod->getId();
+                }
+
+                $nostoProducts[] = $this->productProvider->get($product, $context);
+                $this->doDeleteOperation($account, $context, $idsToDelete, $ids);
+            } else {
+                $nostoProducts[] = $this->productProvider->get($product, $context);
             }
 
-            $operation->addProduct($nostoProduct);
+            foreach ($nostoProducts as $preparedProductForSync) {
+                $invalidMessage = $this->validateProduct(
+                    $preparedProductForSync->getProductId(),
+                    $preparedProductForSync
+                );
+
+                if ($invalidMessage) {
+                    $result->addMessage($invalidMessage);
+                    continue;
+                }
+
+                $operation->addProduct($preparedProductForSync);
+            }
         }
+
         $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
         $operation->upsert();
+    }
+
+    private function resolveVariantProducts(SalesChannelProductEntity $product, $context): array
+    {
+        $result = [];
+
+        foreach ($product->getChildren()->getElements() as $variantOption) {
+            $option = $this->productProvider->get($variantOption, $context);
+            $option->setImageUrl($this->getVariantImage($variantOption));
+            $result[] = $option;
+        }
+
+        return $result;
+    }
+
+    private function getVariantImage($variantOption)
+    {
+        foreach ($variantOption->getMedia()->getElements() as $mediaElement) {
+            return $mediaElement->getMedia()->getUrl();
+        }
+
+        return null;
     }
 
     private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
