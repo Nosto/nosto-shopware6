@@ -24,8 +24,8 @@ class Migration1699534500ConfigTable extends MigrationStep
                 `id` binary(16) NOT NULL,
                 `configuration_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                 `configuration_value` json NOT NULL,
-                `sales_channel_id` binary(16) NOT NULL,
-                `language_id` binary(16) NOT NULL,
+                `sales_channel_id` binary(16),
+                `language_id` binary(16),
                 `created_at` datetime(3) NOT NULL,
                 `updated_at` datetime(3) DEFAULT NULL,
                 PRIMARY KEY (`id`),
@@ -62,21 +62,21 @@ class Migration1699534500ConfigTable extends MigrationStep
 
         foreach ($configs as $config) {
             $salesChannelId = $config['sales_channel_id'];
-            if (!$salesChannelId) {
-                $salesChannelId = $this->getDefaultSalesChannelId($connection);
-            }
+            $languageId = null;
 
-            $sql = 'SELECT LOWER(HEX(`language_id`)) AS `language_id` FROM `sales_channel` WHERE `id` = UNHEX(?)';
-            $languageId = $connection->fetchOne($sql, [$salesChannelId]);
-
-            if (!$languageId) {
-                continue;
+            if ($salesChannelId) {
+                $sql = 'SELECT LOWER(HEX(`language_id`)) AS `language_id` FROM `sales_channel` WHERE `id` = UNHEX(?)';
+                $languageId = $connection->fetchOne($sql, [$salesChannelId]);
             }
 
             $data = $config;
             $data['id'] = Uuid::fromHexToBytes($config['id']);
-            $data['language_id'] = Uuid::fromHexToBytes($languageId);
-            $data['sales_channel_id'] = Uuid::fromHexToBytes($salesChannelId);
+            $data['language_id'] = $languageId
+                ? Uuid::fromHexToBytes($languageId)
+                : null;
+            $data['sales_channel_id'] = $salesChannelId
+                ? Uuid::fromHexToBytes($salesChannelId)
+                : null;
             try {
                 $connection->insert('nosto_integration_config', $data);
             } catch (Exception $exception) {
