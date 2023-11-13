@@ -55,10 +55,7 @@ class NostoCategoriesController extends AbstractController
         $criteria->addAssociation('children');
         $criteria->getAssociation('parent');
         $criteria->getAssociation('seoUrls');
-        $criteria->addFilter(new EqualsFilter(
-            'active',
-            true
-        ));
+        $criteria->addFilter(new EqualsFilter('active', true));
 
         if ($this->systemConfigService->get(self::APP_TOKEN_CONFIG) === null) {
             return new JsonResponse(404);

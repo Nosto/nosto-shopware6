@@ -141,8 +141,6 @@ class SearchController extends StorefrontController
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
-        return new JsonResponse(
-            $this->filterHandler->handleAvailableFilters($criteria)
-        );
+        return new JsonResponse($this->filterHandler->handleAvailableFilters($criteria));
     }
 }

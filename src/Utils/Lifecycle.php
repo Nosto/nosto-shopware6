@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
-use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -180,7 +180,9 @@ class Lifecycle
     public function removeOldTags(Context $context): void
     {
         $channelCriteria = new Criteria();
-        $channelCriteria->addFilter(new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]));
+        $channelCriteria->addFilter(
+            new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API])
+        );
         $channelIds = $this->salesChannelRepository->searchIds($channelCriteria, $context);
 
         foreach ($channelIds->getIds() as $channelId) {
@@ -193,7 +195,10 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete('NostoIntegration.' . ConfigProvider::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->systemConfigService->delete(
+                NostoConfigService::PATH_PREFIX . NostoConfigService::TAG_FIELD_TEMPLATE . $i,
+                $channelId
+            );
         }
     }
 

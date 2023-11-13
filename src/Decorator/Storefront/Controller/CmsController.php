@@ -56,8 +56,11 @@ class CmsController extends StorefrontController
         ],
         methods: ['GET', 'POST']
     )]
-    public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
-    {
+    public function category(
+        ?string $navigationId,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): Response {
         return $this->decorated->category($navigationId, $request, $salesChannelContext);
     }
 
@@ -84,9 +87,7 @@ class CmsController extends StorefrontController
             return $this->decorated->filter($navigationId, $request, $salesChannelContext);
         }
 
-        return new JsonResponse(
-            $this->filterHandler->handleAvailableFilters($criteria)
-        );
+        return new JsonResponse($this->filterHandler->handleAvailableFilters($criteria));
     }
 
     #[Route(

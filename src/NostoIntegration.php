@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
-use Nosto\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
 use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -61,9 +60,7 @@ class NostoIntegration extends Plugin
 
     private function getDependencyBundles(): array
     {
-        return [
-            new NostoScheduler(),
-        ];
+        return [new NostoScheduler()];
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
@@ -124,7 +121,6 @@ class NostoIntegration extends Plugin
 
     public function build(ContainerBuilder $container): void
     {
-        $this->registerContainerFile($container);
         parent::build($container);
 
         $locator = new FileLocator('Resources/config');
@@ -140,19 +136,5 @@ class NostoIntegration extends Plugin
         $confDir = \rtrim($this->getPath(), '/') . '/Resources/config';
 
         $configLoader->load($confDir . '/{packages}/*.yaml', 'glob');
-    }
-
-    private function registerContainerFile(ContainerBuilder $container): void
-    {
-        $fileLocator = new FileLocator($this->getPath());
-        $loaderResolver = new LoaderResolver([
-            new FlexibleXmlFileLoader($container, $fileLocator),
-        ]);
-        $delegatingLoader = new DelegatingLoader($loaderResolver);
-
-        $path = $this->getPath() . '/Resources/config/flexible_services.xml';
-        if (file_exists($path)) {
-            $delegatingLoader->load($path);
-        }
     }
 }

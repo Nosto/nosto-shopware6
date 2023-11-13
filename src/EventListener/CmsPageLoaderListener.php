@@ -65,10 +65,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(
-                sprintf(
-                    'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
-                ),
+                sprintf('Unable to load resolve session, reason: %s', $throwable->getMessage()),
                 ContextHelper::createContextFromException($throwable)
             );
         }

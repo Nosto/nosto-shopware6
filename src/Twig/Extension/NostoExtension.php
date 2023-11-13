@@ -51,10 +51,7 @@ class NostoExtension extends AbstractExtension
         try {
             return $product === null ? null : $this->productProvider->get($product, $context);
         } catch (\Throwable $throwable) {
-            $this->logger->error(
-                $throwable->getMessage(),
-                ContextHelper::createContextFromException($throwable)
-            );
+            $this->logger->error($throwable->getMessage(), ContextHelper::createContextFromException($throwable));
             return null;
         }
     }

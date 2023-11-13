@@ -21,8 +21,11 @@ class ManufacturerFilterTranslator implements TranslatorInterface
         $this->manufacturerRepository = $manufacturerRepository;
     }
 
-    public function translate(IncludeFilters $includeFilters, EqualsAnyFilter $filters = null, Context $context = null): IncludeFilters
-    {
+    public function translate(
+        IncludeFilters $includeFilters,
+        EqualsAnyFilter $filters = null,
+        Context $context = null
+    ): IncludeFilters {
         if (!$filters) {
             return $includeFilters;
         }

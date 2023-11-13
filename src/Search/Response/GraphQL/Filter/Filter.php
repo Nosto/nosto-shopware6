@@ -91,11 +91,6 @@ abstract class Filter
 
     private static function handleRatingSlider(StatsFacet $facet): RatingFilter
     {
-        return new RatingFilter(
-            $facet->getId(),
-            $facet->getName(),
-            $facet->getField(),
-            ceil($facet->getMax()),
-        );
+        return new RatingFilter($facet->getId(), $facet->getName(), $facet->getField(), ceil($facet->getMax()));
     }
 }

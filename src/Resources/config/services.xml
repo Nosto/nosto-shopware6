@@ -151,6 +151,14 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="logger"/>
         </service>
+        <service id="nosto.product_listing_loader"
+                 class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
+            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
+        </service>
         <service id="Nosto\NostoIntegration\Service\ProductListingRouteDecorator"
                  decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute">
             <argument type="service" id="nosto.product_listing_loader" />

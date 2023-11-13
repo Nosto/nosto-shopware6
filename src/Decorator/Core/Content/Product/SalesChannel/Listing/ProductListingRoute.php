@@ -66,10 +66,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         );
 
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->search(
-            new Criteria([$categoryId]),
-            $context->getContext()
-        )->first();
+        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context->getContext())->first();
 
         $streamId = $this->extendCriteria($context, $criteria, $category);
 
@@ -143,9 +140,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             return $category->getProductStreamId();
         }
 
-        $criteria->addFilter(
-            new EqualsFilter('product.categoriesRo.id', $category->getId())
-        );
+        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $category->getId()));
 
         return null;
     }

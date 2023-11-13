@@ -65,10 +65,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
         foreach ($this->getSubscribers($context, $subscriberIds) as $subscriber) {
             $isSubscribed = in_array(
                 $subscriber->getStatus(),
-                [
-                    NewsletterSubscribeRoute::OPTION_DIRECT,
-                    NewsletterSubscribeRoute::STATUS_OPT_IN,
-                ]
+                [NewsletterSubscribeRoute::OPTION_DIRECT, NewsletterSubscribeRoute::STATUS_OPT_IN]
             );
             try {
                 $this->eventDispatcher->dispatch(

@@ -21,9 +21,7 @@ class ListingPageEventListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ProductListingResultEvent::class => [
-                ['removeScoreSorting', -110],
-            ],
+            ProductListingResultEvent::class => [['removeScoreSorting', -110]],
         ];
     }
 
