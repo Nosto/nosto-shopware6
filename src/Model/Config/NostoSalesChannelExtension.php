@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -12,11 +14,7 @@ class NostoSalesChannelExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToManyAssociationField(
-                'salesChannel',
-                NostoConfigDefinition::class,
-                'sales_channel_id'
-            )
+            new OneToManyAssociationField('salesChannel', NostoConfigDefinition::class, 'sales_channel_id')
         );
     }
 

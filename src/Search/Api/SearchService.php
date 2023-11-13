@@ -36,7 +36,7 @@ class SearchService
 
     public function doSearch(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($this->allowRequest($request, $context->getContext())) {
+        if ($this->allowRequest($request, $context)) {
             $searchRequestHandler = $this->buildSearchRequestHandler();
 
             $this->handleRequest($request, $criteria, $context, $searchRequestHandler);
@@ -45,7 +45,7 @@ class SearchService
 
     public function doNavigation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($this->allowRequest($request, $context->getContext())) {
+        if ($this->allowRequest($request, $context)) {
             $navigationRequestHandler = $this->buildNavigationRequestHandler();
 
             $this->handleRequest($request, $criteria, $context, $navigationRequestHandler);
@@ -54,7 +54,7 @@ class SearchService
 
     public function doFilter(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($this->allowRequest($request, $context->getContext())) {
+        if ($this->allowRequest($request, $context)) {
             if (SearchHelper::isSearchPage($request)) {
                 $handler = $this->buildSearchRequestHandler();
             } elseif (SearchHelper::isNavigationPage($request)) {
@@ -69,7 +69,7 @@ class SearchService
         }
     }
 
-    protected function allowRequest(Request $request, Context $context): bool
+    protected function allowRequest(Request $request, SalesChannelContext $context): bool
     {
         return SearchHelper::shouldHandleRequest(
             $context,
@@ -97,7 +97,7 @@ class SearchService
         AbstractRequestHandler $requestHandler
     ): void {
         try {
-            $response = $requestHandler->sendRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
+            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
             $filters = $this->parseFiltersFromResponse($response);
             $filterMapping = $this->parseFilterMappingFromResponse($response);
 
@@ -108,9 +108,7 @@ class SearchService
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
 
-            $this->logger->error(
-                sprintf('Error while fetching all filters: %s', $e->getMessage())
-            );
+            $this->logger->error(sprintf('Error while fetching all filters: %s', $e->getMessage()));
         }
     }
 
@@ -121,7 +119,7 @@ class SearchService
         AbstractRequestHandler $requestHandler
     ): void {
         try {
-            $response = $requestHandler->sendRequest($request, $criteria, self::FILTER_REQUEST_LIMIT);
+            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
             $response = $this->parseFiltersFromResponse($response);
 
             $criteria->addExtension('nostoAvailableFilters', $response);
@@ -130,28 +128,18 @@ class SearchService
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
 
-            $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage())
-            );
+            $this->logger->error(sprintf('Error while fetching the available filters: %s', $e->getMessage()));
         }
     }
 
     protected function buildSearchRequestHandler(): SearchRequestHandler
     {
-        return new SearchRequestHandler(
-            $this->configProvider,
-            $this->sortingHandlerService,
-            $this->logger,
-        );
+        return new SearchRequestHandler($this->configProvider, $this->sortingHandlerService, $this->logger);
     }
 
     protected function buildNavigationRequestHandler(): NavigationRequestHandler
     {
-        return new NavigationRequestHandler(
-            $this->configProvider,
-            $this->sortingHandlerService,
-            $this->logger,
-        );
+        return new NavigationRequestHandler($this->configProvider, $this->sortingHandlerService, $this->logger);
     }
 
     protected function parseFiltersFromResponse(SearchResult $response): FiltersExtension

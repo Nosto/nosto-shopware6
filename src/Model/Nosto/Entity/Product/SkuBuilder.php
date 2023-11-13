@@ -23,9 +23,13 @@ class SkuBuilder implements SkuBuilderInterface
     public function build(ProductEntity $product, SalesChannelContext $context): NostoSku
     {
         $nostoSku = new NostoSku();
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
         $nostoSku->setId(
-            $this->configProvider->getProductIdentifier($context->getSalesChannelId()) === 'product-number' ?
-                $product->getProductNumber() : $product->getId()
+            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
+                ? $product->getProductNumber()
+                : $product->getId()
         );
         $nostoSku->addCustomField('productNumber', $product->getProductNumber());
         $nostoSku->addCustomField('productId', $product->getId());
@@ -35,7 +39,9 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setName($name);
         }
 
-        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock' ? $product->getStock() : $product->getAvailableStock();
+        $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
+            ? $product->getStock()
+            : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoSku->setAvailability($stockStatus);
 
@@ -51,7 +57,7 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setListPrice($price->getListPrice()->getGross());
         }
 
-        if ($this->configProvider->isEnabledInventoryLevels()) {
+        if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
             $nostoSku->setInventoryLevel($stock);
         }
 
@@ -59,7 +65,10 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setGtin($ean);
         }
 
-        if ($this->configProvider->isEnabledProductProperties($context->getSalesChannelId()) && $product->getOptions() !== null) {
+        if (
+            $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
+            $product->getOptions() !== null
+        ) {
             foreach ($product->getOptions() as $propertyOption) {
                 if ($propertyOption->getGroup() !== null) {
                     $nostoSku->addCustomField($propertyOption->getGroup()->getName(), $propertyOption->getName());
@@ -67,12 +76,12 @@ class SkuBuilder implements SkuBuilderInterface
             }
         }
 
-        if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
+        if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
             $nostoSku->addCustomField(
                 'product-labels',
                 json_encode(
                     [
-                        'release-date' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+                        'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                         'mfg-part-number' => $product->getManufacturerNumber(),
                     ]
                 )

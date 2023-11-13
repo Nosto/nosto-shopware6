@@ -46,10 +46,11 @@ class SessionLookupResolver
         return $customerId;
     }
 
-    public function getNostoAccount(Context $context, ?string $channelId = null): ?Account
+    public function getNostoAccount(Context $context, ?string $channelId = null, ?string $languageId = null): ?Account
     {
         $request = $this->requestStack->getCurrentRequest();
         $channelId = $channelId ?? $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        return $this->accountProvider->get($context, $channelId);
+        // TODO: fetch language id from request
+        return $this->accountProvider->get($context, $channelId, $languageId);
     }
 }

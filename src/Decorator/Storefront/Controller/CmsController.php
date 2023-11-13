@@ -73,11 +73,7 @@ class CmsController extends StorefrontController
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!SearchHelper::shouldHandleRequest(
-            $salesChannelContext->getContext(),
-            $this->configProvider,
-            true
-        )) {
+        if (!SearchHelper::shouldHandleRequest($salesChannelContext, $this->configProvider, true)) {
             return $this->decorated->filter($navigationId, $request, $salesChannelContext);
         }
 

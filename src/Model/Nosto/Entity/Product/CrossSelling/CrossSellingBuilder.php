@@ -58,7 +58,9 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         $result = [];
         foreach ($crossSellings as $crossSelling) {
             $result[$this->createKeyFromName($crossSelling->getName())] = [
-                'productIds' => $this->useProductStream($crossSelling) ? $this->loadByStream($crossSelling, $context, new Criteria()) : $this->loadByIds($crossSelling, $context, new Criteria()),
+                'productIds' => $this->useProductStream($crossSelling)
+                    ? $this->loadByStream($crossSelling, $context, new Criteria())
+                    : $this->loadByIds($crossSelling, $context, new Criteria()),
                 'position' => $crossSelling->getPosition(),
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
@@ -71,7 +73,10 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
 
     private function loadCrossSellings(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
     {
-        $syncConfig = $this->configProvider->getCrossSellingSyncOption($context->getSalesChannelId());
+        $syncConfig = $this->configProvider->getCrossSellingSyncOption(
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        );
         if ($syncConfig === 'no-sync') {
             return new ProductCrossSellingCollection();
         }
@@ -99,15 +104,15 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             && $crossSelling->getProductStreamId() !== null;
     }
 
-    protected function loadByStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
-    {
+    protected function loadByStream(
+        ProductCrossSellingEntity $crossSelling,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ): array {
         /** @var string $productStreamId */
         $productStreamId = $crossSelling->getProductStreamId();
 
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productStreamId,
-            $context->getContext()
-        );
+        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
 
         $criteria->addFilter(...$filters)
             ->setOffset(0)
@@ -127,17 +132,21 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             return $criteria;
         }
 
-        $closeoutFilter = $this->container->has('Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory') ?
-            $this->container->get('Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory')->create($context) :
-            new ProductCloseoutFilter();
+        $closeOutFactoryClass = 'Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory';
+        $closeoutFilter = $this->container->has($closeOutFactoryClass)
+            ? $this->container->get($closeOutFactoryClass)->create($context)
+            : new ProductCloseoutFilter();
 
         $criteria->addFilter($closeoutFilter);
 
         return $criteria;
     }
 
-    protected function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
-    {
+    protected function loadByIds(
+        ProductCrossSellingEntity $crossSelling,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ): array {
         if (!$crossSelling->getAssignedProducts()) {
             return [];
         }

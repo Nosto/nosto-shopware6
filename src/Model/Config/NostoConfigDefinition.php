@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -43,18 +45,8 @@ class NostoConfigDefinition extends EntityDefinition
                 ->addFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))
                 ->addFlags(new Required()),
-            new ManyToOneAssociationField(
-                'salesChannel',
-                'sales_channel_id',
-                SalesChannelDefinition::class,
-                'id'
-            ),
-            new ManyToOneAssociationField(
-                'language',
-                'language_id',
-                LanguageDefinition::class,
-                'id'
-            ),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id'),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id'),
         ]);
     }
 }

@@ -60,25 +60,21 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
+        $channelId = $salesChannelContext->getSalesChannelId();
+        $languageId = $salesChannelContext->getLanguageId();
+        $isMerchEnabled = $this->configProvider->isMerchEnabled($channelId, $languageId);
 
         try {
             $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext());
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(
-                sprintf(
-                    'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
-                ),
+                sprintf('Unable to load resolve session, reason: %s', $throwable->getMessage()),
                 ContextHelper::createContextFromException($throwable)
             );
         }
 
-        $account = $this->resolver->getNostoAccount(
-            $salesChannelContext->getContext(),
-            $salesChannelContext->getSalesChannelId()
-        );
+        $account = $this->resolver->getNostoAccount($salesChannelContext->getContext(), $channelId, $languageId);
 
         if (
             !$isMerchEnabled ||
@@ -118,7 +114,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
             : new IncludeFilters();
 
         try {
-            if ($this->configProvider->getCategoryNamingOption($salesChannelContext->getSalesChannelId()) === 'with-id') {
+            if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {
                 $categoryName .= ' (ID = ' . $this->currentCategoryId . ')';
             }
 
@@ -143,7 +139,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 throw new \Exception('There are no products from the Nosto.');
             }
 
-            if ($this->configProvider->getProductIdentifier($salesChannelContext->getSalesChannelId()) === 'product-number') {
+            if ($this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number') {
                 $result = $this->replaceSkusWithActualIds($result, $salesChannelContext);
             }
 
@@ -154,10 +150,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $salesChannelContext->getContext()
             );
         } catch (Exception $e) {
-            $this->logger->error(
-                $e->getMessage(),
-                ContextHelper::createContextFromException($e)
-            );
+            $this->logger->error($e->getMessage(), ContextHelper::createContextFromException($e));
 
             return $this->repository->searchIds($criteria, $salesChannelContext);
         }

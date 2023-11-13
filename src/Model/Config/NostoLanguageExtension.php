@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -11,13 +13,7 @@ class NostoLanguageExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {
-        $collection->add(
-            new OneToManyAssociationField(
-                'language',
-                NostoConfigDefinition::class,
-                'language_id'
-            )
-        );
+        $collection->add(new OneToManyAssociationField('language', NostoConfigDefinition::class, 'language_id'));
     }
 
     public function getDefinitionClass(): string

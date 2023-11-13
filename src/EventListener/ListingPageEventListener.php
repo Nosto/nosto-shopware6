@@ -29,7 +29,10 @@ class ListingPageEventListener implements EventSubscriberInterface
 
     public function removeScoreSorting(ProductListingResultEvent $event): void
     {
-        if ($this->configProvider->isMerchEnabled($event->getSalesChannelContext()->getSalesChannelId())) {
+        if ($this->configProvider->isMerchEnabled(
+            $event->getSalesChannelContext()->getSalesChannelId(),
+            $event->getSalesChannelContext()->getLanguageId()
+        )) {
             return;
         }
         $sortings = $event->getResult()->getAvailableSortings();

@@ -49,11 +49,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         Criteria $criteria = null
     ): ProductListingRouteResponse {
-        $shouldHandleRequest = SearchHelper::shouldHandleRequest(
-            $context->getContext(),
-            $this->configProvider,
-            true
-        );
+        $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
 
         $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
         if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {

@@ -29,7 +29,7 @@ class NostoListingProcessor extends AbstractListingProcessor
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if (SearchHelper::shouldHandleRequest(
-            $context->getContext(),
+            $context,
             $this->configProvider,
             SearchHelper::isNavigationPage($request)
         )) {

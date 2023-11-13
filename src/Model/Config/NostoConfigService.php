@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Shopware\Core\Framework\Context;
@@ -17,6 +19,66 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 
 class NostoConfigService
 {
+    private const PARENT_CONFIG_KEY = 'parent';
+
+    public const PATH_PREFIX = 'NostoIntegration.config.';
+
+    public const ENABLE_VARIATIONS = 'variations';
+
+    public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';
+
+    public const ENABLE_ALTERNATE_IMAGES = 'alternateImages';
+
+    public const ENABLE_INVENTORY_LEVELS = 'inventory';
+
+    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'syncInactiveProducts';
+
+    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'productPublishedDateTagging';
+
+    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'reloadRecommendations';
+
+    public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
+
+    public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
+
+    public const STOCK_FIELD = 'stockField';
+
+    public const PRODUCT_IDENTIFIER_FIELD = 'productIdentifier';
+
+    public const CROSS_SELLING_SYNC_FIELD = 'crossSellingSync';
+
+    public const ENABLE_MERCH = 'enableMerch';
+
+    public const ENABLE_NOT_LOGGED_IN_CACHE = 'notLoggedInCache';
+
+    public const DOMAIN_ID = 'domain';
+
+    public const ACCOUNT_ENABLED = 'isEnabled';
+
+    public const ACCOUNT_ID = 'accountID';
+
+    public const ACCOUNT_NAME = 'accountName';
+
+    public const PRODUCT_TOKEN = 'productToken';
+
+    public const EMAIL_TOKEN = 'emailToken';
+
+    public const GRAPHQL_TOKEN = 'appToken';
+
+    public const SEARCH_TOKEN = 'searchToken';
+
+    public const TAG_FIELD_TEMPLATE = 'tag';
+
+    public const SELECTED_CUSTOM_FIELDS = 'selectedCustomFields';
+
+    public const ENABLE_PRODUCT_LABELLING_SYNC = 'enableLabelling';
+
+    public const CATEGORY_NAMING_FIELD = 'categoryNaming';
+
+    public const ENABLE_SEARCH = 'enableSearch';
+
+    public const ENABLE_NAVIGATION = 'enableNavigation';
+
     private array $configs = [];
 
     public function __construct(
@@ -26,31 +88,18 @@ class NostoConfigService
 
     public function get(string $key, ?string $salesChannelId = null, ?string $languageId = null): mixed
     {
-        $config = $this->load($salesChannelId, $languageId);
-        $parts = explode('.', $key);
-        $pointer = $config;
+        $this->load($salesChannelId, $languageId);
+        $configKey = $this->buildConfigKey($salesChannelId, $languageId);
 
-        foreach ($parts as $part) {
-            if (!is_array($pointer)) {
-                return null;
-            }
-
-            if (array_key_exists($part, $pointer)) {
-                $pointer = $pointer[$part];
-                continue;
-            }
-
-            return null;
-        }
-
-        return $pointer;
+        $parentValue = $this->configs[self::PARENT_CONFIG_KEY][$key] ?? null;
+        return $this->configs[$configKey][$key] ?? $parentValue;
     }
 
     public function getString(string $key, ?string $salesChannelId = null, ?string $languageId = null): string
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (string)$value;
+            return (string) $value;
         }
 
         throw new InvalidSettingValueException($key, 'string', gettype($value));
@@ -60,7 +109,7 @@ class NostoConfigService
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (int)$value;
+            return (int) $value;
         }
 
         throw new InvalidSettingValueException($key, 'int', gettype($value));
@@ -70,7 +119,7 @@ class NostoConfigService
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (float)$value;
+            return (float) $value;
         }
 
         throw new InvalidSettingValueException($key, 'float', gettype($value));
@@ -78,12 +127,15 @@ class NostoConfigService
 
     public function getBool(string $key, ?string $salesChannelId = null, ?string $languageId = null): bool
     {
-        return (bool)$this->get($key, $salesChannelId, $languageId);
+        return (bool) $this->get($key, $salesChannelId, $languageId);
     }
 
     public function all(?string $salesChannelId = null, ?string $languageId = null): array
     {
-        return $this->load($salesChannelId, $languageId);
+        $key = $this->buildConfigKey($salesChannelId, $languageId);
+        $this->load($salesChannelId, $languageId);
+
+        return $this->configs[$key];
     }
 
     /**
@@ -112,7 +164,9 @@ class NostoConfigService
         $id = $this->getId($key, $salesChannelId, $languageId);
         if ($value === null) {
             if ($id) {
-                $this->nostoConfigRepository->delete([['id' => $id]], Context::createDefaultContext());
+                $this->nostoConfigRepository->delete([[
+                    'id' => $id,
+                ]], Context::createDefaultContext());
             }
 
             return;
@@ -126,7 +180,7 @@ class NostoConfigService
                     'configurationValue' => $value,
                     'salesChannelId' => $salesChannelId,
                     'languageId' => $languageId,
-                ]
+                ],
             ],
             Context::createDefaultContext()
         );
@@ -159,8 +213,11 @@ class NostoConfigService
         return array_shift($ids);
     }
 
-    private function buildCriteria(?string $salesChannelId = null, ?string $languageId = null, ?string $key = null): Criteria
-    {
+    private function buildCriteria(
+        ?string $salesChannelId = null,
+        ?string $languageId = null,
+        ?string $key = null
+    ): Criteria {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
         $criteria->addFilter(new EqualsFilter('languageId', $languageId));
@@ -172,40 +229,42 @@ class NostoConfigService
         return $criteria;
     }
 
-    private function load(?string $salesChannelId = null, ?string $languageId = null): array
+    private function load(?string $salesChannelId = null, ?string $languageId = null): void
     {
-        $key = sprintf('%s-%s', $salesChannelId, $languageId);
-
-        if (isset($this->configs[$key])) {
-            return $this->configs[$key];
+        if (!isset($this->configs[self::PARENT_CONFIG_KEY])) {
+            $this->configs[self::PARENT_CONFIG_KEY] = $this->loadConfigsFromDatabase();
         }
 
+        $key = $this->buildConfigKey($salesChannelId, $languageId);
+        if (!isset($this->configs[$key])) {
+            $this->configs[$key] = $this->loadConfigsFromDatabase($salesChannelId, $languageId);
+        }
+    }
+
+    private function buildConfigKey(?string $salesChannelId = null, ?string $languageId = null): string
+    {
+        return $salesChannelId ? sprintf('%s-%s', $salesChannelId, $languageId) : self::PARENT_CONFIG_KEY;
+    }
+
+    private function loadConfigsFromDatabase(?string $salesChannelId = null, ?string $languageId = null): array
+    {
         $criteria = new Criteria();
-        if (method_exists($criteria, 'setTitle')) {
-            $criteria->setTitle('nosto-integration-config::load');
-        }
+        $criteria->setTitle('nosto-integration-config::load');
 
         $criteria->addFilter(
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('salesChannelId', $salesChannelId),
-                    new EqualsFilter('languageId', $languageId),
-                ]
+                [new EqualsFilter('salesChannelId', $salesChannelId), new EqualsFilter('languageId', $languageId)]
             )
         );
 
-        $criteria->addSorting(
-            new FieldSorting('salesChannelId', FieldSorting::ASCENDING),
-            new FieldSorting('id', FieldSorting::ASCENDING)
-        );
+        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
+
         $criteria->setLimit(500);
 
-        /** @var NostoConfigCollection $configs */
         $configs = $this->nostoConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
-        $this->configs[$key] = $this->parseConfiguration($configs);
 
-        return $this->configs[$key];
+        return $this->parseConfiguration($configs);
     }
 
     private function buildConfig(NostoConfigCollection $configs): array
@@ -221,47 +280,13 @@ class NostoConfigService
         return $nostoConfig;
     }
 
-    /**
-     * The keys of the configs look like `NostoIntegration.config.accountId`.
-     * This method splits those strings and builds an array structure
-     * ```
-     * Array
-     * (
-     *     [NostoIntegration] => Array
-     *         (
-     *             [config] => Array
-     *                 (
-     *                     [accountId] => 'someValue'
-     *                 )
-     *         )
-     * )
-     * ```
-     */
     private function parseConfiguration(NostoConfigCollection $collection): array
     {
         $configValues = [];
 
         foreach ($collection as $config) {
-            $keys = explode('.', $config->getConfigurationKey());
-
-            $configValues = $this->getConfigValues($configValues, $keys, $config->getConfigurationValue());
-        }
-
-        return $configValues;
-    }
-
-    private function getConfigValues(array $configValues, array $keys, $value): array
-    {
-        $key = array_shift($keys);
-
-        if (empty($keys)) {
-            $configValues[$key] = $value;
-        } else {
-            if (!array_key_exists($key, $configValues)) {
-                $configValues[$key] = [];
-            }
-
-            $configValues[$key] = $this->getConfigValues($configValues[$key], $keys, $value);
+            $configKey = str_replace(self::PATH_PREFIX, '', $config->getConfigurationKey());
+            $configValues[$configKey] = $config->getConfigurationValue();
         }
 
         return $configValues;

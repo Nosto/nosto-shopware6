@@ -53,7 +53,7 @@ class SearchController extends StorefrontController
     )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
-        if (!$this->configProvider->isSearchEnabled()) {
+        if (!$this->configProvider->isSearchEnabled($context->getSalesChannelId(), $context->getLanguageId())) {
             return $this->decorated->search($context, $request);
         }
 
@@ -130,7 +130,7 @@ class SearchController extends StorefrontController
     )]
     public function filter(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!SearchHelper::shouldHandleRequest($salesChannelContext->getContext(), $this->configProvider)) {
+        if (!SearchHelper::shouldHandleRequest($salesChannelContext, $this->configProvider)) {
             return $this->decorated->filter($request, $salesChannelContext);
         }
 

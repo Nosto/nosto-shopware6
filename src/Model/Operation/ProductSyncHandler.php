@@ -156,7 +156,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         Job\JobResult $result,
         array $ids
     ): void {
-        $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
+        $domainUrl = $this->getDomainUrl(
+            $context->getSalesChannel()->getDomains(),
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
         $dynamicGroupCategoryIds = $this->getCategoryIdsByDynamicGroups($context);
@@ -273,7 +277,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         array $mapping
     ): void {
         $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
-        $domainUrl = $this->getDomainUrl($context->getSalesChannel()->getDomains(), $context->getSalesChannelId());
+        $domainUrl = $this->getDomainUrl(
+            $context->getSalesChannel()->getDomains(),
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
 
         $operation = new DeleteProduct($account->getNostoAccount(), $domain);
@@ -284,7 +292,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
     {
-        $identifierType = $this->configProvider->getProductIdentifier($context->getSalesChannelId());
+        $identifierType = $this->configProvider->getProductIdentifier(
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        );
         if ($identifierType === 'product-number') {
             return $this->getProductNumbers($productIds, $mapping);
         }
@@ -305,13 +316,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productNumbers;
     }
 
-    private function getDomainUrl(?SalesChannelDomainCollection $domains, ?string $channelId): string
-    {
+    private function getDomainUrl(
+        ?SalesChannelDomainCollection $domains,
+        ?string $channelId,
+        ?string $languageId
+    ): string {
         if ($domains == null || $domains->count() < 1) {
             return '';
         }
 
-        $domainId = (string) $this->configProvider->getDomainId($channelId);
+        $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
     }
@@ -344,9 +358,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsAnyFilter('id', $categoriesPaths)
-        );
+        $criteria->addFilter(new EqualsAnyFilter('id', $categoriesPaths));
 
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;

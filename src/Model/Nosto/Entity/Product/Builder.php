@@ -80,19 +80,21 @@ class Builder implements BuilderInterface
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
+        $nostoProduct = new NostoProduct();
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
         if ($product->getCategoriesRo() === null) {
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
         }
 
-        $channelId = $context->getSalesChannelId();
-        $nostoProduct = new NostoProduct();
         $url = $this->getProductUrl($product, $context);
         if (!empty($url)) {
             $nostoProduct->setUrl($url);
         }
 
         $nostoProduct->setProductId(
-            $this->configProvider->getProductIdentifier($context->getSalesChannelId()) === 'product-number' ?
+            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number' ?
                 $product->getProductNumber() : $product->getId()
         );
         $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
@@ -103,13 +105,13 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-        $stock = $this->configProvider->getStockField($context->getSalesChannelId()) === 'actual-stock'
+        $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
             ? $product->getStock()
             : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoProduct->setAvailability($stockStatus);
 
-        if ($this->configProvider->getCategoryNamingOption($channelId) === 'with-id') {
+        if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
         } else {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
@@ -129,7 +131,7 @@ class Builder implements BuilderInterface
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
-        if ($this->configProvider->isEnabledVariations($channelId) && $product->getChildCount() !== 0) {
+        if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildCount() !== 0) {
             $skuCollection = new SkuCollection();
 
             if ($product->getChildren()) {
@@ -145,7 +147,10 @@ class Builder implements BuilderInterface
             $nostoProduct->addCustomField(ShippingFreeFilterTranslator::SHIPPING_FREE_ATTR_NAME, 'true');
         }
 
-        if ($this->configProvider->isEnabledProductProperties($channelId) && $product->getOptions() !== null) {
+        if (
+            $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
+            $product->getOptions() !== null
+        ) {
             foreach ($product->getOptions() as $option) {
                 if ($option->getGroup() !== null) {
                     $nostoProduct->addCustomField($option->getGroup()->getName(), $option->getName());
@@ -158,7 +163,7 @@ class Builder implements BuilderInterface
             }
 
             $this->initTags($product, $nostoProduct, $context);
-            $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId);
+            $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
 
             foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
                 // All non-scalar value should be serialized
@@ -176,8 +181,10 @@ class Builder implements BuilderInterface
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         }
 
-        if ($this->configProvider->isEnabledAlternateImages($channelId)) {
-            $alternateMediaUrls = $product->getMedia()->map(fn (ProductMediaEntity $media) => $media->getMedia()->getUrl());
+        if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
+            $alternateMediaUrls = $product->getMedia()->map(
+                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl()
+            );
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
         }
 
@@ -189,11 +196,11 @@ class Builder implements BuilderInterface
             $nostoProduct->setDescription($description);
         }
 
-        if ($this->configProvider->isEnabledInventoryLevels($channelId)) {
+        if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
             $nostoProduct->setInventoryLevel($stock);
         }
 
-        if ($this->configProvider->isEnabledProductPublishedDateTagging()) {
+        if ($this->configProvider->isEnabledProductPublishedDateTagging($channelId, $languageId)) {
             $nostoProduct->setDatePublished($product->getCreatedAt()->format('Y-m-d'));
         }
 
@@ -209,7 +216,7 @@ class Builder implements BuilderInterface
             $nostoProduct->addCustomField('cross-sellings', json_encode($crossSellings));
         }
 
-        if ($this->configProvider->isEnabledProductLabellingSync($context->getSalesChannelId())) {
+        if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
             $nostoProduct->addCustomField(
                 'product-labels',
                 json_encode(
@@ -275,7 +282,10 @@ class Builder implements BuilderInterface
     private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = (string) $this->configProvider->getDomainId($context->getSalesChannelId());
+            $domainId = (string) $this->configProvider->getDomainId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId()
+            );
             $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
                 'productId' => $product->getId(),
@@ -292,19 +302,22 @@ class Builder implements BuilderInterface
         SalesChannelContext $context
     ): void {
         $tags = $this->loadTags($context->getContext());
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
-            $this->configProvider->getTagFieldKey(1, $context->getSalesChannelId()),
+            $this->configProvider->getTagFieldKey(1, $channelId, $languageId),
             $tags
         ));
         $nostoProduct->setTag2($this->getTagValues(
             $productEntity,
-            $this->configProvider->getTagFieldKey(2, $context->getSalesChannelId()),
+            $this->configProvider->getTagFieldKey(2, $channelId, $languageId),
             $tags
         ));
         $nostoProduct->setTag3($this->getTagValues(
             $productEntity,
-            $this->configProvider->getTagFieldKey(3, $context->getSalesChannelId()),
+            $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
             $tags
         ));
     }

@@ -102,7 +102,10 @@ class ProductHelper
         $criteria->addAssociation('children.manufacturer');
         $criteria->addAssociation('children.categoriesRo');
 
-        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        )) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
 
@@ -111,13 +114,14 @@ class ProductHelper
         return $this->productRepository->search($criteria, $context);
     }
 
-    public function loadProducts(
-        array $productIds,
-        SalesChannelContext $context
-    ): ProductCollection {
+    public function loadProducts(array $productIds, SalesChannelContext $context): ProductCollection
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
-        if (!$this->configProvider->isEnabledSyncInactiveProducts($context->getSalesChannelId())) {
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId()
+        )) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));

@@ -58,18 +58,22 @@ class Provider
 
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
-            if (!$this->configProvider->isAccountEnabled($channel->getId())) {
+            // TODO: Export for each language
+            $channelId = $channel->getId();
+            $languageId = $channel->getLanguageId();
+
+            if (!$this->configProvider->isAccountEnabled($channelId, $languageId)) {
                 continue;
             }
 
             try {
-                $accountName = $this->configProvider->getAccountName($channel->getId());
+                $accountName = $this->configProvider->getAccountName($channelId, $languageId);
                 $keyChain = new KeyChain([
-                    new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channel->getId())),
-                    new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channel->getId())),
-                    new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channel->getId())),
+                    new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channelId, $languageId)),
+                    new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channelId, $languageId)),
+                    new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
                 ]);
-                $this->accounts[] = new Account($channel->getId(), $channel->getLanguageId(), $accountName, $keyChain);
+                $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
             } catch (\Throwable $throwable) {
                 $this->logger->error(
                     $throwable->getMessage(),
