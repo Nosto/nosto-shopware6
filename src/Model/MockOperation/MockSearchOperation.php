@@ -21,11 +21,13 @@ class MockSearchOperation extends AbstractSearchOperation
     public function getQuery()
     {
         return <<<GRAPHQL
-        {
+        query(
+            \$accountId: String,
+            \$query: String,
+        ) {
             search(
-                accountId: "$this->accountId",
-                query:"",
-                explain: true,
+                accountId: \$accountId,
+                query: \$query,
             ) {
                 products {
                     total,
@@ -37,7 +39,10 @@ class MockSearchOperation extends AbstractSearchOperation
 
     public function getVariables()
     {
-        return new stdClass();
+        return [
+            'query' => '',
+            'accountId' => $this->accountId,
+        ];
     }
 
     protected function getResultHandler()
