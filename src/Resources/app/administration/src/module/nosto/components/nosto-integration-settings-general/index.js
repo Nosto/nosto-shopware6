@@ -39,7 +39,6 @@ Component.register('nosto-integration-settings-general', {
 
     data() {
         return {
-            isLoading: false,
             productCustomFields: [],
             productTags: [],
             languageCode: null,

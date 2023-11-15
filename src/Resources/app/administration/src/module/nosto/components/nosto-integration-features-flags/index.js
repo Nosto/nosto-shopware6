@@ -6,10 +6,6 @@ const { Component } = Shopware;
 Component.register('nosto-integration-features-flags', {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
-
     props: {
         actualConfigData: {
             type: Object,
@@ -18,11 +14,6 @@ Component.register('nosto-integration-features-flags', {
         allConfigs: {
             type: Object,
             required: true,
-        },
-        selectedSalesChannelId: {
-            type: String,
-            required: false,
-            default: null,
         },
         configKey: {
             type: String,

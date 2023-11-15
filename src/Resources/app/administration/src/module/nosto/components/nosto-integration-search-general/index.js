@@ -15,11 +15,6 @@ Component.register('nosto-integration-search-general', {
             type: Object,
             required: true,
         },
-        selectedSalesChannelId: {
-            type: String,
-            required: false,
-            default: null,
-        },
         configKey: {
             type: String,
             required: false,

@@ -22,11 +22,6 @@ Component.register('nosto-integration-account-general', {
             type: Object,
             required: true,
         },
-        selectedSalesChannelId: {
-            type: String,
-            required: false,
-            default: null,
-        },
         configKey: {
             type: String,
             required: false,
@@ -85,14 +80,6 @@ Component.register('nosto-integration-account-general', {
             return this.$delete(this.errorStates, key);
         },
 
-        validateRequiredField(key, props) {
-            if (props.currentValue.length === 0) {
-                return this.createErrorState(key);
-            }
-
-            return this.removeErrorState(key);
-        },
-
         checkTextFieldInheritance(value) {
             if (typeof value !== 'string') {
                 return true;
@@ -123,6 +110,7 @@ Component.register('nosto-integration-account-general', {
                 this.apiValidationInProgress = false;
                 return;
             }
+
             this.nostoApiKeyValidatorService.validate({
                 accountId: accountId,
                 name: accountName,
