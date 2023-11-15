@@ -24,8 +24,6 @@ Component.register('nosto-integration-settings', {
             configsLoading: false,
             saving: false,
             isSaveSuccessful: false,
-            defaultAccountNameFilled: false,
-            messageAccountBlankErrorState: null,
             allConfigs: {},
             salesChannels: [],
             selectedSalesChannelId: null,
@@ -85,10 +83,6 @@ Component.register('nosto-integration-settings', {
     methods: {
         createdComponent() {
             this.getAllConfigs();
-            this.getSalesChannels();
-        },
-
-        onChangeLanguage() {
             this.getSalesChannels();
         },
 
@@ -195,7 +189,7 @@ Component.register('nosto-integration-settings', {
             });
         },
 
-        async onSave() {
+        onSave() {
             this.saving = true;
 
             const errors = this.checkErrorsBeforeSave();
@@ -210,9 +204,17 @@ Component.register('nosto-integration-settings', {
                 return;
             }
 
-            await this.NostoConfigApiService.batchSave(this.allConfigs);
-
-            this.saving = false;
+            this.NostoConfigApiService.batchSave(this.allConfigs)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.createNotificationSuccess({
+                        message: this.$tc('nosto.messages.success-message'),
+                    });
+                    this.clearCaches();
+                })
+                .finally(() => {
+                    this.saving = false;
+                });
         },
     },
 });

@@ -14,11 +14,9 @@
                 {% block nosto_integration_actions_save %}
                     <sw-button-process
                         v-model="isSaveSuccessful"
-                        class="sw-settings-login-registration__save-action"
                         variant="primary"
                         :isLoading="salesChannelsLoading || configsLoading || saving"
                         :disabled="salesChannelsLoading || configsLoading || saving"
-                        :processSuccess="false"
                         @click="onSave"
                     >
                         {{ $tc('global.default.save') }}
