@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Model\MockOperation;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockSearchResultHandler;
 use Nosto\Operation\AbstractSearchOperation;
 use Nosto\Types\Signup\AccountInterface;
-use stdClass;
 
 class MockSearchOperation extends AbstractSearchOperation
 {

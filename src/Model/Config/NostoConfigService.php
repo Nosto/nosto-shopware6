@@ -21,8 +21,6 @@ class NostoConfigService
 {
     private const PARENT_CONFIG_KEY = 'parent';
 
-    public const PATH_PREFIX = 'NostoIntegration.config.';
-
     public const ENABLE_VARIATIONS = 'variations';
 
     public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';
@@ -285,8 +283,7 @@ class NostoConfigService
         $configValues = [];
 
         foreach ($collection as $config) {
-            $configKey = str_replace(self::PATH_PREFIX, '', $config->getConfigurationKey());
-            $configValues[$configKey] = $config->getConfigurationValue();
+            $configValues[$config->getConfigurationKey()] = $config->getConfigurationValue();
         }
 
         return $configValues;

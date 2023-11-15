@@ -196,7 +196,7 @@ class Lifecycle
     {
         for ($i = 1; $i < 4; ++$i) {
             $this->systemConfigService->delete(
-                NostoConfigService::PATH_PREFIX . NostoConfigService::TAG_FIELD_TEMPLATE . $i,
+                NostoConfigService::TAG_FIELD_TEMPLATE . $i,
                 $channelId
             );
         }

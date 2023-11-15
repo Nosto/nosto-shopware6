@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
-    private const LAST_EXECUTION_TIME_CONFIG = 'NostoIntegration.config.dailySyncLastTime';
+    private const LAST_EXECUTION_TIME_CONFIG = 'dailySyncLastTime';
 
     private ConfigProvider $configProvider;
 
