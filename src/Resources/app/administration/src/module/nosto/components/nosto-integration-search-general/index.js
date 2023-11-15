@@ -20,6 +20,11 @@ Component.register('nosto-integration-search-general', {
             required: false,
             default: null,
         },
+        configKey: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     created() {
@@ -28,7 +33,6 @@ Component.register('nosto-integration-search-general', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.config.';
             const defaultConfigs = {
                 enableSearch: false,
                 enableNavigation: false,
@@ -38,8 +42,8 @@ Component.register('nosto-integration-search-general', {
              * Initialize config data with default values.
              */
             Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[configPrefix + key] === undefined) {
-                    this.$set(this.allConfigs.null, configPrefix + key, defaultValue);
+                if (this.allConfigs.null[key] === undefined) {
+                    this.$set(this.allConfigs.null, key, defaultValue);
                 }
             });
         },

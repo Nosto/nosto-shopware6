@@ -28,6 +28,8 @@ class FrontendSubscriber implements EventSubscriberInterface
      */
     public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
     {
+        // TODO: Add config and adapt the twig views
+
         $nostoService = new NostoService();
         $event->getContext()->addExtension('nostoService', $nostoService);
 

@@ -2,6 +2,7 @@
     "nosto": {
         "title": "Nosto",
         "description": "Nosto-Integration",
+        "selectSalesChannel": "Bitte wählen Sie einen Verkaufskanal...",
         "menu": {
             "title": "Nosto-Konfiguration"
         },

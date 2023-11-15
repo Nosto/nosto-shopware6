@@ -27,19 +27,17 @@ Component.register('nosto-integration-account-general', {
             required: false,
             default: null,
         },
+        configKey: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
         return {
             apiValidationInProgress: false,
-            configurationKeys: {
-                accountID: 'NostoIntegration.config.accountID',
-                accountName: 'NostoIntegration.config.accountName',
-                productToken: 'NostoIntegration.config.productToken',
-                emailToken: 'NostoIntegration.config.emailToken',
-                appToken: 'NostoIntegration.config.appToken',
-                searchToken: 'NostoIntegration.config.searchToken',
-            },
+            configurationKeys: ['accountID', 'accountName', 'productToken', 'emailToken', 'appToken', 'searchToken'],
         };
     },
 
@@ -52,13 +50,6 @@ Component.register('nosto-integration-account-general', {
             this.checkErrorState();
         },
 
-        getConfig(salesChannelId) {
-            const values = this.systemConfigApiService
-                .getValues('NostoIntegration.config', salesChannelId);
-
-            return values.myKey;
-        },
-
         createErrorState(key) {
             this.$set(this.errorStates, key, {
                 code: 1,
@@ -67,8 +58,8 @@ Component.register('nosto-integration-account-general', {
         },
 
         checkErrorState() {
-            Object.entries(this.configurationKeys).forEach(([key, value]) => {
-                if (!this.allConfigs.null[value]) {
+            this.configurationKeys.forEach(key => {
+                if (!this.allConfigs.null[key]) {
                     this.createErrorState(key);
                 }
             });
@@ -82,12 +73,12 @@ Component.register('nosto-integration-account-general', {
         },
 
         isActive() {
-            const configKey = 'NostoIntegration.config.isEnabled';
-            const channelConfig = this.allConfigs[this.selectedSalesChannelId] || null;
+            const configurationKey = 'isEnabled';
+            const channelConfig = this.allConfigs[this.configKey] || {};
 
-            return channelConfig?.hasOwnProperty(configKey) && typeof channelConfig[configKey] === 'boolean'
-                ? channelConfig[configKey]
-                : this.allConfigs.null[configKey];
+            return typeof channelConfig[configurationKey] === 'boolean'
+                ? channelConfig[configurationKey]
+                : this.allConfigs.null[configurationKey];
         },
 
         removeErrorState(key) {
@@ -116,12 +107,12 @@ Component.register('nosto-integration-account-general', {
 
         validateApiCredentials() {
             this.apiValidationInProgress = true;
-            const accountId = this.getInheritedConfig(this.configurationKeys.accountID);
-            const accountName = this.getInheritedConfig(this.configurationKeys.accountName);
-            const productToken = this.getInheritedConfig(this.configurationKeys.productToken);
-            const emailToken = this.getInheritedConfig(this.configurationKeys.emailToken);
-            const appToken = this.getInheritedConfig(this.configurationKeys.appToken);
-            const searchToken = this.getInheritedConfig(this.configurationKeys.searchToken);
+            const accountId = this.getInheritedConfig('accountID');
+            const accountName = this.getInheritedConfig('accountName');
+            const productToken = this.getInheritedConfig('productToken');
+            const emailToken = this.getInheritedConfig('emailToken');
+            const appToken = this.getInheritedConfig('appToken');
+            const searchToken = this.getInheritedConfig('searchToken');
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -170,9 +161,7 @@ Component.register('nosto-integration-account-general', {
         },
 
         getInheritedConfig(key) {
-            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key]
-                ? this.actualConfigData[key]
-                : this.allConfigs.null[key];
+            return this.actualConfigData[key] || this.allConfigs.null[key];
         },
 
         credentialsEmptyValidation(key, value) {

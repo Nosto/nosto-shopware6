@@ -6,8 +6,8 @@
     >
         {% block nosto_integration_search_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['NostoIntegration.config.enableSearch']"
-                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableSearch']"
+                v-model="actualConfigData['enableSearch']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['enableSearch']"
             >
                 <template #content="props">
                     <sw-switch-field
@@ -24,8 +24,8 @@
 
         {% block nosto_integration_navigation_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['NostoIntegration.config.enableNavigation']"
-                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableNavigation']"
+                v-model="actualConfigData['enableNavigation']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['enableNavigation']"
             >
                 <template #content="props">
                     <sw-switch-field

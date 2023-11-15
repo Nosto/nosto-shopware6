@@ -147,8 +147,11 @@ class Lifecycle
             );
         }
 
-        $this->removeConfigs($context->getContext());
-        $this->removeTables();
+        if (!$context->keepUserData()) {
+            // TODO: Change to new table
+            $this->removeConfigs($context->getContext());
+            $this->removeTables();
+        }
     }
 
     public function removePendingJobs()

@@ -5,8 +5,10 @@
         positionIdentifier="nosto-integration-account-general"
     >
         {% block nosto_integration_account_enabled %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.isEnabled']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.isEnabled']">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['isEnabled']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['isEnabled']"
+            >
                 <template #content="props">
                     <sw-switch-field
                         :map-inheritance="props"
@@ -21,38 +23,45 @@
         {% endblock %}
 
         {% block nosto_integration_account_api_validate %}
-            <sw-button-process variant="ghost"
-                               class="validate-btn"
-                               :isLoading="apiValidationInProgress"
-                               :processSuccess="false"
-                               @click="validateApiCredentials">
+            <sw-button-process
+                variant="ghost"
+                class="validate-btn"
+                :isLoading="apiValidationInProgress"
+                :processSuccess="false"
+                @click="validateApiCredentials"
+            >
                 {{ $tc('nosto.configuration.account.apiValidation.buttonLabel') }}
             </sw-button-process>
         {% endblock %}
 
         {% block nosto_integration_account_id %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.accountID']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.accountID']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['accountID']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['accountID']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
-                            :label="$tc('nosto.configuration.account.idTitle')"
-                            :help-text="$tc('nosto.configuration.account.idHelpText')"
-                            type="text"
-                            :map-inheritance="props"
-                            :value="props.currentValue"
-                            :disabled="props.isInherited"
-                            :error="hasError(props.currentValue)"
-                            required
-                            name="NostoIntegration.config.accountID"
-                            @input="updateCurrentValue($event, props)"></sw-field>
+                        :label="$tc('nosto.configuration.account.idTitle')"
+                        :help-text="$tc('nosto.configuration.account.idHelpText')"
+                        type="text"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        :error="hasError(props.currentValue)"
+                        required
+                        name="accountID"
+                        @input="updateCurrentValue($event, props)"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
         {% block nosto_integration_account_name %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.accountName']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.accountName']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['accountName']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['accountName']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
                         :label="$tc('nosto.configuration.account.nameTitle')"
@@ -63,79 +72,90 @@
                         :disabled="props.isInherited"
                         :error="hasError(props.currentValue)"
                         required
-                        name="NostoIntegration.config.accountName"
+                        name="accountName"
                         @input="updateCurrentValue($event, props)"></sw-field>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
         {% block nosto_integration_account_token %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.productToken']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['productToken']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['productToken']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
-                            :label="$tc('nosto.configuration.account.productTokenTitle')"
-                            :help-text="$tc('nosto.configuration.account.productTokenHelpText')"
-                            type="password"
-                            :map-inheritance="props"
-                            :value="props.currentValue"
-                            :disabled="props.isInherited"
-                            required
-                            :error="hasError(props.currentValue)"
-                            name="NostoIntegration.config.productToken"
-                            @input="updateCurrentValue($event, props)"></sw-field>
+                        :label="$tc('nosto.configuration.account.productTokenTitle')"
+                        :help-text="$tc('nosto.configuration.account.productTokenHelpText')"
+                        type="password"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        required
+                        :error="hasError(props.currentValue)"
+                        name="productToken"
+                        @input="updateCurrentValue($event, props)"
+                    />
                 </template>
             </sw-inherit-wrapper>
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.emailToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.emailToken']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['emailToken']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['emailToken']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
-                            :label="$tc('nosto.configuration.account.emailTokenTitle')"
-                            :help-text="$tc('nosto.configuration.account.emailTokenHelpText')"
-                            type="password"
-                            :map-inheritance="props"
-                            :value="props.currentValue"
-                            :disabled="props.isInherited"
-                            :error="hasError(props.currentValue)"
-                            required
-                            name="NostoIntegration.config.emailToken"
-                            @input="updateCurrentValue($event, props)"></sw-field>
+                        :label="$tc('nosto.configuration.account.emailTokenTitle')"
+                        :help-text="$tc('nosto.configuration.account.emailTokenHelpText')"
+                        type="password"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        :error="hasError(props.currentValue)"
+                        required
+                        name="emailToken"
+                        @input="updateCurrentValue($event, props)"
+                    />
                 </template>
             </sw-inherit-wrapper>
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.appToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.appToken']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['appToken']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['appToken']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
-                            :label="$tc('nosto.configuration.account.appTokenTitle')"
-                            :help-text="$tc('nosto.configuration.account.appTokenHelpText')"
-                            type="password"
-                            :map-inheritance="props"
-                            :value="props.currentValue"
-                            :disabled="props.isInherited"
-                            :error="hasError(props.currentValue)"
-                            required
-                            name="NostoIntegration.config.appToken"
-                            @input="updateCurrentValue($event, props)"></sw-field>
+                        :label="$tc('nosto.configuration.account.appTokenTitle')"
+                        :help-text="$tc('nosto.configuration.account.appTokenHelpText')"
+                        type="password"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        :error="hasError(props.currentValue)"
+                        required
+                        name="appToken"
+                        @input="updateCurrentValue($event, props)"
+                    />
                 </template>
             </sw-inherit-wrapper>
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.searchToken']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.searchToken']"
-                                :customInheritationCheckFunction="checkTextFieldInheritance">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['searchToken']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['searchToken']"
+                :customInheritationCheckFunction="checkTextFieldInheritance"
+            >
                 <template #content="props">
                     <sw-field
-                            :label="$tc('nosto.configuration.account.searchTokenTitle')"
-                            :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
-                            type="password"
-                            :map-inheritance="props"
-                            :value="props.currentValue"
-                            :disabled="props.isInherited"
-                            :error="hasError(props.currentValue)"
-                            required
-                            name="NostoIntegration.config.searchToken"
-                            @input="updateCurrentValue($event, props)">
-                    </sw-field>
+                        :label="$tc('nosto.configuration.account.searchTokenTitle')"
+                        :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
+                        type="password"
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited"
+                        :error="hasError(props.currentValue)"
+                        required
+                        name="searchToken"
+                        @input="updateCurrentValue($event, props)"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}

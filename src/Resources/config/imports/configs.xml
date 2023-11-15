@@ -20,6 +20,13 @@
             <argument id="nosto_integration_config.repository" type="service" />
         </service>
 
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoConfigController" autowire="true">
+            <call method="setContainer">
+                <argument id="service_container" type="service" />
+            </call>
+            <tag name="controller.service_arguments" />
+        </service>
+
         <service id="Nosto\NostoIntegration\Model\ConfigProvider" autowire="true" />
 
         <service id="Nosto\NostoIntegration\Struct\Config" public="true" autowire="true" />
