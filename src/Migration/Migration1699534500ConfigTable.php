@@ -71,12 +71,10 @@ class Migration1699534500ConfigTable extends MigrationStep
 
             $data = $config;
             $data['id'] = Uuid::fromHexToBytes($config['id']);
-            $data['language_id'] = $languageId
-                ? Uuid::fromHexToBytes($languageId)
-                : null;
-            $data['sales_channel_id'] = $salesChannelId
-                ? Uuid::fromHexToBytes($salesChannelId)
-                : null;
+            $data['configuration_key'] = str_replace('NostoIntegration.config.', '', $config['configuration_key']);
+            $data['language_id'] = $languageId ? Uuid::fromHexToBytes($languageId) : null;
+            $data['sales_channel_id'] = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
+
             try {
                 $connection->insert('nosto_integration_config', $data);
             } catch (Exception $exception) {
