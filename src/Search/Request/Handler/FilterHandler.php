@@ -196,7 +196,7 @@ class FilterHandler
             $values = $filter->getValues();
 
             if ($filter instanceof RatingFilter) {
-                $result[Filter::RATING_FILTER_FIELD]['max'] = $filter->getMaxPoints();
+                $result[$filterName]['max'] = $filter->getMaxPoints();
             } else {
                 $filterValues = [];
 
