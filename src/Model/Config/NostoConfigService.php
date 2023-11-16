@@ -21,36 +21,6 @@ class NostoConfigService
 {
     private const PARENT_CONFIG_KEY = 'parent';
 
-    public const ENABLE_VARIATIONS = 'variations';
-
-    public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';
-
-    public const ENABLE_ALTERNATE_IMAGES = 'alternateImages';
-
-    public const ENABLE_INVENTORY_LEVELS = 'inventory';
-
-    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'syncInactiveProducts';
-
-    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'productPublishedDateTagging';
-
-    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'reloadRecommendations';
-
-    public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
-
-    public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
-
-    public const STOCK_FIELD = 'stockField';
-
-    public const PRODUCT_IDENTIFIER_FIELD = 'productIdentifier';
-
-    public const CROSS_SELLING_SYNC_FIELD = 'crossSellingSync';
-
-    public const ENABLE_MERCH = 'enableMerch';
-
-    public const ENABLE_NOT_LOGGED_IN_CACHE = 'notLoggedInCache';
-
-    public const DOMAIN_ID = 'domain';
-
     public const ACCOUNT_ENABLED = 'isEnabled';
 
     public const ACCOUNT_ID = 'accountID';
@@ -65,17 +35,55 @@ class NostoConfigService
 
     public const SEARCH_TOKEN = 'searchToken';
 
-    public const TAG_FIELD_TEMPLATE = 'tag';
-
-    public const SELECTED_CUSTOM_FIELDS = 'selectedCustomFields';
-
-    public const ENABLE_PRODUCT_LABELLING_SYNC = 'enableLabelling';
-
-    public const CATEGORY_NAMING_FIELD = 'categoryNaming';
-
     public const ENABLE_SEARCH = 'enableSearch';
 
     public const ENABLE_NAVIGATION = 'enableNavigation';
+
+    public const INITIALIZE_NOSTO_AFTER_INTERACTION = 'isInitializeNostoAfterInteraction';
+
+    public const ENABLE_MERCH = 'enableMerch';
+
+    public const ENABLE_NOT_LOGGED_IN_CACHE = 'notLoggedInCache';
+
+    public const DOMAIN_ID = 'domain';
+
+    public const SELECTED_CUSTOM_FIELDS = 'selectedCustomFields';
+
+    public const TAG_FIELD_TEMPLATE = 'tag';
+
+    public const GOOGLE_CATEGORY = 'googleCategory';
+
+    public const PRODUCT_IDENTIFIER_FIELD = 'productIdentifier';
+
+    public const RATING_REVIEWS = 'ratingsReviews';
+
+    public const STOCK_FIELD = 'stockField';
+
+    public const CROSS_SELLING_SYNC_FIELD = 'crossSellingSync';
+
+    public const CATEGORY_NAMING_FIELD = 'categoryNaming';
+
+    public const ENABLE_VARIATIONS = 'variations';
+
+    public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';
+
+    public const ENABLE_ALTERNATE_IMAGES = 'alternateImages';
+
+    public const ENABLE_INVENTORY_LEVELS = 'inventory';
+
+    public const ENABLE_CUSTOMER_DATA_TO_NOSTO = 'customerDataToNosto';
+
+    public const ENABLE_SYNC_INACTIVE_PRODUCTS = 'syncInactiveProducts';
+
+    public const ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING = 'productPublishedDateTagging';
+
+    public const ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING = 'reloadRecommendations';
+
+    public const ENABLE_PRODUCT_LABELLING_SYNC = 'enableLabelling';
+
+    public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
+
+    public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
 
     private array $configs = [];
 

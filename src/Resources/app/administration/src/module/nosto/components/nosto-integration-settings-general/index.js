@@ -119,11 +119,6 @@ Component.register('nosto-integration-settings-general', {
             return languages.first().locale.code;
         },
 
-        clearTagValue(tag) {
-            // eslint-disable-next-line vue/no-mutating-props
-            this.allConfigs.null[tag] = null;
-        },
-
         getProductCustomFields() {
             this.initLanguageCode().then(() => {
                 const me = this;

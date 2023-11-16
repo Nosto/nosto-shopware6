@@ -43,7 +43,6 @@
 
             {% block nosto_integration_setting_notLoggedInCache %}
                 <sw-inherit-wrapper
-                    v-if="actualConfigData['notLoggedInCache']"
                     v-model="actualConfigData['notLoggedInCache']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['notLoggedInCache']"
                 >
@@ -181,7 +180,6 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             show-clearable-button
-                            @clear="clearTagValue('googleCategory')"
                             :value="props.currentValue"
                             @change="props.updateCurrentValue"
                         />
