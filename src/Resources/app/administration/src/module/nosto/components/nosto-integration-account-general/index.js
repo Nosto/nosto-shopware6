@@ -83,7 +83,7 @@ Component.register('nosto-integration-account-general', {
 
             return typeof channelConfig[configurationKey] === 'boolean'
                 ? channelConfig[configurationKey]
-                : this.allConfigs.null[configurationKey];
+                : false;
         },
 
         removeErrorState(key) {
@@ -104,12 +104,12 @@ Component.register('nosto-integration-account-general', {
 
         validateApiCredentials() {
             this.apiValidationInProgress = true;
-            const accountId = this.getInheritedConfig('accountID');
-            const accountName = this.getInheritedConfig('accountName');
-            const productToken = this.getInheritedConfig('productToken');
-            const emailToken = this.getInheritedConfig('emailToken');
-            const appToken = this.getInheritedConfig('appToken');
-            const searchToken = this.getInheritedConfig('searchToken');
+            const accountId = this.actualConfigData.accountID;
+            const accountName = this.actualConfigData.accountName;
+            const productToken = this.actualConfigData.productToken;
+            const emailToken = this.actualConfigData.emailToken;
+            const appToken = this.actualConfigData.appToken;
+            const searchToken = this.actualConfigData.searchToken;
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -156,10 +156,6 @@ Component.register('nosto-integration-account-general', {
             }).finally(() => {
                 this.apiValidationInProgress = false;
             });
-        },
-
-        getInheritedConfig(key) {
-            return this.actualConfigData[key] || this.allConfigs.null[key];
         },
 
         credentialsEmptyValidation(key, value) {

@@ -12,6 +12,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1699534500ConfigTable extends MigrationStep
 {
+    public const CONFIGS_WITHOUT_INHERITANCE = [
+        'isEnabled',
+        'accountID',
+        'accountName',
+        'productToken',
+        'emailToken',
+        'appToken',
+        'searchToken',
+    ];
+
     public function getCreationTimestamp(): int
     {
         return 1699534500;
@@ -61,8 +71,13 @@ class Migration1699534500ConfigTable extends MigrationStep
         $configs = $connection->fetchAllAssociative($sql);
 
         foreach ($configs as $config) {
+            $configKey = str_replace('NostoIntegration.config.', '', $config['configuration_key']);
             $salesChannelId = $config['sales_channel_id'];
             $languageId = null;
+
+            if (in_array($configKey, self::CONFIGS_WITHOUT_INHERITANCE) && !$salesChannelId) {
+                $salesChannelId = $this->getDefaultSalesChannelId($connection);
+            }
 
             if ($salesChannelId) {
                 $sql = 'SELECT LOWER(HEX(`language_id`)) AS `language_id` FROM `sales_channel` WHERE `id` = UNHEX(?)';
@@ -71,7 +86,7 @@ class Migration1699534500ConfigTable extends MigrationStep
 
             $data = $config;
             $data['id'] = Uuid::fromHexToBytes($config['id']);
-            $data['configuration_key'] = str_replace('NostoIntegration.config.', '', $config['configuration_key']);
+            $data['configuration_key'] = $configKey;
             $data['language_id'] = $languageId ? Uuid::fromHexToBytes($languageId) : null;
             $data['sales_channel_id'] = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
 

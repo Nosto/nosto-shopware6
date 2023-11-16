@@ -3,6 +3,7 @@
         "title": "Nosto",
         "description": "Nosto-Integration",
         "selectSalesChannel": "Bitte wählen Sie einen Verkaufskanal...",
+        "selectSalesChannelAndLanguage": "Bitte wählen Sie einen Verkaufskanal und eine Sprache.",
         "menu": {
             "title": "Nosto-Konfiguration"
         },
