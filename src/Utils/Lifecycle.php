@@ -11,7 +11,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -19,14 +18,11 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use function version_compare;
 
 class Lifecycle
 {
-    private EntityRepository $systemConfigRepository;
-
     private Connection $connection;
 
     private ContainerInterface $container;
@@ -35,7 +31,7 @@ class Lifecycle
 
     private EntityRepository $sortingRepository;
 
-    private SystemConfigService $systemConfigService;
+    private NostoConfigService $nostoConfigService;
 
     private EntityRepository $salesChannelRepository;
 
@@ -43,18 +39,15 @@ class Lifecycle
         ContainerInterface $container,
         bool $hasOtherSchedulerDependency
     ) {
-        /** @var EntityRepository $systemConfigRepository */
-        $systemConfigRepository = $container->get('system_config.repository');
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
 
         $this->container = $container;
         $this->hasOtherSchedulerDependency = $hasOtherSchedulerDependency;
 
-        $this->systemConfigRepository = $systemConfigRepository;
         $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;
-        $this->systemConfigService = $this->container->get(SystemConfigService::class);
+        $this->nostoConfigService = $this->container->get(NostoConfigService::class);
         $this->salesChannelRepository = $this->container->get('sales_channel.repository');
     }
 
@@ -148,8 +141,6 @@ class Lifecycle
         }
 
         if (!$context->keepUserData()) {
-            // TODO: Change to new table
-            $this->removeConfigs($context->getContext());
             $this->removeTables();
         }
     }
@@ -162,22 +153,6 @@ class Lifecycle
                 'prefix' => 'nosto-integration%',
             ],
         );
-    }
-
-    public function removeConfigs(Context $context): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('configurationKey', 'NostoIntegration'));
-        $configIds = $this->systemConfigRepository->searchIds($criteria, $context)->getIds();
-        $configIds = \array_map(static function ($id) {
-            return [
-                'id' => $id,
-            ];
-        }, $configIds);
-
-        if (!empty($configIds)) {
-            $this->systemConfigRepository->delete(array_values($configIds), $context);
-        }
     }
 
     public function removeOldTags(Context $context): void
@@ -198,12 +173,14 @@ class Lifecycle
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
         for ($i = 1; $i < 4; ++$i) {
-            $this->systemConfigService->delete(NostoConfigService::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $this->nostoConfigService->delete(NostoConfigService::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 
     public function removeTables(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_checkout_mapping`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_entity_changelog`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_config`');
     }
 }
