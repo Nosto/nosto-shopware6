@@ -22,6 +22,16 @@ Component.register('nosto-integration-account-general', {
             type: Object,
             required: true,
         },
+        selectedSalesChannelId: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        selectedLanguageId: {
+            type: String,
+            required: false,
+            default: null,
+        },
         configKey: {
             type: String,
             required: false,
@@ -167,7 +177,10 @@ Component.register('nosto-integration-account-general', {
         },
 
         onTrackCategories() {
-            this.NostoCategoriesProviderService.sendCategories().then(() => {
+            this.NostoCategoriesProviderService.sendCategories(
+                this.selectedSalesChannelId,
+                this.selectedLanguageId,
+            ).then(() => {
                 this.createNotificationSuccess({
                     message: 'Synced!',
                 });

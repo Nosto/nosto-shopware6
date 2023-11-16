@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Api\Controller;
 
 use GuzzleHttp\Client;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,22 +22,20 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class NostoCategoriesController extends AbstractController
 {
-    protected const APP_TOKEN_CONFIG = 'NostoIntegration.settings.accounts.appToken';
-
     protected const APP_URL = 'https://api.nosto.com/v1/graphql';
 
     private EntityRepository $categoryRepository;
 
     private Client $client;
 
-    private SystemConfigService $systemConfigService;
+    private ConfigProvider $configProvider;
 
     public function __construct(
         EntityRepository $categoryRepository,
-        SystemConfigService $systemConfigService
+        ConfigProvider $configProvider,
     ) {
         $this->categoryRepository = $categoryRepository;
-        $this->systemConfigService = $systemConfigService;
+        $this->configProvider = $configProvider;
         $this->client = new Client();
     }
 
@@ -45,7 +43,7 @@ class NostoCategoriesController extends AbstractController
         path: "/api/_action/nosto-categories-controller/sync",
         name: "api.action.nosto-categories.sync",
         defaults: [
-            'auth_required' => false,
+            'auth_required' => true,
         ],
         methods: ["POST"]
     )]
@@ -57,7 +55,12 @@ class NostoCategoriesController extends AbstractController
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        if ($this->systemConfigService->get(self::APP_TOKEN_CONFIG) === null) {
+        $appToken = $this->configProvider->getAppToken(
+            $request->request->get('salesChannelId'),
+            $request->request->get('languageId'),
+        );
+
+        if (!$appToken) {
             return new JsonResponse(404);
         }
 
@@ -145,13 +148,11 @@ class NostoCategoriesController extends AbstractController
             }
             EOF;
 
-        $token = $this->systemConfigService->get(self::APP_TOKEN_CONFIG);
-
         $this->client->post(self::APP_URL, [
             'headers' => [
                 'Content-Type' => 'application/graphql',
             ],
-            'auth' => ['', $token],
+            'auth' => ['', $appToken],
             'body' => $mutation,
         ]);
 

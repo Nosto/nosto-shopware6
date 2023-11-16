@@ -293,7 +293,7 @@
 
         <service id="Nosto\NostoIntegration\Api\Controller\NostoCategoriesController" public="true">
             <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
