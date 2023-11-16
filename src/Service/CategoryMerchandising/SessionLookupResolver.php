@@ -10,7 +10,6 @@ use Nosto\NostoIntegration\Model\Nosto\Account\Provider;
 use Nosto\Operation\Session\NewSession;
 use Nosto\Request\Http\Exception\{AbstractHttpException, HttpResponseException};
 use Shopware\Core\Framework\Context;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class SessionLookupResolver

@@ -8,8 +8,6 @@ use Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
