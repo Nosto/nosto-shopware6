@@ -136,12 +136,12 @@ class NostoConfigService
         return (bool) $this->get($key, $salesChannelId, $languageId);
     }
 
-    public function all(?string $salesChannelId = null, ?string $languageId = null): array
+    public function getConfigWithInheritance(string $salesChannelId = null, string $languageId = null): array
     {
         $key = $this->buildConfigKey($salesChannelId, $languageId);
         $this->load($salesChannelId, $languageId);
 
-        return $this->configs[$key];
+        return array_merge($this->configs[self::PARENT_CONFIG_KEY], $this->configs[$key]);
     }
 
     /**

@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/component/pagination.html.twig' %}
 
 {% block component_pagination_nav %}
-    {% if not config('NostoIntegration.config.enableSearch') %}
+    {% if not context.context.extensions.nostoConfig.enableSearch %}
         {{ parent() }}
     {% else %}
         {% if not (searchResult.criteria.extensions.nostoPagination) %}

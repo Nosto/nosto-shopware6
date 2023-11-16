@@ -28,7 +28,5 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\ConfigProvider" autowire="true" />
-
-        <service id="Nosto\NostoIntegration\Struct\Config" public="true" autowire="true" />
     </services>
 </container>

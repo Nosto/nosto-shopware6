@@ -60,7 +60,11 @@ class ConfigProvider
 
     public function shouldInitializeNostoAfterInteraction($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(NostoConfigService::INITIALIZE_NOSTO_AFTER_INTERACTION, $channelId, $languageId);
+        return $this->configService->getBool(
+            NostoConfigService::INITIALIZE_NOSTO_AFTER_INTERACTION,
+            $channelId,
+            $languageId
+        );
     }
 
     public function isMerchEnabled($channelId = null, $languageId = null): bool
@@ -155,7 +159,11 @@ class ConfigProvider
 
     public function isEnabledCustomerDataToNosto($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO, $channelId, $languageId);
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO,
+            $channelId,
+            $languageId
+        );
     }
 
     public function isEnabledSyncInactiveProducts($channelId = null, $languageId = null): bool

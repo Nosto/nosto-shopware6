@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Subscriber;
 
+use Nosto\NostoIntegration\Model\Config\NostoConfigService;
+use Nosto\NostoIntegration\Struct\Config;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Struct\PageInformation;
 use Nosto\NostoIntegration\Utils\SearchHelper;
@@ -13,6 +15,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FrontendSubscriber implements EventSubscriberInterface
 {
+    public function __construct(
+        private readonly NostoConfigService $nostoConfigService
+    ) {
+    }
+
     /**
      * @return string[]
      */
@@ -28,7 +35,12 @@ class FrontendSubscriber implements EventSubscriberInterface
      */
     public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
     {
-        // TODO: Add config and adapt the twig views
+        $config = $this->nostoConfigService->getConfigWithInheritance(
+            $event->getSalesChannelContext()->getSalesChannelId(),
+            $event->getSalesChannelContext()->getLanguageId(),
+        );
+        $nostoConfig = new Config($config);
+        $event->getContext()->addExtension('nostoConfig', $nostoConfig);
 
         $nostoService = new NostoService();
         $event->getContext()->addExtension('nostoService', $nostoService);

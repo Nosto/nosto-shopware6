@@ -25,9 +25,9 @@
     {# Nosto connect script #}
     {% block nosto_integration_connect_script %}
         {% set configurationOptions = {
-            'accountID': config('NostoIntegration.config.accountID'),
-            'initializeAfter':  config('NostoIntegration.config.isInitializeNostoAfterInteraction'),
-            'reloadRecommendations': config('NostoIntegration.config.reloadRecommendations')
+            'accountID': context.context.extensions.nostoConfig.accountID,
+            'initializeAfter': context.context.extensions.nostoConfig.isInitializeNostoAfterInteraction,
+            'reloadRecommendations': context.context.extensions.nostoConfig.reloadRecommendations,
         } %}
         <div hidden data-nosto-configuration="true" data-nosto-configuration-options="{{ configurationOptions|json_encode }}"></div>
     {% endblock %}
