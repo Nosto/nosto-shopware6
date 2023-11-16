@@ -65,7 +65,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         $isMerchEnabled = $this->configProvider->isMerchEnabled($channelId, $languageId);
 
         try {
-            $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext());
+            $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext(), $channelId, $languageId);
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(

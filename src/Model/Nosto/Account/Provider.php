@@ -57,31 +57,35 @@ class Provider
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addAssociation('languages');
+
         $channels = $this->channelRepo->search($criteria, $context)->getEntities();
 
         /** @var SalesChannelEntity $channel */
         foreach ($channels as $channel) {
-            // TODO: Export for each language
             $channelId = $channel->getId();
-            $languageId = $channel->getLanguageId();
 
-            if (!$this->configProvider->isAccountEnabled($channelId, $languageId)) {
-                continue;
-            }
+            foreach ($channel->getLanguages() as $language) {
+                $languageId = $language->getId();
 
-            try {
-                $accountName = $this->configProvider->getAccountName($channelId, $languageId);
-                $keyChain = new KeyChain([
-                    new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channelId, $languageId)),
-                    new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channelId, $languageId)),
-                    new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
-                ]);
-                $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
-            } catch (\Throwable $throwable) {
-                $this->logger->error(
-                    $throwable->getMessage(),
-                    ContextHelper::createContextFromException($throwable)
-                );
+                if (!$this->configProvider->isAccountEnabled($channelId, $languageId)) {
+                    continue;
+                }
+
+                try {
+                    $accountName = $this->configProvider->getAccountName($channelId, $languageId);
+                    $keyChain = new KeyChain([
+                        new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channelId, $languageId)),
+                        new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channelId, $languageId)),
+                        new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
+                    ]);
+                    $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
+                } catch (\Throwable $throwable) {
+                    $this->logger->error(
+                        $throwable->getMessage(),
+                        ContextHelper::createContextFromException($throwable)
+                    );
+                }
             }
         }
 
