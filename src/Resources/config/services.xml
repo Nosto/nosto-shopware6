@@ -54,7 +54,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument type="service" id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="logger"/>

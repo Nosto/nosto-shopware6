@@ -37,10 +37,10 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
     private ContainerInterface $container;
 
     public function __construct(
-        EntityRepository            $crossSellingRepository,
-        ProductStreamBuilderInterface        $productStreamBuilder,
-        SalesChannelRepository      $productRepository,
-        SystemConfigService                  $systemConfigService,
+        EntityRepository $crossSellingRepository,
+        ProductStreamBuilderInterface $productStreamBuilder,
+        SalesChannelRepository $productRepository,
+        SystemConfigService $systemConfigService,
         ConfigProvider $configProvider,
         ContainerInterface $container
     ) {
