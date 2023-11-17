@@ -13,6 +13,6 @@ interface SortingHandlerInterface
 
     public function generateSorting(
         FieldSorting $fieldSorting,
-        SearchRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest,
     ): void;
 }

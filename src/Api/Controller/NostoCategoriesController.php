@@ -55,7 +55,7 @@ class NostoCategoriesController extends AbstractController
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsFilter(
             'active',
-            true
+            true,
         ));
 
         $appToken = $this->configProvider->getAppToken(

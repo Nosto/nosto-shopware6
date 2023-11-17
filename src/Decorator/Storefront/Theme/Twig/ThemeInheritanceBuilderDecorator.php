@@ -27,7 +27,7 @@ class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterfa
                 [
                     self::PLUGIN_TECH_NAME => 1,
                 ],
-                $result
+                $result,
             );
         }
 

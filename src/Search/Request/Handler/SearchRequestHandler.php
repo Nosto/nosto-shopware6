@@ -31,7 +31,7 @@ class SearchRequestHandler extends AbstractRequestHandler
     {
         $context->getContext()->addExtension(
             'nostoRedirect',
-            $redirectExtension
+            $redirectExtension,
         );
     }
 }

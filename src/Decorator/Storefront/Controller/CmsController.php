@@ -88,7 +88,7 @@ class CmsController extends StorefrontController
         }
 
         return new JsonResponse(
-            $this->filterHandler->handleAvailableFilters($criteria)
+            $this->filterHandler->handleAvailableFilters($criteria),
         );
     }
 

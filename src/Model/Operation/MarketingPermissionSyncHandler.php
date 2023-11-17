@@ -68,7 +68,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
                 [
                     NewsletterSubscribeRoute::OPTION_DIRECT,
                     NewsletterSubscribeRoute::STATUS_OPT_IN,
-                ]
+                ],
             );
             try {
                 $this->eventDispatcher->dispatch(

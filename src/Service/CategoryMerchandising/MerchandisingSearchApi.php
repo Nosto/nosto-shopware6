@@ -71,9 +71,9 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $this->logger->error(
                 sprintf(
                     'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
+                    $throwable->getMessage(),
                 ),
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
         }
 
@@ -155,7 +155,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         } catch (Exception $e) {
             $this->logger->error(
                 $e->getMessage(),
-                ContextHelper::createContextFromException($e)
+                ContextHelper::createContextFromException($e),
             );
 
             return $this->repository->searchIds($criteria, $salesChannelContext);

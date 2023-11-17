@@ -109,7 +109,7 @@ class SearchService
             $nostoService->disable();
 
             $this->logger->error(
-                sprintf('Error while fetching all filters: %s', $e->getMessage())
+                sprintf('Error while fetching all filters: %s', $e->getMessage()),
             );
         }
     }
@@ -131,7 +131,7 @@ class SearchService
             $nostoService->disable();
 
             $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage())
+                sprintf('Error while fetching the available filters: %s', $e->getMessage()),
             );
         }
     }

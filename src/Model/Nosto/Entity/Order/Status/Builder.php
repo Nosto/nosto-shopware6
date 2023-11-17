@@ -27,7 +27,7 @@ class Builder implements BuilderInterface
                 $orderNumber,
                 $orderStatus,
                 $paymentProvider,
-                $updatedAt
+                $updatedAt,
             );
 
             return $nostoOrderStatus;

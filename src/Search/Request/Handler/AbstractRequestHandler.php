@@ -46,7 +46,7 @@ abstract class AbstractRequestHandler
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
             $this->logger->error(
-                sprintf('Error while fetching the products: %s', $e->getMessage())
+                sprintf('Error while fetching the products: %s', $e->getMessage()),
             );
             return;
         }

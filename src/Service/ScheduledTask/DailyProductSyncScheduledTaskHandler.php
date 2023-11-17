@@ -70,9 +70,9 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
                 $this->logger->error(
                     sprintf(
                         'Unable to sync job, the reason is: %s',
-                        $e->getMessage()
+                        $e->getMessage(),
                     ),
-                    ContextHelper::createContextFromException($e)
+                    ContextHelper::createContextFromException($e),
                 );
             }
         }

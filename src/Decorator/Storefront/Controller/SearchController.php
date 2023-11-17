@@ -142,7 +142,7 @@ class SearchController extends StorefrontController
         }
 
         return new JsonResponse(
-            $this->filterHandler->handleAvailableFilters($criteria)
+            $this->filterHandler->handleAvailableFilters($criteria),
         );
     }
 }

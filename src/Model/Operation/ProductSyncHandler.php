@@ -359,7 +359,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsAnyFilter('id', $categoriesPaths)
+            new EqualsAnyFilter('id', $categoriesPaths),
         );
 
         return $this->categoryRepository->search($criteria, $context)->getEntities();

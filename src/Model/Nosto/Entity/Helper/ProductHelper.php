@@ -116,7 +116,7 @@ class ProductHelper
 
     public function loadProducts(
         array $productIds,
-        SalesChannelContext $context
+        SalesChannelContext $context,
     ): ProductCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));

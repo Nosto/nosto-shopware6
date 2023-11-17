@@ -6,6 +6,7 @@ use PhpCsFixer\Fixer\ControlStructure\TrailingCommaInMultilineFixer;
 use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
+use Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
@@ -16,7 +17,6 @@ return function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->rules([
         DeclareStrictTypesFixer::class,
-        LineLengthFixer::class,
     ]);
 
     $ecsConfig->skip([
@@ -36,6 +36,10 @@ return function (ECSConfig $ecsConfig): void {
         'equal' => false,
         'identical' => false,
         'less_and_greater' => false,
+    ]);
+
+    $ecsConfig->ruleWithConfiguration(LineLengthFixer::class, [
+        'inline_short_lines' => false,
     ]);
 
     $ecsConfig->ruleWithConfiguration(TrailingCommaInMultilineFixer::class, [

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Throwable;
 
 class Provider
 {
@@ -80,7 +81,7 @@ class Provider
                         new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
                     ]);
                     $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
-                } catch (\Throwable $throwable) {
+                } catch (Throwable $throwable) {
                     $this->logger->error(
                         $throwable->getMessage(),
                         ContextHelper::createContextFromException($throwable),

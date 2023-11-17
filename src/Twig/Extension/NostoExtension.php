@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Throwable;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -50,10 +51,10 @@ class NostoExtension extends AbstractExtension
     {
         try {
             return $product === null ? null : $this->productProvider->get($product, $context);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             $this->logger->error(
                 $throwable->getMessage(),
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
             return null;
         }
