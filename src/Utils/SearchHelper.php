@@ -28,7 +28,7 @@ class SearchHelper
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
         $searchApiToken = $configProvider->getSearchToken($channelId, $languageId);
-        $accountId = $configProvider->getAccountId($context->getSalesChannelId(), $context->getLanguageId());
+        $accountId = $configProvider->getAccountId($channelId, $languageId);
         if (!$searchApiToken || trim($searchApiToken) === '' || !$accountId || trim($accountId) === '') {
             return $nostoService->disable();
         }
