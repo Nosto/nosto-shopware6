@@ -22,7 +22,7 @@ class Account
         string $channelId,
         string $languageId,
         string $accountName,
-        Account\KeyChain $keyChain
+        Account\KeyChain $keyChain,
     ) {
         $this->channelId = $channelId;
         $this->languageId = $languageId;

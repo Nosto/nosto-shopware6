@@ -29,7 +29,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 
     public function __construct(
         EntityRepository $productRepository,
-        JobScheduler $jobScheduler
+        JobScheduler $jobScheduler,
     ) {
         $this->productRepository = $productRepository;
         $this->jobScheduler = $jobScheduler;
@@ -47,14 +47,15 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
         while (($products = $repositoryIterator->fetch()) !== null) {
-            if (is_int($products)) {
-                continue;
-            }
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $this->getIdsForMessage($products->getEntities()), $message->getContext());
-            $this->jobScheduler->schedule($jobMessage);
-            $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of products has been scheduled.')
-            ));
+            $this->jobScheduler->schedule(
+                new ProductSyncMessage(
+                    Uuid::randomHex(),
+                    $message->getJobId(),
+                    $this->getIdsForMessage($products->getEntities()),
+                    $message->getContext(),
+                ),
+            );
+            $result->addMessage(new InfoMessage('Job with payload of products has been scheduled.'));
         }
 
         return $result;

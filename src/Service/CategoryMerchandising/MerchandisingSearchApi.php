@@ -44,7 +44,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         private readonly SessionLookupResolver $resolver,
         private readonly ConfigProvider $configProvider,
         private readonly RequestStack $requestStack,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -100,7 +100,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
                 $category = $this->categoryRepository->search(
                     new Criteria([$categoryId]),
-                    $salesChannelContext->getContext()
+                    $salesChannelContext->getContext(),
                 )->first();
 
                 $this->currentCategoryId = $categoryId;
@@ -112,7 +112,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         $includeFilters = !empty($criteria->getPostFilters())
             ? $this->filterTranslator->buildIncludeFilters(
                 $criteria->getPostFilters(),
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             )
             : new IncludeFilters();
 
@@ -132,7 +132,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 AbstractGraphQLOperation::IDENTIFIER_BY_CID,
                 false,
                 $criteria->getLimit(),
-                ''
+                '',
             );
 
             /** @var CategoryMerchandisingResult $result */
@@ -150,7 +150,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $result->getTotalPrimaryCount(),
                 $this->resultTranslator->getProductIds($result),
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             );
         } catch (Exception $e) {
             $this->logger->error(
@@ -219,7 +219,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $newResultSet,
             $result->getTrackingCode(),
             $result->getTotalPrimaryCount(),
-            $result->getBatchToken()
+            $result->getBatchToken(),
         );
     }
 

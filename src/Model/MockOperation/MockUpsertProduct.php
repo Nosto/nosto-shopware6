@@ -16,7 +16,7 @@ class MockUpsertProduct extends UpsertProduct
         $request = $this->initRequest(
             $this->account->getApiToken(Token::API_PRODUCTS),
             $this->account->getName(),
-            $this->activeDomain
+            $this->activeDomain,
         );
         $response = $request->post(new ProductCollection());
 

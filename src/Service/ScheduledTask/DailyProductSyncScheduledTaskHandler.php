@@ -40,7 +40,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         NostoConfigService $configService,
         NostoSyncRoute $nostoSyncRoute,
         TagAwareAdapterInterface $cache,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->configProvider = $configProvider;
@@ -108,7 +108,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new DateTime())->format(
-            Defaults::STORAGE_DATE_FORMAT
+            Defaults::STORAGE_DATE_FORMAT,
         );
     }
 }

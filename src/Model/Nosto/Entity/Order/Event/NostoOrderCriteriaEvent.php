@@ -16,7 +16,7 @@ class NostoOrderCriteriaEvent extends NestedEvent
 
     public function __construct(
         Criteria $criteria,
-        Context $context
+        Context $context,
     ) {
         $this->criteria = $criteria;
         $this->context = $context;

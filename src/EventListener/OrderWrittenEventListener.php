@@ -31,7 +31,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
             $event->getOrder()->getId(),
-            $event->getContext()
+            $event->getContext(),
         );
     }
 
@@ -40,7 +40,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_UPDATED_NAME,
             $event->getTransition()->getEntityId(),
-            $event->getContext()
+            $event->getContext(),
         );
     }
 }

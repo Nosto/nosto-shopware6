@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['storefront'],
-    ]
+    ],
 )]
 class SearchController extends StorefrontController
 {
@@ -38,7 +38,7 @@ class SearchController extends StorefrontController
         private readonly ConfigProvider $configProvider,
         private readonly SearchService $searchService,
         private readonly SearchPageLoader $searchPageLoader,
-        ContainerInterface $container
+        ContainerInterface $container,
     ) {
         $this->container = $container;
     }
@@ -49,7 +49,7 @@ class SearchController extends StorefrontController
         defaults: [
             '_httpCache' => true,
         ],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
@@ -96,7 +96,7 @@ class SearchController extends StorefrontController
             'XmlHttpRequest' => true,
             '_httpCache' => true,
         ],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
@@ -111,7 +111,7 @@ class SearchController extends StorefrontController
             '_routeScope' => ['storefront'],
             '_httpCache' => true,
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
@@ -126,7 +126,7 @@ class SearchController extends StorefrontController
             '_routeScope' => ['storefront'],
             '_httpCache' => true,
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     public function filter(Request $request, SalesChannelContext $salesChannelContext): Response
     {

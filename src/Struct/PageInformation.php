@@ -10,7 +10,7 @@ class PageInformation extends Struct
 {
     public function __construct(
         private readonly bool $isSearchPage,
-        private readonly bool $isNavigationPage
+        private readonly bool $isNavigationPage,
     ) {
     }
 

@@ -42,7 +42,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         SalesChannelRepository $productRepository,
         SystemConfigService $systemConfigService,
         ConfigProvider $configProvider,
-        ContainerInterface $container
+        ContainerInterface $container,
     ) {
         $this->crossSellingRepository = $crossSellingRepository;
         $this->productStreamBuilder = $productStreamBuilder;
@@ -73,7 +73,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
     {
         $syncConfig = $this->configProvider->getCrossSellingSyncOption(
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         );
         if ($syncConfig === 'no-sync') {
             return new ProductCrossSellingCollection();
@@ -102,8 +102,11 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             && $crossSelling->getProductStreamId() !== null;
     }
 
-    protected function loadByStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
-    {
+    protected function loadByStream(
+        ProductCrossSellingEntity $crossSelling,
+        SalesChannelContext $context,
+        Criteria $criteria,
+    ): array {
         /** @var string $productStreamId */
         $productStreamId = $crossSelling->getProductStreamId();
 
@@ -140,8 +143,11 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         return $criteria;
     }
 
-    protected function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
-    {
+    protected function loadByIds(
+        ProductCrossSellingEntity $crossSelling,
+        SalesChannelContext $context,
+        Criteria $criteria,
+    ): array {
         if (!$crossSelling->getAssignedProducts()) {
             return [];
         }
@@ -152,7 +158,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
 
         $filter = new ProductAvailableFilter(
             $context->getSalesChannel()->getId(),
-            ProductVisibilityDefinition::VISIBILITY_LINK
+            ProductVisibilityDefinition::VISIBILITY_LINK,
         );
 
         if (!count($ids)) {

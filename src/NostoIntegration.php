@@ -84,7 +84,7 @@ class NostoIntegration extends Plugin
                 $bundle->getAdditionalBundles($bundleParameters),
                 function (BundleInterface $bundle) {
                     return $bundle instanceof NostoScheduler;
-                }
+                },
             );
 
             if (\count($schedulerDependencies) !== 0) {

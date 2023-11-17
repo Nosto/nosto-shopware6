@@ -19,7 +19,7 @@ class CustomerExtension extends AbstractExtension
 
     public function __construct(
         BuilderInterface $builder,
-        RestoreUrlService $restoreUrlService
+        RestoreUrlService $restoreUrlService,
     ) {
         $this->builder = $builder;
         $this->restoreUrlService = $restoreUrlService;

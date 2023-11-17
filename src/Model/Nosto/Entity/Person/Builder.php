@@ -18,7 +18,7 @@ abstract class Builder implements BuilderInterface
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): ?AbstractPerson {
         $person = $this->buildObject(
             $firstName,
@@ -30,7 +30,7 @@ abstract class Builder implements BuilderInterface
             $customerGroup,
             $dateOfBirth,
             $gender,
-            $customerReference
+            $customerReference,
         );
 
         return $person;
@@ -46,6 +46,6 @@ abstract class Builder implements BuilderInterface
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): AbstractPerson;
 }

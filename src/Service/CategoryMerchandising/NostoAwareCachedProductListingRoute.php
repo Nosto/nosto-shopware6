@@ -17,7 +17,7 @@ class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
 
     public function __construct(
         AbstractProductListingRoute $cachedProductListingRoute,
-        NostoCacheResolver $cacheResolver
+        NostoCacheResolver $cacheResolver,
     ) {
         $this->decoratedService = $cachedProductListingRoute;
         $this->cacheResolver = $cacheResolver;
@@ -32,7 +32,7 @@ class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
         string $categoryId,
         Request $request,
         SalesChannelContext $channelContext,
-        Criteria $criteria
+        Criteria $criteria,
     ): ProductListingRouteResponse {
         if ($this->cacheResolver->isCachingAllowedNoRoute($channelContext)) {
             /** Allow caching */

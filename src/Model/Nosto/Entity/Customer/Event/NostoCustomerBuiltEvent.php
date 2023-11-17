@@ -20,7 +20,7 @@ class NostoCustomerBuiltEvent extends NestedEvent
     public function __construct(
         CustomerEntity $customer,
         NostoCustomer $nostoCustomer,
-        Context $context
+        Context $context,
     ) {
         $this->customer = $customer;
         $this->nostoCustomer = $nostoCustomer;

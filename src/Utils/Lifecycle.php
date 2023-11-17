@@ -37,7 +37,7 @@ class Lifecycle
 
     public function __construct(
         ContainerInterface $container,
-        bool $hasOtherSchedulerDependency
+        bool $hasOtherSchedulerDependency,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
@@ -136,7 +136,7 @@ class Lifecycle
                 'DELETE FROM migration WHERE class LIKE :class',
                 [
                     'class' => $schedulerMigrationClassWildcard,
-                ]
+                ],
             );
         }
 
@@ -158,7 +158,9 @@ class Lifecycle
     public function removeOldTags(Context $context): void
     {
         $channelCriteria = new Criteria();
-        $channelCriteria->addFilter(new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]));
+        $channelCriteria->addFilter(
+            new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]),
+        );
         $channelIds = $this->salesChannelRepository->searchIds($channelCriteria, $context);
 
         foreach ($channelIds->getIds() as $channelId) {

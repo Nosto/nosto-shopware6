@@ -16,7 +16,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        ?int $limit = null
+        ?int $limit = null,
     ): SearchResult {
         $searchRequest = new SearchRequest($this->configProvider, $context);
         $this->setDefaultParams($request, $criteria, $searchRequest, $limit);

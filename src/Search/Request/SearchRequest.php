@@ -22,7 +22,7 @@ class SearchRequest extends AbstractSearchOperation
 
         $account = new Account($this->configProvider->getAccountName($channelId, $languageId));
         $account->addApiToken(
-            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($channelId, $languageId))
+            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($channelId, $languageId)),
         );
 
         parent::__construct($account);

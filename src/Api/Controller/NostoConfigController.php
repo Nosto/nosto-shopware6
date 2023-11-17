@@ -16,13 +16,13 @@ use Throwable;
 #[Route(
     defaults: [
         '_routeScope' => ['api'],
-    ]
+    ],
 )]
 class NostoConfigController extends AbstractController
 {
     public function __construct(
         private readonly NostoConfigService $nostoConfigService,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 

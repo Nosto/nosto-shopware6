@@ -31,7 +31,11 @@ class Migration1680010097 extends MigrationStep
 
     private function hasColumn(string $table, string $columnName, Connection $connection): bool
     {
-        return \in_array($columnName, array_column($connection->fetchAllAssociative(\sprintf('SHOW COLUMNS FROM `%s`', $table)), 'Field'), true);
+        return \in_array(
+            $columnName,
+            array_column($connection->fetchAllAssociative(\sprintf('SHOW COLUMNS FROM `%s`', $table)), 'Field'),
+            true,
+        );
     }
 
     public function updateDestructive(Connection $connection): void

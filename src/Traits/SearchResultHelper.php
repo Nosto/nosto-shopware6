@@ -35,7 +35,7 @@ trait SearchResultHelper
     protected function fetchProducts(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
-        ?string $query = null
+        ?string $query = null,
     ): EntitySearchResult {
         if ($query !== null && count($criteria->getIds()) === 1) {
             $this->modifyCriteriaFromQuery($query, $criteria, $salesChannelContext);
@@ -43,7 +43,7 @@ trait SearchResultHelper
 
         $result = $this->salesChannelProductRepository->search(
             $this->cleanDatabaseCriteria($criteria),
-            $salesChannelContext
+            $salesChannelContext,
         );
 
         return $this->fixResultOrder($result, $criteria);
@@ -132,7 +132,7 @@ trait SearchResultHelper
     private function modifyCriteriaFromQuery(
         string $query,
         Criteria $criteria,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ): void {
         $productCriteria = new Criteria();
         $productCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [

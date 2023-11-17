@@ -20,7 +20,7 @@ class CachedProvider implements ProductProviderInterface
 
     public function __construct(
         TagAwareAdapterInterface $cache,
-        Provider $innerProvider
+        Provider $innerProvider,
     ) {
         $this->cache = $cache;
         $this->innerProvider = $innerProvider;

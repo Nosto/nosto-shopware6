@@ -28,7 +28,7 @@ class Provider
     public function __construct(
         ConfigProvider $configProvider,
         EntityRepository $channelRepo,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->configProvider = $configProvider;
         $this->channelRepo = $channelRepo;
@@ -83,7 +83,7 @@ class Provider
                 } catch (\Throwable $throwable) {
                     $this->logger->error(
                         $throwable->getMessage(),
-                        ContextHelper::createContextFromException($throwable)
+                        ContextHelper::createContextFromException($throwable),
                     );
                 }
             }

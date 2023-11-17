@@ -30,7 +30,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
     public function __construct(
         EntityRepository $newsletterRecipientRepository,
         Account\Provider $accountProvider,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->accountProvider = $accountProvider;
@@ -48,7 +48,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
             $accountOperationResult = $this->doOperation(
                 $nostoAccount,
                 $message->getContext(),
-                $message->getNewsletterRecipientIds()
+                $message->getNewsletterRecipientIds(),
             );
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
@@ -78,8 +78,8 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
                             'email' => $subscriber->getEmail(),
                             'isSubscribed' => $isSubscribed,
                         ],
-                        $context
-                    )
+                        $context,
+                    ),
                 );
                 $operation->update($subscriber->getEmail(), $isSubscribed);
             } catch (\Throwable $e) {

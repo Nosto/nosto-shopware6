@@ -38,7 +38,7 @@ class RestorerService implements RestorerServiceInterface
         CartRuleLoader $cartRuleLoader,
         CartService $cartService,
         OrderConverter $orderConverter,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->mappingRepository = $mappingRepository;
         $this->orderRepository = $orderRepository;
@@ -57,12 +57,12 @@ class RestorerService implements RestorerServiceInterface
             }
             $mapping->getMappingTable() === CheckoutMappingDefinition::CART_TABLE ? $this->restoreCart(
                 $mapping->getReference(),
-                $context
+                $context,
             ) : $this->restoreOrder($mapping->getReference(), $context);
         } catch (Throwable $throwable) {
             $this->logger->error(
                 'Unable to restore the cart',
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
         }
     }

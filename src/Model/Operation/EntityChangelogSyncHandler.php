@@ -33,7 +33,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     public function __construct(
         EntityRepository $entityChangelogRepository,
-        JobScheduler $jobScheduler
+        JobScheduler $jobScheduler,
     ) {
         $this->entityChangelogRepository = $entityChangelogRepository;
         $this->jobScheduler = $jobScheduler;
@@ -62,8 +62,8 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $result->addMessage(new InfoMessage(
                 \sprintf(
                     'Job with payload of %s marketing permission updates has been scheduled.',
-                    count($subscriberIds)
-                )
+                    count($subscriberIds),
+                ),
             ));
         });
     }
@@ -105,11 +105,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                 $orderIds,
                 [],
                 $context,
-                'New Order Sync Operation'
+                'New Order Sync Operation',
             );
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s new orders has been scheduled.', count($orderIds))
+                \sprintf('Job with payload of %s new orders has been scheduled.', count($orderIds)),
             ));
         });
     }
@@ -124,11 +124,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                 [],
                 $orderIds,
                 $context,
-                'Updated Order Sync Operation'
+                'Updated Order Sync Operation',
             );
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s updated orders has been scheduled.', count($orderIds))
+                \sprintf('Job with payload of %s updated orders has been scheduled.', count($orderIds)),
             ));
         });
     }
@@ -140,7 +140,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds, $context);
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s updated products has been scheduled.', count($productIds))
+                \sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
             ));
         });
     }

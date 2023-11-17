@@ -64,7 +64,7 @@ class Builder implements BuilderInterface
         TreeBuilderInterface $treeBuilder,
         EventDispatcherInterface $eventDispatcher,
         CrossSellingBuilderInterface $crossSellingBuilder,
-        EntityRepository $tagRepository
+        EntityRepository $tagRepository,
     ) {
         $this->seoUrlReplacer = $seoUrlReplacer;
         $this->configProvider = $configProvider;
@@ -94,8 +94,9 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setProductId(
-            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number' ?
-                $product->getProductNumber() : $product->getId()
+            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
+                ? $product->getProductNumber()
+                : $product->getId(),
         );
         $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
         $nostoProduct->addCustomField('productId', $product->getId());
@@ -183,7 +184,7 @@ class Builder implements BuilderInterface
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
             $alternateMediaUrls = $product->getMedia()->map(
-                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl()
+                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
             );
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
         }
@@ -223,8 +224,8 @@ class Builder implements BuilderInterface
                     [
                         'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                         'mfg-part-number' => $product->getManufacturerNumber(),
-                    ]
-                )
+                    ],
+                ),
             );
         }
 
@@ -240,7 +241,7 @@ class Builder implements BuilderInterface
     private function setPrices(
         NostoProduct $nostoProdcut,
         SalesChannelProductEntity $product,
-        SalesChannelContext $context
+        SalesChannelContext $context,
     ): void {
         $productPrice = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
         if (!($productPrice instanceof CalculatedPrice)) {
@@ -257,12 +258,12 @@ class Builder implements BuilderInterface
         if (!$isGross) {
             $price = $this->calculator->calculate(
                 new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
-                $context->getItemRounding()
+                $context->getItemRounding(),
             );
 
             $priceList = $this->calculator->calculate(
                 new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
-                $context->getItemRounding()
+                $context->getItemRounding(),
             );
             $unitPrice = $listPrice = 0;
 
@@ -284,7 +285,7 @@ class Builder implements BuilderInterface
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = (string) $this->configProvider->getDomainId(
                 $context->getSalesChannelId(),
-                $context->getLanguageId()
+                $context->getLanguageId(),
             );
             $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
@@ -299,7 +300,7 @@ class Builder implements BuilderInterface
     private function initTags(
         ProductEntity $productEntity,
         NostoProduct $nostoProduct,
-        SalesChannelContext $context
+        SalesChannelContext $context,
     ): void {
         $tags = $this->loadTags($context->getContext());
         $channelId = $context->getSalesChannelId();
@@ -308,17 +309,17 @@ class Builder implements BuilderInterface
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(1, $channelId, $languageId),
-            $tags
+            $tags,
         ));
         $nostoProduct->setTag2($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(2, $channelId, $languageId),
-            $tags
+            $tags,
         ));
         $nostoProduct->setTag3($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
-            $tags
+            $tags,
         ));
     }
 
@@ -349,7 +350,7 @@ class Builder implements BuilderInterface
         return array_values(
             array_map(function (CategoryEntity $category) {
                 return $category->getId();
-            }, $categoriesRo->getElements())
+            }, $categoriesRo->getElements()),
         );
     }
 }

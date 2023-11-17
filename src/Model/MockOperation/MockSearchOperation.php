@@ -12,7 +12,7 @@ class MockSearchOperation extends AbstractSearchOperation
 {
     public function __construct(
         private readonly string $accountId,
-        AccountInterface $account
+        AccountInterface $account,
     ) {
         parent::__construct($account);
     }

@@ -20,7 +20,7 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        EntityRepository $jobRepository
+        EntityRepository $jobRepository,
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->jobRepository = $jobRepository;
@@ -42,8 +42,8 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
                 'createdAt',
                 [
                     'lt' => $numberOfDaysBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
-                ]
-            )
+                ],
+            ),
         );
 
         $idSearchResult = $this->jobRepository->searchIds($criteria, $context);

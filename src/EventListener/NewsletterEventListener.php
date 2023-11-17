@@ -31,7 +31,7 @@ class NewsletterEventListener implements EventSubscriberInterface
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::NEWSLETTER_ENTITY_NAME,
             $event->getNewsletterRecipient()->getId(),
-            $event->getContext()
+            $event->getContext(),
         );
     }
 
@@ -40,7 +40,7 @@ class NewsletterEventListener implements EventSubscriberInterface
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::NEWSLETTER_ENTITY_NAME,
             $event->getNewsletterRecipient()->getId(),
-            $event->getContext()
+            $event->getContext(),
         );
     }
 }

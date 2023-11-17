@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class FrontendSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly NostoConfigService $nostoConfigService
+        private readonly NostoConfigService $nostoConfigService,
     ) {
     }
 

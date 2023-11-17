@@ -14,7 +14,7 @@ class SearchHelper
     public static function shouldHandleRequest(
         SalesChannelContext $context,
         ConfigProvider $configProvider,
-        bool $isNavigationPage = false
+        bool $isNavigationPage = false,
     ): bool {
         /** @var NostoService $nostoService */
         $nostoService = $context->getContext()->getExtension('nostoService');

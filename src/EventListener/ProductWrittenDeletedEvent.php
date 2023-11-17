@@ -39,7 +39,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
                     $event->getEntityName(),
                     $productId,
                     $event->getContext(),
-                    $orderNumberMapping[$productId]
+                    $orderNumberMapping[$productId],
                 );
             }
         }

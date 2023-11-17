@@ -15,7 +15,7 @@ class MockMarketingPermission extends MarketingPermission
         $request = $this->initRequest(
             $this->account->getApiToken(Token::API_EMAIL),
             $this->account->getName(),
-            $this->activeDomain
+            $this->activeDomain,
         );
         $request->setReplaceParams([]);
         $response = $request->postRaw('');

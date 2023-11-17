@@ -21,7 +21,7 @@ class TreeBuilder implements TreeBuilderInterface
 
                     return $acc;
                 },
-                []
+                [],
             );
         }, $categoryNameSets);
 
@@ -55,7 +55,7 @@ class TreeBuilder implements TreeBuilderInterface
             return \array_filter(
                 $category->getPlainBreadcrumb(),
                 fn (string $categoryId) => $categoryId !== $rootCategoryId,
-                ARRAY_FILTER_USE_KEY
+                ARRAY_FILTER_USE_KEY,
             );
         }, $categoriesRo->getElements()));
     }

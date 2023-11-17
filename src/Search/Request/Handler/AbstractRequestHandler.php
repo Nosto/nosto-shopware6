@@ -20,7 +20,7 @@ abstract class AbstractRequestHandler
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
-        protected ?FilterHandler $filterHandler = null
+        protected ?FilterHandler $filterHandler = null,
     ) {
         $this->filterHandler = $filterHandler ?? new FilterHandler();
     }
@@ -34,7 +34,7 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        ?int $limit = null
+        ?int $limit = null,
     ): SearchResult;
 
     public function fetchProducts(Request $request, Criteria $criteria, SalesChannelContext $context): void
@@ -63,12 +63,16 @@ abstract class AbstractRequestHandler
             $criteria,
             $responseParser,
             $originalCriteria->getLimit(),
-            $originalCriteria->getOffset()
+            $originalCriteria->getOffset(),
         );
     }
 
-    protected function setDefaultParams(Request $request, Criteria $criteria, SearchRequest $searchRequest, ?int $limit = null): void
-    {
+    protected function setDefaultParams(
+        Request $request,
+        Criteria $criteria,
+        SearchRequest $searchRequest,
+        ?int $limit = null,
+    ): void {
         $this->setPaginationParams($criteria, $searchRequest, $limit);
         $this->setSessionParamsFromCookies($request, $searchRequest);
         $this->sortingHandlerService->handle($searchRequest, $criteria);
@@ -90,7 +94,7 @@ abstract class AbstractRequestHandler
         Criteria $criteria,
         GraphQLResponseParser $responseParser,
         ?int $limit,
-        ?int $offset
+        ?int $offset,
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);

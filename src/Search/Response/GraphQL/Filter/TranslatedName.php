@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class TranslatedName extends Struct
 {
     public function __construct(
-        private readonly string $name
+        private readonly string $name,
     ) {
     }
 

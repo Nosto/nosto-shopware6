@@ -27,7 +27,7 @@ class NostoExtension extends AbstractExtension
     public function __construct(
         ProductProviderInterface $productProvider,
         LoggerInterface $logger,
-        SalesChannelRepository $salesChannelProductRepository
+        SalesChannelRepository $salesChannelProductRepository,
     ) {
         $this->productProvider = $productProvider;
         $this->logger = $logger;

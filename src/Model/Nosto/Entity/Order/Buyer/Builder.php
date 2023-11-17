@@ -22,7 +22,7 @@ class Builder extends PersonBuilder
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): Buyer {
         $buyer = new Buyer();
         $buyer->setFirstName($firstName);
@@ -56,7 +56,7 @@ class Builder extends PersonBuilder
             $customerEmail,
             $telephone,
             $postcode,
-            $countryId
+            $countryId,
         );
     }
 }

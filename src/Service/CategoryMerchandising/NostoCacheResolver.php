@@ -20,7 +20,7 @@ class NostoCacheResolver
     public function __construct(
         RequestStack $requestStack,
         ConfigProvider $configProvider,
-        Provider $accountProvider
+        Provider $accountProvider,
     ) {
         $this->requestStack = $requestStack;
         $this->configProvider = $configProvider;

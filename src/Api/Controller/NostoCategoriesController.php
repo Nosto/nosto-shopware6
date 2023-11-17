@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['api'],
-    ]
+    ],
 )]
 class NostoCategoriesController extends AbstractController
 {
@@ -45,7 +45,7 @@ class NostoCategoriesController extends AbstractController
         defaults: [
             'auth_required' => true,
         ],
-        methods: ["POST"]
+        methods: ["POST"],
     )]
     public function sync(Request $request, Context $context): JsonResponse
     {

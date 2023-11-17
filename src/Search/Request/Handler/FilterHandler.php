@@ -30,7 +30,7 @@ class FilterHandler
     public function handleFilters(
         Request $request,
         Criteria $criteria,
-        SearchRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest,
     ): void {
         $selectedFilters = $request->query->all();
         $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
@@ -49,7 +49,7 @@ class FilterHandler
                         $filterValue,
                         $searchNavigationRequest,
                         $availableFilterIds,
-                        $filterMapping
+                        $filterMapping,
                     );
                 }
             }
@@ -61,7 +61,7 @@ class FilterHandler
         string $filterValue,
         SearchRequest $searchNavigationRequest,
         array $availableFilterIds,
-        IdToFieldMapping $filterMapping
+        IdToFieldMapping $filterMapping,
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
         // the appropriate parameters to our API.
@@ -182,7 +182,7 @@ class FilterHandler
 
     private function parseNostoFiltersForShopware(
         FiltersExtension $availableFilters,
-        FiltersExtension $allFilters
+        FiltersExtension $allFilters,
     ): array {
         $result = [];
 

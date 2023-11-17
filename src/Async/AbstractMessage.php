@@ -22,7 +22,7 @@ abstract class AbstractMessage implements JobMessageInterface
     public function __construct(
         string $jobId,
         ?Context $context = null,
-        ?string $name = null
+        ?string $name = null,
     ) {
         $this->jobId = $jobId;
         $this->name = $name ?? static::$defaultName;
@@ -48,7 +48,7 @@ abstract class AbstractMessage implements JobMessageInterface
                 $context->getCurrencyFactor(),
                 $context->considerInheritance(),
                 $context->getTaxState(),
-                $context->getRounding()
+                $context->getRounding(),
             );
         } else {
             $this->context = $context;
