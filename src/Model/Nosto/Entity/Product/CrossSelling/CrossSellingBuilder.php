@@ -58,9 +58,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         $result = [];
         foreach ($crossSellings as $crossSelling) {
             $result[$this->createKeyFromName($crossSelling->getName())] = [
-                'productIds' => $this->useProductStream($crossSelling)
-                    ? $this->loadByStream($crossSelling, $context, new Criteria())
-                    : $this->loadByIds($crossSelling, $context, new Criteria()),
+                'productIds' => $this->useProductStream($crossSelling) ? $this->loadByStream($crossSelling, $context, new Criteria()) : $this->loadByIds($crossSelling, $context, new Criteria()),
                 'position' => $crossSelling->getPosition(),
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
@@ -104,15 +102,15 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             && $crossSelling->getProductStreamId() !== null;
     }
 
-    protected function loadByStream(
-        ProductCrossSellingEntity $crossSelling,
-        SalesChannelContext $context,
-        Criteria $criteria
-    ): array {
+    protected function loadByStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
+    {
         /** @var string $productStreamId */
         $productStreamId = $crossSelling->getProductStreamId();
 
-        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
+        $filters = $this->productStreamBuilder->buildFilters(
+            $productStreamId,
+            $context->getContext()
+        );
 
         $criteria->addFilter(...$filters)
             ->setOffset(0)
@@ -142,11 +140,8 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         return $criteria;
     }
 
-    protected function loadByIds(
-        ProductCrossSellingEntity $crossSelling,
-        SalesChannelContext $context,
-        Criteria $criteria
-    ): array {
+    protected function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): array
+    {
         if (!$crossSelling->getAssignedProducts()) {
             return [];
         }

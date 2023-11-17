@@ -50,11 +50,11 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             if (is_int($products)) {
                 continue;
             }
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $this->getIdsForMessage(
-                $products->getEntities()
-            ), $message->getContext());
+            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $message->getJobId(), $this->getIdsForMessage($products->getEntities()), $message->getContext());
             $this->jobScheduler->schedule($jobMessage);
-            $result->addMessage(new InfoMessage(\sprintf('Job with payload of products has been scheduled.')));
+            $result->addMessage(new InfoMessage(
+                \sprintf('Job with payload of products has been scheduled.')
+            ));
         }
 
         return $result;

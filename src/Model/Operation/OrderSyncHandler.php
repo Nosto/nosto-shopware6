@@ -105,12 +105,7 @@ class OrderSyncHandler implements JobHandlerInterface
         $nostoOrder = $this->nostoOrderbuilder->build($order, $context);
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
-        $operation = new OrderCreate(
-            $nostoOrder,
-            $account->getNostoAccount(),
-            $nostoCustomerIdentifier,
-            $nostoCustomerId
-        );
+        $operation = new OrderCreate($nostoOrder, $account->getNostoAccount(), $nostoCustomerIdentifier, $nostoCustomerId);
         $this->eventDispatcher->dispatch(new BeforeOrderCreatedEvent($operation, $context));
         $operation->execute();
     }

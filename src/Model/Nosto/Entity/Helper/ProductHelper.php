@@ -114,8 +114,10 @@ class ProductHelper
         return $this->productRepository->search($criteria, $context);
     }
 
-    public function loadProducts(array $productIds, SalesChannelContext $context): ProductCollection
-    {
+    public function loadProducts(
+        array $productIds,
+        SalesChannelContext $context
+    ): ProductCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
         if (!$this->configProvider->isEnabledSyncInactiveProducts(

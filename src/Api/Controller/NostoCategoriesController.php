@@ -53,7 +53,10 @@ class NostoCategoriesController extends AbstractController
         $criteria->addAssociation('children');
         $criteria->getAssociation('parent');
         $criteria->getAssociation('seoUrls');
-        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter(
+            'active',
+            true
+        ));
 
         $appToken = $this->configProvider->getAppToken(
             $request->request->get('salesChannelId'),

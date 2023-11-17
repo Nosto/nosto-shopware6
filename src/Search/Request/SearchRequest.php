@@ -94,7 +94,10 @@ class SearchRequest extends AbstractSearchOperation
         }
 
         if (array_key_exists($filterField, $this->filters)) {
-            $this->filters[$filterField]['range'] = array_merge($this->filters[$filterField]['range'], $range);
+            $this->filters[$filterField]['range'] = array_merge(
+                $this->filters[$filterField]['range'],
+                $range
+            );
         } else {
             $this->filters[$filterField] = [
                 'field' => $filterField,

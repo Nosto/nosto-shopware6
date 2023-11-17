@@ -23,7 +23,12 @@ class Builder implements BuilderInterface
             } else {
                 throw new NostoException('Order has no payment associated');
             }
-            $nostoOrderStatus = new NostoOrderStatus($orderNumber, $orderStatus, $paymentProvider, $updatedAt);
+            $nostoOrderStatus = new NostoOrderStatus(
+                $orderNumber,
+                $orderStatus,
+                $paymentProvider,
+                $updatedAt
+            );
 
             return $nostoOrderStatus;
         } catch (Exception $e) {

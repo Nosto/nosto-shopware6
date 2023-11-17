@@ -108,7 +108,9 @@ class SearchService
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
 
-            $this->logger->error(sprintf('Error while fetching all filters: %s', $e->getMessage()));
+            $this->logger->error(
+                sprintf('Error while fetching all filters: %s', $e->getMessage())
+            );
         }
     }
 
@@ -128,18 +130,28 @@ class SearchService
             $nostoService = $context->getContext()->getExtension('nostoService');
             $nostoService->disable();
 
-            $this->logger->error(sprintf('Error while fetching the available filters: %s', $e->getMessage()));
+            $this->logger->error(
+                sprintf('Error while fetching the available filters: %s', $e->getMessage())
+            );
         }
     }
 
     protected function buildSearchRequestHandler(): SearchRequestHandler
     {
-        return new SearchRequestHandler($this->configProvider, $this->sortingHandlerService, $this->logger);
+        return new SearchRequestHandler(
+            $this->configProvider,
+            $this->sortingHandlerService,
+            $this->logger,
+        );
     }
 
     protected function buildNavigationRequestHandler(): NavigationRequestHandler
     {
-        return new NavigationRequestHandler($this->configProvider, $this->sortingHandlerService, $this->logger);
+        return new NavigationRequestHandler(
+            $this->configProvider,
+            $this->sortingHandlerService,
+            $this->logger,
+        );
     }
 
     protected function parseFiltersFromResponse(SearchResult $response): FiltersExtension

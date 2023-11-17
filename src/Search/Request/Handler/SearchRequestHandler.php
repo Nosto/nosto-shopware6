@@ -29,6 +29,9 @@ class SearchRequestHandler extends AbstractRequestHandler
 
     protected function handleRedirect(SalesChannelContext $context, Redirect $redirectExtension): void
     {
-        $context->getContext()->addExtension('nostoRedirect', $redirectExtension);
+        $context->getContext()->addExtension(
+            'nostoRedirect',
+            $redirectExtension
+        );
     }
 }

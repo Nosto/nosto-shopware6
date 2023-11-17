@@ -358,7 +358,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', $categoriesPaths));
+        $criteria->addFilter(
+            new EqualsAnyFilter('id', $categoriesPaths)
+        );
 
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }

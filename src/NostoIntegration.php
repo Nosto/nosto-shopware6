@@ -60,7 +60,9 @@ class NostoIntegration extends Plugin
 
     private function getDependencyBundles(): array
     {
-        return [new NostoScheduler()];
+        return [
+            new NostoScheduler(),
+        ];
     }
 
     public function uninstall(UninstallContext $uninstallContext): void

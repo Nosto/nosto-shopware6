@@ -68,7 +68,10 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
                 );
             } catch (Exception $e) {
                 $this->logger->error(
-                    sprintf('Unable to sync job, the reason is: %s', $e->getMessage()),
+                    sprintf(
+                        'Unable to sync job, the reason is: %s',
+                        $e->getMessage()
+                    ),
                     ContextHelper::createContextFromException($e)
                 );
             }
@@ -92,7 +95,10 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     private function isTodayAlreadyRun(): bool
     {
-        $lastSyncTime = $this->configService->get(self::LAST_EXECUTION_TIME_CONFIG);
+        $lastSyncTime = $this->systemConfigService->get(
+            self::LAST_EXECUTION_TIME_CONFIG,
+            $channelId
+        );
 
         if (empty($lastSyncTime)) {
             return false;

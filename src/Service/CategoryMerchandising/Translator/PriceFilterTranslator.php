@@ -11,8 +11,10 @@ class PriceFilterTranslator implements TranslatorInterface
 {
     public const PRICE = "product.cheapestPrice";
 
-    public function translate(IncludeFilters $includeFilters, RangeFilter $filters = null): IncludeFilters
-    {
+    public function translate(
+        IncludeFilters $includeFilters,
+        RangeFilter $filters = null
+    ): IncludeFilters {
         if ($filters) {
             $includeFilters->setPrice($filters->getParameter("gte"), $filters->getParameter("lte"));
         }

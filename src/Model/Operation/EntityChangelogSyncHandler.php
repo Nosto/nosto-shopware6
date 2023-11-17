@@ -56,11 +56,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private function processMarketingPermissionEvents(Context $context, JobResult $result, string $parentJobId)
     {
         $type = EventsWriter::NEWSLETTER_ENTITY_NAME;
-        $this->processEventBatches($context, $type, function (array $subscriberIds) use (
-            $parentJobId,
-            $result,
-            $context
-        ) {
+        $this->processEventBatches($context, $type, function (array $subscriberIds) use ($parentJobId, $result, $context) {
             $jobMessage = new MarketingPermissionSyncMessage(Uuid::randomHex(), $parentJobId, $subscriberIds, $context);
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(

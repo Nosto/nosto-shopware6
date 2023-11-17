@@ -45,7 +45,9 @@ abstract class AbstractRequestHandler
             $response = $this->sendRequest($request, $criteria, $context);
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
-            $this->logger->error(sprintf('Error while fetching the products: %s', $e->getMessage()));
+            $this->logger->error(
+                sprintf('Error while fetching the products: %s', $e->getMessage())
+            );
             return;
         }
 
@@ -65,12 +67,8 @@ abstract class AbstractRequestHandler
         );
     }
 
-    protected function setDefaultParams(
-        Request $request,
-        Criteria $criteria,
-        SearchRequest $searchRequest,
-        ?int $limit = null
-    ): void {
+    protected function setDefaultParams(Request $request, Criteria $criteria, SearchRequest $searchRequest, ?int $limit = null): void
+    {
         $this->setPaginationParams($criteria, $searchRequest, $limit);
         $this->setSessionParamsFromCookies($request, $searchRequest);
         $this->sortingHandlerService->handle($searchRequest, $criteria);
@@ -79,8 +77,11 @@ abstract class AbstractRequestHandler
         }
     }
 
-    protected function setPaginationParams(Criteria $criteria, SearchRequest $request, ?int $limit): void
-    {
+    protected function setPaginationParams(
+        Criteria $criteria,
+        SearchRequest $request,
+        ?int $limit,
+    ): void {
         $request->setFrom($criteria->getOffset() ?? 0);
         $request->setSize($limit ?? $criteria->getLimit());
     }

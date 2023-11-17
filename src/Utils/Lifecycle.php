@@ -158,9 +158,7 @@ class Lifecycle
     public function removeOldTags(Context $context): void
     {
         $channelCriteria = new Criteria();
-        $channelCriteria->addFilter(
-            new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API])
-        );
+        $channelCriteria->addFilter(new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]));
         $channelIds = $this->salesChannelRepository->searchIds($channelCriteria, $context);
 
         foreach ($channelIds->getIds() as $channelId) {

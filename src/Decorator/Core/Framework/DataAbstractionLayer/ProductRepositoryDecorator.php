@@ -61,12 +61,8 @@ class ProductRepositoryDecorator extends EntityRepository
         return $this->inner->searchIds($criteria, $context);
     }
 
-    public function clone(
-        string $id,
-        Context $context,
-        ?string $newId = null,
-        ?CloneBehavior $behavior = null
-    ): EntityWrittenContainerEvent {
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
+    {
         return $this->inner->clone($id, $context, $newId, $behavior);
     }
 
@@ -110,12 +106,7 @@ class ProductRepositoryDecorator extends EntityRepository
             if ($event instanceof EntityDeletedEvent && $event->getEntityName() === ProductDefinition::ENTITY_NAME) {
                 foreach ($event->getIds() as $productId) {
                     if (!empty($orderNumberMapping[$productId])) {
-                        $this->eventsWriter->writeEvent(
-                            $event->getEntityName(),
-                            $productId,
-                            $event->getContext(),
-                            $orderNumberMapping[$productId]
-                        );
+                        $this->eventsWriter->writeEvent($event->getEntityName(), $productId, $event->getContext(), $orderNumberMapping[$productId]);
                     }
                 }
             }

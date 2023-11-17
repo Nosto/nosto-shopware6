@@ -11,5 +11,8 @@ interface SortingHandlerInterface
 {
     public function supportsSorting(FieldSorting $fieldSorting): bool;
 
-    public function generateSorting(FieldSorting $fieldSorting, SearchRequest $searchNavigationRequest): void;
+    public function generateSorting(
+        FieldSorting $fieldSorting,
+        SearchRequest $searchNavigationRequest
+    ): void;
 }
