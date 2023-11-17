@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use function version_compare;
 
 class Lifecycle
 {
@@ -51,12 +50,12 @@ class Lifecycle
         $this->salesChannelRepository = $this->container->get('sales_channel.repository');
     }
 
-    public function install(InstallContext $installContext)
+    public function install(InstallContext $installContext): void
     {
         $this->importSorting($installContext->getContext());
     }
 
-    public function update(UpdateContext $updateContext)
+    public function update(UpdateContext $updateContext): void
     {
         $this->importSorting($updateContext->getContext());
         if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
@@ -64,17 +63,17 @@ class Lifecycle
         }
     }
 
-    public function deactivate(DeactivateContext $deactivateContext)
+    public function deactivate(DeactivateContext $deactivateContext): void
     {
         $this->removeSorting($deactivateContext->getContext());
     }
 
-    public function activate(ActivateContext $activateContext)
+    public function activate(ActivateContext $activateContext): void
     {
         $this->importSorting($activateContext->getContext());
     }
 
-    public function removeSorting(Context $context)
+    public function removeSorting(Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
@@ -87,7 +86,7 @@ class Lifecycle
         ]], $context);
     }
 
-    public function importSorting(Context $context)
+    public function importSorting(Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
@@ -145,7 +144,7 @@ class Lifecycle
         }
     }
 
-    public function removePendingJobs()
+    public function removePendingJobs(): void
     {
         $this->connection->executeStatement(
             "DELETE from `nosto_scheduler_job` WHERE `type` LIKE :prefix",

@@ -17,7 +17,7 @@ class MockSearchOperation extends AbstractSearchOperation
         parent::__construct($account);
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return <<<GRAPHQL
         query(
@@ -36,7 +36,7 @@ class MockSearchOperation extends AbstractSearchOperation
         GRAPHQL;
     }
 
-    public function getVariables()
+    public function getVariables(): array
     {
         return [
             'query' => '',
@@ -44,7 +44,7 @@ class MockSearchOperation extends AbstractSearchOperation
         ];
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): MockSearchResultHandler
     {
         return new MockSearchResultHandler();
     }

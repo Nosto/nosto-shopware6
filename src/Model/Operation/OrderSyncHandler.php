@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
@@ -70,14 +71,14 @@ class OrderSyncHandler implements JobHandlerInterface
         foreach ($this->getOrders($context, $message->getNewOrderIds()) as $order) {
             try {
                 $this->sendNewOrder($order, $account, $context);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $result->addError($e);
             }
         }
         foreach ($this->getOrders($context, $message->getUpdatedOrderIds()) as $order) {
             try {
                 $this->sendUpdatedOrder($order, $account);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $result->addError($e);
             }
         }

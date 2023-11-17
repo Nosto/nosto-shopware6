@@ -53,7 +53,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         return $result;
     }
 
-    private function processMarketingPermissionEvents(Context $context, JobResult $result, string $parentJobId)
+    private function processMarketingPermissionEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::NEWSLETTER_ENTITY_NAME;
         $this->processEventBatches($context, $type, function (array $subscriberIds) use (
@@ -64,7 +64,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $jobMessage = new MarketingPermissionSyncMessage(Uuid::randomHex(), $parentJobId, $subscriberIds, $context);
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf(
+                sprintf(
                     'Job with payload of %s marketing permission updates has been scheduled.',
                     count($subscriberIds),
                 ),
@@ -72,7 +72,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         });
     }
 
-    private function processEventBatches(Context $context, string $entityType, callable $processCallback)
+    private function processEventBatches(Context $context, string $entityType, callable $processCallback): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
@@ -99,7 +99,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
     }
 
-    private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId)
+    private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
         $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result, $context) {
@@ -113,12 +113,12 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             );
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s new orders has been scheduled.', count($orderIds)),
+                sprintf('Job with payload of %s new orders has been scheduled.', count($orderIds)),
             ));
         });
     }
 
-    private function processUpdatedOrderEvents(Context $context, JobResult $result, string $parentJobId)
+    private function processUpdatedOrderEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
         $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result, $context) {
@@ -132,19 +132,19 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             );
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s updated orders has been scheduled.', count($orderIds)),
+                sprintf('Job with payload of %s updated orders has been scheduled.', count($orderIds)),
             ));
         });
     }
 
-    private function processProductEvents(Context $context, JobResult $result, string $parentJobId)
+    private function processProductEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::PRODUCT_ENTITY_NAME;
         $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId, $result, $context) {
             $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds, $context);
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
-                \sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
+                sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
             ));
         });
     }

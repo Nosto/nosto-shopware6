@@ -23,7 +23,7 @@ class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterfa
 
         if (isset($result[self::PLUGIN_TECH_NAME])) {
             unset($result[self::PLUGIN_TECH_NAME]);
-            $result = \array_merge(
+            $result = array_merge(
                 [
                     self::PLUGIN_TECH_NAME => 1,
                 ],

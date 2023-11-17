@@ -111,12 +111,12 @@ class SearchRequest extends AbstractSearchOperation
         $this->sessionParams = $sessionParams;
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): SearchResultHandler
     {
         return new SearchResultHandler();
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return <<<GRAPHQL
         query(

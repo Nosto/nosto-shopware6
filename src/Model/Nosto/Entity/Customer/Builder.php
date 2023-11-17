@@ -45,9 +45,10 @@ class Builder implements BuilderInterface
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
         $subscriber = $this->newsletterRecipientRepository->search($criteria, $context)->first();
 
-        return $subscriber !== null
-            ? in_array($subscriber->getStatus(), [Newsletter::OPTION_DIRECT, Newsletter::STATUS_OPT_IN])
-            : false;
+        return $subscriber !== null && in_array(
+            $subscriber->getStatus(),
+            [Newsletter::OPTION_DIRECT, Newsletter::STATUS_OPT_IN],
+        );
     }
 
     public static function generateCustomerReference(CustomerEntity $customer): string

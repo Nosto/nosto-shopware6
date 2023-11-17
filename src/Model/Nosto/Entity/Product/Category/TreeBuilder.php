@@ -13,11 +13,11 @@ class TreeBuilder implements TreeBuilderInterface
     {
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
 
-        $nostoCategoryNames = \array_map(function (array $nameSet) {
+        $nostoCategoryNames = array_map(function (array $nameSet) {
             return array_reduce(
                 $nameSet,
                 function (array $acc, $categoryName) {
-                    $acc[] = (string) end($acc) . '/' . $categoryName;
+                    $acc[] = end($acc) . '/' . $categoryName;
 
                     return $acc;
                 },
@@ -25,7 +25,7 @@ class TreeBuilder implements TreeBuilderInterface
             );
         }, $categoryNameSets);
 
-        return \array_values(\array_unique(array_merge([], ...array_values($nostoCategoryNames))));
+        return array_values(array_unique(array_merge([], ...array_values($nostoCategoryNames))));
     }
 
     public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
@@ -51,8 +51,8 @@ class TreeBuilder implements TreeBuilderInterface
             ->filter(fn (CategoryEntity $category) => $category->getParentId() === null)
             ->first()->getId();
 
-        return \array_filter(\array_map(function (CategoryEntity $category) use ($rootCategoryId) {
-            return \array_filter(
+        return array_filter(array_map(function (CategoryEntity $category) use ($rootCategoryId) {
+            return array_filter(
                 $category->getPlainBreadcrumb(),
                 fn (string $categoryId) => $categoryId !== $rootCategoryId,
                 ARRAY_FILTER_USE_KEY,

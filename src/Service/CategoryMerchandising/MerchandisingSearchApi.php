@@ -139,7 +139,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $result = $operation->execute();
 
             if (!$result->getTotalPrimaryCount()) {
-                throw new \Exception('There are no products from the Nosto.');
+                throw new Exception('There are no products from the Nosto.');
             }
 
             if ($this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number') {
@@ -209,7 +209,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 // Check if uuid doesn't cause a crash. This is mostly to prevent a page crash in edge cases.
                 Uuid::fromHexToBytes($productToChangeData->getProductId());
                 $newResultSet->append($productToChangeData);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Nothing. Just skip.
             }
         }
@@ -260,7 +260,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
     private function getCategoryNameByBreadcrumbs($categoryBreadcrumbs): string
     {
-        $breadcrumbs = \array_slice($categoryBreadcrumbs, 1);
+        $breadcrumbs = array_slice($categoryBreadcrumbs, 1);
         $categoryFullName = '';
 
         foreach ($breadcrumbs as $breadcrumb) {

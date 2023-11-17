@@ -168,7 +168,7 @@ class Builder implements BuilderInterface
 
             foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
                 // All non-scalar value should be serialized
-                $fieldValue = $fieldOriginalValue === null || \is_scalar($fieldOriginalValue) ?
+                $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
 
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
@@ -280,7 +280,7 @@ class Builder implements BuilderInterface
         $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
     }
 
-    private function getProductUrl(ProductEntity $product, SalesChannelContext $context)
+    private function getProductUrl(ProductEntity $product, SalesChannelContext $context): ?string
     {
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = (string) $this->configProvider->getDomainId(

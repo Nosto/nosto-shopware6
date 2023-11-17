@@ -18,7 +18,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
         $this->eventsWriter = $eventsWriter;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'state_machine.order.state_changed' => 'onOrderWritten',
@@ -26,7 +26,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
         ];
     }
 
-    public function onCheckoutOrderPlaced(CheckoutOrderPlacedEvent $event)
+    public function onCheckoutOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
@@ -35,7 +35,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
         );
     }
 
-    public function onOrderWritten(StateMachineStateChangeEvent $event)
+    public function onOrderWritten(StateMachineStateChangeEvent $event): void
     {
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_UPDATED_NAME,

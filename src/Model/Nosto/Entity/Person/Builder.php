@@ -20,7 +20,7 @@ abstract class Builder implements BuilderInterface
         $gender = null,
         $customerReference = null,
     ): ?AbstractPerson {
-        $person = $this->buildObject(
+        return $this->buildObject(
             $firstName,
             $lastName,
             $email,
@@ -32,8 +32,6 @@ abstract class Builder implements BuilderInterface
             $gender,
             $customerReference,
         );
-
-        return $person;
     }
 
     abstract public function buildObject(

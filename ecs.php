@@ -20,7 +20,7 @@ return function (ECSConfig $ecsConfig): void {
     ]);
 
     $ecsConfig->skip([
-        NotOperatorWithSuccessorSpaceFixer::class
+        NotOperatorWithSuccessorSpaceFixer::class,
     ]);
 
     $ecsConfig->sets([

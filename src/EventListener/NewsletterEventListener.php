@@ -18,7 +18,7 @@ class NewsletterEventListener implements EventSubscriberInterface
         $this->eventsWriter = $eventsWriter;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             NewsletterConfirmEvent::class => 'onNewsletterConfirm',
@@ -26,7 +26,7 @@ class NewsletterEventListener implements EventSubscriberInterface
         ];
     }
 
-    public function onNewsletterConfirm(NewsletterConfirmEvent $event)
+    public function onNewsletterConfirm(NewsletterConfirmEvent $event): void
     {
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::NEWSLETTER_ENTITY_NAME,
@@ -35,7 +35,7 @@ class NewsletterEventListener implements EventSubscriberInterface
         );
     }
 
-    public function onNewsletterUnsubscribe(NewsletterUnsubscribeEvent $event)
+    public function onNewsletterUnsubscribe(NewsletterUnsubscribeEvent $event): void
     {
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::NEWSLETTER_ENTITY_NAME,

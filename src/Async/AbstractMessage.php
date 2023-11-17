@@ -29,7 +29,7 @@ abstract class AbstractMessage implements JobMessageInterface
         $this->setContext($context);
     }
 
-    protected function setContext(?Context $context)
+    protected function setContext(?Context $context): void
     {
         // All values should be sent to nosto with the default currency and language
         if ($context === null) {

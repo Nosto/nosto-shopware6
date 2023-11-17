@@ -9,7 +9,6 @@ use Nosto\NostoIntegration\Struct\Config;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Struct\PageInformation;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Psr\Cache\InvalidArgumentException;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -30,9 +29,6 @@ class FrontendSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
     {
         $config = $this->nostoConfigService->getConfigWithInheritance(

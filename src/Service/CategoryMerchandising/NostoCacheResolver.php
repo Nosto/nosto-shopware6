@@ -65,13 +65,13 @@ class NostoCacheResolver
         $isCachingAllowed = true;
 
         if (!$request = $this->requestStack->getCurrentRequest()) {
-            return $isCachingAllowed;
+            return true;
         }
 
         /** @var SalesChannelContext $channelContext */
         $channelContext = $channelContext ?? $request->attributes->get('sw-sales-channel-context');
         if (!$channelContext) {
-            return $isCachingAllowed;
+            return true;
         }
 
         if ($this->getBasicCachingAllowance($channelContext)) {

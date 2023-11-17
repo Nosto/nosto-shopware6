@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Api\Route;
 
+use Exception;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
@@ -65,7 +66,7 @@ class NostoSyncRoute
                 ? 'Job is already scheduled.'
                 : 'Job is already running.';
 
-            throw new \Exception($message);
+            throw new Exception($message);
         }
     }
 }

@@ -8,10 +8,11 @@ use Nosto\Model\Product\ProductCollection;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Api\Token;
+use Nosto\Result\Graphql\Recommendation\ResultSet;
 
 class MockUpsertProduct extends UpsertProduct
 {
-    public function upsert()
+    public function upsert(): ResultSet|bool|array|string
     {
         $request = $this->initRequest(
             $this->account->getApiToken(Token::API_PRODUCTS),
@@ -23,7 +24,7 @@ class MockUpsertProduct extends UpsertProduct
         return $this->getResultHandler()->parse($response);
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): MockResultHandler
     {
         return new MockResultHandler();
     }

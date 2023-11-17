@@ -11,10 +11,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-
 use Symfony\Component\HttpFoundation\Request;
-use function array_merge;
-use function in_array;
 
 class FilterHandler
 {
@@ -95,7 +92,7 @@ class FilterHandler
         if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
             $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterField, $filterValue, null);
+            $searchNavigationRequest->addRangeFilter($filterField, $filterValue);
         } else {
             $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);

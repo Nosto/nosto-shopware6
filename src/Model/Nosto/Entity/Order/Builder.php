@@ -70,7 +70,7 @@ class Builder implements BuilderInterface
             $nostoItem = new NostoLineItem();
             $nostoItem->loadSpecialItemData(
                 'Shipping and handling',
-                $shippingInclTax === null ? 0 : $shippingInclTax,
+                $shippingInclTax,
                 $order->getCurrency()->getIsoCode(),
             );
             $nostoOrder->addPurchasedItems($nostoItem);
