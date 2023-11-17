@@ -95,10 +95,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     private function isTodayAlreadyRun(): bool
     {
-        $lastSyncTime = $this->systemConfigService->get(
-            self::LAST_EXECUTION_TIME_CONFIG,
-            $channelId
-        );
+        $lastSyncTime = $this->configService->get(self::LAST_EXECUTION_TIME_CONFIG);
 
         if (empty($lastSyncTime)) {
             return false;
