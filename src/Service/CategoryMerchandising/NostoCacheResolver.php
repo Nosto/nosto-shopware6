@@ -62,8 +62,6 @@ class NostoCacheResolver
 
     public function isCachingAllowedNoRoute(?SalesChannelContext $channelContext = null): bool
     {
-        $isCachingAllowed = true;
-
         if (!$request = $this->requestStack->getCurrentRequest()) {
             return true;
         }
@@ -80,10 +78,10 @@ class NostoCacheResolver
             $isLoggedIn = $channelContext->getCustomer() !== null;
             $isEnabledNotLoggedIdCache = $this->configProvider->isEnabledNotLoggedInCache($channelId, $languageId);
 
-            $isCachingAllowed = $isLoggedIn === true ? false : $isEnabledNotLoggedIdCache;
+            return !$isLoggedIn && $isEnabledNotLoggedIdCache;
         }
 
-        return $isCachingAllowed;
+        return true;
     }
 
     private function getBasicCachingAllowance(SalesChannelContext $channelContext): bool
@@ -91,12 +89,12 @@ class NostoCacheResolver
         $channelId = $channelContext->getSalesChannelId();
         $languageId = $channelContext->getLanguageId();
         $isMerchEnabled = $this->configProvider->isMerchEnabled($channelId, $languageId);
-        $isNostoAccountExists = $this->accountProvider->get(
+        $nostoAccountExists = $this->accountProvider->get(
             $channelContext->getContext(),
             $channelId,
             $languageId,
         ) !== null;
 
-        return $isMerchEnabled && $isNostoAccountExists;
+        return $isMerchEnabled && $nostoAccountExists;
     }
 }
