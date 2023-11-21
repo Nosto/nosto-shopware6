@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['storefront'],
-    ]
+    ],
 )]
 class CartController extends StorefrontController
 {
@@ -30,7 +30,7 @@ class CartController extends StorefrontController
         options: [
             "seo" => "false",
         ],
-        methods: ["GET"]
+        methods: ["GET"],
     )]
     public function index(string $mappingId, SalesChannelContext $context): Response
     {

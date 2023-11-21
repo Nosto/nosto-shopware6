@@ -26,8 +26,8 @@ class MigrationHelper
             $bundleInstance->getPath() . str_replace(
                 $bundleInstance->getNamespace(),
                 '',
-                $bundleInstance->getMigrationNamespace()
-            )
+                $bundleInstance->getMigrationNamespace(),
+            ),
         );
 
         if (!is_dir($migrationPath)) {

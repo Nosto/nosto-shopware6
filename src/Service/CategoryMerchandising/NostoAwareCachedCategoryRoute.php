@@ -23,15 +23,15 @@ class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
     public function load(
         string $navigationId,
         Request $request,
-        SalesChannelContext $channelContext
+        SalesChannelContext $context,
     ): CategoryRouteResponse {
-        if ($this->cacheResolver->isCachingAllowedNoRoute($channelContext)) {
+        if ($this->cacheResolver->isCachingAllowedNoRoute($context)) {
             /** Allow caching */
-            return $this->decoratedService->load($navigationId, $request, $channelContext);
+            return $this->decoratedService->load($navigationId, $request, $context);
         }
 
         /** Bypass the caching */
-        return $this->getDecorated()->load($navigationId, $request, $channelContext);
+        return $this->getDecorated()->load($navigationId, $request, $context);
     }
 
     public function getDecorated(): AbstractCategoryRoute

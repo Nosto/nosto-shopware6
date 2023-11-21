@@ -36,14 +36,13 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class ProductSyncHandler implements Job\JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-product-sync';
 
     public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
-
-    private SalesChannelRepository $productRepository;
 
     private AbstractSalesChannelContextFactory $channelContextFactory;
 
@@ -62,7 +61,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private SalesChannelRepository $categoryRepository;
 
     public function __construct(
-        SalesChannelRepository $productRepository,
         AbstractSalesChannelContextFactory $channelContextFactory,
         ProductProviderInterface $productProvider,
         Account\Provider $accountProvider,
@@ -70,9 +68,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         AbstractRuleLoader $ruleLoader,
         ProductHelper $productHelper,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepository $categoryRepository
+        SalesChannelRepository $categoryRepository,
     ) {
-        $this->productRepository = $productRepository;
         $this->channelContextFactory = $channelContextFactory;
         $this->productProvider = $productProvider;
         $this->accountProvider = $accountProvider;
@@ -96,7 +93,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $account->getChannelId(),
                 [
                     SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
-                ]
+                ],
             );
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
@@ -114,7 +111,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $this->ruleLoader->load($channelContext->getContext())->filter(
             function (RuleEntity $rule) use ($channelContext) {
                 return $rule->getPayload()->match(new CheckoutRuleScope($channelContext));
-            }
+            },
         )->getIds();
     }
 
@@ -124,7 +121,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $result = new Job\JobResult();
         $existentProductsCollection = $this->productHelper->loadProducts($productIds, $context);
         $deletedProductIds = array_diff($productIds, $existentProductsCollection->getIds());
-        $existentParentProductIds = \array_map(function (ProductEntity $product) {
+        $existentParentProductIds = array_map(function (ProductEntity $product) {
             return $product->getParentId() === null ? $product->getId() : $product->getParentId();
         }, $existentProductsCollection->getElements());
 
@@ -138,7 +135,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             if (!empty($deletedProductIds)) {
                 $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $result->addError($e);
         }
 
@@ -154,12 +151,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         SalesChannelContext $context,
         ProductCollection $productCollection,
         Job\JobResult $result,
-        array $ids
+        array $ids,
     ): void {
         $domainUrl = $this->getDomainUrl(
             $context->getSalesChannel()->getDomains(),
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
@@ -211,7 +208,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             foreach ($nostoProducts as $preparedProductForSync) {
                 $invalidMessage = $this->validateProduct(
                     $preparedProductForSync->getProductId(),
-                    $preparedProductForSync
+                    $preparedProductForSync,
                 );
 
                 if ($invalidMessage) {
@@ -266,7 +263,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return empty($message) ? null : new WarningMessage(
-            $message . 'ignoring upsert for product with number. ' . $productNumber
+            $message . 'ignoring upsert for product with number. ' . $productNumber,
         );
     }
 
@@ -274,13 +271,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         Account $account,
         SalesChannelContext $context,
         array $productIds,
-        array $mapping
+        array $mapping,
     ): void {
         $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
         $domainUrl = $this->getDomainUrl(
             $context->getSalesChannel()->getDomains(),
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
 
@@ -294,7 +291,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $identifierType = $this->configProvider->getProductIdentifier(
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         );
         if ($identifierType === 'product-number') {
             return $this->getProductNumbers($productIds, $mapping);
@@ -319,7 +316,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function getDomainUrl(
         ?SalesChannelDomainCollection $domains,
         ?string $channelId,
-        ?string $languageId
+        ?string $languageId,
     ): string {
         if ($domains == null || $domains->count() < 1) {
             return '';
@@ -334,7 +331,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsFilter(self::PRODUCT_ASSIGNMENT_TYPE, CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM)
+            new EqualsFilter(self::PRODUCT_ASSIGNMENT_TYPE, CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
         );
 
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -359,7 +356,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsAnyFilter('id', $categoriesPaths)
+            new EqualsAnyFilter('id', $categoriesPaths),
         );
 
         return $this->categoryRepository->search($criteria, $context)->getEntities();

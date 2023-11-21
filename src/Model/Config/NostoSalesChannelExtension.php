@@ -14,7 +14,7 @@ class NostoSalesChannelExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToManyAssociationField('salesChannel', NostoConfigDefinition::class, 'sales_channel_id')
+            new OneToManyAssociationField('salesChannel', NostoConfigDefinition::class, 'sales_channel_id'),
         );
     }
 

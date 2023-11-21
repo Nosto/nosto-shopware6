@@ -21,7 +21,7 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
         string $parentJobId,
         array $newsletterRecipientIds,
         ?Context $context = null,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
         $this->newsletterRecipientIds = $newsletterRecipientIds;

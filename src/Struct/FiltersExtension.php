@@ -13,7 +13,7 @@ class FiltersExtension extends Struct
      * @param Filter[] $filters
      */
     public function __construct(
-        private array $filters = []
+        private array $filters = [],
     ) {
     }
 

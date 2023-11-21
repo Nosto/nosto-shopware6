@@ -9,17 +9,17 @@ use Nosto\Operation\AbstractGraphQLOperation;
 
 class MockGraphQLOperation extends AbstractGraphQLOperation
 {
-    public function getQuery()
+    public function getQuery(): string
     {
         return '';
     }
 
-    public function getVariables()
+    public function getVariables(): array
     {
         return [];
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): MockResultHandler
     {
         return new MockResultHandler();
     }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class Redirect extends Struct
 {
     public function __construct(
-        protected readonly string $link
+        protected readonly string $link,
     ) {
     }
 

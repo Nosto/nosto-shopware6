@@ -15,7 +15,7 @@ use Nosto\Result\Graphql\Search\SearchResult\Products\Hit;
 class GraphQLResponseParser
 {
     public function __construct(
-        private readonly SearchResult $searchResult
+        private readonly SearchResult $searchResult,
     ) {
     }
 
@@ -60,7 +60,7 @@ class GraphQLResponseParser
     {
         return array_map(
             fn (Hit $product) => $product->getProductId(),
-            $this->searchResult->getProducts()->getHits()
+            $this->searchResult->getProducts()->getHits(),
         );
     }
 }

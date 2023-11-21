@@ -12,7 +12,7 @@ class IdToFieldMapping extends Struct
      * @param array<string, string> $map
      */
     public function __construct(
-        private array $map = []
+        private array $map = [],
     ) {
     }
 

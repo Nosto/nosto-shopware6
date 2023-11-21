@@ -14,8 +14,6 @@ class RangeSliderFilter extends Filter
 
     private ?float $max;
 
-    private ?float $step = null;
-
     public function __construct(string $id, string $name, string $field, float $min, float $max)
     {
         parent::__construct($id, $name, $field);

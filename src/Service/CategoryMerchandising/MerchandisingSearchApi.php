@@ -44,7 +44,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         private readonly SessionLookupResolver $resolver,
         private readonly ConfigProvider $configProvider,
         private readonly RequestStack $requestStack,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -71,9 +71,9 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $this->logger->error(
                 sprintf(
                     'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
+                    $throwable->getMessage(),
                 ),
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
         }
 
@@ -100,7 +100,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
                 $category = $this->categoryRepository->search(
                     new Criteria([$categoryId]),
-                    $salesChannelContext->getContext()
+                    $salesChannelContext->getContext(),
                 )->first();
 
                 $this->currentCategoryId = $categoryId;
@@ -112,7 +112,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         $includeFilters = !empty($criteria->getPostFilters())
             ? $this->filterTranslator->buildIncludeFilters(
                 $criteria->getPostFilters(),
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             )
             : new IncludeFilters();
 
@@ -132,14 +132,14 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 AbstractGraphQLOperation::IDENTIFIER_BY_CID,
                 false,
                 $criteria->getLimit(),
-                ''
+                '',
             );
 
             /** @var CategoryMerchandisingResult $result */
             $result = $operation->execute();
 
             if (!$result->getTotalPrimaryCount()) {
-                throw new \Exception('There are no products from the Nosto.');
+                throw new Exception('There are no products from the Nosto.');
             }
 
             if ($this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number') {
@@ -150,12 +150,12 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $result->getTotalPrimaryCount(),
                 $this->resultTranslator->getProductIds($result),
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             );
         } catch (Exception $e) {
             $this->logger->error(
                 $e->getMessage(),
-                ContextHelper::createContextFromException($e)
+                ContextHelper::createContextFromException($e),
             );
 
             return $this->repository->searchIds($criteria, $salesChannelContext);
@@ -209,7 +209,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 // Check if uuid doesn't cause a crash. This is mostly to prevent a page crash in edge cases.
                 Uuid::fromHexToBytes($productToChangeData->getProductId());
                 $newResultSet->append($productToChangeData);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Nothing. Just skip.
             }
         }
@@ -219,7 +219,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $newResultSet,
             $result->getTrackingCode(),
             $result->getTotalPrimaryCount(),
-            $result->getBatchToken()
+            $result->getBatchToken(),
         );
     }
 
@@ -260,7 +260,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
     private function getCategoryNameByBreadcrumbs($categoryBreadcrumbs): string
     {
-        $breadcrumbs = \array_slice($categoryBreadcrumbs, 1);
+        $breadcrumbs = array_slice($categoryBreadcrumbs, 1);
         $categoryFullName = '';
 
         foreach ($breadcrumbs as $breadcrumb) {

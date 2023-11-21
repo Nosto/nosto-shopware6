@@ -22,14 +22,14 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         $this->productHelper = $productHelper;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
         ];
     }
 
-    public function onProductWritten(EntityWrittenEvent $event)
+    public function onProductWritten(EntityWrittenEvent $event): void
     {
         $orderNumberMapping = $this->productHelper->loadOrderNumberMapping($event->getIds(), $event->getContext());
 
@@ -39,7 +39,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
                     $event->getEntityName(),
                     $productId,
                     $event->getContext(),
-                    $orderNumberMapping[$productId]
+                    $orderNumberMapping[$productId],
                 );
             }
         }

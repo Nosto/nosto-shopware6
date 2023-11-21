@@ -16,7 +16,7 @@ class BeforeOperationEvent extends NestedEvent
 
     public function __construct(
         AbstractOperation $operation,
-        Context $context
+        Context $context,
     ) {
         $this->operation = $operation;
         $this->context = $context;

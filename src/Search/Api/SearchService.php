@@ -74,7 +74,7 @@ class SearchService
         return SearchHelper::shouldHandleRequest(
             $context,
             $this->configProvider,
-            SearchHelper::isNavigationPage($request)
+            SearchHelper::isNavigationPage($request),
         );
     }
 
@@ -94,7 +94,7 @@ class SearchService
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        AbstractRequestHandler $requestHandler
+        AbstractRequestHandler $requestHandler,
     ): void {
         try {
             $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
@@ -109,7 +109,7 @@ class SearchService
             $nostoService->disable();
 
             $this->logger->error(
-                sprintf('Error while fetching all filters: %s', $e->getMessage())
+                sprintf('Error while fetching all filters: %s', $e->getMessage()),
             );
         }
     }
@@ -118,7 +118,7 @@ class SearchService
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        AbstractRequestHandler $requestHandler
+        AbstractRequestHandler $requestHandler,
     ): void {
         try {
             $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
@@ -131,7 +131,7 @@ class SearchService
             $nostoService->disable();
 
             $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage())
+                sprintf('Error while fetching the available filters: %s', $e->getMessage()),
             );
         }
     }

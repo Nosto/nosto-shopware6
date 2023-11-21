@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Nosto;
 
 use Nosto\Model\Signup\Account as NostoSignupAccount;
+use Nosto\NostoIntegration\Model\Nosto\Account\KeyChain;
 
 class Account
 {
@@ -14,7 +15,7 @@ class Account
 
     private string $accountName;
 
-    private Account\KeyChain $keyChain;
+    private KeyChain $keyChain;
 
     private ?NostoSignupAccount $nostoAccount = null;
 
@@ -22,7 +23,7 @@ class Account
         string $channelId,
         string $languageId,
         string $accountName,
-        Account\KeyChain $keyChain
+        KeyChain $keyChain,
     ) {
         $this->channelId = $channelId;
         $this->languageId = $languageId;
@@ -40,7 +41,7 @@ class Account
         return $this->languageId;
     }
 
-    public function getKeyChain(): Account\KeyChain
+    public function getKeyChain(): KeyChain
     {
         return $this->keyChain;
     }

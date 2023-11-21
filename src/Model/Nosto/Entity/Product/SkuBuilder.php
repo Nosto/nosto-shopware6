@@ -29,7 +29,7 @@ class SkuBuilder implements SkuBuilderInterface
         $nostoSku->setId(
             $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
                 ? $product->getProductNumber()
-                : $product->getId()
+                : $product->getId(),
         );
         $nostoSku->addCustomField('productNumber', $product->getProductNumber());
         $nostoSku->addCustomField('productId', $product->getId());
@@ -83,8 +83,8 @@ class SkuBuilder implements SkuBuilderInterface
                     [
                         'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                         'mfg-part-number' => $product->getManufacturerNumber(),
-                    ]
-                )
+                    ],
+                ),
             );
         }
 

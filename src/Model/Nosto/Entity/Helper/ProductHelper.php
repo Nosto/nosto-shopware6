@@ -46,7 +46,7 @@ class ProductHelper
         AbstractProductDetailRoute $productRoute,
         EntityRepository $reviewRepository,
         EventDispatcherInterface $eventDispatcher,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
     ) {
         $this->productRepository = $productRepository;
         $this->productRoute = $productRoute;
@@ -63,7 +63,7 @@ class ProductHelper
             new MultiFilter(MultiFilter::CONNECTION_OR, [
                 new EqualsFilter('product.id', $product->getId()),
                 new EqualsFilter('product.parentId', $product->getId()),
-            ])
+            ]),
         );
         $reviewCriteria->addAggregation(new CountAggregation('review-count', 'id'));
         $aggregation = $this->reviewRepository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
@@ -96,7 +96,7 @@ class ProductHelper
 
     public function loadExistingParentProducts(
         array $existentParentProductIds,
-        SalesChannelContext $context
+        SalesChannelContext $context,
     ): EntitySearchResult {
         $criteria = $this->getCommonCriteria();
         $criteria->addAssociation('children.manufacturer');
@@ -104,7 +104,7 @@ class ProductHelper
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         )) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
@@ -116,13 +116,13 @@ class ProductHelper
 
     public function loadProducts(
         array $productIds,
-        SalesChannelContext $context
+        SalesChannelContext $context,
     ): ProductCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
             $context->getSalesChannelId(),
-            $context->getLanguageId()
+            $context->getLanguageId(),
         )) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }

@@ -22,14 +22,14 @@ abstract class AbstractMessage implements JobMessageInterface
     public function __construct(
         string $jobId,
         ?Context $context = null,
-        ?string $name = null
+        ?string $name = null,
     ) {
         $this->jobId = $jobId;
         $this->name = $name ?? static::$defaultName;
         $this->setContext($context);
     }
 
-    protected function setContext(?Context $context)
+    protected function setContext(?Context $context): void
     {
         // All values should be sent to nosto with the default currency and language
         if ($context === null) {
@@ -48,7 +48,7 @@ abstract class AbstractMessage implements JobMessageInterface
                 $context->getCurrencyFactor(),
                 $context->considerInheritance(),
                 $context->getTaxState(),
-                $context->getRounding()
+                $context->getRounding(),
             );
         } else {
             $this->context = $context;

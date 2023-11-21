@@ -17,7 +17,7 @@ class SearchRequestHandler extends AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        ?int $limit = null
+        ?int $limit = null,
     ): SearchResult {
         $searchRequest = new SearchRequest($this->configProvider, $context);
         $this->setDefaultParams($request, $criteria, $searchRequest, $limit);
@@ -31,7 +31,7 @@ class SearchRequestHandler extends AbstractRequestHandler
     {
         $context->getContext()->addExtension(
             'nostoRedirect',
-            $redirectExtension
+            $redirectExtension,
         );
     }
 }

@@ -31,7 +31,7 @@ class ListingPageEventListener implements EventSubscriberInterface
     {
         if ($this->configProvider->isMerchEnabled(
             $event->getSalesChannelContext()->getSalesChannelId(),
-            $event->getSalesChannelContext()->getLanguageId()
+            $event->getSalesChannelContext()->getLanguageId(),
         )) {
             return;
         }

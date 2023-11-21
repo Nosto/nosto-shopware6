@@ -92,7 +92,7 @@ class Migration1699534500ConfigTable extends MigrationStep
 
             try {
                 $connection->insert('nosto_integration_config', $data);
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 // Do nothing here as configuration already exists
             }
         }

@@ -13,7 +13,7 @@ class PriceFilterTranslator implements TranslatorInterface
 
     public function translate(
         IncludeFilters $includeFilters,
-        RangeFilter $filters = null
+        RangeFilter $filters = null,
     ): IncludeFilters {
         if ($filters) {
             $includeFilters->setPrice($filters->getParameter("gte"), $filters->getParameter("lte"));

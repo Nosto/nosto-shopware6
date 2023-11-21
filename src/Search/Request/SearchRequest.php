@@ -22,7 +22,7 @@ class SearchRequest extends AbstractSearchOperation
 
         $account = new Account($this->configProvider->getAccountName($channelId, $languageId));
         $account->addApiToken(
-            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($channelId, $languageId))
+            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($channelId, $languageId)),
         );
 
         parent::__construct($account);
@@ -96,7 +96,7 @@ class SearchRequest extends AbstractSearchOperation
         if (array_key_exists($filterField, $this->filters)) {
             $this->filters[$filterField]['range'] = array_merge(
                 $this->filters[$filterField]['range'],
-                $range
+                $range,
             );
         } else {
             $this->filters[$filterField] = [
@@ -111,12 +111,12 @@ class SearchRequest extends AbstractSearchOperation
         $this->sessionParams = $sessionParams;
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): SearchResultHandler
     {
         return new SearchResultHandler();
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return <<<GRAPHQL
         query(

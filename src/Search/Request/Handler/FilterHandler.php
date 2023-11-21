@@ -11,10 +11,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-
 use Symfony\Component\HttpFoundation\Request;
-use function array_merge;
-use function in_array;
 
 class FilterHandler
 {
@@ -30,7 +27,7 @@ class FilterHandler
     public function handleFilters(
         Request $request,
         Criteria $criteria,
-        SearchRequest $searchNavigationRequest
+        SearchRequest $searchNavigationRequest,
     ): void {
         $selectedFilters = $request->query->all();
         $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
@@ -49,7 +46,7 @@ class FilterHandler
                         $filterValue,
                         $searchNavigationRequest,
                         $availableFilterIds,
-                        $filterMapping
+                        $filterMapping,
                     );
                 }
             }
@@ -61,7 +58,7 @@ class FilterHandler
         string $filterValue,
         SearchRequest $searchNavigationRequest,
         array $availableFilterIds,
-        IdToFieldMapping $filterMapping
+        IdToFieldMapping $filterMapping,
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
         // the appropriate parameters to our API.
@@ -95,7 +92,7 @@ class FilterHandler
         if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
             $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterField, $filterValue, null);
+            $searchNavigationRequest->addRangeFilter($filterField, $filterValue);
         } else {
             $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);
@@ -182,7 +179,7 @@ class FilterHandler
 
     private function parseNostoFiltersForShopware(
         FiltersExtension $availableFilters,
-        FiltersExtension $allFilters
+        FiltersExtension $allFilters,
     ): array {
         $result = [];
 

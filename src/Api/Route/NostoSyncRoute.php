@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Api\Route;
 
+use Exception;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
@@ -21,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['api'],
-    ]
+    ],
 )]
 class NostoSyncRoute
 {
@@ -31,7 +32,7 @@ class NostoSyncRoute
 
     public function __construct(
         JobScheduler $jobScheduler,
-        EntityRepository $jobRepository
+        EntityRepository $jobRepository,
     ) {
         $this->jobScheduler = $jobScheduler;
         $this->jobRepository = $jobRepository;
@@ -40,7 +41,7 @@ class NostoSyncRoute
     #[Route(
         path: "/api/schedule-full-product-sync",
         name: "api.nosto_integration_sync.full_sync",
-        methods: ["POST"]
+        methods: ["POST"],
     )]
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
@@ -57,7 +58,7 @@ class NostoSyncRoute
             new AndFilter([
                 new EqualsFilter('type', $type),
                 new EqualsAnyFilter('status', [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING]),
-            ])
+            ]),
         );
         /** @var JobEntity $job */
         if ($job = $this->jobRepository->search($criteria, $context)->first()) {
@@ -65,7 +66,7 @@ class NostoSyncRoute
                 ? 'Job is already scheduled.'
                 : 'Job is already running.';
 
-            throw new \Exception($message);
+            throw new Exception($message);
         }
     }
 }

@@ -88,7 +88,7 @@ class NostoConfigService
     private array $configs = [];
 
     public function __construct(
-        private readonly EntityRepository $nostoConfigRepository
+        private readonly EntityRepository $nostoConfigRepository,
     ) {
     }
 
@@ -188,7 +188,7 @@ class NostoConfigService
                     'languageId' => $languageId,
                 ],
             ],
-            Context::createDefaultContext()
+            Context::createDefaultContext(),
         );
     }
 
@@ -222,7 +222,7 @@ class NostoConfigService
     private function buildCriteria(
         ?string $salesChannelId = null,
         ?string $languageId = null,
-        ?string $key = null
+        ?string $key = null,
     ): Criteria {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
@@ -260,8 +260,8 @@ class NostoConfigService
         $criteria->addFilter(
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,
-                [new EqualsFilter('salesChannelId', $salesChannelId), new EqualsFilter('languageId', $languageId)]
-            )
+                [new EqualsFilter('salesChannelId', $salesChannelId), new EqualsFilter('languageId', $languageId)],
+            ),
         );
 
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));

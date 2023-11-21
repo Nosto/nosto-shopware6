@@ -31,7 +31,7 @@ class NostoListingProcessor extends AbstractListingProcessor
         if (SearchHelper::shouldHandleRequest(
             $context,
             $this->configProvider,
-            SearchHelper::isNavigationPage($request)
+            SearchHelper::isNavigationPage($request),
         )) {
             if (SearchHelper::isSearchPage($request)) {
                 $this->searchService->doSearch($request, $criteria, $context);

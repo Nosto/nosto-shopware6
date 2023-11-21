@@ -22,7 +22,7 @@ class Builder extends PersonBuilder
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): Buyer {
         $buyer = new Buyer();
         $buyer->setFirstName($firstName);
@@ -43,12 +43,12 @@ class Builder extends PersonBuilder
         $countryId = null;
         if ($address instanceof OrderAddressEntity) {
             $telephone = $address->getPhoneNumber() ? (string) $address->getPhoneNumber() : null;
-            $postcode = $address->getZipcode() ? (string) $address->getZipcode() : null;
-            $countryId = $address->getCountryId() ? (string) $address->getCountryId() : null;
+            $postcode = $address->getZipcode() ?: null;
+            $countryId = $address->getCountryId() ?: null;
         }
-        $customerFirstname = $order->getOrderCustomer()->getFirstName() ? (string) $order->getOrderCustomer()->getFirstName() : '';
-        $customerLastname = $order->getOrderCustomer()->getLastName() ? (string) $order->getOrderCustomer()->getLastName() : '';
-        $customerEmail = $order->getOrderCustomer()->getEmail() ? (string) $order->getOrderCustomer()->getEmail() : '';
+        $customerFirstname = $order->getOrderCustomer()->getFirstName() ?: '';
+        $customerLastname = $order->getOrderCustomer()->getLastName() ?: '';
+        $customerEmail = $order->getOrderCustomer()->getEmail() ?: '';
 
         return $this->build(
             $customerFirstname,
@@ -56,7 +56,7 @@ class Builder extends PersonBuilder
             $customerEmail,
             $telephone,
             $postcode,
-            $countryId
+            $countryId,
         );
     }
 }

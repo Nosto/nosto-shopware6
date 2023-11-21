@@ -9,7 +9,7 @@ use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 class ConfigProvider
 {
     public function __construct(
-        private readonly NostoConfigService $configService
+        private readonly NostoConfigService $configService,
     ) {
     }
 
@@ -63,7 +63,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::INITIALIZE_NOSTO_AFTER_INTERACTION,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -94,7 +94,7 @@ class ConfigProvider
         $config = $this->configService->get(
             NostoConfigService::TAG_FIELD_TEMPLATE . $tagNumber,
             $channelId,
-            $languageId
+            $languageId,
         );
         if (is_string($config) && !empty($config)) {
             return [$config];
@@ -162,7 +162,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -171,7 +171,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_SYNC_INACTIVE_PRODUCTS,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -180,7 +180,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -189,7 +189,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -198,7 +198,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_PRODUCT_LABELLING_SYNC,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 

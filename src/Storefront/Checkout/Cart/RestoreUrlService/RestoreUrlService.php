@@ -28,7 +28,7 @@ class RestoreUrlService implements RestoreUrlServiceInterface
     public function __construct(
         EntityRepository $mappingRepository,
         UrlGeneratorInterface $urlGenerator,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ) {
         $this->mappingRepository = $mappingRepository;
         $this->urlGenerator = $urlGenerator;
@@ -39,7 +39,7 @@ class RestoreUrlService implements RestoreUrlServiceInterface
     {
         $current = $this->fetchFromDb($context->getToken(), $context->getContext());
         return $this->generate(
-            $current ? $current->getId() : $this->createNew($context->getToken(), $context->getContext())
+            $current ? $current->getId() : $this->createNew($context->getToken(), $context->getContext()),
         );
     }
 
@@ -48,7 +48,7 @@ class RestoreUrlService implements RestoreUrlServiceInterface
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('reference', $token),
-            new EqualsFilter('mappingTable', CheckoutMappingDefinition::CART_TABLE)
+            new EqualsFilter('mappingTable', CheckoutMappingDefinition::CART_TABLE),
         );
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         return $this->mappingRepository->search($criteria, $context)->first();
@@ -58,13 +58,13 @@ class RestoreUrlService implements RestoreUrlServiceInterface
     {
         // TODO: Change routing name
         return $this->requestStack->getCurrentRequest()->attributes->get(
-            RequestTransformer::STOREFRONT_URL
+            RequestTransformer::STOREFRONT_URL,
         ) . $this->urlGenerator->generate(
             'frontend.cart.nosto-restore-cart',
             [
                 'mappingId' => $id,
             ],
-            UrlGeneratorInterface::ABSOLUTE_PATH
+            UrlGeneratorInterface::ABSOLUTE_PATH,
         );
     }
 

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Twig\Extension;
 
+use Nosto\Model\Customer;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;
 use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -19,7 +21,7 @@ class CustomerExtension extends AbstractExtension
 
     public function __construct(
         BuilderInterface $builder,
-        RestoreUrlService $restoreUrlService
+        RestoreUrlService $restoreUrlService,
     ) {
         $this->builder = $builder;
         $this->restoreUrlService = $restoreUrlService;
@@ -33,15 +35,13 @@ class CustomerExtension extends AbstractExtension
         ];
     }
 
-    public function getNostoCustomer(CustomerEntity $customer, Context $context)
+    public function getNostoCustomer(CustomerEntity $customer, Context $context): Customer
     {
         return $this->builder->build($customer, $context);
     }
 
-    public function getRestoreCartLink(\Shopware\Core\System\SalesChannel\SalesChannelContext $context): string
+    public function getRestoreCartLink(SalesChannelContext $context): string
     {
-        $url = $this->restoreUrlService->getCurrentRestoreUrl($context);
-
-        return $url;
+        return $this->restoreUrlService->getCurrentRestoreUrl($context);
     }
 }
