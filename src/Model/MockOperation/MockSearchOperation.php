@@ -7,25 +7,26 @@ namespace Nosto\NostoIntegration\Model\MockOperation;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockSearchResultHandler;
 use Nosto\Operation\AbstractSearchOperation;
 use Nosto\Types\Signup\AccountInterface;
-use stdClass;
 
 class MockSearchOperation extends AbstractSearchOperation
 {
     public function __construct(
         private readonly string $accountId,
-        AccountInterface $account
+        AccountInterface $account,
     ) {
         parent::__construct($account);
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return <<<GRAPHQL
-        {
+        query(
+            \$accountId: String,
+            \$query: String,
+        ) {
             search(
-                accountId: "$this->accountId",
-                query:"",
-                explain: true,
+                accountId: \$accountId,
+                query: \$query,
             ) {
                 products {
                     total,
@@ -35,12 +36,15 @@ class MockSearchOperation extends AbstractSearchOperation
         GRAPHQL;
     }
 
-    public function getVariables()
+    public function getVariables(): array
     {
-        return new stdClass();
+        return [
+            'query' => '',
+            'accountId' => $this->accountId,
+        ];
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): MockSearchResultHandler
     {
         return new MockSearchResultHandler();
     }

@@ -21,7 +21,7 @@ class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageIn
         string $parentJobId,
         array $productIds,
         ?Context $context = null,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
         $this->productIds = $productIds;

@@ -22,7 +22,7 @@ class NostoProductBuiltEvent extends NestedEvent implements ShopwareSalesChannel
     public function __construct(
         ProductEntity $product,
         NostoProduct $nostoProduct,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ) {
         $this->product = $product;
         $this->nostoProduct = $nostoProduct;

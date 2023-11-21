@@ -29,7 +29,7 @@ class Builder implements BuilderInterface
     public function __construct(
         NostoBuyerBuilderInterface $buyerBuilder,
         NostoOrderItemBuilderInterface $nostoOrderItemBuilder,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
     ) {
         $this->buyerBuilder = $buyerBuilder;
         $this->nostoOrderItemBuilder = $nostoOrderItemBuilder;
@@ -70,8 +70,8 @@ class Builder implements BuilderInterface
             $nostoItem = new NostoLineItem();
             $nostoItem->loadSpecialItemData(
                 'Shipping and handling',
-                $shippingInclTax === null ? 0 : $shippingInclTax,
-                $order->getCurrency()->getIsoCode()
+                $shippingInclTax,
+                $order->getCurrency()->getIsoCode(),
             );
             $nostoOrder->addPurchasedItems($nostoItem);
         }

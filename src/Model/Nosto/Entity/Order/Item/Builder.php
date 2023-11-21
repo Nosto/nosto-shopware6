@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item;
 
+use Exception;
 use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -21,7 +22,7 @@ class Builder implements BuilderInterface
         try {
             $price = $item->getTotalPrice();
             $nostoItem->setPrice($price);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $nostoItem->setPrice(0);
         }
 

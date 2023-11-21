@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
-use Nosto\NostoIntegration\Utils\Loader\FlexibleXmlFileLoader;
 use Nosto\Scheduler\NostoScheduler;
+use ReflectionClass;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -55,7 +55,7 @@ class NostoIntegration extends Plugin
 
         foreach ($this->getDependencyBundles() as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
-            $assetService->copyAssetsFromBundle((new \ReflectionClass($bundle))->getShortName());
+            $assetService->copyAssetsFromBundle((new ReflectionClass($bundle))->getShortName());
         }
     }
 
@@ -81,14 +81,14 @@ class NostoIntegration extends Plugin
                 continue;
             }
 
-            $schedulerDependencies = \array_filter(
+            $schedulerDependencies = array_filter(
                 $bundle->getAdditionalBundles($bundleParameters),
                 function (BundleInterface $bundle) {
                     return $bundle instanceof NostoScheduler;
-                }
+                },
             );
 
-            if (\count($schedulerDependencies) !== 0) {
+            if (count($schedulerDependencies) !== 0) {
                 $hasOtherSchedulerDependency = true;
                 break;
             }
@@ -119,12 +119,11 @@ class NostoIntegration extends Plugin
         }
 
         $classLoader->unregister();
-        $classLoader->register(false);
+        $classLoader->register();
     }
 
     public function build(ContainerBuilder $container): void
     {
-        $this->registerContainerFile($container);
         parent::build($container);
 
         $locator = new FileLocator('Resources/config');
@@ -137,22 +136,8 @@ class NostoIntegration extends Plugin
 
         $configLoader = new DelegatingLoader($resolver);
 
-        $confDir = \rtrim($this->getPath(), '/') . '/Resources/config';
+        $confDir = rtrim($this->getPath(), '/') . '/Resources/config';
 
         $configLoader->load($confDir . '/{packages}/*.yaml', 'glob');
-    }
-
-    private function registerContainerFile(ContainerBuilder $container): void
-    {
-        $fileLocator = new FileLocator($this->getPath());
-        $loaderResolver = new LoaderResolver([
-            new FlexibleXmlFileLoader($container, $fileLocator),
-        ]);
-        $delegatingLoader = new DelegatingLoader($loaderResolver);
-
-        $path = $this->getPath() . '/Resources/config/flexible_services.xml';
-        if (file_exists($path)) {
-            $delegatingLoader->load($path);
-        }
     }
 }

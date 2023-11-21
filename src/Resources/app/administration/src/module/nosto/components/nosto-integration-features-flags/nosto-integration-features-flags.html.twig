@@ -4,269 +4,289 @@
         :title="$tc('nosto.configuration.featuresFlags.cardTitle')"
         positionIdentifier="nosto-integration-features-flags"
     >
-
         {% block nosto_integration_feature_product_identifier %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productIdentifier']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.productIdentifier']"
-                                :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')">
+            <sw-inherit-wrapper
+                v-model="actualConfigData['productIdentifier']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['productIdentifier']"
+                :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
+                :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')"
+            >
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.config.productIdentifier"
-                                      labelProperty="label"
-                                      valueProperty="value"
-                                      :options="createProductIdentifierOptions"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-single-select
+                        name="productIdentifier"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createProductIdentifierOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_ratings_reviews %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.ratingsReviews']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.ratingsReviews']"
-                                :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.enableRatingsReviewsHelpText')">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['ratingsReviews']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['ratingsReviews']"
+                :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')"
+                :help-text="$tc('nosto.configuration.featuresFlags.enableRatingsReviewsHelpText')"
+            >
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.config.ratingsReviews"
-                                      labelProperty="label"
-                                      valueProperty="value"
-                                      :options="createRatingsAndReviewOptions"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-single-select
+                        name="ratingsReviews"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createRatingsAndReviewOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
-
         {% block nosto_integration_feature_stock_field %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.stockField']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.stockField']"
-                                :label="$tc('nosto.configuration.featuresFlags.stockField')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.stockFieldHelpText')">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['stockField']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['stockField']"
+                :label="$tc('nosto.configuration.featuresFlags.stockField')"
+                :help-text="$tc('nosto.configuration.featuresFlags.stockFieldHelpText')"
+            >
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.config.stockField"
-                                      labelProperty="label"
-                                      valueProperty="value"
-                                      :options="createStockOptions"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-single-select
+                        name="stockField"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createStockOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_cross_selling_sync %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.crossSellingSync']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.crossSellingSync']"
-                                :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['crossSellingSync']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['crossSellingSync']"
+                :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
+                :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')"
+            >
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.config.crossSellingSync"
-                                      labelProperty="label"
-                                      valueProperty="value"
-                                      :options="createCrossSellingSyncOptions"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-single-select
+                        name="crossSellingSync"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createCrossSellingSyncOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_category_naming %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.categoryNaming']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.categoryNaming']"
-                                :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['categoryNaming']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['categoryNaming']"
+                :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
+                :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')"
+            >
                 <template #content="props">
-                    <sw-single-select name="NostoIntegration.config.categoryNaming"
-                                      labelProperty="label"
-                                      valueProperty="value"
-                                      :options="createCategoryNamingOptions"
-                                      :isInherited="props.isInherited"
-                                      :disabled="props.isInherited"
-                                      show-clearable-button
-                                      :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
-                    </sw-single-select>
+                    <sw-single-select
+                        name="categoryNaming"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createCategoryNamingOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_variations %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.variations']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.variations']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['variations']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['variations']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableVariations')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableVariationsHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableVariations')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableVariationsHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_product_properties %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productProperties']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.productProperties']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['productProperties']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['productProperties']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableProductProperties')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableProductPropertiesHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableProductProperties')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableProductPropertiesHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_alternate_image %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.alternateImages']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.alternateImages']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['alternateImages']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['alternateImages']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableAlternateImages')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableAlternateImagesHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableAlternateImages')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableAlternateImagesHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_inventory %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.inventory']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.inventory']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['inventory']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['inventory']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableInventory')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableInventoryHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableInventory')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableInventoryHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_customer_data %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.customerDataToNosto']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.customerDataToNosto']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['customerDataToNosto']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['customerDataToNosto']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNosto')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNostoHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNosto')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNostoHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_inavtive_products %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.syncInactiveProducts']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.syncInactiveProducts']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['syncInactiveProducts']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['syncInactiveProducts']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProducts')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProductsHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProducts')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProductsHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_published_date %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.productPublishedDateTagging']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.productPublishedDateTagging']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['productPublishedDateTagging']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['productPublishedDateTagging']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTagging')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTaggingHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTagging')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTaggingHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_recommendations %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.reloadRecommendations']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.reloadRecommendations']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['reloadRecommendations']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['reloadRecommendations']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableReloadRecommendations')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableReloadRecommendationsHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableReloadRecommendations')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableReloadRecommendationsHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_feature_labelling %}
-            <sw-inherit-wrapper v-model="actualConfigData['NostoIntegration.config.enableLabelling']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.enableLabelling']">
-
+            <sw-inherit-wrapper
+                v-model="actualConfigData['enableLabelling']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['enableLabelling']"
+            >
                 <template #content="props">
                     <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableLabelling')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableLabellingHelpText')"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableLabelling')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableLabellingHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
 
         {% block nosto_integration_daily_synchronization_flag %}
-            <sw-inherit-wrapper v-if="selectedSalesChannelId === null"
-                                v-model="actualConfigData['NostoIntegration.config.dailySynchronization']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.dailySynchronization']">
+            <sw-inherit-wrapper
+                v-if="configKey === null"
+                v-model="actualConfigData['dailySynchronization']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronization']"
+            >
                 <template #content="props">
                     <sw-switch-field
                         :map-inheritance="props"
@@ -281,9 +301,11 @@
         {% endblock %}
 
         {% block nosto_integration_daily_synchronization_time %}
-            <sw-inherit-wrapper v-if="selectedSalesChannelId === null && actualConfigData['NostoIntegration.config.dailySynchronization']"
-                                v-model="actualConfigData['NostoIntegration.config.dailySynchronizationTime']"
-                                :inheritedValue="selectedSalesChannelId === null ? null : allConfigs['null']['NostoIntegration.config.dailySynchronizationTime']">
+            <sw-inherit-wrapper
+                v-if="configKey === null && actualConfigData['dailySynchronization']"
+                v-model="actualConfigData['dailySynchronizationTime']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronizationTime']"
+            >
                 <template #content="props">
                     <sw-datepicker
                         :map-inheritance="props"

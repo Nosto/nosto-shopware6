@@ -54,7 +54,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument type="service" id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="logger"/>
@@ -125,9 +125,6 @@
         <service id="Nosto\NostoIntegration\Async\EventsWriter" lazy="true">
             <argument type="service" id="nosto_integration_entity_changelog.repository"/>
         </service>
-        <service id="Nosto\NostoIntegration\Model\ConfigProvider">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder">
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
@@ -153,14 +150,6 @@
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="logger"/>
-        </service>
-        <service id="Nosto\NostoIntegration\Service\ProductListingRouteDecorator"
-                 decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute">
-            <argument type="service" id="nosto.product_listing_loader" />
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
@@ -288,7 +277,7 @@
 
         <service id="Nosto\NostoIntegration\Api\Controller\NostoCategoriesController" public="true">
             <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

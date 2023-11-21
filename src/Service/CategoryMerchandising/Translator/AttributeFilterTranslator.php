@@ -22,7 +22,7 @@ class AttributeFilterTranslator implements TranslatorInterface
     public function translate(
         IncludeFilters $includeFilters,
         MultiFilter $filters = null,
-        Context $context = null
+        Context $context = null,
     ): IncludeFilters {
         $optionAndPropertyIds = [];
         if (!$filters) {

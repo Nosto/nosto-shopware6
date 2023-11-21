@@ -47,13 +47,9 @@ class ProductListingRoute extends AbstractProductListingRoute
         string $categoryId,
         Request $request,
         SalesChannelContext $context,
-        Criteria $criteria = null
+        Criteria $criteria = null,
     ): ProductListingRouteResponse {
-        $shouldHandleRequest = SearchHelper::shouldHandleRequest(
-            $context->getContext(),
-            $this->configProvider,
-            true
-        );
+        $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
 
         $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
         if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {
@@ -65,14 +61,14 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->addFilter(
             new ProductAvailableFilter(
                 $context->getSalesChannel()->getId(),
-                ProductVisibilityDefinition::VISIBILITY_ALL
-            )
+                ProductVisibilityDefinition::VISIBILITY_ALL,
+            ),
         );
 
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(
             new Criteria([$categoryId]),
-            $context->getContext()
+            $context->getContext(),
         )->first();
 
         $streamId = $this->extendCriteria($context, $criteria, $category);
@@ -129,17 +125,17 @@ class ProductListingRoute extends AbstractProductListingRoute
     private function extendCriteria(
         SalesChannelContext $salesChannelContext,
         Criteria $criteria,
-        CategoryEntity $category
+        CategoryEntity $category,
     ): ?string {
         $supportsProductStreams = defined(
-            '\Shopware\Core\Content\Category\CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM'
+            '\Shopware\Core\Content\Category\CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM',
         );
         $isProductStream = $supportsProductStreams &&
             $category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM;
         if ($isProductStream && $category->getProductStreamId() !== null) {
             $filters = $this->productStreamBuilder->buildFilters(
                 $category->getProductStreamId(),
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             );
 
             $criteria->addFilter(...$filters);
@@ -148,7 +144,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         }
 
         $criteria->addFilter(
-            new EqualsFilter('product.categoriesRo.id', $category->getId())
+            new EqualsFilter('product.categoriesRo.id', $category->getId()),
         );
 
         return null;
@@ -156,7 +152,7 @@ class ProductListingRoute extends AbstractProductListingRoute
 
     private function fetchProductsById(
         Criteria $criteria,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ): EntitySearchResult {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());

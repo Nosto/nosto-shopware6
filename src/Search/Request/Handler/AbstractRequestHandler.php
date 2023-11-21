@@ -20,7 +20,7 @@ abstract class AbstractRequestHandler
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
-        protected ?FilterHandler $filterHandler = null
+        protected ?FilterHandler $filterHandler = null,
     ) {
         $this->filterHandler = $filterHandler ?? new FilterHandler();
     }
@@ -30,18 +30,23 @@ abstract class AbstractRequestHandler
      *
      * @param int|null $limit limited amount of products
      */
-    abstract public function sendRequest(Request $request, Criteria $criteria, ?int $limit = null): SearchResult;
+    abstract public function sendRequest(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context,
+        ?int $limit = null,
+    ): SearchResult;
 
     public function fetchProducts(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         $originalCriteria = clone $criteria;
 
         try {
-            $response = $this->sendRequest($request, $criteria);
+            $response = $this->sendRequest($request, $criteria, $context);
             $responseParser = new GraphQLResponseParser($response);
         } catch (Throwable $e) {
             $this->logger->error(
-                sprintf('Error while fetching the products: %s', $e->getMessage())
+                sprintf('Error while fetching the products: %s', $e->getMessage()),
             );
             return;
         }
@@ -58,12 +63,16 @@ abstract class AbstractRequestHandler
             $criteria,
             $responseParser,
             $originalCriteria->getLimit(),
-            $originalCriteria->getOffset()
+            $originalCriteria->getOffset(),
         );
     }
 
-    protected function setDefaultParams(Request $request, Criteria $criteria, SearchRequest $searchRequest, ?int $limit = null): void
-    {
+    protected function setDefaultParams(
+        Request $request,
+        Criteria $criteria,
+        SearchRequest $searchRequest,
+        ?int $limit = null,
+    ): void {
         $this->setPaginationParams($criteria, $searchRequest, $limit);
         $this->setSessionParamsFromCookies($request, $searchRequest);
         $this->sortingHandlerService->handle($searchRequest, $criteria);
@@ -85,7 +94,7 @@ abstract class AbstractRequestHandler
         Criteria $criteria,
         GraphQLResponseParser $responseParser,
         ?int $limit,
-        ?int $offset
+        ?int $offset,
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);

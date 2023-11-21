@@ -1,6 +1,6 @@
 {% block nosto_integration_customer_tagging %}
 
-    {% set isSendCustomerData = config('NostoIntegration.config.customerDataToNosto') %}
+    {% set isSendCustomerData = context.context.extensions.nostoConfig.customerDataToNosto %}
 
     {% if isSendCustomerData and context.customer %}
         {% set customer = nosto_customer(context.customer, context.context) %}

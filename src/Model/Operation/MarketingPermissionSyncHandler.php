@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
@@ -30,7 +31,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
     public function __construct(
         EntityRepository $newsletterRecipientRepository,
         Account\Provider $accountProvider,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->accountProvider = $accountProvider;
@@ -48,7 +49,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
             $accountOperationResult = $this->doOperation(
                 $nostoAccount,
                 $message->getContext(),
-                $message->getNewsletterRecipientIds()
+                $message->getNewsletterRecipientIds(),
             );
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
@@ -68,7 +69,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
                 [
                     NewsletterSubscribeRoute::OPTION_DIRECT,
                     NewsletterSubscribeRoute::STATUS_OPT_IN,
-                ]
+                ],
             );
             try {
                 $this->eventDispatcher->dispatch(
@@ -78,11 +79,11 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
                             'email' => $subscriber->getEmail(),
                             'isSubscribed' => $isSubscribed,
                         ],
-                        $context
-                    )
+                        $context,
+                    ),
                 );
                 $operation->update($subscriber->getEmail(), $isSubscribed);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $result->addError($e);
             }
         }

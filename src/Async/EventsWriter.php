@@ -24,7 +24,7 @@ class EventsWriter
         $this->changelogRepository = $changelogRepository;
     }
 
-    public function writeEvent(string $name, string $id, Context $context, ?string $productNumber = null)
+    public function writeEvent(string $name, string $id, Context $context, ?string $productNumber = null): void
     {
         $this->changelogRepository->create([[
             'entityType' => $name,

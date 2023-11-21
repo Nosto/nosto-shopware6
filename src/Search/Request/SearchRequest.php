@@ -9,14 +9,21 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\Operation\AbstractSearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResultHandler;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SearchRequest extends AbstractSearchOperation
 {
     public function __construct(
-        private readonly ConfigProvider $configProvider
+        private readonly ConfigProvider $configProvider,
+        private readonly SalesChannelContext $context,
     ) {
-        $account = new Account($this->configProvider->getAccountName());
-        $account->addApiToken(new Token(Token::API_SEARCH, $this->configProvider->getSearchToken()));
+        $channelId = $this->context->getSalesChannelId();
+        $languageId = $this->context->getLanguageId();
+
+        $account = new Account($this->configProvider->getAccountName($channelId, $languageId));
+        $account->addApiToken(
+            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($channelId, $languageId)),
+        );
 
         parent::__construct($account);
     }
@@ -89,7 +96,7 @@ class SearchRequest extends AbstractSearchOperation
         if (array_key_exists($filterField, $this->filters)) {
             $this->filters[$filterField]['range'] = array_merge(
                 $this->filters[$filterField]['range'],
-                $range
+                $range,
             );
         } else {
             $this->filters[$filterField] = [
@@ -104,12 +111,12 @@ class SearchRequest extends AbstractSearchOperation
         $this->sessionParams = $sessionParams;
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): SearchResultHandler
     {
         return new SearchResultHandler();
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return <<<GRAPHQL
         query(
@@ -170,7 +177,10 @@ class SearchRequest extends AbstractSearchOperation
     public function getVariables(): array
     {
         return [
-            'accountId' => $this->configProvider->getAccountId(),
+            'accountId' => $this->configProvider->getAccountId(
+                $this->context->getSalesChannelId(),
+                $this->context->getLanguageId(),
+            ),
             'query' => $this->query,
             'categoryId' => $this->categoryId,
             'sort' => $this->sort,

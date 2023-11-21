@@ -17,7 +17,7 @@ class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implement
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        JobScheduler $jobScheduler
+        JobScheduler $jobScheduler,
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->jobScheduler = $jobScheduler;

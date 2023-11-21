@@ -27,19 +27,22 @@ Component.register('nosto-integration-account-general', {
             required: false,
             default: null,
         },
+        selectedLanguageId: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        configKey: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
         return {
             apiValidationInProgress: false,
-            configurationKeys: {
-                accountID: 'NostoIntegration.config.accountID',
-                accountName: 'NostoIntegration.config.accountName',
-                productToken: 'NostoIntegration.config.productToken',
-                emailToken: 'NostoIntegration.config.emailToken',
-                appToken: 'NostoIntegration.config.appToken',
-                searchToken: 'NostoIntegration.config.searchToken',
-            },
+            configurationKeys: ['accountID', 'accountName', 'productToken', 'emailToken', 'appToken', 'searchToken'],
         };
     },
 
@@ -52,13 +55,6 @@ Component.register('nosto-integration-account-general', {
             this.checkErrorState();
         },
 
-        getConfig(salesChannelId) {
-            const values = this.systemConfigApiService
-                .getValues('NostoIntegration.config', salesChannelId);
-
-            return values.myKey;
-        },
-
         createErrorState(key) {
             this.$set(this.errorStates, key, {
                 code: 1,
@@ -67,8 +63,8 @@ Component.register('nosto-integration-account-general', {
         },
 
         checkErrorState() {
-            Object.entries(this.configurationKeys).forEach(([key, value]) => {
-                if (!this.allConfigs.null[value]) {
+            this.configurationKeys.forEach(key => {
+                if (!this.allConfigs.null[key]) {
                     this.createErrorState(key);
                 }
             });
@@ -82,24 +78,16 @@ Component.register('nosto-integration-account-general', {
         },
 
         isActive() {
-            const configKey = 'NostoIntegration.config.isEnabled';
-            const channelConfig = this.allConfigs[this.selectedSalesChannelId] || null;
+            const configurationKey = 'isEnabled';
+            const channelConfig = this.allConfigs[this.configKey] || {};
 
-            return channelConfig?.hasOwnProperty(configKey) && typeof channelConfig[configKey] === 'boolean'
-                ? channelConfig[configKey]
-                : this.allConfigs.null[configKey];
+            return typeof channelConfig[configurationKey] === 'boolean'
+                ? channelConfig[configurationKey]
+                : false;
         },
 
         removeErrorState(key) {
             return this.$delete(this.errorStates, key);
-        },
-
-        validateRequiredField(key, props) {
-            if (props.currentValue.length === 0) {
-                return this.createErrorState(key);
-            }
-
-            return this.removeErrorState(key);
         },
 
         checkTextFieldInheritance(value) {
@@ -116,12 +104,12 @@ Component.register('nosto-integration-account-general', {
 
         validateApiCredentials() {
             this.apiValidationInProgress = true;
-            const accountId = this.getInheritedConfig(this.configurationKeys.accountID);
-            const accountName = this.getInheritedConfig(this.configurationKeys.accountName);
-            const productToken = this.getInheritedConfig(this.configurationKeys.productToken);
-            const emailToken = this.getInheritedConfig(this.configurationKeys.emailToken);
-            const appToken = this.getInheritedConfig(this.configurationKeys.appToken);
-            const searchToken = this.getInheritedConfig(this.configurationKeys.searchToken);
+            const accountId = this.actualConfigData.accountID;
+            const accountName = this.actualConfigData.accountName;
+            const productToken = this.actualConfigData.productToken;
+            const emailToken = this.actualConfigData.emailToken;
+            const appToken = this.actualConfigData.appToken;
+            const searchToken = this.actualConfigData.searchToken;
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -132,6 +120,7 @@ Component.register('nosto-integration-account-general', {
                 this.apiValidationInProgress = false;
                 return;
             }
+
             this.nostoApiKeyValidatorService.validate({
                 accountId: accountId,
                 name: accountName,
@@ -169,12 +158,6 @@ Component.register('nosto-integration-account-general', {
             });
         },
 
-        getInheritedConfig(key) {
-            return this.actualConfigData.hasOwnProperty(key) && this.actualConfigData[key]
-                ? this.actualConfigData[key]
-                : this.allConfigs.null[key];
-        },
-
         credentialsEmptyValidation(key, value) {
             if (value === undefined || value === '' || value === null) {
                 this.createNotificationError({
@@ -190,7 +173,10 @@ Component.register('nosto-integration-account-general', {
         },
 
         onTrackCategories() {
-            this.NostoCategoriesProviderService.sendCategories().then(() => {
+            this.NostoCategoriesProviderService.sendCategories(
+                this.selectedSalesChannelId,
+                this.selectedLanguageId,
+            ).then(() => {
                 this.createNotificationSuccess({
                     message: 'Synced!',
                 });

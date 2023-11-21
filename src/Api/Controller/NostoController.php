@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['api'],
-    ]
+    ],
 )]
 class NostoController extends AbstractController
 {
@@ -54,7 +54,7 @@ class NostoController extends AbstractController
     #[Route(
         path: "/api/_action/nosto-integration/schedule-full-product-sync",
         name: "api.action.nosto_integration.schedule.full.product.sync",
-        methods: ["POST"]
+        methods: ["POST"],
     )]
     public function fullCatalogSyncAction(Request $request, Context $context): JsonResponse
     {
@@ -64,7 +64,7 @@ class NostoController extends AbstractController
     #[Route(
         path: "/api/_action/nosto-integration/clear-cache",
         name: "api.action.nosto_integration.clear.cache",
-        methods: ["POST"]
+        methods: ["POST"],
     )]
     public function clearCache(): JsonResponse
     {
@@ -78,7 +78,7 @@ class NostoController extends AbstractController
         options: [
             "auth_required" => "false",
         ],
-        methods: ["POST"]
+        methods: ["POST"],
     )]
     public function validate(RequestDataBag $post): JsonResponse
     {

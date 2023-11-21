@@ -20,7 +20,7 @@ class NostoCacheResolver
     public function __construct(
         RequestStack $requestStack,
         ConfigProvider $configProvider,
-        Provider $accountProvider
+        Provider $accountProvider,
     ) {
         $this->requestStack = $requestStack;
         $this->configProvider = $configProvider;
@@ -62,34 +62,39 @@ class NostoCacheResolver
 
     public function isCachingAllowedNoRoute(?SalesChannelContext $channelContext = null): bool
     {
-        $isCachingAllowed = true;
-
         if (!$request = $this->requestStack->getCurrentRequest()) {
-            return $isCachingAllowed;
+            return true;
         }
 
         /** @var SalesChannelContext $channelContext */
         $channelContext = $channelContext ?? $request->attributes->get('sw-sales-channel-context');
         if (!$channelContext) {
-            return $isCachingAllowed;
+            return true;
         }
 
         if ($this->getBasicCachingAllowance($channelContext)) {
             $channelId = $channelContext->getSalesChannelId();
+            $languageId = $channelContext->getLanguageId();
             $isLoggedIn = $channelContext->getCustomer() !== null;
-            $isEnabledNotLoggedIdCache = $this->configProvider->isEnabledNotLoggedInCache($channelId);
+            $isEnabledNotLoggedIdCache = $this->configProvider->isEnabledNotLoggedInCache($channelId, $languageId);
 
-            $isCachingAllowed = $isLoggedIn === true ? false : $isEnabledNotLoggedIdCache;
+            return !$isLoggedIn && $isEnabledNotLoggedIdCache;
         }
 
-        return $isCachingAllowed;
+        return true;
     }
 
     private function getBasicCachingAllowance(SalesChannelContext $channelContext): bool
     {
-        $isMerchEnabled = $this->configProvider->isMerchEnabled($channelContext->getSalesChannelId());
-        $isNostoAccountExists = $this->accountProvider->get($channelContext->getContext(), $channelContext->getSalesChannelId()) !== null;
+        $channelId = $channelContext->getSalesChannelId();
+        $languageId = $channelContext->getLanguageId();
+        $isMerchEnabled = $this->configProvider->isMerchEnabled($channelId, $languageId);
+        $nostoAccountExists = $this->accountProvider->get(
+            $channelContext->getContext(),
+            $channelId,
+            $languageId,
+        ) !== null;
 
-        return $isMerchEnabled && $isNostoAccountExists;
+        return $isMerchEnabled && $nostoAccountExists;
     }
 }

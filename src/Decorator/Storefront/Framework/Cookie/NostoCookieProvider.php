@@ -20,7 +20,7 @@ class NostoCookieProvider implements CookieProviderInterface
         $cookies = $this->originalService->getCookieGroups();
 
         foreach ($cookies as &$cookie) {
-            if (!\is_array($cookie)) {
+            if (!is_array($cookie)) {
                 continue;
             }
 
@@ -28,7 +28,7 @@ class NostoCookieProvider implements CookieProviderInterface
                 continue;
             }
 
-            if (!\array_key_exists('entries', $cookie)) {
+            if (!array_key_exists('entries', $cookie)) {
                 continue;
             }
 
@@ -46,7 +46,7 @@ class NostoCookieProvider implements CookieProviderInterface
 
     private function isRequiredCookieGroup(array $cookie): bool
     {
-        return (\array_key_exists('isRequired', $cookie) && $cookie['isRequired'] === true)
-            && (\array_key_exists('snippet_name', $cookie) && $cookie['snippet_name'] === 'cookie.groupRequired');
+        return (array_key_exists('isRequired', $cookie) && $cookie['isRequired'] === true)
+            && (array_key_exists('snippet_name', $cookie) && $cookie['snippet_name'] === 'cookie.groupRequired');
     }
 }

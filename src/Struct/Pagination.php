@@ -13,7 +13,7 @@ class Pagination extends Struct
     public function __construct(
         private ?int $limit,
         private ?int $offset,
-        private readonly ?int $total
+        private readonly ?int $total,
     ) {
         $this->limit = $limit ?? self::DEFAULT_LIMIT;
         $this->offset = $offset ?? 0;

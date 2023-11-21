@@ -18,7 +18,7 @@ interface BuilderInterface
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): ?AbstractPerson;
 
     public function buildObject(
@@ -31,6 +31,6 @@ interface BuilderInterface
         $customerGroup = null,
         $dateOfBirth = null,
         $gender = null,
-        $customerReference = null
+        $customerReference = null,
     ): AbstractPerson;
 }

@@ -13,9 +13,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SearchRequestHandler extends AbstractRequestHandler
 {
-    public function sendRequest(Request $request, Criteria $criteria, ?int $limit = null): SearchResult
-    {
-        $searchRequest = new SearchRequest($this->configProvider);
+    public function sendRequest(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context,
+        ?int $limit = null,
+    ): SearchResult {
+        $searchRequest = new SearchRequest($this->configProvider, $context);
         $this->setDefaultParams($request, $criteria, $searchRequest, $limit);
 
         $searchRequest->setQuery((string) $request->query->get('search'));
@@ -27,7 +31,7 @@ class SearchRequestHandler extends AbstractRequestHandler
     {
         $context->getContext()->addExtension(
             'nostoRedirect',
-            $redirectExtension
+            $redirectExtension,
         );
     }
 }

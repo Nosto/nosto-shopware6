@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+    <services>
+        <service id="Nosto\NostoIntegration\Model\Config\NostoConfigDefinition">
+            <tag name="shopware.entity.definition" entity="nosto_integration_config" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Config\NostoSalesChannelExtension">
+            <tag name="shopware.entity.extension" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Config\NostoLanguageExtension">
+            <tag name="shopware.entity.extension" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Config\NostoConfigService">
+            <argument id="nosto_integration_config.repository" type="service" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoConfigController" autowire="true">
+            <call method="setContainer">
+                <argument id="service_container" type="service" />
+            </call>
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Model\ConfigProvider" autowire="true" />
+    </services>
+</container>

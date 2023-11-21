@@ -7,15 +7,16 @@ namespace Nosto\NostoIntegration\Model\MockOperation;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 use Nosto\Operation\MarketingPermission;
 use Nosto\Request\Api\Token;
+use Nosto\Result\Graphql\Recommendation\ResultSet;
 
 class MockMarketingPermission extends MarketingPermission
 {
-    public function mockUpdate()
+    public function mockUpdate(): string|array|bool|ResultSet
     {
         $request = $this->initRequest(
             $this->account->getApiToken(Token::API_EMAIL),
             $this->account->getName(),
-            $this->activeDomain
+            $this->activeDomain,
         );
         $request->setReplaceParams([]);
         $response = $request->postRaw('');
@@ -23,7 +24,7 @@ class MockMarketingPermission extends MarketingPermission
         return $request->getResultHandler()->parse($response);
     }
 
-    protected function getResultHandler()
+    protected function getResultHandler(): MockResultHandler
     {
         return new MockResultHandler();
     }

@@ -7,12 +7,15 @@ class NostoCategoriesService extends ApiService {
         this.name = 'NostoCategoriesService';
     }
 
-    sendCategories() {
+    sendCategories(salesChannelId, languageId) {
         const apiRoute = '_action/nosto-categories-controller/sync';
         return this.httpClient.post(
             apiRoute,
             {
-                params: {},
+                salesChannelId,
+                languageId,
+            },
+            {
                 headers: this.getBasicHeaders(),
             },
         );

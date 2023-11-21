@@ -25,11 +25,20 @@ Component.register('nosto-integration-settings-general', {
             required: false,
             default: null,
         },
+        selectedLanguageId: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        configKey: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
         return {
-            isLoading: false,
             productCustomFields: [],
             productTags: [],
             languageCode: null,
@@ -40,6 +49,7 @@ Component.register('nosto-integration-settings-general', {
         domainCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('salesChannelId', this.selectedSalesChannelId));
+            criteria.addFilter(Criteria.equals('languageId', this.selectedLanguageId));
             return criteria;
         },
 
@@ -65,7 +75,6 @@ Component.register('nosto-integration-settings-general', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.config.';
             const defaultConfigs = {
                 tag1: null,
                 tag2: null,
@@ -79,14 +88,14 @@ Component.register('nosto-integration-settings-general', {
              * Initialize config data with default values.
              */
             Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[configPrefix + key] === undefined) {
-                    this.$set(this.allConfigs.null, configPrefix + key, defaultValue);
+                if (this.allConfigs.null[key] === undefined) {
+                    this.$set(this.allConfigs.null, key, defaultValue);
                 }
             });
 
             // For old single select config
             for (let i = 1; i < 4; i += 1) {
-                const key = `NostoIntegration.config.tag${i}`;
+                const key = `tag${i}`;
                 if (typeof this.allConfigs.null[key] === 'string' || this.allConfigs.null[key] instanceof String) {
                     // eslint-disable-next-line vue/no-mutating-props
                     this.allConfigs.null[key] = [this.allConfigs.null[key]];
@@ -108,11 +117,6 @@ Component.register('nosto-integration-settings-general', {
             criteria.addAssociation('locale');
             const languages = await this.languageRepository.search(criteria, Shopware.Context.api);
             return languages.first().locale.code;
-        },
-
-        clearTagValue(tag) {
-            // eslint-disable-next-line vue/no-mutating-props
-            this.allConfigs.null[`NostoIntegration.config.${tag}`] = null;
         },
 
         getProductCustomFields() {

@@ -24,7 +24,7 @@ class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInte
         array $newOrderIds,
         array $updatedOrderIds,
         ?Context $context,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
         $this->newOrderIds = $newOrderIds;

@@ -44,7 +44,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
         private readonly SessionLookupResolver $resolver,
         private readonly ConfigProvider $configProvider,
         private readonly RequestStack $requestStack,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -60,25 +60,24 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $isMerchEnabled = $this->configProvider->isMerchEnabled($salesChannelContext->getSalesChannelId());
+        $channelId = $salesChannelContext->getSalesChannelId();
+        $languageId = $salesChannelContext->getLanguageId();
+        $isMerchEnabled = $this->configProvider->isMerchEnabled($channelId, $languageId);
 
         try {
-            $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext());
+            $sessionId = $this->resolver->getSessionId($salesChannelContext->getContext(), $channelId, $languageId);
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(
                 sprintf(
                     'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
+                    $throwable->getMessage(),
                 ),
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
         }
 
-        $account = $this->resolver->getNostoAccount(
-            $salesChannelContext->getContext(),
-            $salesChannelContext->getSalesChannelId()
-        );
+        $account = $this->resolver->getNostoAccount($salesChannelContext->getContext(), $channelId, $languageId);
 
         if (
             !$isMerchEnabled ||
@@ -101,7 +100,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
                 $category = $this->categoryRepository->search(
                     new Criteria([$categoryId]),
-                    $salesChannelContext->getContext()
+                    $salesChannelContext->getContext(),
                 )->first();
 
                 $this->currentCategoryId = $categoryId;
@@ -113,12 +112,12 @@ class MerchandisingSearchApi extends SalesChannelRepository
         $includeFilters = !empty($criteria->getPostFilters())
             ? $this->filterTranslator->buildIncludeFilters(
                 $criteria->getPostFilters(),
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             )
             : new IncludeFilters();
 
         try {
-            if ($this->configProvider->getCategoryNamingOption($salesChannelContext->getSalesChannelId()) === 'with-id') {
+            if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {
                 $categoryName .= ' (ID = ' . $this->currentCategoryId . ')';
             }
 
@@ -133,17 +132,17 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 AbstractGraphQLOperation::IDENTIFIER_BY_CID,
                 false,
                 $criteria->getLimit(),
-                ''
+                '',
             );
 
             /** @var CategoryMerchandisingResult $result */
             $result = $operation->execute();
 
             if (!$result->getTotalPrimaryCount()) {
-                throw new \Exception('There are no products from the Nosto.');
+                throw new Exception('There are no products from the Nosto.');
             }
 
-            if ($this->configProvider->getProductIdentifier($salesChannelContext->getSalesChannelId()) === 'product-number') {
+            if ($this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number') {
                 $result = $this->replaceSkusWithActualIds($result, $salesChannelContext);
             }
 
@@ -151,12 +150,12 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $result->getTotalPrimaryCount(),
                 $this->resultTranslator->getProductIds($result),
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
             );
         } catch (Exception $e) {
             $this->logger->error(
                 $e->getMessage(),
-                ContextHelper::createContextFromException($e)
+                ContextHelper::createContextFromException($e),
             );
 
             return $this->repository->searchIds($criteria, $salesChannelContext);
@@ -210,7 +209,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 // Check if uuid doesn't cause a crash. This is mostly to prevent a page crash in edge cases.
                 Uuid::fromHexToBytes($productToChangeData->getProductId());
                 $newResultSet->append($productToChangeData);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Nothing. Just skip.
             }
         }
@@ -220,7 +219,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
             $newResultSet,
             $result->getTrackingCode(),
             $result->getTotalPrimaryCount(),
-            $result->getBatchToken()
+            $result->getBatchToken(),
         );
     }
 
@@ -261,7 +260,7 @@ class MerchandisingSearchApi extends SalesChannelRepository
 
     private function getCategoryNameByBreadcrumbs($categoryBreadcrumbs): string
     {
-        $breadcrumbs = \array_slice($categoryBreadcrumbs, 1);
+        $breadcrumbs = array_slice($categoryBreadcrumbs, 1);
         $categoryFullName = '';
 
         foreach ($breadcrumbs as $breadcrumb) {

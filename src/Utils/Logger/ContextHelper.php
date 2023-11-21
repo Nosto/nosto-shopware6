@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Utils\Logger;
 
+use Generator;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Throwable;
 
 class ContextHelper
 {
-    public static function createContextFromException(\Throwable $exception): array
+    public static function createContextFromException(Throwable $exception): array
     {
         $context = [
             'exception' => $exception,
@@ -31,7 +33,7 @@ class ContextHelper
             }
 
             return $context;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             $context['Exception during context conversion'] = $throwable->getMessage();
 
             return $context;
@@ -46,7 +48,7 @@ class ContextHelper
      *
      * @return int|float|string|array
      */
-    public static function convertVariableToSerializableRepresentation($value, int $deep = 10)
+    public static function convertVariableToSerializableRepresentation(mixed $value, int $deep = 10): mixed
     {
         if ($deep < 1) {
             return '{maximum nesting level reached}';
@@ -60,7 +62,7 @@ class ContextHelper
             return self::convertResponseToSerializable($value);
         }
 
-        if ($value instanceof \Generator) {
+        if ($value instanceof Generator) {
             return '{Generator}';
         }
         if (is_iterable($value)) {

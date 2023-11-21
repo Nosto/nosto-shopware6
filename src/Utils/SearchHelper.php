@@ -6,35 +6,36 @@ namespace Nosto\NostoIntegration\Utils;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\NostoService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchHelper
 {
     public static function shouldHandleRequest(
-        Context $context,
+        SalesChannelContext $context,
         ConfigProvider $configProvider,
-        bool $isNavigationPage = false
+        bool $isNavigationPage = false,
     ): bool {
         /** @var NostoService $nostoService */
-        $nostoService = $context->getExtension('nostoService');
+        $nostoService = $context->getContext()->getExtension('nostoService');
         if ($nostoService && $nostoService->getEnabled()) {
             return $nostoService->getEnabled();
         }
 
         $nostoService = new NostoService();
-        $context->addExtension('nostoService', $nostoService);
+        $context->getContext()->addExtension('nostoService', $nostoService);
 
-        $searchApiToken = $configProvider->getSearchToken();
-        $accountId = $configProvider->getAccountId();
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+        $searchApiToken = $configProvider->getSearchToken($channelId, $languageId);
+        $accountId = $configProvider->getAccountId($channelId, $languageId);
         if (!$searchApiToken || trim($searchApiToken) === '' || !$accountId || trim($accountId) === '') {
             return $nostoService->disable();
         }
 
         if (
-            (!$isNavigationPage && !$configProvider->isSearchEnabled()) ||
-            ($isNavigationPage && !$configProvider->isNavigationEnabled())
+            (!$isNavigationPage && !$configProvider->isSearchEnabled($channelId, $languageId)) ||
+            ($isNavigationPage && !$configProvider->isNavigationEnabled($channelId, $languageId))
         ) {
             return $nostoService->disable();
         }

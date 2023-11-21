@@ -29,9 +29,9 @@ class NostoListingProcessor extends AbstractListingProcessor
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if (SearchHelper::shouldHandleRequest(
-            $context->getContext(),
+            $context,
             $this->configProvider,
-            SearchHelper::isNavigationPage($request)
+            SearchHelper::isNavigationPage($request),
         )) {
             if (SearchHelper::isSearchPage($request)) {
                 $this->searchService->doSearch($request, $criteria, $context);

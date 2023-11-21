@@ -6,10 +6,6 @@ const { Component } = Shopware;
 Component.register('nosto-integration-features-flags', {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
-
     props: {
         actualConfigData: {
             type: Object,
@@ -19,7 +15,7 @@ Component.register('nosto-integration-features-flags', {
             type: Object,
             required: true,
         },
-        selectedSalesChannelId: {
+        configKey: {
             type: String,
             required: false,
             default: null,
@@ -106,7 +102,6 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const configPrefix = 'NostoIntegration.config.';
             const defaultConfigs = {
                 variations: true,
                 productProperties: true,
@@ -130,8 +125,8 @@ Component.register('nosto-integration-features-flags', {
              * Initialize config data with default values.
              */
             Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[configPrefix + key] === undefined) {
-                    this.$set(this.allConfigs.null, configPrefix + key, defaultValue);
+                if (this.allConfigs.null[key] === undefined) {
+                    this.$set(this.allConfigs.null, key, defaultValue);
                 }
             });
         },

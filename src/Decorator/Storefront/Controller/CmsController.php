@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(
     defaults: [
         '_routeScope' => ['storefront'],
-    ]
+    ],
 )]
 class CmsController extends StorefrontController
 {
@@ -40,7 +40,7 @@ class CmsController extends StorefrontController
             'XmlHttpRequest' => true,
             '_httpCache' => true,
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -54,10 +54,13 @@ class CmsController extends StorefrontController
             'navigationId' => null,
             'XmlHttpRequest' => true,
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
-    public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
-    {
+    public function category(
+        ?string $navigationId,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+    ): Response {
         return $this->decorated->category($navigationId, $request, $salesChannelContext);
     }
 
@@ -69,15 +72,11 @@ class CmsController extends StorefrontController
             '_routeScope' => ['storefront'],
             '_httpCache' => true,
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!SearchHelper::shouldHandleRequest(
-            $salesChannelContext->getContext(),
-            $this->configProvider,
-            true
-        )) {
+        if (!SearchHelper::shouldHandleRequest($salesChannelContext, $this->configProvider, true)) {
             return $this->decorated->filter($navigationId, $request, $salesChannelContext);
         }
 
@@ -89,7 +88,7 @@ class CmsController extends StorefrontController
         }
 
         return new JsonResponse(
-            $this->filterHandler->handleAvailableFilters($criteria)
+            $this->filterHandler->handleAvailableFilters($criteria),
         );
     }
 
@@ -102,7 +101,7 @@ class CmsController extends StorefrontController
             '_routeScope' => ['storefront'],
             '_httpCache' => true,
         ],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

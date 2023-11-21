@@ -12,13 +12,13 @@
         {% block nosto_integration_actions %}
             <template #smart-bar-actions>
                 {% block nosto_integration_actions_save %}
-                    <sw-button-process v-model="isSaveSuccessful"
-                                       class="sw-settings-login-registration__save-action"
-                                       variant="primary"
-                                       :isLoading="isLoading"
-                                       :disabled="isLoading"
-                                       :processSuccess="false"
-                                       @click="onSave">
+                    <sw-button-process
+                        v-model="isSaveSuccessful"
+                        variant="primary"
+                        :isLoading="salesChannelsLoading || configsLoading || saving"
+                        :disabled="salesChannelsLoading || configsLoading || saving"
+                        @click="onSave"
+                    >
                         {{ $tc('global.default.save') }}
                     </sw-button-process>
                 {% endblock %}
@@ -29,74 +29,82 @@
             <template #content>
                 {% block nosto_integration_content_card %}
                     {% block nosto_integration_content_card_channel_config %}
-                        <sw-sales-channel-config v-model="config"
-                                                 ref="configComponent"
-                                                 domain="NostoIntegration.config">
+                        <sw-card-view>
                             {% block nosto_integration_content_card_channel_config_sales_channel %}
-                                <template #select="{ onInput, selectedSalesChannelId }">
-                                    {% block nosto_integration_content_card_channel_config_sales_channel_card %}
-                                        <sw-card
-                                            class="sw-card--grid channel-card-container"
-                                            :title="$tc('global.entities.sales_channel', 2)"
-                                            positionIdentifier="nosto-integration-settings-salesChannel"
-                                        >
-                                            {% block nosto_integration_content_card_channel_config_sales_channel_card_title %}
-                                                <sw-single-select v-model="selectedSalesChannelId"
-                                                                  labelProperty="translated.name"
-                                                                  valueProperty="id"
-                                                                  :isLoading="isLoading"
-                                                                  :options="salesChannels"
-                                                                  @change="onInput">
-                                                </sw-single-select>
-                                            {% endblock %}
-                                        </sw-card>
+                                <sw-card
+                                    :title="$tc('global.entities.sales_channel', 2)"
+                                    positionIdentifier="nosto_settings"
+                                >
+                                    {% block nosto_integration_content_card_channel_config_sales_channel_selection %}
+                                        <sw-single-select
+                                            v-model="selectedSalesChannelId"
+                                            :options="salesChannels"
+                                            labelProperty="translated.name"
+                                            valueProperty="id"
+                                            :isLoading="salesChannelsLoading || configsLoading"
+                                            :disabled="salesChannelsLoading || configsLoading"
+                                        />
+
+                                        <sw-single-select
+                                            v-model="selectedLanguageId"
+                                            :options="languages"
+                                            labelProperty="name"
+                                            valueProperty="id"
+                                            :placeholder="$tc('nosto.selectSalesChannel')"
+                                            :isLoading="salesChannelsLoading || configsLoading"
+                                            :disabled="!selectedSalesChannelId"
+                                        />
                                     {% endblock %}
-                                </template>
+                                </sw-card>
                             {% endblock %}
 
-                            {% block nosto_integration_content_card_configs %}
-                                <template #content="{ actualConfigData, allConfigs, selectedSalesChannelId }">
-                                    <div v-if="actualConfigData">
-                                        {% block nosto_integration_content_card_account_general %}
-                                            <nosto-integration-account-general
-                                                    :actualConfigData="actualConfigData"
-                                                    :allConfigs="allConfigs"
-                                                    :errorStates="errorStates"
-                                                    :selectedSalesChannelId="selectedSalesChannelId">
-                                            </nosto-integration-account-general>
-                                        {% endblock %}
+                            {% block nosto_integration_content_card_configs_old %}
+                                <div v-if="Object.keys(allConfigs).length">
+                                    {% block nosto_integration_content_card_account_general %}
+                                        <nosto-integration-account-general
+                                            :actualConfigData="actualConfigData"
+                                            :allConfigs="allConfigs"
+                                            :errorStates="errorStates"
+                                            :selectedSalesChannelId="selectedSalesChannelId"
+                                            :selectedLanguageId="selectedLanguageId"
+                                            :configKey="configKey"
+                                        />
+                                    {% endblock %}
 
-                                        {% block nosto_integration_content_card_search_general %}
-                                            <nosto-integration-search-general
-                                                    :actualConfigData="actualConfigData"
-                                                    :allConfigs="allConfigs"
-                                                    :errorStates="errorStates"
-                                                    :selectedSalesChannelId="selectedSalesChannelId">
-                                            </nosto-integration-search-general>
-                                        {% endblock %}
+                                    {% block nosto_integration_content_card_search_general %}
+                                        <nosto-integration-search-general
+                                            :actualConfigData="actualConfigData"
+                                            :allConfigs="allConfigs"
+                                            :errorStates="errorStates"
+                                            :configKey="configKey"
+                                        />
+                                    {% endblock %}
 
-                                        {% block nosto_integration_content_card_tags_general %}
-                                            <nosto-integration-settings-general
-                                                    :actualConfigData="actualConfigData"
-                                                    :allConfigs="allConfigs"
-                                                    :selectedSalesChannelId="selectedSalesChannelId">
-                                            </nosto-integration-settings-general>
-                                        {% endblock %}
+                                    {% block nosto_integration_content_card_tags_general %}
+                                        <nosto-integration-settings-general
+                                            :actualConfigData="actualConfigData"
+                                            :allConfigs="allConfigs"
+                                            :selectedSalesChannelId="selectedSalesChannelId"
+                                            :selectedLanguageId="selectedLanguageId"
+                                            :configKey="configKey"
+                                        />
+                                    {% endblock %}
 
-                                        {% block nosto_integration_content_card_features_flags %}
-                                            <nosto-integration-features-flags
-                                                    :actualConfigData="actualConfigData"
-                                                    :allConfigs="allConfigs"
-                                                    :selectedSalesChannelId="selectedSalesChannelId">
-                                            </nosto-integration-features-flags>
-                                        {% endblock %}
-                                    </div>
-                                </template>
+                                    {% block nosto_integration_content_card_features_flags %}
+                                        <nosto-integration-features-flags
+                                            :actualConfigData="actualConfigData"
+                                            :allConfigs="allConfigs"
+                                            :configKey="configKey"
+                                        />
+                                    {% endblock %}
+                                </div>
+                                <sw-loader
+                                    v-else
+                                    class="nosto-config-loader"
+                                    size="50px"
+                                />
                             {% endblock %}
-                        </sw-sales-channel-config>
-                    {% endblock %}
-                    {% block styla_cmsintegration_content_card_loading %}
-                        <sw-loader v-if="isLoading"></sw-loader>
+                        </sw-card-view>
                     {% endblock %}
                 {% endblock %}
             </template>

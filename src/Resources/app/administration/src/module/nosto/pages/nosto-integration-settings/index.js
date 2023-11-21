@@ -11,6 +11,7 @@ Component.register('nosto-integration-settings', {
     inject: [
         'repositoryFactory',
         'NostoIntegrationProviderService',
+        'NostoConfigApiService',
     ],
 
     mixins: [
@@ -19,21 +20,15 @@ Component.register('nosto-integration-settings', {
 
     data() {
         return {
-            isLoading: false,
+            salesChannelsLoading: false,
+            configsLoading: false,
+            saving: false,
             isSaveSuccessful: false,
-            defaultAccountNameFilled: false,
-            messageAccountBlankErrorState: null,
-            config: null,
+            allConfigs: {},
             salesChannels: [],
+            selectedSalesChannelId: null,
+            selectedLanguageId: null,
             errorStates: {},
-            configurationKeys: {
-                accountID: 'NostoIntegration.config.accountID',
-                accountName: 'NostoIntegration.config.accountName',
-                productToken: 'NostoIntegration.config.productToken',
-                emailToken: 'NostoIntegration.config.emailToken',
-                appToken: 'NostoIntegration.config.appToken',
-                searchToken: 'NostoIntegration.config.searchToken',
-            },
         };
     },
 
@@ -47,6 +42,38 @@ Component.register('nosto-integration-settings', {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
+        nostoConfigRepository() {
+            return this.repositoryFactory.create('nosto_integration_config');
+        },
+        configKey() {
+            if (!this.selectedSalesChannelId || !this.selectedLanguageId) {
+                return null;
+            }
+
+            return `${this.selectedSalesChannelId}-${this.selectedLanguageId}`;
+        },
+        languages() {
+            if (!this.selectedSalesChannelId) {
+                return [];
+            }
+
+            return this.salesChannels.find(
+                salesChannel => salesChannel.id === this.selectedSalesChannelId,
+            )?.languages || [];
+        },
+        actualConfigData() {
+            return this.allConfigs[this.configKey] || {};
+        },
+    },
+
+    watch: {
+        configKey: {
+            handler(newKey) {
+                if (!this.allConfigs[newKey]) {
+                    this.$set(this.allConfigs, newKey, {});
+                }
+            },
+        },
     },
 
     created() {
@@ -54,19 +81,18 @@ Component.register('nosto-integration-settings', {
     },
 
     methods: {
-
         createdComponent() {
-            this.getSalesChannels();
-        },
-
-        onChangeLanguage() {
+            this.getAllConfigs();
             this.getSalesChannels();
         },
 
         getSalesChannels() {
-            this.isLoading = true;
+            this.salesChannelsLoading = true;
 
             const criteria = new Criteria();
+            criteria.addAssociation('languages');
+            criteria.addAssociation('domains');
+            criteria.addFilter(Criteria.equals('active', true));
             criteria.addFilter(Criteria.equalsAny('typeId', [
                 Defaults.storefrontSalesChannelTypeId,
                 Defaults.apiSalesChannelTypeId,
@@ -82,50 +108,69 @@ Component.register('nosto-integration-settings', {
 
                 this.salesChannels = res;
             }).finally(() => {
-                this.isLoading = false;
+                this.salesChannelsLoading = false;
             });
         },
 
-        isActive(channelId) {
-            const configKey = 'NostoIntegration.config.isEnabled';
-            const channelConfig = this.$refs.configComponent.allConfigs[channelId] || null;
+        getAllConfigs() {
+            const criteria = new Criteria();
 
-            return channelConfig?.hasOwnProperty(configKey) && typeof channelConfig[configKey] === 'boolean'
-                ? channelConfig[configKey]
-                : this.$refs.configComponent.allConfigs.null[configKey];
+            this.nostoConfigRepository.search(criteria, Shopware.Context.api).then(res => {
+                const configs = {};
+
+                res.forEach(item => {
+                    const { salesChannelId, languageId, configurationKey, configurationValue } = item;
+                    const key = salesChannelId ? `${salesChannelId}-${languageId}` : null;
+
+                    if (!configs[key]) {
+                        configs[key] = {};
+                    }
+
+                    configs[key][configurationKey] = configurationValue;
+                });
+
+                this.allConfigs = configs;
+            });
         },
 
-        getInheritedValue(channelId, key) {
-            return this.$refs.configComponent.allConfigs.hasOwnProperty(channelId) &&
-            this.$refs.configComponent.allConfigs[channelId].hasOwnProperty(key) &&
-            this.$refs.configComponent.allConfigs[channelId][key] !== null ?
-                this.$refs.configComponent.allConfigs[channelId][key] : this.$refs.configComponent.allConfigs.null[key];
+        isActive(configKey) {
+            const key = 'isEnabled';
+            const channelConfig = this.allConfigs[configKey] || {};
+
+            return typeof channelConfig[key] === 'boolean' ? channelConfig[key] : this.allConfigs.null[key];
+        },
+
+        getInheritedValue(configKey, key) {
+            return this.allConfigs[configKey]?.[key] ?? this.allConfigs.null[key];
         },
 
         checkErrorsBeforeSave() {
-            const BreakException = {};
-            let result = false;
-            try {
-                Object.keys(this.$refs.configComponent.allConfigs).forEach(item => {
-                    if (
-                        this.isActive(item) &&
-                        (!this.getInheritedValue(item, this.configurationKeys.accountID) ||
-                            !this.getInheritedValue(item, this.configurationKeys.accountName) ||
-                            !this.getInheritedValue(item, this.configurationKeys.productToken) ||
-                            !this.getInheritedValue(item, this.configurationKeys.emailToken) ||
-                            !this.getInheritedValue(item, this.configurationKeys.appToken) ||
-                            !this.getInheritedValue(item, this.configurationKeys.searchToken)
-                        )
-                    ) {
-                        result = {
-                            salesChannelName: this.salesChannels.get(item === 'null' ? null : item).translated.name,
-                        };
-                        throw BreakException;
-                    }
-                });
-            } catch (e) {
-                if (e !== BreakException) throw e;
-            }
+            const result = [];
+
+            Object.keys(this.allConfigs).forEach(configKey => {
+                if (
+                    this.isActive(configKey) &&
+                    (!this.getInheritedValue(configKey, 'accountID') ||
+                        !this.getInheritedValue(configKey, 'accountName') ||
+                        !this.getInheritedValue(configKey, 'productToken') ||
+                        !this.getInheritedValue(configKey, 'emailToken') ||
+                        !this.getInheritedValue(configKey, 'appToken') ||
+                        !this.getInheritedValue(configKey, 'searchToken')
+                    )
+                ) {
+                    const [salesChannelId, languageId] = configKey === 'null'
+                        ? [null, null]
+                        : configKey.split('-');
+
+                    result.push({
+                        salesChannelName: this.salesChannels.get(salesChannelId).translated.name,
+                        languageName: this.languages?.find(
+                            language => language.id === languageId,
+                        )?.name || 'No language selected',
+                    });
+                }
+            });
+
             return result;
         },
 
@@ -145,24 +190,31 @@ Component.register('nosto-integration-settings', {
         },
 
         onSave() {
-            this.isLoading = true;
-            const checkList = this.checkErrorsBeforeSave();
-            if (checkList) {
-                this.isLoading = false;
-                this.createNotificationError({
-                    title: checkList.salesChannelName, message: this.$tc('nosto.messages.error-message'),
+            this.saving = true;
+
+            const errors = this.checkErrorsBeforeSave();
+            if (errors.length) {
+                this.saving = false;
+                errors.forEach(error => {
+                    this.createNotificationError({
+                        title: `${error.salesChannelName} - ${error.languageName}`,
+                        message: this.$tc('nosto.messages.error-message'),
+                    });
                 });
                 return;
             }
-            this.$refs.configComponent.save().then(() => {
-                this.isSaveSuccessful = true;
-                this.createNotificationSuccess({
-                    message: this.$tc('nosto.messages.success-message'),
+
+            this.NostoConfigApiService.batchSave(this.allConfigs)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.createNotificationSuccess({
+                        message: this.$tc('nosto.messages.success-message'),
+                    });
+                    this.clearCaches();
+                })
+                .finally(() => {
+                    this.saving = false;
                 });
-                this.clearCaches();
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
     },
 });

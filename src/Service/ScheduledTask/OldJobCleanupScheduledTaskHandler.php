@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use function array_map;
 
 class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 {
@@ -20,7 +19,7 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        EntityRepository $jobRepository
+        EntityRepository $jobRepository,
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->jobRepository = $jobRepository;
@@ -42,8 +41,8 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
                 'createdAt',
                 [
                     'lt' => $numberOfDaysBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
-                ]
-            )
+                ],
+            ),
         );
 
         $idSearchResult = $this->jobRepository->searchIds($criteria, $context);

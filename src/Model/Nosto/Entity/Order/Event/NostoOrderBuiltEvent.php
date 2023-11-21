@@ -20,7 +20,7 @@ class NostoOrderBuiltEvent extends NestedEvent
     public function __construct(
         OrderEntity $order,
         NostoOrder $nostoOrder,
-        Context $context
+        Context $context,
     ) {
         $this->order = $order;
         $this->nostoOrder = $nostoOrder;

@@ -8,8 +8,7 @@ use Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\{Cookie, RequestStack};
@@ -31,7 +30,7 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         RequestStack $requestStack,
         SessionLookupResolver $sessionLookupResolver,
         NostoCacheResolver $cacheResolver,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->requestStack = $requestStack;
         $this->sessionLookupResolver = $sessionLookupResolver;
@@ -61,15 +60,22 @@ class CmsPageLoaderListener implements EventSubscriberInterface
         }
 
         try {
-            $sessionId = $this->sessionLookupResolver->getSessionId(new Context(new SystemSource()));
+            /** @var SalesChannelContext $salesChannelContext */
+            $salesChannelContext = $request->attributes->get('sw-sales-channel-context');
+
+            $sessionId = $this->sessionLookupResolver->getSessionId(
+                $salesChannelContext->getContext(),
+                $salesChannelContext->getSalesChannel()->getId(),
+                $salesChannelContext->getContext()->getLanguageId(),
+            );
         } catch (Throwable $throwable) {
             $sessionId = null;
             $this->logger->error(
                 sprintf(
                     'Unable to load resolve session, reason: %s',
-                    $throwable->getMessage()
+                    $throwable->getMessage(),
                 ),
-                ContextHelper::createContextFromException($throwable)
+                ContextHelper::createContextFromException($throwable),
             );
         }
 
