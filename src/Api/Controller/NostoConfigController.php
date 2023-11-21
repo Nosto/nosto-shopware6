@@ -72,9 +72,7 @@ class NostoConfigController extends AbstractController
                     ? [null, null]
                     : explode('-', $key);
 
-                $filteredConfig = array_filter($config, static fn ($value) => !is_null($value));
-
-                $this->saveKeyValues($salesChannelId, $languageId, $filteredConfig);
+                $this->saveKeyValues($salesChannelId, $languageId, $config);
             }
         } catch (Throwable $e) {
             $this->connection->rollBack();
