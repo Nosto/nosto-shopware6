@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 interface SortingHandlerInterface
@@ -13,6 +13,6 @@ interface SortingHandlerInterface
 
     public function generateSorting(
         FieldSorting $fieldSorting,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
     ): void;
 }
