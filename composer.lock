@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c700796983fad4e89bbc3f39a087fa2",
+    "content-hash": "5c2f31f3b0a7f62ce9d573e3f3cd1e4b",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "dependencies/shopware6-job-scheduler",
-                "reference": "a407459e780438e4d31d99af721e472e745f3af6"
+                "reference": "78b156b4d118848b4958a546e3ef84b2ce45a7cd"
             },
             "require": {
                 "php": "^8.1"

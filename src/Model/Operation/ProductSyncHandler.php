@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -60,6 +62,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     private SalesChannelRepository $categoryRepository;
 
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         AbstractSalesChannelContextFactory $channelContextFactory,
         ProductProviderInterface $productProvider,
@@ -69,6 +73,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         ProductHelper $productHelper,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelRepository $categoryRepository,
+        SystemConfigService $systemConfigService,
     ) {
         $this->channelContextFactory = $channelContextFactory;
         $this->productProvider = $productProvider;
@@ -78,6 +83,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $this->productHelper = $productHelper;
         $this->eventDispatcher = $eventDispatcher;
         $this->categoryRepository = $categoryRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -153,14 +159,21 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         Job\JobResult $result,
         array $ids,
     ): void {
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
         $domainUrl = $this->getDomainUrl(
             $context->getSalesChannel()->getDomains(),
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
+            $channelId,
+            $languageId,
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
         $dynamicGroupCategoryIds = $this->getCategoryIdsByDynamicGroups($context);
+
+        $hideProductsAfterClearance = $this->systemConfigService->get(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $channelId,
+        );
 
         /** @var SalesChannelProductEntity $product */
         foreach ($productCollection as $product) {
@@ -181,6 +194,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     }
                 }
 
+                /** @var CategoryCollection $productCategoriesCollection */
                 $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
 
                 if ($productCategoriesCollection->count() > 0) {
@@ -202,6 +216,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $nostoProducts[] = $this->productProvider->get($product, $context);
                 $this->doDeleteOperation($account, $context, $idsToDelete, $ids);
             } else {
+                $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
+                    ? $product->getStock()
+                    : $product->getAvailableStock();
+
+                if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+                    $this->doDeleteOperation($account, $context, [$product->getId()], $ids);
+                    continue;
+                }
+
                 $nostoProducts[] = $this->productProvider->get($product, $context);
             }
 
@@ -350,7 +373,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $result;
     }
 
-    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): CategoryCollection
+    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): EntityCollection
     {
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 

@@ -20,7 +20,7 @@ class Builder implements BuilderInterface
         $nostoItem->setSkuId($item->getPayload()['productNumber']);
 
         try {
-            $price = $item->getTotalPrice();
+            $price = $item->getUnitPrice();
             $nostoItem->setPrice($price);
         } catch (Exception) {
             $nostoItem->setPrice(0);

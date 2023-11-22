@@ -110,6 +110,11 @@ class Builder implements BuilderInterface
             ? $product->getStock()
             : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
+
+        if (!$product->getIsCloseout() && $stock < 1) {
+            $stockStatus = ProductInterface::IN_STOCK;
+        }
+
         $nostoProduct->setAvailability($stockStatus);
 
         if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {

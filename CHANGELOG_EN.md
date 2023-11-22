@@ -1,3 +1,11 @@
+# 2.4.1
+# Fix: Fixed the issue where analytics totals data was tracked worngly in Nosto Dashboard 
+# Fix: Fixed an issue which caused Nosto crawler to discontinue products sporadically 
+
+# 2.4.0
+# Feature: Added feature support for "Hide Products After Clearance"
+# Fix: Fixed issue where products were in stock on-site but OOS in Nosto
+
 # 2.3.1
 
 * Fix: Added logic to "Full Catalog Sync" that will resolve variant product issues ( it will discountinue products based on store-front representaion of variant product configuration )

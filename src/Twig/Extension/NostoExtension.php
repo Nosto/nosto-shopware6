@@ -50,7 +50,11 @@ class NostoExtension extends AbstractExtension
     public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
     {
         try {
-            return $product === null ? null : $this->productProvider->get($product, $context);
+            $variationStatus = $this->resolveVariations($product);
+            $result = $product === null ? null : $this->productProvider->get($product, $context);
+            $result->variationStatus = $variationStatus;
+
+            return $result;
         } catch (Throwable $throwable) {
             $this->logger->error(
                 $throwable->getMessage(),
@@ -58,6 +62,21 @@ class NostoExtension extends AbstractExtension
             );
             return null;
         }
+    }
+
+    private function resolveVariations($product): string
+    {
+        if ($variantsConfig = $product->getVariantListingConfig()) {
+            if (!$variantsConfig->getDisplayParent() && $variantsConfig->getMainVariantId()) {
+                return 'singleProduct';
+            } elseif ($variantsConfig->getDisplayParent()) {
+                return 'singleProduct';
+            } else {
+                return 'variantProducts';
+            }
+        }
+
+        return 'nothing';
     }
 
     public function getNostoProductByID($id, SalesChannelContext $context)

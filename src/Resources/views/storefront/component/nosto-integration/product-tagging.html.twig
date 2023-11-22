@@ -1,32 +1,37 @@
 {% block nosto_integration_page_tagging %}
-
     {% set product = page.product %}
     {% set nostoProduct = nosto_product(product, context) %}
 
     {% if product and nostoProduct %}
         <div class="nosto_product" style="display:none">
-            {% if product.parentId %}
+            {% if product.isCloseout == false and nostoProduct.availability == "OutOfStock"  %}
+                {% set availability = "InStock" %}
+            {% else %}
+                {% set availability = nostoProduct.availability %}
+            {% endif %}
+
+            {% if product.parentId and nostoProduct.variationStatus == 'singleProduct' %}
 
                 {% set parentId = product.parentId %}
                 {% set nostoParentProduct = nosto_product_by_id(parentId, context) %}
 
-                <span class="product_id">{{ nostoProduct.productId }}</span>
+                <span class="product_id">{{ parentId }}</span>
                 <span class="name">{{ nostoParentProduct.name }}</span>
                 <span class="url">{{ seoUrl('frontend.detail.page', {'productId': parentId}) }}</span>
                 <span class="image_url">{{ nostoParentProduct.cover.media.url }}</span>
-                <span class="availability">{{ nostoProduct.availability }}</span>
+                <span class="availability">{{ availability }}</span>
                 <span class="price">{{ nostoParentProduct.calculatedPrice.unitPrice }}</span>
                 <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
 
                 <span class="nosto_sku">
-                    <span class="id">{{ nostoProduct.productId }}</span>
+                      <span class="id">{{ nostoProduct.productId }}</span>
                       <span class="name">{{ nostoProduct.name }}</span>
                       <span class="price">{{ nostoProduct.price }}</span>
                       <span class="list_price">{{ nostoProduct.listPrice }}</span>
                       <span class="inventory_level">{{ nostoProduct.inventoryLevel }}</span>
                       <span class="url">{{ nostoProduct.url }}</span>
                       <span class="image_url">{{ nostoProduct.imageUrl }}</span>
-                      <span class="availability">{{ nostoProduct.availability }}</span>
+                      <span class="availability">{{ availability }}</span>
                         {% if nostoProduct.customFields %}
                             <span class="custom_fields">
                             {% for key, value in nostoProduct.customFields %}
@@ -40,9 +45,16 @@
                 <span class="name">{{ nostoProduct.name }}</span>
                 <span class="url">{{ nostoProduct.url }}</span>
                 <span class="image_url">{{ nostoProduct.imageUrl }}</span>
-                <span class="availability">{{ nostoProduct.availability }}</span>
+                <span class="availability">{{ availability }}</span>
                 <span class="price">{{ nostoProduct.price }}</span>
                 <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
+                {% if nostoProduct.customFields %}
+                    <span class="custom_fields">
+                        {% for key, value in nostoProduct.customFields %}
+                            <span class="{{ key }}">{{ value }}</span>
+                        {% endfor %}
+                    </span>
+                {% endif %}
             {% endif %}
 
             {% if nostoProduct.categories %}
@@ -107,14 +119,6 @@
                 {% for url in nostoProduct.alternateImageUrls %}
                     <span class="alternate_image_url">{{ url }}</span>
                 {% endfor %}
-            {% endif %}
-
-            {% if nostoProduct.customFields and not product.parentId %}
-                <span class="custom_fields">
-                {% for key, value in nostoProduct.customFields %}
-                    <span class="{{ key }}">{{ value }}</span>
-                {% endfor %}
-                </span>
             {% endif %}
 
         </div>
