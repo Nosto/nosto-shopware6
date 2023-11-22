@@ -30,8 +30,6 @@ class Lifecycle
 
     private EntityRepository $sortingRepository;
 
-    private NostoConfigService $nostoConfigService;
-
     private EntityRepository $salesChannelRepository;
 
     public function __construct(
@@ -46,7 +44,6 @@ class Lifecycle
 
         $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;
-        $this->nostoConfigService = $this->container->get(NostoConfigService::class);
         $this->salesChannelRepository = $this->container->get('sales_channel.repository');
     }
 
@@ -171,8 +168,10 @@ class Lifecycle
 
     protected function removeOldTagsForChannel(?string $channelId = null): void
     {
+        $configService = $this->container->get(NostoConfigService::class);
+
         for ($i = 1; $i < 4; ++$i) {
-            $this->nostoConfigService->delete(NostoConfigService::TAG_FIELD_TEMPLATE . $i, $channelId);
+            $configService->delete(NostoConfigService::TAG_FIELD_TEMPLATE . $i, $channelId);
         }
     }
 
