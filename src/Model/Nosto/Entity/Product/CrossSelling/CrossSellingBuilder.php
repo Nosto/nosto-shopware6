@@ -64,7 +64,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
                 'limit' => $crossSelling->getLimit(),
-                'name' => $crossSelling->getName(),
+                'name' => $crossSelling->getTranslation('name'),
             ];
         }
         return $result;
