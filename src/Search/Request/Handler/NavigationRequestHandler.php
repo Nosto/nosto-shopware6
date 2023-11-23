@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,11 +17,10 @@ class NavigationRequestHandler extends AbstractRequestHandler
         SalesChannelContext $context,
         ?int $limit = null,
     ): SearchResult {
-        $searchRequest = new SearchRequest($this->configProvider, $context);
-        $this->setDefaultParams($request, $criteria, $searchRequest, $limit);
+        $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
-        $searchRequest->setCategoryId($request->get('navigationId'));
+        $searchOperation->setCategoryId($request->get('navigationId'));
 
-        return $searchRequest->execute();
+        return $searchOperation->execute();
     }
 }

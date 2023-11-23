@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,7 +27,7 @@ class FilterHandler
     public function handleFilters(
         Request $request,
         Criteria $criteria,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
     ): void {
         $selectedFilters = $request->query->all();
         $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
@@ -44,7 +44,7 @@ class FilterHandler
                     $this->handleFilter(
                         $filterId,
                         $filterValue,
-                        $searchNavigationRequest,
+                        $searchOperation,
                         $availableFilterIds,
                         $filterMapping,
                     );
@@ -56,14 +56,14 @@ class FilterHandler
     protected function handleFilter(
         string $filterId,
         string $filterValue,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
         array $availableFilterIds,
         IdToFieldMapping $filterMapping,
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
         // the appropriate parameters to our API.
         if ($this->isRangeSliderFilter($filterId)) {
-            $this->handleRangeSliderFilter($filterId, $filterValue, $searchNavigationRequest, $filterMapping);
+            $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $filterMapping);
 
             return;
         }
@@ -73,39 +73,39 @@ class FilterHandler
         }
 
         if ($this->isRatingFilter($filterField)) {
-            $this->handleRatingFilter($filterField, $filterValue, $searchNavigationRequest);
+            $this->handleRatingFilter($filterField, $filterValue, $searchOperation);
 
             return;
         }
 
         if (in_array($filterId, $availableFilterIds, true)) {
-            $this->handlePropertyFilter($filterField, $filterValue, $searchNavigationRequest);
+            $this->handlePropertyFilter($filterField, $filterValue, $searchOperation);
         }
     }
 
     protected function handleRangeSliderFilter(
         string $filterId,
         mixed $filterValue,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
         IdToFieldMapping $fieldMapping,
     ): void {
         if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
             $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterField, $filterValue);
+            $searchOperation->addRangeFilter($filterField, $filterValue);
         } else {
             $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
             $filterField = $fieldMapping->getMapping($filterId);
-            $searchNavigationRequest->addRangeFilter($filterField, null, $filterValue);
+            $searchOperation->addRangeFilter($filterField, null, $filterValue);
         }
     }
 
     protected function handleRatingFilter(
         string $filterField,
         mixed $filterValue,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
     ): void {
-        $searchNavigationRequest->addRangeFilter($filterField, $filterValue);
+        $searchOperation->addRangeFilter($filterField, $filterValue);
     }
 
     protected function isRangeSliderFilter(string $id): bool
@@ -162,9 +162,9 @@ class FilterHandler
     private function handlePropertyFilter(
         string $filterField,
         string $filterValue,
-        SearchRequest $searchNavigationRequest,
+        SearchOperation $searchOperation,
     ): void {
-        $searchNavigationRequest->addValueFilter($filterField, $filterValue);
+        $searchOperation->addValueFilter($filterField, $filterValue);
     }
 
     public function handleAvailableFilters(Criteria $criteria): array

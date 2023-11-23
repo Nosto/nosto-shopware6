@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class PriceSortingHandler implements SortingHandlerInterface
@@ -14,8 +14,8 @@ class PriceSortingHandler implements SortingHandlerInterface
         return $fieldSorting->getField() === 'product.cheapestPrice';
     }
 
-    public function generateSorting(FieldSorting $fieldSorting, SearchRequest $searchNavigationRequest): void
+    public function generateSorting(FieldSorting $fieldSorting, SearchOperation $searchOperation): void
     {
-        $searchNavigationRequest->setSort('price', $fieldSorting->getDirection());
+        $searchOperation->setSort('price', $fieldSorting->getDirection());
     }
 }

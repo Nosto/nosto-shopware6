@@ -14,17 +14,17 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandl
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\StockSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class SortingHandlerService
 {
-    public function handle(SearchRequest $searchNavigationRequest, Criteria $criteria): void
+    public function handle(SearchOperation $searchOperation, Criteria $criteria): void
     {
         foreach ($this->getSortingHandlers() as $handler) {
             foreach ($criteria->getSorting() as $fieldSorting) {
                 if ($handler->supportsSorting($fieldSorting)) {
-                    $handler->generateSorting($fieldSorting, $searchNavigationRequest);
+                    $handler->generateSorting($fieldSorting, $searchOperation);
                 }
             }
         }
