@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
+use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class ScoreSortingHandler implements SortingHandlerInterface
@@ -14,7 +14,7 @@ class ScoreSortingHandler implements SortingHandlerInterface
         return $fieldSorting->getField() === '_score';
     }
 
-    public function generateSorting(FieldSorting $fieldSorting, SearchRequest $searchNavigationRequest): void
+    public function generateSorting(FieldSorting $fieldSorting, SearchOperation $searchOperation): void
     {
         // Here we do not do anything, because Nosto automatically orders by relevance.
     }

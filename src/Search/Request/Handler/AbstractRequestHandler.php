@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Monolog\Logger;
+use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Model\ConfigProvider;
-use Nosto\NostoIntegration\Search\Request\SearchRequest;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
+use Nosto\NostoIntegration\Struct\Redirect;
+use Nosto\Operation\Search\SearchOperation;
+use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -67,27 +70,52 @@ abstract class AbstractRequestHandler
         );
     }
 
-    protected function setDefaultParams(
+    protected function handleRedirect(SalesChannelContext $context, Redirect $redirectExtension): void
+    {
+        $context->getContext()->addExtension(
+            'nostoRedirect',
+            $redirectExtension,
+        );
+    }
+
+    protected function getSearchOperation(
         Request $request,
         Criteria $criteria,
-        SearchRequest $searchRequest,
+        SalesChannelContext $context,
         ?int $limit = null,
-    ): void {
-        $this->setPaginationParams($criteria, $searchRequest, $limit);
-        $this->setSessionParamsFromCookies($request, $searchRequest);
-        $this->sortingHandlerService->handle($searchRequest, $criteria);
+    ): SearchOperation {
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+        $searchOperation = new SearchOperation($this->getAccount($channelId, $languageId));
+
+        $searchOperation->setAccountId($this->configProvider->getAccountId($channelId, $languageId));
+        $this->setPaginationParams($criteria, $searchOperation, $limit);
+        $this->setSessionParamsFromCookies($request, $searchOperation);
+        $this->sortingHandlerService->handle($searchOperation, $criteria);
         if ($criteria->hasExtension('nostoFilters')) {
-            $this->filterHandler->handleFilters($request, $criteria, $searchRequest);
+            $this->filterHandler->handleFilters($request, $criteria, $searchOperation);
         }
+
+        return $searchOperation;
+    }
+
+    protected function getAccount(string $salesChannelId, string $languageId): Account
+    {
+        $account = new Account($this->configProvider->getAccountName($salesChannelId, $languageId));
+        $account->addApiToken(
+            new Token(Token::API_SEARCH, $this->configProvider->getSearchToken($salesChannelId, $languageId)),
+        );
+
+        return $account;
     }
 
     protected function setPaginationParams(
         Criteria $criteria,
-        SearchRequest $request,
+        SearchOperation $searchOperation,
         ?int $limit,
     ): void {
-        $request->setFrom($criteria->getOffset() ?? 0);
-        $request->setSize($limit ?? $criteria->getLimit());
+        $searchOperation->setFrom($criteria->getOffset() ?? 0);
+        $searchOperation->setSize($limit ?? $criteria->getLimit());
     }
 
     protected function setPagination(
@@ -100,11 +128,11 @@ abstract class AbstractRequestHandler
         $criteria->addExtension('nostoPagination', $pagination);
     }
 
-    protected function setSessionParamsFromCookies(Request $request, SearchRequest $searchRequest): void
+    protected function setSessionParamsFromCookies(Request $request, SearchOperation $searchOperation): void
     {
         if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
             $sessionParams = json_decode($sessionParamsString, true);
-            $searchRequest->setSessionParams($sessionParams);
+            $searchOperation->setSessionParams($sessionParams);
         }
     }
 }
