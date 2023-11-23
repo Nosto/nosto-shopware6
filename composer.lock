@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c2f31f3b0a7f62ce9d573e3f3cd1e4b",
+    "content-hash": "2b2f51e5b0b4a6832115366bde93b325",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "5.8.2",
+            "version": "7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "0acb3150e10fa5880e9268c3a677037617a88463"
+                "reference": "efe6218e43bf08b41ca9500b9b1434d1de25e564"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/0acb3150e10fa5880e9268c3a677037617a88463",
-                "reference": "0acb3150e10fa5880e9268c3a677037617a88463",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/efe6218e43bf08b41ca9500b9b1434d1de25e564",
+                "reference": "efe6218e43bf08b41ca9500b9b1434d1de25e564",
                 "shasum": ""
             },
             "require": {
@@ -58,9 +58,9 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/5.8.2"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.2.0"
             },
-            "time": "2022-05-19T06:59:11+00:00"
+            "time": "2023-11-23T15:12:57+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "dependencies/shopware6-job-scheduler",
-                "reference": "78b156b4d118848b4958a546e3ef84b2ce45a7cd"
+                "reference": "a407459e780438e4d31d99af721e472e745f3af6"
             },
             "require": {
                 "php": "^8.1"
