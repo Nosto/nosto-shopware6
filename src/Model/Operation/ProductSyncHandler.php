@@ -202,6 +202,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 }
             }
 
+            $nostoProducts = [];
+
             // TODO: up to 2MB payload !
             if ($product->getChildCount() && $product->getVariantListingConfig()?->getDisplayParent() === null) {
                 $nostoProducts = $this->resolveVariantProducts($product, $context);

@@ -159,12 +159,18 @@ class Builder implements BuilderInterface
         ) {
             foreach ($product->getOptions() as $option) {
                 if ($option->getGroup() !== null) {
-                    $nostoProduct->addCustomField($option->getGroup()->getName(), $option->getName());
+                    $nostoProduct->addCustomField(
+                        $option->getGroup()->getTranslation('name'),
+                        $option->getTranslation('name'),
+                    );
                 }
             }
             foreach ($product->getProperties() as $property) {
                 if ($property->getGroup() !== null) {
-                    $nostoProduct->addCustomField($property->getGroup()->getName(), $property->getName());
+                    $nostoProduct->addCustomField(
+                        $property->getGroup()->getTranslation('name'),
+                        $property->getTranslation('name'),
+                    );
                 }
             }
 

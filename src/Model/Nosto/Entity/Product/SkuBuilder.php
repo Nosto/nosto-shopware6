@@ -71,7 +71,10 @@ class SkuBuilder implements SkuBuilderInterface
         ) {
             foreach ($product->getOptions() as $propertyOption) {
                 if ($propertyOption->getGroup() !== null) {
-                    $nostoSku->addCustomField($propertyOption->getGroup()->getName(), $propertyOption->getName());
+                    $nostoSku->addCustomField(
+                        $propertyOption->getGroup()->getTranslation('name'),
+                        $propertyOption->getTranslation('name'),
+                    );
                 }
             }
         }

@@ -28,7 +28,13 @@ class CachedProvider implements ProductProviderInterface
 
     public function get(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
-        $cacheKey = self::CACHE_PREFIX . $product->getId();
+        $cacheKey = sprintf(
+            '%s_%s_%s_%s',
+            self::CACHE_PREFIX,
+            $product->getId(),
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
         $cachedItem = $this->cache->getItem($cacheKey);
 
         if ($cachedItem->isHit()) {
