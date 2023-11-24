@@ -45,7 +45,7 @@ class Builder implements BuilderInterface
         $nostoOrder->setCreatedAt($orderCreated);
         if ($order->getTransactions() instanceof OrderTransactionCollection) {
             $nostoOrder->setPaymentProvider(
-                (string) $order->getTransactions()->first()->getPaymentMethod()->getTranslation('name'),
+                (string) $order->getTransactions()?->first()?->getPaymentMethod()?->getTranslation('name'),
             );
         } else {
             throw new NostoException('Order has no payment associated');
