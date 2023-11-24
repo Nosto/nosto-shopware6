@@ -19,7 +19,7 @@ class Builder implements BuilderInterface
         $updatedAt = $order->getCreatedAt()->format('Y-m-d H:i:s');
         try {
             if ($order->getTransactions() instanceof OrderTransactionCollection) {
-                $paymentProvider = $order->getTransactions()->first()->getPaymentMethod()->getName();
+                $paymentProvider = $order->getTransactions()?->first()?->getPaymentMethod()?->getTranslation('name');
             } else {
                 throw new NostoException('Order has no payment associated');
             }

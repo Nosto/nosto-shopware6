@@ -56,7 +56,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
         $crossSellings = $this->loadCrossSellings($productId, $context);
         $result = [];
         foreach ($crossSellings as $crossSelling) {
-            $result[$this->createKeyFromName($crossSelling->getName())] = [
+            $result[$this->createKeyFromName($crossSelling->getTranslation('name'))] = [
                 'productIds' => $this->useProductStream($crossSelling)
                     ? $this->loadByStream($crossSelling, $context, new Criteria())
                     : $this->loadByIds($crossSelling, $context, new Criteria()),
@@ -64,7 +64,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
                 'limit' => $crossSelling->getLimit(),
-                'name' => $crossSelling->getName(),
+                'name' => $crossSelling->getTranslation('name'),
             ];
         }
         return $result;
