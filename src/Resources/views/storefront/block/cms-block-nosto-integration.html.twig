@@ -1,11 +1,9 @@
 {% block blocks_view_nosto_integration_component_block %}
-    <div class="nosto-integration-block">
-        {% set element = block.slots.getSlot('nosto_integration') %}
-        {% set columns = 1 %}
-        <div class="col-12" data-cms-element-id="{{ element.id }}">
-            {% block nosto_integration_inner_block %}
-                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
-            {% endblock %}
-        </div>
+    {% set element = block.slots.getSlot('nosto_integration') %}
+    {% set columns = 1 %}
+    <div class="col-12" data-cms-element-id="{{ element.id }}">
+        {% block nosto_integration_inner_block %}
+            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+        {% endblock %}
     </div>
 {% endblock %}

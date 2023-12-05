@@ -1,10 +1,13 @@
+# 2.4.2
+* Fix: Div-Klasse Nosto-Integration-Block entfernt, um die Nostoelemente zu wickeln
+
 # 2.4.1
-# Fix: Das Problem wurde behoben, bei dem Analyse-Gesamtdaten im Nosto-Dashboard fehlerhaft verfolgt wurden
-# Fix: Es wurde ein Problem behoben, das dazu führte, dass der Nosto-Crawler Produkte sporadisch einstellte
+* Fix: Das Problem wurde behoben, bei dem Analyse-Gesamtdaten im Nosto-Dashboard fehlerhaft verfolgt wurden
+* Fix: Es wurde ein Problem behoben, das dazu führte, dass der Nosto-Crawler Produkte sporadisch einstellte
 
 # 2.4.0
-# Feature: Feature-Unterstützung für „Produkte nach Ausverkauf ausblenden“ hinzugefügt
-# Fix: Problem behoben, bei dem Produkte vor Ort auf Lager waren, in Nosto jedoch OOS
+* Feature: Feature-Unterstützung für „Produkte nach Ausverkauf ausblenden“ hinzugefügt
+* Fix: Problem behoben, bei dem Produkte vor Ort auf Lager waren, in Nosto jedoch OOS
 
 # 2.3.1
 

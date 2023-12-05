@@ -1,10 +1,13 @@
+# 2.4.2
+* Fix: Removed div class nosto-integration-block wrapping the nosto elements
+
 # 2.4.1
-# Fix: Fixed the issue where analytics totals data was tracked worngly in Nosto Dashboard 
-# Fix: Fixed an issue which caused Nosto crawler to discontinue products sporadically 
+* Fix: Fixed the issue where analytics totals data was tracked worngly in Nosto Dashboard 
+* Fix: Fixed an issue which caused Nosto crawler to discontinue products sporadically 
 
 # 2.4.0
-# Feature: Added feature support for "Hide Products After Clearance"
-# Fix: Fixed issue where products were in stock on-site but OOS in Nosto
+* Feature: Added feature support for "Hide Products After Clearance"
+* Fix: Fixed issue where products were in stock on-site but OOS in Nosto
 
 # 2.3.1
 
