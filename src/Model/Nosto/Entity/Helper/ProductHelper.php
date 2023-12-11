@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -118,14 +119,26 @@ class ProductHelper
         array $productIds,
         SalesChannelContext $context,
     ): ProductCollection {
+        $salesChannelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
-        if (!$this->configProvider->isEnabledSyncInactiveProducts(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        )) {
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+        if (count($categoryBlocklist)) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
         return $this->productRepository->search($criteria, $context)->getEntities();
     }

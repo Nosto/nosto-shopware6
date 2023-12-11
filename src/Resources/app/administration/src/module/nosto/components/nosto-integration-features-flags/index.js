@@ -33,12 +33,6 @@ Component.register('nosto-integration-features-flags', {
         };
     },
 
-    watch: {
-        configKey() {
-            this.createCategoryCollection();
-        },
-    },
-
     computed: {
         categoryRepository() {
             return this.repositoryFactory.create('category');
@@ -118,6 +112,12 @@ Component.register('nosto-integration-features-flags', {
         },
     },
 
+    watch: {
+        configKey() {
+            this.createCategoryCollection();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -168,15 +168,23 @@ Component.register('nosto-integration-features-flags', {
 
         onCategoryAdd(item) {
             if (this.actualConfigData.categoryBlocklist) {
-                this.actualConfigData.categoryBlocklist = [...this.actualConfigData.categoryBlocklist, item.id];
+                this.$set(
+                    this.actualConfigData,
+                    'categoryBlocklist',
+                    [...this.actualConfigData.categoryBlocklist, item.id],
+                );
             } else {
-                this.actualConfigData.categoryBlocklist = [item.id];
+                this.$set(this.actualConfigData, 'categoryBlocklist', [item.id]);
             }
         },
 
         onCategoryRemove(item) {
-            this.actualConfigData.categoryBlocklist = this.actualConfigData.categoryBlocklist.filter(
-                categoryId => categoryId !== item.id,
+            this.$set(
+                this.actualConfigData,
+                'categoryBlocklist',
+                this.actualConfigData.categoryBlocklist.filter(
+                    categoryId => categoryId !== item.id,
+                ),
             );
         },
     },
