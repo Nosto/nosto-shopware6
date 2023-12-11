@@ -119,6 +119,29 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_category_blocklist %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['categoryBlocklist']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['categoryBlocklist']"
+                :label="$tc('nosto.configuration.featuresFlags.categoryBlocklist')"
+                :help-text="$tc('nosto.configuration.featuresFlags.categoryBlocklistHelpText')"
+            >
+                <template #content="props">
+                    <sw-category-tree-field
+                        name="categoryBlocklist"
+                        :categories-collection="categoryCollection"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        :placeholder="$tc('nosto.configuration.featuresFlags.categoryBlocklistPlaceholder')"
+                        show-clearable-button
+                        @selection-add="onCategoryAdd"
+                        @selection-remove="onCategoryRemove"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper
                 v-model="actualConfigData['variations']"

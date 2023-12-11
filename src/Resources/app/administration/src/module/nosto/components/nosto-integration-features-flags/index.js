@@ -1,10 +1,13 @@
 import template from './nosto-integration-features-flags.html.twig';
 
 const { Component } = Shopware;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /** @private */
 Component.register('nosto-integration-features-flags', {
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         actualConfigData: {
@@ -26,10 +29,29 @@ Component.register('nosto-integration-features-flags', {
         return {
             isLoading: false,
             propertyGroups: [],
+            categoryCollection: [],
         };
     },
 
+    watch: {
+        configKey() {
+            this.createCategoryCollection();
+        },
+    },
+
     computed: {
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
+        selectedCategories() {
+            return this.actualConfigData.categoryBlocklist || this.allConfigs.null.categoryBlocklist;
+        },
+        selectedCategoriesCriteria() {
+            const criteria = new Criteria(null, null);
+            criteria.addFilter(Criteria.equalsAny('id', this.selectedCategories));
+
+            return criteria;
+        },
         createProductIdentifierOptions() {
             return [
                 {
@@ -110,6 +132,7 @@ Component.register('nosto-integration-features-flags', {
                 ratingsReviews: 'shopware-ratings',
                 crossSellingSync: 'no-sync',
                 categoryNaming: 'no-id',
+                categoryBlocklist: [],
                 inventory: false,
                 customerDataToNosto: true,
                 syncInactiveProducts: false,
@@ -129,6 +152,32 @@ Component.register('nosto-integration-features-flags', {
                     this.$set(this.allConfigs.null, key, defaultValue);
                 }
             });
+
+            this.createCategoryCollection();
+        },
+
+        async createCategoryCollection() {
+            this.categoryCollection = this.selectedCategories?.length
+                ? await this.categoryRepository.search(this.selectedCategoriesCriteria, Shopware.Context.api)
+                : new EntityCollection(
+                    this.categoryRepository.route,
+                    this.categoryRepository.entityName,
+                    Shopware.Context.api,
+                );
+        },
+
+        onCategoryAdd(item) {
+            if (this.actualConfigData.categoryBlocklist) {
+                this.actualConfigData.categoryBlocklist = [...this.actualConfigData.categoryBlocklist, item.id];
+            } else {
+                this.actualConfigData.categoryBlocklist = [item.id];
+            }
+        },
+
+        onCategoryRemove(item) {
+            this.actualConfigData.categoryBlocklist = this.actualConfigData.categoryBlocklist.filter(
+                categoryId => categoryId !== item.id,
+            );
         },
     },
 });

@@ -137,6 +137,12 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
     }
 
+    public function getCategoryBlocklist($channelId = null, $languageId = null): array
+    {
+        $value = $this->configService->get(NostoConfigService::CATEGORY_BLOCKLIST, $channelId, $languageId);
+        return is_array($value) ? $value : [];
+    }
+
     public function isEnabledVariations($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_VARIATIONS, $channelId, $languageId);
