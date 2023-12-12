@@ -63,6 +63,8 @@ class NostoConfigService
 
     public const CATEGORY_NAMING_FIELD = 'categoryNaming';
 
+    public const CATEGORY_BLOCKLIST = 'categoryBlocklist';
+
     public const ENABLE_VARIATIONS = 'variations';
 
     public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';

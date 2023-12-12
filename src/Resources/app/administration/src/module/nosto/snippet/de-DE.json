@@ -114,7 +114,10 @@
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
-                "categoryNaming": "Produktkategorienamen"
+                "categoryNaming": "Produktkategorienamen",
+                "categoryBlocklist": "Kategorie Blacklist",
+                "categoryBlocklistHelpText": "Produkte in mindestens einer dieser ausgewählten Kategorien werden vom Export ausgeschlossen",
+                "categoryBlocklistPlaceholder": "Kategorie auswählen:"
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation Einstellungen",

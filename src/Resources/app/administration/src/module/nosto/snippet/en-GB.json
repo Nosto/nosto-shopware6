@@ -114,7 +114,10 @@
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "categoryNamingHelpText": "Product category names will contain the category ID or not",
-                "categoryNaming": "Product Category Names"
+                "categoryNaming": "Product Category Names",
+                "categoryBlocklist": "Category Blacklist",
+                "categoryBlocklistHelpText": "Products in at least one selected category are excluded from the export",
+                "categoryBlocklistPlaceholder": "Select category:"
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation settings",
