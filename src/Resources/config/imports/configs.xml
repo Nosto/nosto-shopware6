@@ -28,5 +28,15 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\ConfigProvider" autowire="true" />
+
+        <service
+            id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer"
+            decorates="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer"
+        >
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="validator"/>
+
+            <tag name="shopware.field_serializer"/>
+        </service>
     </services>
 </container>

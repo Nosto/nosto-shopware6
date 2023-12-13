@@ -9,5 +9,13 @@
                 "emptyLabel": "Nicht konfiguriert"
             }
         }
+    },
+    "sw-product": {
+        "variations": {
+            "deliveryModal": {
+                "listingLabelModeDisplayCheapestVariant": "Günstigste Variante",
+                "listingLabelModeDisplayCheapestVariantHelpText": "Hinzugefügt vom Nosto Plugin"
+            }
+        }
     }
 }
