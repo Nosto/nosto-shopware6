@@ -142,6 +142,29 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_main_variant %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['mainVariant']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['mainVariant']"
+                :label="$tc('nosto.configuration.featuresFlags.mainVariant')"
+                :help-text="$tc('nosto.configuration.featuresFlags.mainVariantHelpText')"
+            >
+                <template #content="props">
+                    <sw-single-select
+                        name="mainVariant"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="mainVariantOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper
                 v-model="actualConfigData['variations']"

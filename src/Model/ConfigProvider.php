@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model;
 
+use Nosto\NostoIntegration\Enums\MainVariant;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 
 class ConfigProvider
@@ -141,6 +142,13 @@ class ConfigProvider
     {
         $value = $this->configService->get(NostoConfigService::CATEGORY_BLOCKLIST, $channelId, $languageId);
         return is_array($value) ? $value : [];
+    }
+
+    public function getMainVariant($channelId = null, $languageId = null): MainVariant
+    {
+        $value = $this->configService->get(NostoConfigService::MAIN_VARIANT, $channelId, $languageId);
+
+        return MainVariant::tryFrom($value) ?? MainVariant::SHOPWARE_DEFAULT;
     }
 
     public function isEnabledVariations($channelId = null, $languageId = null): bool

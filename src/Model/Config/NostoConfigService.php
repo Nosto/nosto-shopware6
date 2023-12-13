@@ -65,6 +65,8 @@ class NostoConfigService
 
     public const CATEGORY_BLOCKLIST = 'categoryBlocklist';
 
+    public const MAIN_VARIANT = 'mainVariant';
+
     public const ENABLE_VARIATIONS = 'variations';
 
     public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';

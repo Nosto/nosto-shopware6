@@ -110,6 +110,22 @@ Component.register('nosto-integration-features-flags', {
                 },
             ];
         },
+        mainVariantOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.mainVariantOptions.default'),
+                    value: 'default',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.mainVariantOptions.parent'),
+                    value: 'parent',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.mainVariantOptions.cheapest'),
+                    value: 'cheapest',
+                },
+            ];
+        },
     },
 
     watch: {
@@ -132,6 +148,7 @@ Component.register('nosto-integration-features-flags', {
                 ratingsReviews: 'shopware-ratings',
                 crossSellingSync: 'no-sync',
                 categoryNaming: 'no-id',
+                mainVariant: 'default',
                 categoryBlocklist: [],
                 inventory: false,
                 customerDataToNosto: true,
