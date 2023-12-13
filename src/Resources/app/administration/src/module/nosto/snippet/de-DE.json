@@ -83,11 +83,6 @@
                     "nameWithoutId": "Kategoriename ohne ID",
                     "nameWithId": "Kategoriename mit ID"
                 },
-                "mainVariantOptions": {
-                    "default": "Shopware Standard",
-                    "parent": "Haupt-/Eltern Produkt",
-                    "cheapest": "Günstigste Variante"
-                },
                 "crossSellingSync": "Cross-Selling-Synchronisierung",
                 "crossSellingSyncHelpText": "Produkt-Cross-Selling-Synchronisierungsoptionen",
                 "enableVariations": "Variationen aktivieren",
@@ -122,9 +117,7 @@
                 "categoryNaming": "Produktkategorienamen",
                 "categoryBlocklist": "Kategorie Blacklist",
                 "categoryBlocklistHelpText": "Produkte in mindestens einer dieser ausgewählten Kategorien werden vom Export ausgeschlossen",
-                "categoryBlocklistPlaceholder": "Kategorie auswählen:",
-                "mainVariant": "Exportierte Hauptvariante",
-                "mainVariantHelpText": "Wählen um die Variante, die auf Listing-Seiten angezeigt wird, zu ändern"
+                "categoryBlocklistPlaceholder": "Kategorie auswählen:"
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation Einstellungen",
