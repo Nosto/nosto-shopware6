@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig as OriginalVariantListingConfig;

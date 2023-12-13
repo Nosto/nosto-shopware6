@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Generator;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
-use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig as OriginalVariantListingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer as OriginalVariantListingConfigFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -14,8 +15,12 @@ use Shopware\Core\Framework\Util\Json;
 
 class VariantListingConfigFieldSerializer extends OriginalVariantListingConfigFieldSerializer
 {
-    public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): Generator
-    {
+    public function encode(
+        Field $field,
+        EntityExistence $existence,
+        KeyValuePair $data,
+        WriteParameterBag $parameters,
+    ): Generator {
         foreach (parent::encode($field, $existence, $data, $parameters) as $key => $value) {
             $decodedValue = json_decode($value, true);
 
@@ -32,7 +37,6 @@ class VariantListingConfigFieldSerializer extends OriginalVariantListingConfigFi
 
     public function decode(Field $field, mixed $value): ?VariantListingConfig
     {
-        /** @var  $variantListingConfig */
         $variantListingConfig = parent::decode($field, $value);
 
         if ($value === null) {
