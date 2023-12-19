@@ -76,6 +76,7 @@
         </service>
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument type="service" id="sales_channel.product.repository"/>
@@ -84,9 +85,9 @@
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder">
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>

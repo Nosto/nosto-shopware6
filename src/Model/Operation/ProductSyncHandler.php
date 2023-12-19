@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Model\Operation;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
@@ -170,7 +171,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
         $dynamicGroupCategoryIds = $this->getCategoryIdsByDynamicGroups($context);
 
-        $hideProductsAfterClearance = $this->systemConfigService->get(
+        $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $channelId,
         );
@@ -202,32 +203,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 }
             }
 
+            // TODO: up to 2MB payload!
             $nostoProducts = [];
-
-            // TODO: up to 2MB payload !
-            if ($product->getChildCount() && $product->getVariantListingConfig()?->getDisplayParent() === null) {
-                $nostoProducts = $this->resolveVariantProducts($product, $context);
-                $this->doDeleteOperation($account, $context, [$product->getId()], $ids);
-            } elseif ($product->getChildCount() && $product->getVariantListingConfig()?->getDisplayParent() !== null) {
-                $idsToDelete = [];
-
-                foreach ($product->getChildren() as $prod) {
-                    $idsToDelete[] = $prod->getId();
-                }
-
-                $nostoProducts[] = $this->productProvider->get($product, $context);
-                $this->doDeleteOperation($account, $context, $idsToDelete, $ids);
-            } else {
-                $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
-                    ? $product->getStock()
-                    : $product->getAvailableStock();
-
-                if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
-                    $this->doDeleteOperation($account, $context, [$product->getId()], $ids);
-                    continue;
-                }
-
-                $nostoProducts[] = $this->productProvider->get($product, $context);
+            foreach ($this->processProductVariants($product, $context) as $handledProduct) {
+                $nostoProducts[] = $this->handleProduct(
+                    $handledProduct,
+                    $context,
+                    $account,
+                    $hideProductsAfterClearance,
+                    $ids,
+                );
             }
 
             foreach ($nostoProducts as $preparedProductForSync) {
@@ -249,6 +234,147 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
+    private function processProductVariants(SalesChannelProductEntity $product, SalesChannelContext $context): array
+    {
+        $variantConfig = $product->getVariantListingConfig();
+        $configuratorGroups = array_filter(
+            $variantConfig?->getConfiguratorGroupConfig() ?? [],
+            static fn (array $config) => $config['expressionForListings'],
+        );
+
+        if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
+            return [$product];
+        }
+
+        $mainProducts = [];
+        if ($variantConfig->getDisplayCheapestVariant()) {
+            $mainProducts[] = $this->handleCheapestVariant($product, $context);
+        } elseif ($variantConfig->getMainVariantId()) {
+            $mainProducts[] = $this->handleMainVariant($product, $variantConfig);
+        } elseif (count($configuratorGroups)) {
+            $mainProducts = array_merge(
+                $mainProducts,
+                $this->handleConfiguratorGroups($product),
+            );
+        }
+
+        return count($mainProducts) ? $mainProducts : [$product];
+    }
+
+    private function handleCheapestVariant(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): ProductEntity {
+        $cheapestVariant = $product;
+        $lowestPrice = null;
+
+        foreach ($product->getChildren() as $child) {
+            $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
+
+            if (is_null($lowestPrice) || $variantPrice < $lowestPrice) {
+                $lowestPrice = $variantPrice;
+                $cheapestVariant = $child;
+            }
+        }
+
+        $cheapestVariant->setChildren(
+            $product->getChildren()->filter(
+                static fn (ProductEntity $child) => $child->getId() !== $cheapestVariant->getId(),
+            ),
+        );
+
+        return $cheapestVariant;
+    }
+
+    private function handleMainVariant(
+        SalesChannelProductEntity $product,
+        VariantListingConfig $variantConfig,
+    ): ProductEntity {
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
+        foreach ($product->getChildren() as $child) {
+            if ($child->getId() === $variantConfig->getMainVariantId()) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
+            }
+        }
+
+        if (!$mainProduct) {
+            return $product;
+        }
+
+        $mainProduct->setChildren($variants);
+
+        return $mainProduct;
+    }
+
+    private function handleConfiguratorGroups(SalesChannelProductEntity $product): array
+    {
+        $groupedVariants = [];
+        foreach ($product->getChildren() as $child) {
+            $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
+        }
+
+        $mainProducts = [];
+        foreach ($groupedVariants as $variants) {
+            /** @var SalesChannelProductEntity $mainProduct */
+            $mainProduct = array_shift($variants);
+            $mainProduct->setChildren(
+                new ProductCollection(array_values($variants)),
+            );
+            $mainProducts[] = $mainProduct;
+        }
+
+        return $mainProducts;
+    }
+
+    private function handleProduct(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+        Account $account,
+        bool $hideProductsAfterClearance,
+        array $mapping,
+    ): ?NostoProduct {
+        $stock = $this->configProvider->getStockField(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === 'actual-stock'
+            ? $product->getStock()
+            : $product->getAvailableStock();
+
+        if ($product->getChildren()?->count()) {
+            $this->deleteVariantProducts($product, $context, $account, $mapping);
+        }
+
+        if ($product->getParentId()) {
+            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
+        }
+
+        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
+            return null;
+        }
+
+        return $this->productProvider->get($product, $context);
+    }
+
+    private function deleteVariantProducts(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+        Account $account,
+        array $mapping,
+    ): void {
+        $idsToDelete = [];
+
+        foreach ($product->getChildren() as $prod) {
+            $idsToDelete[] = $prod->getId();
+        }
+
+        $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
+    }
+
     private function resolveVariantProducts(SalesChannelProductEntity $product, $context): array
     {
         $result = [];
@@ -265,7 +391,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function getVariantImage($variantOption)
     {
         foreach ($variantOption->getMedia()->getElements() as $mediaElement) {
-            return $mediaElement->getMedia()->getUrl();
+            return 'https://via.placeholder.com/800';
         }
 
         return null;
