@@ -391,7 +391,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function getVariantImage($variantOption)
     {
         foreach ($variantOption->getMedia()->getElements() as $mediaElement) {
-            return 'https://via.placeholder.com/800';
+            return $mediaElement->getMedia()->getUrl();
         }
 
         return null;
