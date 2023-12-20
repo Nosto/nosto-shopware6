@@ -175,7 +175,7 @@ class ProductHelper
             $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
                 'productId' => $product->getId(),
             ]);
-            return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
+            return $this->seoUrlReplacer->replace($raw, $domain?->getUrl() ?? '', $context);
         }
 
         return null;
