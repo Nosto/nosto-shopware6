@@ -18,7 +18,7 @@ jobs:
           path: nosto-shopware6
 
       - name: Setup
-        uses: ./.github/actions/setup_plugin
+        uses: ./nosto-shopware6/.github/action/setup_plugin
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
