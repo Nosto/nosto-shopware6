@@ -42,6 +42,9 @@ jobs:
         with:
           shopware-version: ${{ matrix.shopware-versions }}
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run PHPUnit test suite
         run: |
           cd shopware/custom/plugins/nosto-shopware6
