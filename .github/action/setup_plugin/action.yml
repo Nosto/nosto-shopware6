@@ -8,10 +8,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v2
-      with:
-        path: nosto-shopware6
-
     - name: Clone job scheduler repo
       uses: actions/checkout@v2
       with:
