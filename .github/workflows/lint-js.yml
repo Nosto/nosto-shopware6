@@ -11,31 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    uses: ./.github/workflows/shared-setup.yml
+
     name: ESLint
     steps:
-      - uses: actions/checkout@v2
-        with:
-          path: nosto-shopware6
-
-      - name: Clone job scheduler repo
-        uses: actions/checkout@v2
-        with:
-          repository: Nosto/shopware6-job-scheduler
-          path: nosto-shopware6/dependencies/shopware6-job-scheduler
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Setup PHP with Composer 2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          extensions: dom, gd, mbstring, pdo_mysql, zip
-          coverage: xdebug
-          tools: composer:v2
-
-      - name: Validate dependencies
-        working-directory: nosto-shopware6
-        run: composer validate
-
       - name: Install plugin dependencies
         working-directory: nosto-shopware6
         run: |
