@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: plugin-shopware-6
+          path: nosto-shopware6
 
       - name: Setup Runner
         uses: ./nosto-shopware6/.github/action/setup_runner
