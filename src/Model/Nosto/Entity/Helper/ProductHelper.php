@@ -9,8 +9,10 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingC
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -41,6 +43,8 @@ class ProductHelper
 
     private EntityRepository $pureProductRepository;
 
+    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
+
     public function __construct(
         SalesChannelRepository $productRepository,
         EntityRepository $pureProductRepository,
@@ -48,6 +52,7 @@ class ProductHelper
         EntityRepository $reviewRepository,
         EventDispatcherInterface $eventDispatcher,
         ConfigProvider $configProvider,
+        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
     ) {
         $this->productRepository = $productRepository;
         $this->productRoute = $productRoute;
@@ -55,6 +60,7 @@ class ProductHelper
         $this->eventDispatcher = $eventDispatcher;
         $this->configProvider = $configProvider;
         $this->pureProductRepository = $pureProductRepository;
+        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
@@ -85,9 +91,11 @@ class ProductHelper
     {
         $criteria = new Criteria();
         $criteria->addAssociation('media');
+        $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('properties.group');
         $criteria->addAssociation('children.media');
+        $criteria->addAssociation('children.cover');
         $criteria->addAssociation('children.options.group');
         $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
@@ -154,5 +162,22 @@ class ProductHelper
             }
         }
         return $orderNumberMapping;
+    }
+
+    public function getProductUrl(ProductEntity $product, SalesChannelContext $context): ?string
+    {
+        if ($domains = $context->getSalesChannel()->getDomains()) {
+            $domainId = (string) $this->configProvider->getDomainId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
+            $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
+                'productId' => $product->getId(),
+            ]);
+            return $this->seoUrlReplacer->replace($raw, $domain?->getUrl() ?? '', $context);
+        }
+
+        return null;
     }
 }

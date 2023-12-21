@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -13,11 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SkuBuilder implements SkuBuilderInterface
 {
-    private ConfigProvider $configProvider;
-
-    public function __construct(ConfigProvider $configProvider)
-    {
-        $this->configProvider = $configProvider;
+    public function __construct(
+        private readonly ConfigProvider $configProvider,
+        private readonly ProductHelper $productHelper,
+    ) {
     }
 
     public function build(ProductEntity $product, SalesChannelContext $context): NostoSku
@@ -25,6 +25,11 @@ class SkuBuilder implements SkuBuilderInterface
         $nostoSku = new NostoSku();
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
+
+        $url = $this->productHelper->getProductUrl($product, $context);
+        if (!empty($url)) {
+            $nostoSku->setUrl($url);
+        }
 
         $nostoSku->setId(
             $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
