@@ -1,5 +1,5 @@
 name: 'Setup shop'
-description: 'A set of steps to perform a task'
+description: 'Install the Shopware shop with plugin'
 inputs:
   shopware-version:
     description: 'Version for the Shopware installation'

@@ -1,5 +1,5 @@
 name: 'Setup runner'
-description: 'A set of steps to perform a task'
+description: 'Setup PHP and MySQL'
 inputs:
   php-version:
     description: 'PHP version for PHP setup'

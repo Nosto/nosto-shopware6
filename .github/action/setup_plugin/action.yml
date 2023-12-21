@@ -1,5 +1,5 @@
 name: 'Setup plugin'
-description: 'A set of steps to perform a task'
+description: 'Install and validate plugin dependencies'
 inputs:
   ssh-key:
     description: 'SSH Key'

@@ -7,13 +7,10 @@ namespace Nosto\NostoIntegration\Tests;
 use Nosto\NostoIntegration\NostoIntegration;
 use Nosto\NostoIntegration\Utils\MigrationHelper;
 use Nosto\Scheduler\NostoScheduler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-
-echo "Test autoloaded\n";
 
 class NostoIntegrationTest extends TestCase
 {
