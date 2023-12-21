@@ -1,4 +1,4 @@
-name: 'Setup runner'
+name: 'Setup shop'
 description: 'A set of steps to perform a task'
 inputs:
   shopware-version:
