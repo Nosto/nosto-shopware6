@@ -43,5 +43,6 @@ jobs:
       - name: Run ESLint
         working-directory: nosto-shopware6
         run: |
+          cd shopware/custom/plugins/nosto-shopware6
           npm run administration-lint
           npm run storefront-lint
