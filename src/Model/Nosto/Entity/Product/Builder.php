@@ -23,7 +23,6 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,48 +33,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
 {
-    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
-
-    private ConfigProvider $configProvider;
-
-    private ProductHelper $productHelper;
-
-    private SkuBuilderInterface $skuBuilder;
-
-    private TreeBuilderInterface $treeBuilder;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private NetPriceCalculator $calculator;
-
-    private CashRounding $priceRounding;
-
-    private CrossSellingBuilderInterface $crossSellingBuilder;
-
-    private EntityRepository $tagRepository;
-
     public function __construct(
-        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
-        ConfigProvider $configProvider,
-        ProductHelper $productHelper,
-        NetPriceCalculator $calculator,
-        CashRounding $priceRounding,
-        SkuBuilderInterface $skuBuilder,
-        TreeBuilderInterface $treeBuilder,
-        EventDispatcherInterface $eventDispatcher,
-        CrossSellingBuilderInterface $crossSellingBuilder,
-        EntityRepository $tagRepository,
+        private readonly ConfigProvider $configProvider,
+        private readonly ProductHelper $productHelper,
+        private readonly NetPriceCalculator $calculator,
+        private readonly CashRounding $priceRounding,
+        private readonly SkuBuilderInterface $skuBuilder,
+        private readonly TreeBuilderInterface $treeBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CrossSellingBuilderInterface $crossSellingBuilder,
+        private readonly EntityRepository $tagRepository,
     ) {
-        $this->seoUrlReplacer = $seoUrlReplacer;
-        $this->configProvider = $configProvider;
-        $this->productHelper = $productHelper;
-        $this->skuBuilder = $skuBuilder;
-        $this->treeBuilder = $treeBuilder;
-        $this->calculator = $calculator;
-        $this->priceRounding = $priceRounding;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->crossSellingBuilder = $crossSellingBuilder;
-        $this->tagRepository = $tagRepository;
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
@@ -88,7 +56,7 @@ class Builder implements BuilderInterface
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
         }
 
-        $url = $this->getProductUrl($product, $context);
+        $url = $this->productHelper->getProductUrl($product, $context);
         if (!empty($url)) {
             $nostoProduct->setUrl($url);
         }
@@ -137,7 +105,7 @@ class Builder implements BuilderInterface
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
-        if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildCount() !== 0) {
+        if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildren()->count()) {
             $skuCollection = new SkuCollection();
 
             if ($product->getChildren()) {
@@ -289,23 +257,6 @@ class Builder implements BuilderInterface
 
         $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
         $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
-    }
-
-    private function getProductUrl(ProductEntity $product, SalesChannelContext $context): ?string
-    {
-        if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = (string) $this->configProvider->getDomainId(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
-            $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
-                'productId' => $product->getId(),
-            ]);
-            return $this->seoUrlReplacer->replace($raw, $domain != null ? $domain->getUrl() : '', $context);
-        }
-
-        return null;
     }
 
     private function initTags(
