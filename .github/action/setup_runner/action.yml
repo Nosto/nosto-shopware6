@@ -5,10 +5,6 @@ inputs:
     description: 'PHP version for PHP setup'
     required: true
     default: 8.1
-  mysql-version:
-    description: 'PHP version for PHP setup'
-    required: true
-    default: 8.0
 
 runs:
   using: 'composite'
@@ -16,7 +12,7 @@ runs:
     - name: Setup PHP with Composer 2
       uses: shivammathur/setup-php@v2
       with:
-        php-version: inputs.php-version
+        php-version: ${{ inputs.php-version }}"
         extensions: dom, gd, mbstring, pdo_mysql, zip
         coverage: xdebug
         tools: composer:v2
