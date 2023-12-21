@@ -21,7 +21,8 @@ runs:
     - name: Install Shopware
       shell: bash
       run: |
-        cp nosto-shopware6/.github/.env.local shopware
+        cp nosto-shopware6/.github/.env.local shopware/.env.local
+        cp nosto-shopware6/.github/.env.local shopware/.env.test
         cd shopware
         ./bin/console system:install --basic-setup
 

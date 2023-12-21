@@ -42,8 +42,10 @@ jobs:
         with:
           shopware-version: ${{ matrix.shopware-versions }}
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      - name: Install test dependencies for SW
+        run: |
+          cd shopware
+          composer require --dev symfony/test-pack
 
       - name: Run PHPUnit test suite
         run: |
