@@ -11,13 +11,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    uses: ./.github/workflows/shared-setup.yml
-
     name: PHPLint
     steps:
-      - name: Install plugin dependencies
-        working-directory: nosto-shopware6
-        run: composer install --no-interaction
+      - name: Setup
+        uses: ./.github/actions/setup_plugin
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Run PHPLint
         working-directory: nosto-shopware6
