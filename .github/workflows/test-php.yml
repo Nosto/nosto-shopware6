@@ -21,7 +21,7 @@ jobs:
           '6.5.7.3',
         ]
 
-    name: Shopware ${{ matrix.shopware-versions }} Test (PHP ${{ matrix.php-versions }} + JS)
+    name: Shopware ${{ matrix.shopware-versions }} Test (PHP ${{ matrix.php-versions }})
     steps:
       - uses: actions/checkout@v2
         with:
