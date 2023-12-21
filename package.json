@@ -3,7 +3,6 @@
     "eslint": "^8.56.0"
   },
   "scripts": {
-    "install-sw-dependencies": "npm install --prefix vendor/shopware/administration/Resources/app/administration && npm install --prefix vendor/shopware/storefront/Resources/app/storefront",
     "administration-lint": "./bin/administration-lint.sh",
     "administration-fix": "./bin/administration-lint.sh --fix",
     "storefront-lint": "./bin/storefront-lint.sh",

@@ -1,0 +1,30 @@
+name: 'Setup runner'
+description: 'A set of steps to perform a task'
+inputs:
+  shopware-version:
+    description: 'Version for the Shopware installation'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Shopware-CLI
+      run: |
+        curl -1sLf "https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh" | sudo -E bash
+        sudo apt install shopware-cli
+
+    - name: Create shop
+      run: shopware-cli project create shopware ${{ inputs.shopware-version }}
+
+    - name: Install Shopware
+      run: |
+        cp nosto-shopware6/.github/.env.local shopware
+        cd shopware
+        ./bin/console system:install --basic-setup
+
+    - name: Install plugin
+      run: |
+        mv nosto-shopware6 shopware/custom/plugins
+        cd shopware
+        php bin/console plugin:refresh
+        php bin/console plugin:install --activate --clearCache NostoIntegration

@@ -17,14 +17,25 @@ jobs:
         with:
           path: nosto-shopware6
 
-      - name: Setup
+      - name: Setup Plugin
         uses: ./nosto-shopware6/.github/action/setup_plugin
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install Shopware dependencies
-        working-directory: nosto-shopware6
-        run: npm run install-sw-dependencies
+      - name: Setup Shopware Shop
+        uses: ./nosto-shopware6/.github/action/setup_shop
+        with:
+          shopware-version: '6.5.7.3'
+
+      - name: Install administration dependencies
+        run: |
+          cd shopware/vendor/shopware/administration/Resources/app/administration
+          npm i
+
+      - name: Install storefront dependencies
+        run: |
+          cd shopware/vendor/shopware/storefront/Resources/app/storefront
+          npm i
 
       - name: Run ESLint
         working-directory: nosto-shopware6
