@@ -6,7 +6,7 @@ module.exports = {
         noUiSlider: true
     },
     extends: [
-        './vendor/shopware/storefront/Resources/app/storefront/.eslintrc.js',
+        '../../../vendor/shopware/storefront/Resources/app/storefront/.eslintrc.js',
     ],
     parserOptions: {
         requireConfigFile: false,
