@@ -25,10 +25,12 @@ runs:
 
     - name: Validate dependencies
       working-directory: nosto-shopware6
+      shell: bash
       run: composer validate
 
     - name: Install plugin dependencies
       working-directory: nosto-shopware6
+      shell: bash
       run: |
         npm ci
         composer install --no-interaction
