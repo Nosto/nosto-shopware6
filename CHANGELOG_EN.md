@@ -1,3 +1,7 @@
+# 2.4.3
+* Fix: Fixed an issue where newly added products ( to dynamic groups or manual ) were not shown at storefront.
+* Fix: Product manufacturer data that is sent to Nosto will now include a "brand-image-url" variable that can be used in Nosto templates if the image is available.
+
 # 2.4.2
 * Fix: Removed div class nosto-integration-block wrapping the nosto elements
 

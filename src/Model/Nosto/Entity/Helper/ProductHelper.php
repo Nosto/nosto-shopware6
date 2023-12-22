@@ -99,6 +99,7 @@ class ProductHelper
         $criteria->addAssociation('children.options.group');
         $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
         return $criteria;
     }

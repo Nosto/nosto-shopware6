@@ -21,21 +21,14 @@ use Nosto\Scheduler\Model\Job;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -45,46 +38,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-product-sync';
 
-    public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
-
-    private AbstractSalesChannelContextFactory $channelContextFactory;
-
-    private ProductProviderInterface $productProvider;
-
-    private Account\Provider $accountProvider;
-
-    private ConfigProvider $configProvider;
-
-    private AbstractRuleLoader $ruleLoader;
-
-    private ProductHelper $productHelper;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelRepository $categoryRepository;
-
-    private SystemConfigService $systemConfigService;
-
     public function __construct(
-        AbstractSalesChannelContextFactory $channelContextFactory,
-        ProductProviderInterface $productProvider,
-        Account\Provider $accountProvider,
-        ConfigProvider $configProvider,
-        AbstractRuleLoader $ruleLoader,
-        ProductHelper $productHelper,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepository $categoryRepository,
-        SystemConfigService $systemConfigService,
+        private readonly AbstractSalesChannelContextFactory $channelContextFactory,
+        private readonly ProductProviderInterface $productProvider,
+        private readonly Account\Provider $accountProvider,
+        private readonly ConfigProvider $configProvider,
+        private readonly AbstractRuleLoader $ruleLoader,
+        private readonly ProductHelper $productHelper,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
     ) {
-        $this->channelContextFactory = $channelContextFactory;
-        $this->productProvider = $productProvider;
-        $this->accountProvider = $accountProvider;
-        $this->configProvider = $configProvider;
-        $this->ruleLoader = $ruleLoader;
-        $this->productHelper = $productHelper;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->categoryRepository = $categoryRepository;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -105,6 +68,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
+
             foreach ($accountOperationResult->getMessages() as $error) {
                 $operationResult->addMessage($error);
             }
@@ -169,7 +133,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
-        $dynamicGroupCategoryIds = $this->getCategoryIdsByDynamicGroups($context);
 
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
@@ -178,31 +141,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         /** @var SalesChannelProductEntity $product */
         foreach ($productCollection as $product) {
-            // Preparing categories for dynamic group products
-            if (!empty($dynamicGroupCategoryIds) && $product->getStreamIds()) {
-                $allProductCategoryPaths = '';
-                $productCategoriesRo = $product->getCategoriesRo();
-
-                foreach ($product->getStreamIds() as $streamId) {
-                    if (array_key_exists($streamId, $dynamicGroupCategoryIds)) {
-                        $allProductCategoryPaths .= $dynamicGroupCategoryIds[$streamId];
-                    }
-                }
-
-                if ($productCategoriesRo && $productCategoriesRo->count()) {
-                    foreach ($productCategoriesRo as $category) {
-                        $allProductCategoryPaths .= '|' . $category->getId();
-                    }
-                }
-
-                /** @var CategoryCollection $productCategoriesCollection */
-                $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
-
-                if ($productCategoriesCollection->count() > 0) {
-                    $product->setCategoriesRo($productCategoriesCollection);
-                }
-            }
-
             // TODO: up to 2MB payload!
             $nostoProducts = [];
             foreach ($this->processProductVariants($product, $context) as $handledProduct) {
@@ -375,28 +313,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
     }
 
-    private function resolveVariantProducts(SalesChannelProductEntity $product, $context): array
-    {
-        $result = [];
-
-        foreach ($product->getChildren()->getElements() as $variantOption) {
-            $option = $this->productProvider->get($variantOption, $context);
-            $option->setImageUrl($this->getVariantImage($variantOption));
-            $result[] = $option;
-        }
-
-        return $result;
-    }
-
-    private function getVariantImage($variantOption)
-    {
-        foreach ($variantOption->getMedia()->getElements() as $mediaElement) {
-            return $mediaElement->getMedia()->getUrl();
-        }
-
-        return null;
-    }
-
     private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
     {
         $message = '';
@@ -476,40 +392,5 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
-    }
-
-    private function getCategoryIdsByDynamicGroups(SalesChannelContext $context): array
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter(self::PRODUCT_ASSIGNMENT_TYPE, CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
-        );
-
-        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
-        $result = [];
-
-        if ($categories->count() > 0) {
-            foreach ($categories as $category) {
-                if (!$category->getProductStreamId()) {
-                    continue;
-                }
-
-                $result[$category->getProductStreamId()] = $category->getPath() . $category->getId();
-            }
-        }
-
-        return $result;
-    }
-
-    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): EntityCollection
-    {
-        $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
-
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsAnyFilter('id', $categoriesPaths),
-        );
-
-        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 }

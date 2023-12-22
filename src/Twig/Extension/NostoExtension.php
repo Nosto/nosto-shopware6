@@ -60,6 +60,7 @@ class NostoExtension extends AbstractExtension
                 $throwable->getMessage(),
                 ContextHelper::createContextFromException($throwable),
             );
+
             return null;
         }
     }
@@ -84,7 +85,7 @@ class NostoExtension extends AbstractExtension
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
 
-        return $this-> salesChannelProductRepository
+        return $this->salesChannelProductRepository
             ->search($criteria, $context)
             ->first();
     }

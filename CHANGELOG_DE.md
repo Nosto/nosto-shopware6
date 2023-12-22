@@ -1,3 +1,7 @@
+# 2.4.3
+* Fix: Es wurde ein Problem behoben, bei dem neu hinzugefügte Produkte (zu dynamischen Gruppen oder manuell) nicht im Store angezeigt wurden.
+* Fix: Produktherstellerdaten, die an Nosto gesendet werden, enthalten jetzt eine Variable „brand-image-url", die in Nosto-Vorlagen verwendet werden kann, wenn das Bild verfügbar ist.
+
 # 2.4.2
 * Fix: Div-Klasse Nosto-Integration-Block entfernt, um die Nostoelemente zu wickeln
 

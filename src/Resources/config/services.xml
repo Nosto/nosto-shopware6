@@ -24,7 +24,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
@@ -97,6 +96,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder"/>
             <argument type="service" id="tag.repository"/>
+            <argument type="service" id="sales_channel.category.repository" />
         </service>
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>

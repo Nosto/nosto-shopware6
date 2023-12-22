@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Exception;
 use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
+use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
@@ -19,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -27,12 +30,17 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder implements BuilderInterface
 {
+    public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -43,9 +51,14 @@ class Builder implements BuilderInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CrossSellingBuilderInterface $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
+        private SalesChannelRepository $categoryRepository,
     ) {
     }
 
+    /**
+     * @throws NostoException
+     * @throws Exception
+     */
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct
     {
         $nostoProduct = new NostoProduct();
@@ -55,6 +68,10 @@ class Builder implements BuilderInterface
         if ($product->getCategoriesRo() === null) {
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
         }
+
+        // Removes categories from products in which the product is included through manual addition,
+        // but a dynamic group of products is currently selected there
+        $this->makeActualProductCategories($product, $context);
 
         $url = $this->productHelper->getProductUrl($product, $context);
         if (!empty($url)) {
@@ -170,6 +187,9 @@ class Builder implements BuilderInterface
 
         if ($manufacturer = $product->getManufacturer()) {
             $nostoProduct->setBrand($manufacturer->getTranslation('name'));
+            if ($brandMediaUrl = $manufacturer->getMedia()?->getUrl()) {
+                $nostoProduct->addCustomField('brand-image-url', $brandMediaUrl);
+            }
         }
 
         if ($description = $product->getTranslation('description')) {
@@ -314,5 +334,100 @@ class Builder implements BuilderInterface
                 return $category->getId();
             }, $categoriesRo->getElements()),
         );
+    }
+
+    private function makeActualProductCategories(
+        ?SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): void {
+        $categories = $this->getCategoriesWithDynamicProductGroups($context);
+        $productCategoryRoIds = $product->getCategoriesRo()->getIds();
+        $dynamicGroupCategoryIds = $dynamicGroupCategoryPaths = [];
+
+        if ($categories->count() > 0) {
+            foreach ($categories as $category) {
+                if (!$category->getProductStreamId()) {
+                    continue;
+                }
+
+                $dynamicGroupCategoryIds[] = $category->getId();
+                $dynamicGroupCategoryPaths[$category->getProductStreamId()][] =
+                    $category->getPath() . $category->getId();
+            }
+        }
+
+        try {
+            // Clearing a product from categories associated with a dynamic group
+            if (!empty($productCategoryRoIds) && !empty($dynamicGroupCategoryIds)) {
+                foreach ($productCategoryRoIds as $productCategoryRoId) {
+                    if (in_array($productCategoryRoId, $dynamicGroupCategoryIds)) {
+                        $product->getCategoriesRo()->remove($productCategoryRoId);
+                    }
+                }
+            }
+
+            // Preparing categories for dynamic group products
+            $this->addCategoriesByDynamicGroupsAssigned($product, $context, $dynamicGroupCategoryPaths);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Cannot clear a product from categories associated with a dynamic group: ' . $e->getMessage(),
+            );
+        }
+    }
+
+    private function getCategoriesWithDynamicProductGroups(SalesChannelContext $context): CategoryCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter(
+                self::PRODUCT_ASSIGNMENT_TYPE,
+                CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+            ),
+        );
+
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function addCategoriesByDynamicGroupsAssigned(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+        array $dynamicGroupCategoryPaths,
+    ): void {
+        $productCategoriesRo = $product->getCategoriesRo();
+
+        // Preparing categories for dynamic group products
+        if (!empty($dynamicGroupCategoryPaths) && $product->getStreamIds()) {
+            $allProductCategoryPaths = '';
+
+            foreach ($product->getStreamIds() as $streamId) {
+                if (array_key_exists($streamId, $dynamicGroupCategoryPaths)) {
+                    $allProductCategoryPaths .= implode('|', $dynamicGroupCategoryPaths[$streamId]);
+                }
+            }
+
+            if ($productCategoriesRo && $productCategoriesRo->count()) {
+                foreach ($productCategoriesRo as $category) {
+                    $allProductCategoryPaths .= '|' . $category->getId();
+                }
+            }
+
+            $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
+
+            if ($productCategoriesCollection->count() > 0) {
+                $product->setCategoriesRo($productCategoriesCollection);
+            }
+        }
+    }
+
+    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): CategoryCollection
+    {
+        $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsAnyFilter('id', $categoriesPaths),
+        );
+
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 }
