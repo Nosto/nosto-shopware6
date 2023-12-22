@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Sku as NostoSku;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\Types\Product\ProductInterface;
@@ -32,7 +34,10 @@ class SkuBuilder implements SkuBuilderInterface
         }
 
         $nostoSku->setId(
-            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
+            $this->configProvider->getProductIdentifier(
+                $channelId,
+                $languageId,
+            ) === ProductIdentifierOptions::PRODUCT_NUMBER
                 ? $product->getProductNumber()
                 : $product->getId(),
         );
@@ -44,7 +49,7 @@ class SkuBuilder implements SkuBuilderInterface
             $nostoSku->setName($name);
         }
 
-        $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
+        $stock = $this->configProvider->getStockField($channelId, $languageId) === StockFieldOptions::ACTUAL_STOCK
             ? $product->getStock()
             : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;

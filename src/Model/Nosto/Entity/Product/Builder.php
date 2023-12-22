@@ -9,6 +9,10 @@ use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Product\SkuCollection;
 use Nosto\NostoException;
+use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Enums\RatingOptions;
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
@@ -80,7 +84,10 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setProductId(
-            $this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number'
+            $this->configProvider->getProductIdentifier(
+                $channelId,
+                $languageId,
+            ) === ProductIdentifierOptions::PRODUCT_NUMBER
                 ? $product->getProductNumber()
                 : $product->getId(),
         );
@@ -92,7 +99,7 @@ class Builder implements BuilderInterface
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-        $stock = $this->configProvider->getStockField($channelId, $languageId) === 'actual-stock'
+        $stock = $this->configProvider->getStockField($channelId, $languageId) === StockFieldOptions::ACTUAL_STOCK
             ? $product->getStock()
             : $product->getAvailableStock();
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
@@ -103,7 +110,10 @@ class Builder implements BuilderInterface
 
         $nostoProduct->setAvailability($stockStatus);
 
-        if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {
+        if ($this->configProvider->getCategoryNamingOption(
+            $channelId,
+            $languageId,
+        ) === CategoryNamingOptions::WITH_ID) {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
         } else {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
@@ -118,7 +128,8 @@ class Builder implements BuilderInterface
             $nostoProduct->setCategoryIds($categoryIds);
         }
 
-        if ($ratingAvg = $product->getRatingAverage()) {
+        $ratingAvg = $product->getRatingAverage();
+        if ($ratingAvg && $this->configProvider->getRatingReviews() === RatingOptions::SHOPWARE_RATINGS) {
             $nostoProduct->setRatingValue(round($ratingAvg, 1));
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }

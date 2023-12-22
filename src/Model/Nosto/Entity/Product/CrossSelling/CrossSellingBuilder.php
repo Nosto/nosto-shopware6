@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
 
+use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -76,7 +77,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-        if ($syncConfig === 'no-sync') {
+        if ($syncConfig === CrossSellingSyncOptions::NO_SYNC) {
             return new ProductCrossSellingCollection();
         }
         $criteria = new Criteria();
@@ -84,7 +85,7 @@ class CrossSellingBuilder implements CrossSellingBuilderInterface
             ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
-        if ($syncConfig === 'only-active-sync') {
+        if ($syncConfig === CrossSellingSyncOptions::ONLY_ACTIVE) {
             $criteria->addFilter(new EqualsFilter('active', 1));
         }
         return $this->crossSellingRepository

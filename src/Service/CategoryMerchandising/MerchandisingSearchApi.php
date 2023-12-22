@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Service\CategoryMerchandising;
 
 use Exception;
+use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\{FilterTranslatorAggregate, ResultTranslator};
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
@@ -117,7 +119,10 @@ class MerchandisingSearchApi extends SalesChannelRepository
             : new IncludeFilters();
 
         try {
-            if ($this->configProvider->getCategoryNamingOption($channelId, $languageId) === 'with-id') {
+            if ($this->configProvider->getCategoryNamingOption(
+                $channelId,
+                $languageId,
+            ) === CategoryNamingOptions::WITH_ID) {
                 $categoryName .= ' (ID = ' . $this->currentCategoryId . ')';
             }
 
@@ -142,7 +147,10 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 throw new Exception('There are no products from the Nosto.');
             }
 
-            if ($this->configProvider->getProductIdentifier($channelId, $languageId) === 'product-number') {
+            if ($this->configProvider->getProductIdentifier(
+                $channelId,
+                $languageId,
+            ) === ProductIdentifierOptions::PRODUCT_NUMBER) {
                 $result = $this->replaceSkusWithActualIds($result, $salesChannelContext);
             }
 
