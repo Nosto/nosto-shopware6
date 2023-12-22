@@ -1,6 +1,6 @@
 module.exports = {
     extends: [
-        './vendor/shopware/administration/Resources/app/administration/.eslintrc.js',
+        '../../../vendor/shopware/administration/Resources/app/administration/.eslintrc.js',
     ],
     parserOptions: {
         requireConfigFile: false,

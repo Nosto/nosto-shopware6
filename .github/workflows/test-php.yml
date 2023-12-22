@@ -1,0 +1,53 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: [ '8.1', '8.2' ]
+        shopware-versions: [
+          '6.5.4.1',
+          '6.5.5.2',
+          '6.5.6.1',
+          '6.5.7.3',
+        ]
+
+    name: Shopware ${{ matrix.shopware-versions }} Test (PHP ${{ matrix.php-versions }})
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: nosto-shopware6
+
+      - name: Setup Runner
+        uses: ./nosto-shopware6/.github/action/setup_runner
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Setup Plugin
+        uses: ./nosto-shopware6/.github/action/setup_plugin
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Setup Shopware Shop
+        uses: ./nosto-shopware6/.github/action/setup_shop
+        with:
+          shopware-version: ${{ matrix.shopware-versions }}
+
+      - name: Install test dependencies for SW
+        run: |
+          cd shopware
+          composer require --dev symfony/test-pack
+
+      - name: Run PHPUnit test suite
+        run: |
+          cd shopware/custom/plugins/nosto-shopware6
+          SYMFONY_DEPRECATIONS_HELPER=disabled composer test
