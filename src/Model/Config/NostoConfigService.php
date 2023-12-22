@@ -87,6 +87,10 @@ class NostoConfigService
 
     public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
 
+    public const OLD_JOB_CLEANUP_ENABLED = 'oldJobCleanup';
+
+    public const OLD_JOB_CLEANUP_PERIOD = 'oldJobCleanupPeriod';
+
     private array $configs = [];
 
     public function __construct(

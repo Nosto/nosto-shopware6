@@ -110,6 +110,23 @@ Component.register('nosto-integration-features-flags', {
                 },
             ];
         },
+        createOldJobCleanupPeriodOptions() {
+            const dayPeriods = [5, 10, 15, 20, 30, 60, 90];
+            const options = [];
+            const translationAfter = this.$tc('nosto.configuration.featuresFlags.oldJobCleanupPeriod.after');
+            const translationDays = this.$tc('nosto.configuration.featuresFlags.oldJobCleanupPeriod.days');
+
+            dayPeriods.forEach((period) => {
+                options.push(
+                    {
+                        label: `${translationAfter} ${period} ${translationDays}`,
+                        value: period,
+                    },
+                );
+            });
+
+            return options;
+        },
     },
 
     watch: {
@@ -130,6 +147,7 @@ Component.register('nosto-integration-features-flags', {
                 alternateImages: true,
                 productIdentifier: 'product-id',
                 ratingsReviews: 'shopware-ratings',
+                stockField: 'available-stock',
                 crossSellingSync: 'no-sync',
                 categoryNaming: 'no-id',
                 categoryBlocklist: [],
@@ -142,6 +160,8 @@ Component.register('nosto-integration-features-flags', {
                 notLoggedInCache: false,
                 dailySynchronizationTime: false,
                 domain: null,
+                oldJobCleanup: false,
+                oldJobCleanupPeriod: 5,
             };
 
             /**

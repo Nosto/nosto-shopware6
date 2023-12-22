@@ -217,4 +217,14 @@ class ConfigProvider
     {
         return $this->configService->get(NostoConfigService::DAILY_PRODUCT_SYNC_TIME, $channelId, $languageId);
     }
+
+    public function isOldJobCleanupEnabled($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(NostoConfigService::OLD_JOB_CLEANUP_ENABLED, $channelId, $languageId);
+    }
+
+    public function getOldJobCleanupPeriod($channelId = null, $languageId = null): ?string
+    {
+        return $this->configService->get(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
+    }
 }

@@ -1,3 +1,8 @@
+# 2.5.0
+* Neu: Konfigurationsoption auf der Plugin-Konfigurationsseite hinzugefügt, mit der nun in Tagen angegeben werden kann, wie lange alte verarbeitete geplante Jobs (im Nosto-Plugin geschulte Jobs) gespeichert werden sollen.
+* Fix: Ein Problem mit Varianten der Produktausgabe in Produktempfehlungen vs. Merchandising wurde behoben
+* Fix: Verbesserte Leistung des Synchronisierungsvorgangs für den vollständigen Katalog (Schaltfläche „Synchronisierung des vollständigen Katalogs“ auf der Nosto Grid-Seite im Adminpanel). Dies sollte das Problem für Kunden lösen, die große Mengen an Produkten auf ihrer Website haben und das Problem haben, dass „nicht alle Produkte im Nosto-Admin-Bereich angezeigt werden“.
+
 # 2.4.3
 * Fix: Es wurde ein Problem behoben, bei dem neu hinzugefügte Produkte (zu dynamischen Gruppen oder manuell) nicht im Store angezeigt wurden.
 * Fix: Produktherstellerdaten, die an Nosto gesendet werden, enthalten jetzt eine Variable „brand-image-url", die in Nosto-Vorlagen verwendet werden kann, wenn das Bild verfügbar ist.

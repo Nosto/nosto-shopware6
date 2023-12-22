@@ -90,16 +90,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $productIds = array_keys($ids);
         $result = new Job\JobResult();
-        $existentProductsCollection = $this->productHelper->loadProducts($productIds, $context);
-        $deletedProductIds = array_diff($productIds, $existentProductsCollection->getIds());
-        $existentParentProductIds = array_map(function (ProductEntity $product) {
-            return $product->getParentId() === null ? $product->getId() : $product->getParentId();
-        }, $existentProductsCollection->getElements());
+        $existingProductsIterator = $this->productHelper->getProductsIterator($productIds, $context);
+        $existentProducts = [];
+        while (($existingProducts = $existingProductsIterator->fetch()) !== null) {
+            foreach ($existingProducts->getElements() as $key => $product) {
+                $existentProducts[$key] = $product->getParentId() ?: $product->getId();
+            }
+        }
 
-        $products = $this->productHelper->loadExistingParentProducts($existentParentProductIds, $context);
+        $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
+
+        $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
 
         try {
-            if ($products->count() !== 0) {
+            while (($products = $parentProductIterator->fetch()) !== null) {
                 $this->doUpsertOperation($account, $context, $products->getEntities(), $result, $ids);
             }
 

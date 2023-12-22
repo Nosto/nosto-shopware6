@@ -8,18 +8,17 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -101,37 +100,52 @@ class ProductHelper
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
+
         return $criteria;
     }
 
     public function loadExistingParentProducts(
         array $existentParentProductIds,
         SalesChannelContext $context,
-    ): EntitySearchResult {
+    ): SalesChannelRepositoryIterator {
+        $salesChannelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
         $criteria = $this->getCommonCriteria();
+        $criteria->setLimit(100);
         $criteria->addAssociation('children.manufacturer');
+        $criteria->addAssociation('children.manufacturer.media');
         $criteria->addAssociation('children.categoriesRo');
 
-        if (!$this->configProvider->isEnabledSyncInactiveProducts(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        )) {
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+        if (count($categoryBlocklist)) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
         }
 
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
-        return $this->productRepository->search($criteria, $context);
+
+        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
     }
 
-    public function loadProducts(
+    public function getProductsIterator(
         array $productIds,
         SalesChannelContext $context,
-    ): ProductCollection {
+    ): SalesChannelRepositoryIterator {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
         $criteria = new Criteria();
+        $criteria->setLimit(100);
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
@@ -149,7 +163,8 @@ class ProductHelper
         }
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
-        return $this->productRepository->search($criteria, $context)->getEntities();
+
+        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
     }
 
     public function loadOrderNumberMapping(array $ids, Context $context): array
@@ -162,6 +177,7 @@ class ProductHelper
                 $orderNumberMapping[$product->getId()] = $product->getProductNumber();
             }
         }
+
         return $orderNumberMapping;
     }
 
@@ -180,5 +196,10 @@ class ProductHelper
         }
 
         return null;
+    }
+
+    public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
+    {
+        return new RepositoryIterator($this->pureProductRepository, $context, $criteria);
     }
 }

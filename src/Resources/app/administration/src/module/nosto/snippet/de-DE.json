@@ -117,7 +117,15 @@
                 "categoryNaming": "Produktkategorienamen",
                 "categoryBlocklist": "Kategorie Blacklist",
                 "categoryBlocklistHelpText": "Produkte in mindestens einer dieser ausgewählten Kategorien werden vom Export ausgeschlossen",
-                "categoryBlocklistPlaceholder": "Kategorie auswählen:"
+                "categoryBlocklistPlaceholder": "Kategorie auswählen:",
+                "oldJobCleanup": {
+                    "label": "Aktivieren Sie die Bereinigung alter Jobs",
+                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Klaviyo-Stellenanzeige"
+                },
+                "oldJobCleanupPeriod": {
+                    "after": "Nach",
+                    "days": "Tagen"
+                }
             },
             "search-navigation": {
                 "cardTitle": "Search/Navigation Einstellungen",

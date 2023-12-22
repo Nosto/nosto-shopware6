@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
@@ -123,13 +124,7 @@ class Builder implements BuilderInterface
         }
 
         if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildren()->count()) {
-            $skuCollection = new SkuCollection();
-
-            if ($product->getChildren()) {
-                foreach ($product->getChildren()->getElements() as $variationProduct) {
-                    $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
-                }
-            }
+            $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
 
             $nostoProduct->setSkus($skuCollection);
         }
@@ -429,5 +424,48 @@ class Builder implements BuilderInterface
         );
 
         return $this->categoryRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function preparingChildrenSkuCollection(ProductEntity $product, SalesChannelContext $context): SkuCollection
+    {
+        $skuCollection = new SkuCollection();
+
+        if ($product->getChildren()->count()) {
+            $salesChannelId = $context->getSalesChannelId();
+            $languageId = $context->getLanguageId();
+
+            $criteria = new Criteria();
+            $criteria->addAssociation('media');
+            $criteria->addAssociation('cover');
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('properties.group');
+            $criteria->addAssociation('manufacturer');
+            $criteria->addAssociation('categoriesRo');
+            $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
+
+            if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
+                $criteria->addFilter(new EqualsFilter('active', true));
+            }
+
+            $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+            if (count($categoryBlocklist)) {
+                $criteria->addFilter(
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                    ),
+                );
+            }
+
+            $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
+
+            while (($children = $iterator->fetch()) !== null) {
+                foreach ($children as $variationProduct) {
+                    $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                }
+            }
+        }
+
+        return $skuCollection;
     }
 }

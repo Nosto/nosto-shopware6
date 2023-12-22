@@ -21,7 +21,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 {
     public const HANDLER_CODE = 'nosto-integration-full-catalog-sync';
 
-    private const BATCH_SIZE = 100;
+    private const BATCH_SIZE = 250;
 
     private EntityRepository $productRepository;
 

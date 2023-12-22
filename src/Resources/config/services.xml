@@ -43,6 +43,8 @@
             <argument type="service" id="scheduled_task.repository"/>
             <tag name="messenger.message_handler"/>
             <argument type="service" id="nosto_scheduler_job.repository"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="monolog.logger.nosto_integration"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>

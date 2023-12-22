@@ -1,3 +1,8 @@
+# 2.5.0
+* New: Added config option in plugin configuration page that now allows to specify in days for how long to store old processed scheduled jobs ( Nosto plugin schuled jobs ).
+* Fix: Fixed an issue with variants product output in product recommendations vs. merchandising
+* Fix: Improved performance of Full catalog sync operation ( "Full Catalog Sync" button in Nosto Grid page at adminpanel ). This should resolve the issue for customers who have large amounts of products on their website and are having issue with "not all product appear in Nosto Admin panel".
+
 # 2.4.3
 * Fix: Fixed an issue where newly added products ( to dynamic groups or manual ) were not shown at storefront.
 * Fix: Product manufacturer data that is sent to Nosto will now include a "brand-image-url" variable that can be used in Nosto templates if the image is available.

@@ -97,12 +97,10 @@ Component.register('nosto-integration-settings-general', {
             for (let i = 1; i < 4; i += 1) {
                 const key = `tag${i}`;
                 if (typeof this.allConfigs.null[key] === 'string' || this.allConfigs.null[key] instanceof String) {
-                    // eslint-disable-next-line vue/no-mutating-props
-                    this.allConfigs.null[key] = [this.allConfigs.null[key]];
+                    this.$set(this.allConfigs.null, key, [this.allConfigs.null[key]]);
                 }
                 if (typeof this.actualConfigData[key] === 'string' || this.actualConfigData[key] instanceof String) {
-                    // eslint-disable-next-line vue/no-mutating-props
-                    this.actualConfigData[key] = [this.actualConfigData[key]];
+                    this.$set(this.actualConfigData, key, [this.actualConfigData[key]]);
                 }
             }
         },
