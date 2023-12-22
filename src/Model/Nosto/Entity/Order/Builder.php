@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder implements BuilderInterface
+class Builder
 {
     private NostoBuyerBuilderInterface $buyerBuilder;
 

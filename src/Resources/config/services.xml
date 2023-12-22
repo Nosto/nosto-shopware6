@@ -10,34 +10,30 @@
 
     <services>
         <!-- Handlers -->
-        <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
-            <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
+        <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler" autowire="true">
+            <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync" />
+
+            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler">
-            <tag name="nosto.job_handler" code="nosto-integration-product-sync"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+        <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler" autowire="true">
+            <tag name="nosto.job_handler" code="nosto-integration-product-sync" />
+
+            <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
+            <argument key="$productProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
+            <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
-            <tag name="nosto.job_handler" code="nosto-integration-order-sync"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
-            <argument type="service" id="event_dispatcher"/>
+
+        <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler" autowire="true">
+            <tag name="nosto.job_handler" code="nosto-integration-order-sync" />
+
+            <argument key="$orderRepository" type="service" id="order.repository" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
+
+        <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler" autowire="true">
             <tag name="nosto.job_handler" code="nosto-integration-entity-changelog-sync"/>
-            <argument type="service" id="nosto_integration_entity_changelog.repository"/>
-            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
+
+            <argument key="$entityChangelogRepository" type="service" id="nosto_integration_entity_changelog.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>

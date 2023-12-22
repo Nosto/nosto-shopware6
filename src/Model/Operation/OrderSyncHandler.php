@@ -6,9 +6,9 @@ namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Model\Nosto\Account;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Order\BuilderInterface as NostoOrderBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder as OrderBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\BuilderInterface as NostoOrderStatusBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder as OrderStatusBuilder;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
@@ -25,28 +25,13 @@ class OrderSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-order-sync';
 
-    private EntityRepository $orderRepository;
-
-    private Account\Provider $accountProvider;
-
-    private NostoOrderBuilderInterface $nostoOrderbuilder;
-
-    private NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
-        EntityRepository $orderRepository,
-        Account\Provider $accountProvider,
-        NostoOrderBuilderInterface $nostoOrderbuilder,
-        NostoOrderStatusBuilderInterface $nostoOrderStatusBuilder,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $orderRepository,
+        private readonly Account\Provider $accountProvider,
+        private readonly OrderBuilder $nostoOrderbuilder,
+        private readonly OrderStatusBuilder $nostoOrderStatusBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->accountProvider = $accountProvider;
-        $this->nostoOrderbuilder = $nostoOrderbuilder;
-        $this->nostoOrderStatusBuilder = $nostoOrderStatusBuilder;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
