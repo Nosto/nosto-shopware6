@@ -24,23 +24,16 @@ class Lifecycle
 {
     private Connection $connection;
 
-    private ContainerInterface $container;
-
-    private bool $hasOtherSchedulerDependency;
-
     private EntityRepository $sortingRepository;
 
     private EntityRepository $salesChannelRepository;
 
     public function __construct(
-        ContainerInterface $container,
-        bool $hasOtherSchedulerDependency,
+        private readonly ContainerInterface $container,
+        private readonly bool $hasOtherSchedulerDependency,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
-
-        $this->container = $container;
-        $this->hasOtherSchedulerDependency = $hasOtherSchedulerDependency;
 
         $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 class EventsWriter
 {
-    private EntityRepository $changelogRepository;
-
     public const ORDER_ENTITY_PLACED_NAME = 'order_placed';
 
     public const ORDER_ENTITY_UPDATED_NAME = 'order_updated';
@@ -19,9 +17,9 @@ class EventsWriter
 
     public const PRODUCT_ENTITY_NAME = 'product';
 
-    public function __construct(EntityRepository $changelogRepository)
-    {
-        $this->changelogRepository = $changelogRepository;
+    public function __construct(
+        private readonly EntityRepository $changelogRepository,
+    ) {
     }
 
     public function writeEvent(string $name, string $id, Context $context, ?string $productNumber = null): void

@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SkuBuilder implements SkuBuilderInterface
+class SkuBuilder
 {
     public function __construct(
         private readonly ConfigProvider $configProvider,

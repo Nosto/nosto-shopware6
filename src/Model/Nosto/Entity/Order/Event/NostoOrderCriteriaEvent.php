@@ -10,16 +10,10 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class NostoOrderCriteriaEvent extends NestedEvent
 {
-    private Criteria $criteria;
-
-    private Context $context;
-
     public function __construct(
-        Criteria $criteria,
-        Context $context,
+        private readonly Criteria $criteria,
+        private readonly Context $context,
     ) {
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getCriteria(): Criteria

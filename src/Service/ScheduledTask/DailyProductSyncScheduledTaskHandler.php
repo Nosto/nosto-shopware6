@@ -24,30 +24,15 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
     private const LAST_EXECUTION_TIME_CONFIG = 'dailySyncLastTime';
 
-    private ConfigProvider $configProvider;
-
-    private NostoConfigService $configService;
-
-    private NostoSyncRoute $nostoSyncRoute;
-
-    private TagAwareAdapterInterface $cache;
-
-    private LoggerInterface $logger;
-
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        ConfigProvider $configProvider,
-        NostoConfigService $configService,
-        NostoSyncRoute $nostoSyncRoute,
-        TagAwareAdapterInterface $cache,
-        LoggerInterface $logger,
+        private readonly ConfigProvider $configProvider,
+        private readonly NostoConfigService $configService,
+        private readonly NostoSyncRoute $nostoSyncRoute,
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->configProvider = $configProvider;
-        $this->configService = $configService;
-        $this->nostoSyncRoute = $nostoSyncRoute;
-        $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public static function getHandledMessages(): iterable

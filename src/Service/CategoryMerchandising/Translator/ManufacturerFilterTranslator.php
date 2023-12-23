@@ -14,11 +14,9 @@ class ManufacturerFilterTranslator implements TranslatorInterface
 {
     public const MANUFACTURER = "product.manufacturerId";
 
-    private EntityRepository $manufacturerRepository;
-
-    public function __construct(EntityRepository $manufacturerRepository)
-    {
-        $this->manufacturerRepository = $manufacturerRepository;
+    public function __construct(
+        private readonly EntityRepository $manufacturerRepository,
+    ) {
     }
 
     public function translate(

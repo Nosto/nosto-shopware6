@@ -18,24 +18,12 @@ use Throwable;
 
 class CmsPageLoaderListener implements EventSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private SessionLookupResolver $sessionLookupResolver;
-
-    private NostoCacheResolver $cacheResolver;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        RequestStack $requestStack,
-        SessionLookupResolver $sessionLookupResolver,
-        NostoCacheResolver $cacheResolver,
-        LoggerInterface $logger,
+        private readonly RequestStack $requestStack,
+        private readonly SessionLookupResolver $sessionLookupResolver,
+        private readonly NostoCacheResolver $cacheResolver,
+        private readonly LoggerInterface $logger,
     ) {
-        $this->requestStack = $requestStack;
-        $this->sessionLookupResolver = $sessionLookupResolver;
-        $this->cacheResolver = $cacheResolver;
-        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents(): array

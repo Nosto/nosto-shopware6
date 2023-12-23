@@ -14,16 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder implements BuilderInterface
+class Builder
 {
-    private EntityRepository $newsletterRecipientRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    public function __construct(EntityRepository $newsletterRecipientRepository, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
     public function build(CustomerEntity $customer, Context $context): Customer

@@ -17,22 +17,13 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class RestoreUrlService implements RestoreUrlServiceInterface
+class RestoreUrlService
 {
-    private EntityRepository $mappingRepository;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private RequestStack $requestStack;
-
     public function __construct(
-        EntityRepository $mappingRepository,
-        UrlGeneratorInterface $urlGenerator,
-        RequestStack $requestStack,
+        private readonly EntityRepository $mappingRepository,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly RequestStack $requestStack,
     ) {
-        $this->mappingRepository = $mappingRepository;
-        $this->urlGenerator = $urlGenerator;
-        $this->requestStack = $requestStack;
     }
 
     public function getCurrentRestoreUrl(SalesChannelContext $context): string

@@ -12,24 +12,15 @@ class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInte
 {
     protected static string $defaultName = 'Order Sync Operation';
 
-    private array $newOrderIds;
-
-    private array $updatedOrderIds;
-
-    private string $parentJobId;
-
     public function __construct(
         string $jobId,
-        string $parentJobId,
-        array $newOrderIds,
-        array $updatedOrderIds,
+        private readonly string $parentJobId,
+        private readonly array $newOrderIds,
+        private readonly array $updatedOrderIds,
         ?Context $context,
         ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
-        $this->newOrderIds = $newOrderIds;
-        $this->updatedOrderIds = $updatedOrderIds;
-        $this->parentJobId = $parentJobId;
     }
 
     public function getHandlerCode(): string

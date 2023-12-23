@@ -10,15 +10,14 @@ class RangeSliderFilter extends Filter
 
     private string $maxKey;
 
-    private ?float $min;
-
-    private ?float $max;
-
-    public function __construct(string $id, string $name, string $field, float $min, float $max)
-    {
+    public function __construct(
+        string $id,
+        string $name,
+        string $field,
+        private float $min,
+        private float $max,
+    ) {
         parent::__construct($id, $name, $field);
-        $this->min = $min;
-        $this->max = $max;
         $this->minKey = sprintf('min-%s', $id);
         $this->maxKey = sprintf('max-%s', $id);
     }

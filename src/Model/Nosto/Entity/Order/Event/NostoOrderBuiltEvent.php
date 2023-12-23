@@ -11,20 +11,11 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class NostoOrderBuiltEvent extends NestedEvent
 {
-    private OrderEntity $order;
-
-    private NostoOrder $nostoOrder;
-
-    private Context $context;
-
     public function __construct(
-        OrderEntity $order,
-        NostoOrder $nostoOrder,
-        Context $context,
+        private readonly OrderEntity $order,
+        private readonly NostoOrder $nostoOrder,
+        private readonly Context $context,
     ) {
-        $this->order = $order;
-        $this->nostoOrder = $nostoOrder;
-        $this->context = $context;
     }
 
     public function getOrder(): OrderEntity

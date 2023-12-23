@@ -11,16 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NostoAwareCachedProductListingRoute extends AbstractProductListingRoute
 {
-    private AbstractProductListingRoute $decoratedService;
-
-    private NostoCacheResolver $cacheResolver;
-
     public function __construct(
-        AbstractProductListingRoute $cachedProductListingRoute,
-        NostoCacheResolver $cacheResolver,
+        private readonly AbstractProductListingRoute $decoratedService,
+        private readonly NostoCacheResolver $cacheResolver,
     ) {
-        $this->decoratedService = $cachedProductListingRoute;
-        $this->cacheResolver = $cacheResolver;
     }
 
     public function getDecorated(): AbstractProductListingRoute

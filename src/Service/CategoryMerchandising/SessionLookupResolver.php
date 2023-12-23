@@ -16,14 +16,10 @@ class SessionLookupResolver
 {
     public const NOSTO_SESSION_COOKIE = '2c_cId';
 
-    private Provider $accountProvider;
-
-    private RequestStack $requestStack;
-
-    public function __construct(Provider $accountProvider, RequestStack $requestStack)
-    {
-        $this->accountProvider = $accountProvider;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private readonly Provider $accountProvider,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     /**

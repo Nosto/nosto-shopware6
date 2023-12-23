@@ -9,12 +9,12 @@ use Shopware\Core\Framework\Context;
 
 class BeforeMarketingOperationEvent extends BeforeOperationEvent
 {
-    private array $payload;
-
-    public function __construct(AbstractOperation $operation, array $payload, Context $context)
-    {
+    public function __construct(
+        AbstractOperation $operation,
+        private readonly array $payload,
+        Context $context,
+    ) {
         parent::__construct($operation, $context);
-        $this->payload = $payload;
     }
 
     public function getPayload(): array

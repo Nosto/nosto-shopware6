@@ -1,22 +1,25 @@
 <?xml version="1.0" ?>
 
-<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://symfony.com/schema/dic/services"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
+<container
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://symfony.com/schema/dic/services"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+>
     <imports>
-        <import resource="imports/*"/>
+        <import resource="imports/*" />
     </imports>
 
     <services>
+        <defaults autowire="true" />
+
         <!-- Handlers -->
-        <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler" autowire="true">
+        <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync" />
 
             <argument key="$productRepository" type="service" id="product.repository" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler" autowire="true">
+        <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-product-sync" />
 
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
@@ -24,293 +27,280 @@
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler" autowire="true">
+        <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-order-sync" />
 
             <argument key="$orderRepository" type="service" id="order.repository" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler" autowire="true">
-            <tag name="nosto.job_handler" code="nosto-integration-entity-changelog-sync"/>
+        <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
+            <tag name="nosto.job_handler" code="nosto-integration-entity-changelog-sync" />
 
-            <argument key="$entityChangelogRepository" type="service" id="nosto_integration_entity_changelog.repository"/>
+            <argument key="$entityChangelogRepository" type="service" id="nosto_integration_entity_changelog.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <tag name="messenger.message_handler"/>
-            <argument type="service" id="nosto_scheduler_job.repository"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="monolog.logger.nosto_integration"/>
+            <tag name="messenger.message_handler" />
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
+            <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <tag name="messenger.message_handler"/>
-            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
+            <tag name="messenger.message_handler" />
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
-            <argument type="service" id="scheduled_task.repository"/>
-            <tag name="messenger.message_handler"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
-            <argument type="service" id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
+            <tag name="messenger.message_handler" />
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository " />
+            <argument type="service" id="cache.object" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
+            <argument key="$cache" type="service" id="cache.object" />
         </service>
+
         <service id="Nosto\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
-            <tag name="nosto.job_handler" code="nosto-integration-marketing-permission-sync"/>
-            <argument type="service" id="newsletter_recipient.repository"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="event_dispatcher"/>
+            <tag name="nosto.job_handler" code="nosto-integration-marketing-permission-sync" />
+
+            <argument type="service" id="newsletter_recipient.repository" />
         </service>
         <!-- /Handlers -->
 
         <!-- Services -->
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder" />
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Account\Provider">
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="logger"/>
+            <argument key="$channelRepo" type="service" id="sales_channel.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
-        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder" />
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
-            <argument type="service" id="product_review.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
+            <argument key="$pureProductRepository" type="service" id="product.repository" />
+            <argument key="$productRoute" type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" />
+            <argument key="$reviewRepository" type="service" id="product_review.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder">
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder"/>
-            <argument type="service" id="tag.repository"/>
-            <argument type="service" id="sales_channel.category.repository" />
+            <argument key="$tagRepository" type="service" id="tag.repository" />
+            <argument key="$categoryRepository" type="service" id="sales_channel.category.repository" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true">
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
-        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true" />
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider">
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
+            <argument key="$cache" type="service" id="cache.object" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder"/>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder" />
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
-            <tag name="shopware.scheduled.task"/>
+            <tag name="shopware.scheduled.task" />
         </service>
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder">
-            <argument type="service" id="product_cross_selling.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="service_container"/>
+            <argument key="$crossSellingRepository" type="service" id="product_cross_selling.repository" />
+            <argument key="$productStreamBuilder" type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
+            <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
-            <tag name="shopware.scheduled.task"/>
+            <tag name="shopware.scheduled.task" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTask">
-            <tag name="shopware.scheduled.task"/>
+            <tag name="shopware.scheduled.task" />
         </service>
+
         <service id="Nosto\NostoIntegration\Async\EventsWriter" lazy="true">
-            <argument type="service" id="nosto_integration_entity_changelog.repository"/>
+            <argument key="$changelogRepository" type="service" id="nosto_integration_entity_changelog.repository" />
         </service>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder">
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder"/>
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder"/>
-        <service id="Nosto\NostoIntegration\Utils\MigrationHelper" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-        </service>
-        <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true"/>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder" />
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder" />
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder" />
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder" />
+        <service id="Nosto\NostoIntegration\Utils\MigrationHelper" public="true" />
+
+        <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" />
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
-            <argument type="service" id="newsletter_recipient.repository"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument key="$newsletterRecipientRepository" type="service" id="newsletter_recipient.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="logger"/>
+            <argument key="$repository" type="service" id="sales_channel.product.repository" />
+            <argument key="$categoryRepository" type="service" id="category.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator"/>
+
+        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator" />
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
             <argument type="tagged_iterator" tag="nosto.merch.filter_translator" index-by="code" />
         </service>
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver">
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
-            <argument type="service" id="request_stack"/>
-        </service>
+
+        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver" />
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ManufacturerFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-manufacturer-filter"/>
-            <argument type="service" id="product_manufacturer.repository"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-manufacturer-filter" />
+
+            <argument type="service" id="product_manufacturer.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-shipping-free-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-shipping-free-filter" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\AttributeFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-attribute-filter"/>
-            <argument type="service" id="property_group_option.repository"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-attribute-filter" />
+
+            <argument type="service" id="property_group_option.repository" />
         </service>
+
         <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-price-filter"/>
+            <tag name="nosto.merch.filter_translator" code="nosto-price-filter" />
         </service>
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
-        </service>
+
+        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver" />
         <!-- /Services -->
 
         <!-- Decorators -->
-        <service id="nosto.aware_cached_listing"
-                 class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
-                 decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute">
-            <argument type="service" id="nosto.aware_cached_listing.inner"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
-        </service>
-        <service id="nosto.aware_cached_category_route"
-                 class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedCategoryRoute"
-                 decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute">
-            <argument type="service" id="nosto.aware_cached_category_route.inner"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
-        </service>
-        <service id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
-                 decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
-            <argument type="service"
-                      id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner"/>
-        </service>
-        <service id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator"
-                 decorates="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface">
-            <argument type="service"
-                      id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner"/>
+        <service
+            id="nosto.aware_cached_listing"
+            class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
+            decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute"
+        >
+            <argument key="$decoratedService" type="service" id="nosto.aware_cached_listing.inner" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
-                 decorates="product.repository">
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory"/>
-            <argument type="service"
-                      id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"/>
-            <argument type="service" id="Nosto\NostoIntegration\Async\EventsWriter"/>
+        <service
+            id="nosto.aware_cached_category_route"
+            class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedCategoryRoute"
+            decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute"
+        >
+            <argument key="$decoratedService" type="service" id="nosto.aware_cached_category_route.inner" />
+        </service>
+
+        <service
+            id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
+            decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"
+        >
+            <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner" />
+        </service>
+
+        <service
+            id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator"
+            decorates="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
+        >
+            <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner" />
+        </service>
+
+        <service
+            id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
+            decorates="product.repository"
+        >
+            <argument key="$definition" type="service" id="Shopware\Core\Content\Product\ProductDefinition" />
+            <argument
+                key="$inner"
+                type="service"
+                id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"
+            />
         </service>
         <!-- /Decorators -->
 
         <!-- Entity Definitions -->
         <service id="Nosto\NostoIntegration\Entity\Changelog\ChangelogDefinition">
-            <tag name="shopware.entity.definition" entity="nosto_integration_entity_changelog"/>
+            <tag name="shopware.entity.definition" entity="nosto_integration_entity_changelog" />
         </service>
         <!-- /Entity Definitions -->
 
         <!-- Event Listeners -->
         <service id="Nosto\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Nosto\NostoIntegration\Async\EventsWriter"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
+            <tag name="kernel.event_subscriber" />
         </service>
+
         <service id="Nosto\NostoIntegration\EventListener\OrderWrittenEventListener">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Nosto\NostoIntegration\Async\EventsWriter"/>
+            <tag name="kernel.event_subscriber" />
         </service>
+
         <service id="Nosto\NostoIntegration\EventListener\NewsletterEventListener">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Nosto\NostoIntegration\Async\EventsWriter"/>
+            <tag name="kernel.event_subscriber" />
         </service>
+
         <service id="Nosto\NostoIntegration\EventListener\CmsPageLoaderListener">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver"/>
-            <argument type="service" id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver"/>
-            <argument type="service" id="logger"/>
+            <tag name="kernel.event_subscriber" />
+
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
+
         <service id="Nosto\NostoIntegration\EventListener\ListingPageEventListener">
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_subscriber" />
         </service>
         <!-- /Event Listeners -->
 
         <!-- Extensions -->
         <service id="Nosto\NostoIntegration\Twig\Extension\CustomerExtension" public="true">
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder"/>
-            <argument type="service" id="Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService"/>
-            <tag name="twig.extension"/>
+            <tag name="twig.extension" />
         </service>
+
         <service id="Nosto\NostoIntegration\Twig\Extension\NostoExtension" public="true">
-            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
-            <argument type="service" id="logger"/>
+            <tag name="twig.extension" />
+
+            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
+            <argument type="service" id="monolog.logger.nosto_integration" />
             <argument type="service" id="sales_channel.product.repository" />
-            <tag name="twig.extension"/>
         </service>
         <!-- /Extensions -->
 
         <!-- Controllers -->
         <service id="Nosto\NostoIntegration\Api\Controller\NostoController" public="true">
-            <argument type="service" id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute"/>
-            <argument type="service" id="cache.object"/>
+            <argument key="$cache" type="service" id="cache.object" />
+
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="service_container" />
             </call>
         </service>
 
         <service id="Nosto\NostoIntegration\Api\Controller\NostoCategoriesController" public="true">
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument key="$categoryRepository" type="service" id="category.repository" />
+
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="service_container" />
             </call>
         </service>
 
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
-            <argument type="service" id="Nosto\Scheduler\Model\JobScheduler"/>
-            <argument type="service" id="nosto_scheduler_job.repository"/>
+            <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition" public="true">
-            <tag name="shopware.entity.definition" entity="nosto_integration_checkout_mapping"/>
+            <tag name="shopware.entity.definition" entity="nosto_integration_checkout_mapping" />
         </service>
 
         <!-- Cart restoration stuff -->
         <service id="Nosto\NostoIntegration\Controller\Storefront\CartController" public="true">
-            <argument type="service" id="Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerService"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="service_container" />
             </call>
         </service>
+
         <service id="Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService" public="true">
-            <argument type="service" id="nosto_integration_checkout_mapping.repository"/>
-            <argument type="service" id="router.default"/>
-            <argument type="service" id="request_stack"/>
+            <argument key="$mappingRepository" type="service" id="nosto_integration_checkout_mapping.repository" />
+            <argument key="$urlGenerator" type="service" id="router.default" />
         </service>
+
         <service id="Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerService" public="true">
-            <argument type="service" id="nosto_integration_checkout_mapping.repository"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="logger"/>
+            <argument key="$mappingRepository" type="service" id="nosto_integration_checkout_mapping.repository" />
+            <argument key="$orderRepository" type="service" id="order.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
         <!-- /Cart restoration stuff -->
 
@@ -322,6 +312,10 @@
         <service
             id="Symfony\Component\EventDispatcher\EventDispatcherInterface"
             alias="event_dispatcher"
+        />
+        <service
+            id="Symfony\Component\HttpFoundation\RequestStack"
+            alias="request_stack"
         />
     </services>
 </container>

@@ -22,20 +22,11 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-marketing-permission-sync';
 
-    private EntityRepository $newsletterRecipientRepository;
-
-    private Account\Provider $accountProvider;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
-        EntityRepository $newsletterRecipientRepository,
-        Account\Provider $accountProvider,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly Account\Provider $accountProvider,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->accountProvider = $accountProvider;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

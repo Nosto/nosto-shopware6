@@ -12,20 +12,14 @@ class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageIn
 {
     protected static string $defaultName = 'Product Sync Operation';
 
-    private string $parentJobId;
-
-    private array $productIds;
-
     public function __construct(
         string $jobId,
-        string $parentJobId,
-        array $productIds,
+        private readonly string $parentJobId,
+        private readonly array $productIds,
         ?Context $context = null,
         ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
-        $this->productIds = $productIds;
-        $this->parentJobId = $parentJobId;
     }
 
     public function getHandlerCode(): string

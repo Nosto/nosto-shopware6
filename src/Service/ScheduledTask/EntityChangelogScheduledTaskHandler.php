@@ -13,14 +13,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implements GeneratingHandlerInterface
 {
-    private JobScheduler $jobScheduler;
-
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        JobScheduler $jobScheduler,
+        private readonly JobScheduler $jobScheduler,
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->jobScheduler = $jobScheduler;
     }
 
     public static function getHandledMessages(): iterable

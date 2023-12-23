@@ -9,13 +9,11 @@ use Nosto\Request\Api\Token;
 class KeyChain
 {
     /**
-     * @return Token[]
+     * @param Token[] $tokens
      */
-    private array $tokens;
-
-    public function __construct(array $tokens)
-    {
-        $this->tokens = $tokens;
+    public function __construct(
+        private readonly array $tokens,
+    ) {
     }
 
     public function getTokens(): array

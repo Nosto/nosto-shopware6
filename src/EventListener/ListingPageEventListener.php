@@ -11,11 +11,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ListingPageEventListener implements EventSubscriberInterface
 {
-    private ConfigProvider $configProvider;
-
-    public function __construct(ConfigProvider $configProvider)
-    {
-        $this->configProvider = $configProvider;
+    public function __construct(
+        private readonly ConfigProvider $configProvider,
+    ) {
     }
 
     public static function getSubscribedEvents(): array

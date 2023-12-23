@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Customer;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\BuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder;
 use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService\RestoreUrlService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
@@ -15,16 +15,10 @@ use Twig\TwigFunction;
 
 class CustomerExtension extends AbstractExtension
 {
-    private BuilderInterface $builder;
-
-    private RestoreUrlService $restoreUrlService;
-
     public function __construct(
-        BuilderInterface $builder,
-        RestoreUrlService $restoreUrlService,
+        private readonly Builder $builder,
+        private readonly RestoreUrlService $restoreUrlService,
     ) {
-        $this->builder = $builder;
-        $this->restoreUrlService = $restoreUrlService;
     }
 
     public function getFunctions(): array

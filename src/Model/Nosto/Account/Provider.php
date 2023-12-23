@@ -18,22 +18,13 @@ use Throwable;
 
 class Provider
 {
-    private ConfigProvider $configProvider;
-
-    private EntityRepository $channelRepo;
-
     private ?array $accounts = null;
 
-    private LoggerInterface $logger;
-
     public function __construct(
-        ConfigProvider $configProvider,
-        EntityRepository $channelRepo,
-        LoggerInterface $logger,
+        private readonly ConfigProvider $configProvider,
+        private readonly EntityRepository $channelRepo,
+        private readonly LoggerInterface $logger,
     ) {
-        $this->configProvider = $configProvider;
-        $this->channelRepo = $channelRepo;
-        $this->logger = $logger;
     }
 
     public function get(Context $context, string $channelId, string $languageId): ?Account

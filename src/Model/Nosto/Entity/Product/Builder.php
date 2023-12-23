@@ -11,8 +11,8 @@ use Nosto\Model\Product\SkuCollection;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilderInterface;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
 use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Nosto\Types\Product\ProductInterface;
@@ -38,7 +38,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder implements BuilderInterface
+class Builder
 {
     public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
 
@@ -47,12 +47,12 @@ class Builder implements BuilderInterface
         private readonly ProductHelper $productHelper,
         private readonly NetPriceCalculator $calculator,
         private readonly CashRounding $priceRounding,
-        private readonly SkuBuilderInterface $skuBuilder,
-        private readonly TreeBuilderInterface $treeBuilder,
+        private readonly SkuBuilder $skuBuilder,
+        private readonly TreeBuilder $treeBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CrossSellingBuilderInterface $crossSellingBuilder,
+        private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
-        private SalesChannelRepository $categoryRepository,
+        private readonly SalesChannelRepository $categoryRepository,
     ) {
     }
 

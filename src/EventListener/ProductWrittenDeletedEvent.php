@@ -12,14 +12,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductWrittenDeletedEvent implements EventSubscriberInterface
 {
-    private EventsWriter $eventsWriter;
-
-    private ProductHelper $productHelper;
-
-    public function __construct(EventsWriter $eventsWriter, ProductHelper $productHelper)
-    {
-        $this->eventsWriter = $eventsWriter;
-        $this->productHelper = $productHelper;
+    public function __construct(
+        private readonly EventsWriter $eventsWriter,
+        private readonly ProductHelper $productHelper,
+    ) {
     }
 
     public static function getSubscribedEvents(): array

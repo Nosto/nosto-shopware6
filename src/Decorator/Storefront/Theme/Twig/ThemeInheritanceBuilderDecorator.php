@@ -10,11 +10,9 @@ class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterfa
 {
     private const PLUGIN_TECH_NAME = 'NostoIntegration';
 
-    private ThemeInheritanceBuilderInterface $inner;
-
-    public function __construct(ThemeInheritanceBuilderInterface $inner)
-    {
-        $this->inner = $inner;
+    public function __construct(
+        private readonly ThemeInheritanceBuilderInterface $inner,
+    ) {
     }
 
     public function build(array $bundles, array $themes): array

@@ -41,14 +41,10 @@ class NostoController extends AbstractController
 
     protected const SEARCH_TOKEN = 'searchToken';
 
-    private NostoSyncRoute $nostoSyncRoute;
-
-    private TagAwareAdapterInterface $cache;
-
-    public function __construct(NostoSyncRoute $nostoSyncRoute, TagAwareAdapterInterface $cache)
-    {
-        $this->nostoSyncRoute = $nostoSyncRoute;
-        $this->cache = $cache;
+    public function __construct(
+        private readonly NostoSyncRoute $nostoSyncRoute,
+        private readonly TagAwareAdapterInterface $cache,
+    ) {
     }
 
     #[Route(
