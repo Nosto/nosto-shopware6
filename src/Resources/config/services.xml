@@ -128,7 +128,7 @@
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder" />
         <service id="Nosto\NostoIntegration\Utils\MigrationHelper" public="true" />
 
-        <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" />
+        <service id="nosto.plugin.assetservice.public" alias="Shopware\Core\Framework\Plugin\Util\AssetService" public="true" />
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument key="$newsletterRecipientRepository" type="service" id="newsletter_recipient.repository" />
