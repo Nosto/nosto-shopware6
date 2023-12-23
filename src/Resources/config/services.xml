@@ -56,7 +56,7 @@
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
             <tag name="messenger.message_handler" />
 
-            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository " />
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
             <argument type="service" id="cache.object" />
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
             <argument key="$cache" type="service" id="cache.object" />
