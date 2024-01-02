@@ -11,11 +11,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OrderWrittenEventListener implements EventSubscriberInterface
 {
-    private EventsWriter $eventsWriter;
-
-    public function __construct(EventsWriter $eventsWriter)
-    {
-        $this->eventsWriter = $eventsWriter;
+    public function __construct(
+        private readonly EventsWriter $eventsWriter,
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -26,10 +26,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepositoryDecorator extends EntityRepository
 {
-    private EntityRepository $inner;
-
-    private EventsWriter $eventsWriter;
-
     public function __construct(
         EntityDefinition $definition,
         EntityReaderInterface $reader,
@@ -38,12 +34,10 @@ class ProductRepositoryDecorator extends EntityRepository
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher,
         EntityLoadedEventFactory $eventFactory,
-        EntityRepository $inner,
-        EventsWriter $eventsWriter,
+        private readonly EntityRepository $inner,
+        private readonly EventsWriter $eventsWriter,
     ) {
         parent::__construct($definition, $reader, $versionManager, $searcher, $aggregator, $eventDispatcher, $eventFactory);
-        $this->inner = $inner;
-        $this->eventsWriter = $eventsWriter;
     }
 
     public function getDefinition(): EntityDefinition

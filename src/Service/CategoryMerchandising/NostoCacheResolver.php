@@ -11,20 +11,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class NostoCacheResolver
 {
-    private RequestStack $requestStack;
-
-    private ConfigProvider $configProvider;
-
-    private Provider $accountProvider;
-
     public function __construct(
-        RequestStack $requestStack,
-        ConfigProvider $configProvider,
-        Provider $accountProvider,
+        private readonly RequestStack $requestStack,
+        private readonly ConfigProvider $configProvider,
+        private readonly Provider $accountProvider,
     ) {
-        $this->requestStack = $requestStack;
-        $this->configProvider = $configProvider;
-        $this->accountProvider = $accountProvider;
     }
 
     /**

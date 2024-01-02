@@ -27,16 +27,10 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     private const BATCH_SIZE = 100;
 
-    private JobScheduler $jobScheduler;
-
-    private EntityRepository $entityChangelogRepository;
-
     public function __construct(
-        EntityRepository $entityChangelogRepository,
-        JobScheduler $jobScheduler,
+        private readonly EntityRepository $entityChangelogRepository,
+        private readonly JobScheduler $jobScheduler,
     ) {
-        $this->entityChangelogRepository = $entityChangelogRepository;
-        $this->jobScheduler = $jobScheduler;
     }
 
     /**

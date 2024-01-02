@@ -19,34 +19,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Throwable;
 
-class RestorerService implements RestorerServiceInterface
+class RestorerService
 {
-    private EntityRepository $mappingRepository;
-
-    private EntityRepository $orderRepository;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private CartService $cartService;
-
-    private OrderConverter $orderConverter;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        EntityRepository $mappingRepository,
-        EntityRepository $orderRepository,
-        CartRuleLoader $cartRuleLoader,
-        CartService $cartService,
-        OrderConverter $orderConverter,
-        LoggerInterface $logger,
+        private readonly EntityRepository $mappingRepository,
+        private readonly EntityRepository $orderRepository,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartService $cartService,
+        private readonly OrderConverter $orderConverter,
+        private readonly LoggerInterface $logger,
     ) {
-        $this->mappingRepository = $mappingRepository;
-        $this->orderRepository = $orderRepository;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->cartService = $cartService;
-        $this->orderConverter = $orderConverter;
-        $this->logger = $logger;
     }
 
     public function restore(string $mappingId, SalesChannelContext $context): void

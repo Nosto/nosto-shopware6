@@ -11,11 +11,9 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 
 class MigrationHelper
 {
-    private MigrationCollectionLoader $migrationLoader;
-
-    public function __construct(MigrationCollectionLoader $migrationLoader)
-    {
-        $this->migrationLoader = $migrationLoader;
+    public function __construct(
+        private readonly MigrationCollectionLoader $migrationLoader,
+    ) {
     }
 
     public function getMigrationCollection(Bundle $bundleInstance): MigrationCollection

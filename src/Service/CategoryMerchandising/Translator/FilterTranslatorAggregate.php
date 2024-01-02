@@ -9,11 +9,9 @@ use Shopware\Core\Framework\Context;
 
 class FilterTranslatorAggregate
 {
-    private iterable $filterTranslators;
-
-    public function __construct(iterable $rawFilterTranslators)
-    {
-        $this->filterTranslators = $rawFilterTranslators;
+    public function __construct(
+        private readonly iterable $filterTranslators,
+    ) {
     }
 
     public function buildIncludeFilters(array $postFilters, Context $context): IncludeFilters

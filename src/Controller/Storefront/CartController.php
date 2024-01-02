@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Controller\Storefront;
 
-use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerServiceInterface;
+use Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService\RestorerService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,11 +17,9 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class CartController extends StorefrontController
 {
-    private RestorerServiceInterface $restorerService;
-
-    public function __construct(RestorerServiceInterface $restorerService)
-    {
-        $this->restorerService = $restorerService;
+    public function __construct(
+        private readonly RestorerService $restorerService,
+    ) {
     }
 
     #[Route(

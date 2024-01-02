@@ -12,20 +12,14 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
 {
     protected static string $defaultName = 'Marketing Permission Sync Operation';
 
-    private string $parentJobId;
-
-    private array $newsletterRecipientIds;
-
     public function __construct(
         string $jobId,
-        string $parentJobId,
-        array $newsletterRecipientIds,
+        private readonly string $parentJobId,
+        private readonly array $newsletterRecipientIds,
         ?Context $context = null,
         ?string $name = null,
     ) {
         parent::__construct($jobId, $context, $name);
-        $this->newsletterRecipientIds = $newsletterRecipientIds;
-        $this->parentJobId = $parentJobId;
     }
 
     public function getHandlerCode(): string

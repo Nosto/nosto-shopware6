@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NostoAwareCachedCategoryRoute extends AbstractCategoryRoute
 {
-    private AbstractCategoryRoute $decoratedService;
-
-    private NostoCacheResolver $cacheResolver;
-
-    public function __construct(AbstractCategoryRoute $cachedCategoryRoute, NostoCacheResolver $cacheResolver)
-    {
-        $this->decoratedService = $cachedCategoryRoute;
-        $this->cacheResolver = $cacheResolver;
+    public function __construct(
+        private readonly AbstractCategoryRoute $decoratedService,
+        private readonly NostoCacheResolver $cacheResolver,
+    ) {
     }
 
     public function load(

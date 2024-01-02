@@ -14,16 +14,10 @@ class CachedProvider implements ProductProviderInterface
 {
     public const CACHE_PREFIX = 'nosto_integration_product_';
 
-    private TagAwareAdapterInterface $cache;
-
-    private Provider $innerProvider;
-
     public function __construct(
-        TagAwareAdapterInterface $cache,
-        Provider $innerProvider,
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly Provider $innerProvider,
     ) {
-        $this->cache = $cache;
-        $this->innerProvider = $innerProvider;
     }
 
     public function get(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct

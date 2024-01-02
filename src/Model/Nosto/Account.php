@@ -9,26 +9,14 @@ use Nosto\NostoIntegration\Model\Nosto\Account\KeyChain;
 
 class Account
 {
-    private string $channelId;
-
-    private string $languageId;
-
-    private string $accountName;
-
-    private KeyChain $keyChain;
-
     private ?NostoSignupAccount $nostoAccount = null;
 
     public function __construct(
-        string $channelId,
-        string $languageId,
-        string $accountName,
-        KeyChain $keyChain,
+        private readonly string $channelId,
+        private readonly string $languageId,
+        private readonly string $accountName,
+        private readonly KeyChain $keyChain,
     ) {
-        $this->channelId = $channelId;
-        $this->languageId = $languageId;
-        $this->accountName = $accountName;
-        $this->keyChain = $keyChain;
     }
 
     public function getChannelId(): string

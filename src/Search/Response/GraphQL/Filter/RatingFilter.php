@@ -6,12 +6,13 @@ namespace Nosto\NostoIntegration\Search\Response\GraphQL\Filter;
 
 class RatingFilter extends Filter
 {
-    private float $maxPoints;
-
-    public function __construct(string $id, string $name, string $field, float $maxPoints)
-    {
+    public function __construct(
+        string $id,
+        string $name,
+        string $field,
+        private float $maxPoints,
+    ) {
         parent::__construct($id, $name, $field);
-        $this->maxPoints = $maxPoints;
     }
 
     public function setMaxPoints(float $maxPoints): RatingFilter
