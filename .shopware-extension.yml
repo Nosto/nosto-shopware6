@@ -1,0 +1,32 @@
+build:
+    shopwareVersionConstraint: "^6.5.4"
+
+    zip:
+        composer:
+            before_hooks:
+                - composer install --no-dev
+
+        pack:
+            excludes:
+                paths:
+                    - .gitignore
+                    - .github
+                    - bin
+                    - images
+                    - node_modules
+                    - tests
+                    - ecs.php
+                    - phpunit.xml.dist
+                    - package.json
+                    - package-lock.json
+                    - .eslintignore
+                    - .eslintrc-administration.js
+                    - .eslintrc-storefront.js
+                    - "*.zip"
+                    - dependencies
+                    - vendor/nosto/php-sdk/.git
+                    - vendor/nosto/php-sdk/.idea
+                    - vendor/nosto/php-sdk/tests
+                    - vendor/nosto/shopware6-job-scheduler/.idea
+                    - vendor/nosto/shopware6-job-scheduler/.github
+                    - vendor/nosto/shopware6-job-scheduler/node_modules
