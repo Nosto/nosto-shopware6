@@ -120,7 +120,7 @@
                 "categoryBlocklistPlaceholder": "Select category:",
                 "oldJobCleanup": {
                     "label": "Enable cleanup of old jobs",
-                    "helpText": "Enables cleaning up old jobs in the Klaviyo job listing"
+                    "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "After",

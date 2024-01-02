@@ -100,6 +100,10 @@ class MerchandisingSearchApi extends SalesChannelRepository
                 $categoryIdArr = explode('/', $requestUri);
                 $categoryId = array_pop($categoryIdArr);
 
+                if (empty($categoryId)) {
+                    return $this->repository->searchIds($criteria, $salesChannelContext);
+                }
+
                 $category = $this->categoryRepository->search(
                     new Criteria([$categoryId]),
                     $salesChannelContext->getContext(),

@@ -21,7 +21,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 {
     public const HANDLER_CODE = 'nosto-integration-full-catalog-sync';
 
-    private const BATCH_SIZE = 250;
+    private const BATCH_SIZE = 150;
 
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -41,15 +41,18 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
         while (($products = $repositoryIterator->fetch()) !== null) {
+            $ids = $this->getIdsForMessage($products->getEntities());
             $this->jobScheduler->schedule(
                 new ProductSyncMessage(
                     Uuid::randomHex(),
                     $message->getJobId(),
-                    $this->getIdsForMessage($products->getEntities()),
+                    $ids,
                     $message->getContext(),
                 ),
             );
-            $result->addMessage(new InfoMessage('Job with payload of products has been scheduled.'));
+            $result->addMessage(
+                new InfoMessage('Job with payload of: ' . count($ids) . ' products has been scheduled.'),
+            );
         }
 
         return $result;

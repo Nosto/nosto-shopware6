@@ -7,8 +7,9 @@ namespace Nosto\NostoIntegration\Async;
 use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface
+class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInterface, AsyncMessageInterface
 {
     protected static string $defaultName = 'Order Sync Operation';
 

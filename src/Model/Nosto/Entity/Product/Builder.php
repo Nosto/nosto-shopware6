@@ -185,9 +185,15 @@ class Builder
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
-            $alternateMediaUrls = $product->getMedia()->map(
+            $alternateMedia = $product->getMedia();
+            $alternateMedia->sort(
+                fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition(),
+            );
+
+            $alternateMediaUrls = $alternateMedia->map(
                 fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
             );
+
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
         }
 

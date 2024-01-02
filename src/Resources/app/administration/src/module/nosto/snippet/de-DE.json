@@ -120,7 +120,7 @@
                 "categoryBlocklistPlaceholder": "Kategorie auswählen:",
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
-                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Klaviyo-Stellenanzeige"
+                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto-Stellenanzeige"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",

@@ -1,3 +1,10 @@
+# 2.5.1
+* Fix: Einige Formulierungen/Tippfehler behoben
+* Fix: Es wurde ein Problem behoben, das bei einigen Kunden auftreten konnte, nachdem sie die Shop-Sprache geändert hatten.
+* Fix: Die vollständige Katalogsynchronisierung und die geplante Synchronisierung erfordern jetzt möglicherweise mehr als einen Worker.
+* Fix: Es wurde ein Problem behoben, bei dem das Markenbild vom Nosto-Crawler entfernt werden konnte (aber über API/Sync hinzugefügt wurde).
+* Fix: Es wurde ein Problem behoben, bei dem Produktbilder nicht mit der Reihenfolge übereinstimmten, in der sie sich in Shopware befinden.
+
 # 2.5.0
 * Neu: Konfigurationsoption auf der Plugin-Konfigurationsseite hinzugefügt, mit der nun in Tagen angegeben werden kann, wie lange alte verarbeitete geplante Jobs (im Nosto-Plugin geschulte Jobs) gespeichert werden sollen.
 * Fix: Ein Problem mit Varianten der Produktausgabe in Produktempfehlungen vs. Merchandising wurde behoben

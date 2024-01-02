@@ -1,3 +1,10 @@
+# 2.5.1
+* Fix: Fixed few wording/typos
+* Fix: Fixed an issue that some customer may encounter after changing store language.
+* Fix: Full catalog sync and scheduled sync now may utilize more than one worker.
+* Fix: Fixed an issue where brand image can be removed by Nosto crawler ( but was added via api/sync ).
+* Fix: Fixed an issue where product images were not matching the order in which they are in Shopware.
+
 # 2.5.0
 * New: Added config option in plugin configuration page that now allows to specify in days for how long to store old processed scheduled jobs ( Nosto plugin schuled jobs ).
 * Fix: Fixed an issue with variants product output in product recommendations vs. merchandising
