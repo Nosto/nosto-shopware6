@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model;
 
+use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
+use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Enums\RatingOptions;
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 
 class ConfigProvider
@@ -109,32 +114,39 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::GOOGLE_CATEGORY, $channelId, $languageId);
     }
 
-    public function getProductIdentifier($channelId = null, $languageId = null): string
+    public function getProductIdentifier($channelId = null, $languageId = null): ProductIdentifierOptions
     {
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
-        return is_string($value) ? $value : 'product-id';
+
+        return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
     }
 
-    public function getRatingReviews($channelId = null, $languageId = null): string
+    public function getRatingReviews($channelId = null, $languageId = null): RatingOptions
     {
         $value = $this->configService->get(NostoConfigService::RATING_REVIEWS, $channelId, $languageId);
-        return is_string($value) ? $value : 'shopware-ratings';
+
+        return RatingOptions::tryFrom($value) ?? RatingOptions::SHOPWARE_RATINGS;
     }
 
-    public function getStockField($channelId = null, $languageId = null): ?string
+    public function getStockField($channelId = null, $languageId = null): StockFieldOptions
     {
-        return $this->configService->getString(NostoConfigService::STOCK_FIELD, $channelId, $languageId);
+        $value = $this->configService->get(NostoConfigService::STOCK_FIELD, $channelId, $languageId);
+
+        return StockFieldOptions::tryFrom($value) ?? StockFieldOptions::AVAILABLE_STOCK;
     }
 
-    public function getCrossSellingSyncOption($channelId = null, $languageId = null): string
+    public function getCrossSellingSyncOption($channelId = null, $languageId = null): CrossSellingSyncOptions
     {
         $value = $this->configService->get(NostoConfigService::CROSS_SELLING_SYNC_FIELD, $channelId, $languageId);
-        return is_string($value) ? $value : 'no-sync';
+
+        return CrossSellingSyncOptions::tryFrom($value) ?? CrossSellingSyncOptions::NO_SYNC;
     }
 
-    public function getCategoryNamingOption($channelId = null, $languageId = null): string
+    public function getCategoryNamingOption($channelId = null, $languageId = null): CategoryNamingOptions
     {
-        return $this->configService->getString(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
+        $value = $this->configService->get(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
+
+        return CategoryNamingOptions::tryFrom($value) ?? CategoryNamingOptions::NO_ID;
     }
 
     public function getCategoryBlocklist($channelId = null, $languageId = null): array

@@ -121,7 +121,9 @@
             <argument key="$changelogRepository" type="service" id="nosto_integration_entity_changelog.repository" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder" />
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder">
+            <argument key="$buyerBuilder" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder" />
+        </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder" />
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder" />

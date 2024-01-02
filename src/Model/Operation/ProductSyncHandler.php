@@ -8,6 +8,8 @@ use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
@@ -282,7 +284,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $stock = $this->configProvider->getStockField(
             $context->getSalesChannelId(),
             $context->getLanguageId(),
-        ) === 'actual-stock'
+        ) === StockFieldOptions::ACTUAL_STOCK
             ? $product->getStock()
             : $product->getAvailableStock();
 
@@ -364,7 +366,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-        if ($identifierType === 'product-number') {
+        if ($identifierType === ProductIdentifierOptions::PRODUCT_NUMBER) {
             return $this->getProductNumbers($productIds, $mapping);
         }
 

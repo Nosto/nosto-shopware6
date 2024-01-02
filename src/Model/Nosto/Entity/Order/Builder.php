@@ -11,7 +11,7 @@ use Nosto\Model\Order\OrderStatus;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemBuilder;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder as NostoBuyerBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder
 {
     public function __construct(
-        private readonly NostoBuyerBuilder $buyerBuilder,
+        private readonly NostoBuyerBuilderInterface $buyerBuilder,
         private readonly NostoOrderItemBuilder $nostoOrderItemBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
