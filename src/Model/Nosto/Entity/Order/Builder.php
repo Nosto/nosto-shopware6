@@ -10,30 +10,21 @@ use Nosto\Model\Order\Order as NostoOrder;
 use Nosto\Model\Order\OrderStatus;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\BuilderInterface as NostoOrderItemBuilderInterface;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Person\Builder as NostoBuyerBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class Builder implements BuilderInterface
+class Builder
 {
-    private NostoBuyerBuilderInterface $buyerBuilder;
-
-    private NostoOrderItemBuilderInterface $nostoOrderItemBuilder;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
-        NostoBuyerBuilderInterface $buyerBuilder,
-        NostoOrderItemBuilderInterface $nostoOrderItemBuilder,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly NostoBuyerBuilder $buyerBuilder,
+        private readonly NostoOrderItemBuilder $nostoOrderItemBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-        $this->buyerBuilder = $buyerBuilder;
-        $this->nostoOrderItemBuilder = $nostoOrderItemBuilder;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function build(OrderEntity $order, Context $context): NostoOrder

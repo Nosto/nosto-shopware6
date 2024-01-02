@@ -26,16 +26,10 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class NostoSyncRoute
 {
-    private JobScheduler $jobScheduler;
-
-    private EntityRepository $jobRepository;
-
     public function __construct(
-        JobScheduler $jobScheduler,
-        EntityRepository $jobRepository,
+        private readonly JobScheduler $jobScheduler,
+        private readonly EntityRepository $jobRepository,
     ) {
-        $this->jobScheduler = $jobScheduler;
-        $this->jobRepository = $jobRepository;
     }
 
     #[Route(

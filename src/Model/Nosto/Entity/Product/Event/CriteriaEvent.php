@@ -12,14 +12,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    private Criteria $criteria;
-
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
-    {
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $salesChannelContext,
+    ) {
     }
 
     public function getCriteria(): Criteria

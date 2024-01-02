@@ -11,11 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Provider implements ProductProviderInterface
 {
-    private BuilderInterface $builder;
-
-    public function __construct(BuilderInterface $builder)
-    {
-        $this->builder = $builder;
+    public function __construct(
+        private readonly Builder $builder,
+    ) {
     }
 
     public function get(SalesChannelProductEntity $product, SalesChannelContext $context): NostoProduct

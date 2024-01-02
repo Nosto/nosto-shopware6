@@ -12,11 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter,
 
 class AttributeFilterTranslator implements TranslatorInterface
 {
-    private EntityRepository $propertyGroupOptionRepository;
-
-    public function __construct(EntityRepository $propertyGroupOptionRepository)
-    {
-        $this->propertyGroupOptionRepository = $propertyGroupOptionRepository;
+    public function __construct(
+        private readonly EntityRepository $propertyGroupOptionRepository,
+    ) {
     }
 
     public function translate(

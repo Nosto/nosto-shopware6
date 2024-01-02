@@ -7,7 +7,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 
-class TreeBuilder implements TreeBuilderInterface
+class TreeBuilder
 {
     public function fromCategoriesRo(CategoryCollection $categoriesRo): array
     {

@@ -30,36 +30,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
 {
-    private SalesChannelRepository $productRepository;
-
-    private AbstractProductDetailRoute $productRoute;
-
-    private EntityRepository $reviewRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ConfigProvider $configProvider;
-
-    private EntityRepository $pureProductRepository;
-
-    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
-
     public function __construct(
-        SalesChannelRepository $productRepository,
-        EntityRepository $pureProductRepository,
-        AbstractProductDetailRoute $productRoute,
-        EntityRepository $reviewRepository,
-        EventDispatcherInterface $eventDispatcher,
-        ConfigProvider $configProvider,
-        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly EntityRepository $pureProductRepository,
+        private readonly AbstractProductDetailRoute $productRoute,
+        private readonly EntityRepository $reviewRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ConfigProvider $configProvider,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
     ) {
-        $this->productRepository = $productRepository;
-        $this->productRoute = $productRoute;
-        $this->reviewRepository = $reviewRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->configProvider = $configProvider;
-        $this->pureProductRepository = $pureProductRepository;
-        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int

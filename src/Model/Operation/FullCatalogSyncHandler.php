@@ -23,16 +23,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 
     private const BATCH_SIZE = 250;
 
-    private EntityRepository $productRepository;
-
-    private JobScheduler $jobScheduler;
-
     public function __construct(
-        EntityRepository $productRepository,
-        JobScheduler $jobScheduler,
+        private readonly EntityRepository $productRepository,
+        private readonly JobScheduler $jobScheduler,
     ) {
-        $this->productRepository = $productRepository;
-        $this->jobScheduler = $jobScheduler;
     }
 
     /**

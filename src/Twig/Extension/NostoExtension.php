@@ -19,20 +19,11 @@ use Twig\TwigFunction;
 
 class NostoExtension extends AbstractExtension
 {
-    private ProductProviderInterface $productProvider;
-
-    private LoggerInterface $logger;
-
-    private SalesChannelRepository $salesChannelProductRepository;
-
     public function __construct(
-        ProductProviderInterface $productProvider,
-        LoggerInterface $logger,
-        SalesChannelRepository $salesChannelProductRepository,
+        private readonly ProductProviderInterface $productProvider,
+        private readonly LoggerInterface $logger,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
     ) {
-        $this->productProvider = $productProvider;
-        $this->logger = $logger;
-        $this->salesChannelProductRepository = $salesChannelProductRepository;
     }
 
     /**

@@ -10,7 +10,7 @@ use Nosto\NostoException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 
-class Builder implements BuilderInterface
+class Builder
 {
     public function build(OrderEntity $order): ?NostoOrderStatus
     {

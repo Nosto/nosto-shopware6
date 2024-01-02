@@ -22,34 +22,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class CrossSellingBuilder implements CrossSellingBuilderInterface
+class CrossSellingBuilder
 {
-    private EntityRepository $crossSellingRepository;
-
-    private ProductStreamBuilderInterface $productStreamBuilder;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private ConfigProvider $configProvider;
-
-    private ContainerInterface $container;
-
     public function __construct(
-        EntityRepository $crossSellingRepository,
-        ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepository $productRepository,
-        SystemConfigService $systemConfigService,
-        ConfigProvider $configProvider,
-        ContainerInterface $container,
+        private readonly EntityRepository $crossSellingRepository,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ConfigProvider $configProvider,
+        private readonly ContainerInterface $container,
     ) {
-        $this->crossSellingRepository = $crossSellingRepository;
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->container = $container;
-        $this->configProvider = $configProvider;
     }
 
     public function build(string $productId, SalesChannelContext $context): array
