@@ -74,7 +74,7 @@ Plugin can be installed in such ways:
 1. Community store (preferred)
 2. Zip archive
 
-Also, the plugin has the embedded dependency of Overdose Job Scheduler. It's delivered with plugin sources.
+Also, the plugin has the embedded dependency of Nosto Job Scheduler. It's delivered with plugin sources.
 
 <a name="installation-store"></a>
 ## Community (preferred)
@@ -89,7 +89,8 @@ the plugin page and follow the instructions to activate the plugin.
 ## Zip archive
 
 The plugin can also be installed by uploading zip archive in Shopware admin My Extensions section. The plugin archive
-can be downloaded only in [Community store](https://store.shopware.com/)
+can be downloaded in the [Community store](https://store.shopware.com/). \
+If the plugin is set up for local development, the archive can also be generated with `shopware-cli extension zip . --disable-git`.
 
 After this, the plugin can be activated in Shopware admin My Extensions section.
 
@@ -257,6 +258,6 @@ Listing page contains all Nosto plugin jobs:
 
 <a name="dependencies"></a>
 # Dependencies
-* Overdose Job Scheduler which is included in the plugin sources
+* Nosto Job Scheduler which is included in the plugin sources
 
 <a name="job-scheduling-view-listing"></a>
