@@ -97,7 +97,7 @@ After this, the plugin can be activated in Shopware admin My Extensions section.
 <a name="configuration"></a>
 # Configuration
 
-The Nosto plugin has a separate settings page.
+The Nosto plugin has a separate settings page. You can configure values for each sales channel and it's configured languages.
 
 Settings → Extensions → Nosto
 
@@ -106,8 +106,8 @@ Settings → Extensions → Nosto
 
 There are basic configuration fields and control buttons are located in plugin configuration page marked with digits:
 
-**Note!** Plugin requires to setup global Nosto account credentials. If you need to disable plugin functionality on
-specific sales channel, you can disable account on specific channel via toggle off “Enable Account“ switch field.
+> [!NOTE]
+> The account settings are only available for a specific sales channel and language. There are no global account settings.
 
 ![Account Settings](images/account-settings.png?raw=true)
 
