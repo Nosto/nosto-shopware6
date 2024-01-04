@@ -138,7 +138,10 @@ There are basic configuration fields and control buttons are located in plugin c
 <a name="configuration-general-settings"></a>
 ## General Settings Overview
 
-![General Settings](images/general-settings.png?raw=true)
+Some configurations are only available globally or for a specific channel.
+
+![General Settings - Global](images/general-settings-global.png?raw=true)
+![General Settings - Channel](images/general-settings-channel.png?raw=true)
 
 1. By enabling this setting, Nosto tracking JS scripts will be initialized and loaded directly after guest’s very first
    interaction with storefront page. It can be used for prevent storefront performance issues during page loading.
@@ -146,7 +149,8 @@ There are basic configuration fields and control buttons are located in plugin c
    necessary product merchandising rules before enabling this feature.
    **Note!** To prevent empty PLP displaying because of network issues or Nosto API unavailability, plugin will follow
    the fallback to native Shopware 6 search engine.
-3. By enabling this setting, Nosto will cache the product and category pages for not logged in users.
+3. **Global** By enabling this setting, Nosto will cache the product and category pages for not logged in users.
+4. **Channel specific** The selected domain will be used for the product URLs during the product sync.
 
 <a name="configuration-tag-assignment"></a>
 ## Tags Assignment Overview
