@@ -118,18 +118,22 @@ There are basic configuration fields and control buttons are located in plugin c
    found [here](https://help.nosto.com/en/articles/613483-settings-account-settings).
 4. Required Field with account name. It can be retrieved in Nosto account (in account settings), additional guides can
    be found [here](https://help.nosto.com/en/articles/613483-settings-account-settings).
-5. Required Field with Product Token API key (API_PRODUCTS). It used to synchronize products between Shopware and Nosto
+5. Required Field with Product Token API key (API_PRODUCTS). Is used to synchronize products between Shopware and Nosto
    . The key must be requested from Nosto Technical Support, after which it will appear in authentication tokens section
    in the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
-6. Required Field with Email Token API key, (API_EMAIL). It used to synchronize emails between Shopware and Nosto . The
+6. Required Field with Email Token API key, (API_EMAIL). Is used to synchronize emails between Shopware and Nosto . The
    key must be requested from Nosto Technical Support, after which it will appear in authentication tokens section in
    the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
-7. Required Field with GraphQL Token API key, (API_APPS). It used to synchronize orders, recommendations, segments,
-   category merchandizing products between Shopware and Nosto . The key must be requested from Nosto Technical Support,
+7. Required Field with GraphQL Token API key, (API_APPS). Is used to synchronize orders, recommendations, segments,
+   category merchandising products between Shopware and Nosto . The key must be requested from Nosto Technical Support,
    after which it will appear in authentication tokens section in the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
+8. Required Field with Search Token API key, (API_SEARCH). Is used for all the search requests, when using the plug-and-play
+   solution. The key must be requested from Nosto Technical Support, after which it will appear in authentication tokens
+   section in the admin, additional guides can be found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
+9. Category update button, which will synchronize all the categories for the Category Merchandising.
 
 <a name="configuration-general-settings"></a>
 ## General Settings Overview
