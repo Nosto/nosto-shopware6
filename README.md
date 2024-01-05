@@ -20,6 +20,9 @@
       3. [Chart View](#job-scheduling-view-chart)
    3. [Auto Load](#job-scheduling-auto-load)
 6. [Dependencies](#dependencies)
+7. [Development](#development)
+   1. [Local Setup](#local-setup)
+   2. [Test Setup](#test-setup)
 
 # Personalization for Shopware
 
@@ -198,13 +201,13 @@ Sync”.
 
 There are 7 columns here with the proper information about the current job.
 
-| Column name                         | Information                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Screenshot                                              | 
-|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | ![Job Name](images/job-scheduler-name.png?raw=true)     |
-| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                | ![Job Status](images/job-scheduler-status.png?raw=true) |
-| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                  | ![Job Date](images/job-scheduler-date.png?raw=true)     |
+| Column name                         | Information                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Screenshot                                              | 
+|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | ![Job Name](images/job-scheduler-name.png?raw=true)     |
+| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                        | ![Job Status](images/job-scheduler-status.png?raw=true) |
+| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                          | ![Job Date](images/job-scheduler-date.png?raw=true)     |
 | Child jobs                          | In this column we have 3 types of dot badges: <br> **Green** dot badge indicates to us how many successful sub jobs our current job has.<br>**Gray** dot badge indicates to us how many pending sub jobs our current job has. <br>**Red** dot badge indicates to us how many failed sub jobs our current job has.<br>By clicking on the corresponding row of the current job in the sub jobs column pop-up will open with the detailed listed view of the sub jobs of the current job. | ![Child Job](images/job-scheduler-child.gif?raw=true)   |
-| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                                   | ![Messages](images/job-scheduler-messages.gif?raw=true) |
+| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                               | ![Messages](images/job-scheduler-messages.gif?raw=true) |
 
 <a name="job-scheduling-view"></a>
 ## Views of Job Scheduling Dashboard
@@ -268,4 +271,36 @@ Listing page contains all Nosto plugin jobs:
 # Dependencies
 * Nosto Job Scheduler which is included in the plugin sources
 
-<a name="job-scheduling-view-listing"></a>
+<a name="development"></a>
+# Development
+
+<a name="local-setup"></a>
+## Local setup
+
+This setup requires the installation of the [Shopware CLI](https://sw-cli.fos.gg/install/).
+
+1. Install the shop with `shopware-cli project create <folder> <version>`
+   - Follow the instructions from the terminal to set up the store
+2. Clone or mount the plugin repository into `custom/plugins`. (Symlinking is not supported)
+3. Install all plugin dependencies
+   1. `composer install`
+   2. `npm install`
+4. In the store root, run the following command
+   1. `bin/console plugin:refresh`
+   2. `bin/console plugin:install NostoIntegration --activate --clearCache`
+
+<a name="test-setup"></a>
+## Test setup
+
+1. Follow the local setup above
+2. Shop folder: `composer require symfony/test-pack --dev`
+3. Plugin folder: `composer test`
+   - The tests will fail for this first run
+   - This will create the test database and run the migrations
+   - The database name will be the configured DB name suffixed with `_test`
+4. Shop folder: Change your database name in the env file to `<databaseName>_test`
+5. Shop folder: Run the following command
+   1. `bin/console plugin:refresh`
+   2. `bin/console plugin:install NostoIntegration --activate --clearCache`
+
+Now you can go back to point 3 and it will run successfully
