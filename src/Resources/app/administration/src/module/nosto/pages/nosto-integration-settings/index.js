@@ -117,7 +117,7 @@ Component.register('nosto-integration-settings', {
 
             this.nostoConfigRepository.search(criteria, Shopware.Context.api).then(res => {
                 const configs = {
-                    null: {}
+                    null: {},
                 };
 
                 res.forEach(item => {
