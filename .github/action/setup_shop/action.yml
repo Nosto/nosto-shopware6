@@ -8,12 +8,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install Shopware-CLI
-      shell: bash
-      run: |
-        curl -1sLf "https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh" | sudo -E bash
-        sudo apt install shopware-cli
-
     - name: Create shop
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }}

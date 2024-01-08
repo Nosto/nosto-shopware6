@@ -1,0 +1,90 @@
+# Automatically uploads the pushed plugin version to the Shopware Store.
+
+name: Shopware Store Release
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  PLUGIN_NAME: NostoIntegration
+  PLUGIN_MIN_REQUIREMENT: ^6.5.4
+  SHOPWARE_CLI_ACCOUNT_EMAIL: ${{ secrets.ACCOUNT_USER }}
+  SHOPWARE_CLI_ACCOUNT_PASSWORD: ${{ secrets.ACCOUNT_PASSWORD }}
+  SHOPWARE_CLI_COMPANY_ID: ${{ secrets.ACCOUNT_COMPANY_ID }}
+
+jobs:
+  validatePlugin:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Runner
+        uses: ./nosto-shopware6/.github/action/setup_runner
+
+      - name: Setup Plugin
+        uses: ./nosto-shopware6/.github/action/setup_plugin
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Set minimum requirement
+        run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
+
+      - name: Validate plugin files
+        run: shopware-cli extension validate $(pwd)
+
+      - name: Build plugin release zip file
+        run: shopware-cli extension zip . --disable-git
+
+      - name: Upload release zip file
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${PLUGIN_NAME}.zip
+          path: ./${PLUGIN_NAME}.zip
+
+  storeRelease:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: validatePlugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Runner
+        uses: ./nosto-shopware6/.github/action/setup_runner
+
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Download release zip file
+        uses: actions/download-artifact@v2
+        with:
+          name: ${PLUGIN_NAME}.zip
+          path: ./
+
+      - name: Upload plugin to Shopware Store
+        run: shopware-cli account producer extension upload $(pwd)/${PLUGIN_NAME}.zip
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
+          body_path: 'docs/release/body.md'
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/${{ env.PLUGIN_NAME }}.zip
+          asset_name: ${{ env.PLUGIN_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip

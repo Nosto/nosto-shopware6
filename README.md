@@ -109,7 +109,7 @@ There are basic configuration fields and control buttons are located in plugin c
 **Note!** Plugin requires to setup global Nosto account credentials. If you need to disable plugin functionality on
 specific sales channel, you can disable account on specific channel via toggle off “Enable Account“ switch field.
 
-![Account Settings](images/account-settings.png?raw=true)
+![Account Settings](docs/images/account-settings.png?raw=true)
 
 1. Field which indicates is configured account is enabled for merchandising/product sync.
 2. Api validation button, which will validate the tokens mentioned below and the result will be shown in the
@@ -134,7 +134,7 @@ specific sales channel, you can disable account on specific channel via toggle o
 <a name="configuration-general-settings"></a>
 ## General Settings Overview
 
-![General Settings](images/general-settings.png?raw=true)
+![General Settings](docs/images/general-settings.png?raw=true)
 
 1. By enabling this setting, Nosto tracking JS scripts will be initialized and loaded directly after guest’s very first
    interaction with storefront page. It can be used for prevent storefront performance issues during page loading.
@@ -147,17 +147,17 @@ specific sales channel, you can disable account on specific channel via toggle o
 <a name="configuration-tag-assignment"></a>
 ## Tags Assignment Overview
 
-![Tag Assignment](images/tag-settings.png?raw=true)
+![Tag Assignment](docs/images/tag-settings.png?raw=true)
 
 All fields displayed in the “Tags assignment“ card are used to transfer product’s custom fields values to the associated
 Nosto product entity.
 <br>
-![Nosto product entity.](images/tag-nosto.png?raw=true)
+![Nosto product entity.](docs/images/tag-nosto.png?raw=true)
 
 <a name="configuration-features-flags"></a>
 ## Features Flags Overview
 
-![Feature Flags](images/feature-settings.png?raw=true)
+![Feature Flags](docs/images/feature-settings.png?raw=true)
 
 This configuration card contains multiple feature toggles which enable/disable what information to send to Nosto with
 product data. Also, there is possibility to enabling/disable ratings and reviews. Nosto supports tagging the rating and
@@ -175,14 +175,14 @@ information can be found [here](https://docs.shopware.com/en/shopware-6-en/exten
 
 Once the plugin is installed and activated, in Shopware 6 administration you should be able to see the menu item under
 the Marketing tab which will take us to the Nosto plugin dashboard. Marketing → Nosto Jobs Listing
-![Job Navigation](images/job-navigation.png?raw=true)
+![Job Navigation](docs/images/job-navigation.png?raw=true)
 
 <a name="job-scheduling-features"></a>
 ## Features of Job Scheduling Dashboard
 
 Once you are on the Nosto job listing page, you should be able to see the scheduled jobs list.
 
-![Job Navigation Main](images/job-scheduler-main.png?raw=true)
+![Job Navigation Main](docs/images/job-scheduler-main.png?raw=true)
 
 On the job listing page we are able to reach out to the complete job information. After plugin installation all products
 can be synced with Nosto via scheduling associated jobs by clicking over the control button “Schedule Full Product
@@ -192,29 +192,29 @@ There are 7 columns here with the proper information about the current job.
 
 | Column name                         | Information                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Screenshot                                              | 
 |-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | ![Job Name](images/job-scheduler-name.png?raw=true)     |
-| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                | ![Job Status](images/job-scheduler-status.png?raw=true) |
-| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                  | ![Job Date](images/job-scheduler-date.png?raw=true)     |
-| Child jobs                          | In this column we have 3 types of dot badges: <br> **Green** dot badge indicates to us how many successful sub jobs our current job has.<br>**Gray** dot badge indicates to us how many pending sub jobs our current job has. <br>**Red** dot badge indicates to us how many failed sub jobs our current job has.<br>By clicking on the corresponding row of the current job in the sub jobs column pop-up will open with the detailed listed view of the sub jobs of the current job. | ![Child Job](images/job-scheduler-child.gif?raw=true)   |
-| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                                   | ![Messages](images/job-scheduler-messages.gif?raw=true) |
+| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | ![Job Name](docs/images/job-scheduler-name.png?raw=true)     |
+| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                | ![Job Status](docs/images/job-scheduler-status.png?raw=true) |
+| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                  | ![Job Date](docs/images/job-scheduler-date.png?raw=true)     |
+| Child jobs                          | In this column we have 3 types of dot badges: <br> **Green** dot badge indicates to us how many successful sub jobs our current job has.<br>**Gray** dot badge indicates to us how many pending sub jobs our current job has. <br>**Red** dot badge indicates to us how many failed sub jobs our current job has.<br>By clicking on the corresponding row of the current job in the sub jobs column pop-up will open with the detailed listed view of the sub jobs of the current job. | ![Child Job](docs/images/job-scheduler-child.gif?raw=true)   |
+| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                                   | ![Messages](docs/images/job-scheduler-messages.gif?raw=true) |
 
 <a name="job-scheduling-view"></a>
 ## Views of Job Scheduling Dashboard
 There are 3 different type of dashboard view in Nosto plugin.
 View modes can be switched from the dashboard action bar on top of the job listing.
 
-![Switch View](images/job-scheduler-switch-view.png?raw=true)
+![Switch View](docs/images/job-scheduler-switch-view.png?raw=true)
 
 <a name="job-scheduling-view-listing"></a>
 ### Listing View
 
 List view is the default view of the dashboard with filtering support.
-![Listing View](images/job-scheduler-listing-view.png?raw=true)
+![Listing View](docs/images/job-scheduler-listing-view.png?raw=true)
 
 <a name="job-scheduling-view-group"></a>
 ### Grouped view
 
-![Grouped View](images/job-scheduler-grouped-view.gif?raw=true)
+![Grouped View](docs/images/job-scheduler-grouped-view.gif?raw=true)
 The grouped view has 2 types of grouping itself.
 
 1. Group by status
@@ -222,7 +222,7 @@ The grouped view has 2 types of grouping itself.
 
 Grouping types can be switched from the action bar at the top.
 
-![Grouped View](images/job-scheduler-group-change.png?raw=true)
+![Grouped View](docs/images/job-scheduler-group-change.png?raw=true)
 
 <a name="job-scheduling-view-chart"></a>
 ### Chart view
@@ -237,7 +237,7 @@ Yesterday.**
 
 By clicking on the colored dot badge we can hide/show the chart line and info corresponding to the badge color and the
 type/status in front of it.
-![Chart View](images/job-scheduler-chart.gif?raw=true)
+![Chart View](docs/images/job-scheduler-chart.gif?raw=true)
 
 At the bottom of the charts there are colored dot badges with the chart line name (corresponding to the chart grouping mode status/type).
 
@@ -246,7 +246,7 @@ At the bottom of the charts there are colored dot badges with the chart line nam
 
 In the **Actions** at the top of the Nosto dashboard there is a switch field named **Auto Load**.
 
-![Autoload](images/job-scheduler-autoload.png?raw=true)
+![Autoload](docs/images/job-scheduler-autoload.png?raw=true)
 
 Job Listing page has auto-reload feature so you don't even need to reload whole page to check job’s execution statuses. 
 Listing data refreshes automatically every 1 minute.

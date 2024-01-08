@@ -13,6 +13,7 @@ build:
                 paths:
                     - .gitignore
                     - .github
+                    - .git
                     - bin
                     - images
                     - node_modules
@@ -25,6 +26,7 @@ build:
                     - .eslintrc-administration.js
                     - .eslintrc-storefront.js
                     - "*.zip"
+                    - "*.DS_Store"
                     - dependencies
                     - vendor/nosto/shopware6-job-scheduler/.idea
                     - vendor/nosto/shopware6-job-scheduler/.github
