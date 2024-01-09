@@ -23,6 +23,10 @@ runs:
         mysql database: shopware_test
         mysql root password: root
 
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18.18.0 # Last version with npm 9 (Shopware requirement)
+
     - name: Install Shopware-CLI
       shell: bash
       run: |
