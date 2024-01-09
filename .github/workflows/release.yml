@@ -49,7 +49,7 @@ jobs:
           path: nosto-shopware6
 
       - name: Setup Runner
-        uses: ./.github/action/setup_runner
+        uses: ./nosto-shopware6/.github/action/setup_runner
 
       - name: Setup Plugin
         uses: ./nosto-shopware6/.github/action/setup_plugin
