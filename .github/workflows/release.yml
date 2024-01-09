@@ -45,6 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: nosto-shopware6
 
       - name: Setup Runner
         uses: ./.github/action/setup_runner
@@ -59,10 +61,12 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
       - name: Build plugin release zip file
+        working-directory: nosto-shopware6
         run: shopware-cli extension zip . --disable-git
 
       - name: Upload plugin to Shopware Store
-        run: shopware-cli account producer extension upload $(pwd)/${{ env.PLUGIN_NAME }}.zip
+        working-directory: nosto-shopware6
+        run: shopware-cli account producer extension upload ./${{ env.PLUGIN_NAME }}.zip
 
       - name: Create GitHub release
         id: create_release
@@ -83,6 +87,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/${{ env.PLUGIN_NAME }}.zip
+          asset_path: ${{ github.workspace }}/nosto-shopware6/${{ env.PLUGIN_NAME }}.zip
           asset_name: ${{ env.PLUGIN_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
           asset_content_type: application/zip
