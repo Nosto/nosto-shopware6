@@ -36,7 +36,6 @@ jobs:
         run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
 
       - name: Setup tmate session
-        working-directory: nosto-shopware6
         uses: mxschmitt/action-tmate@v3
 
       - name: Validate plugin files
