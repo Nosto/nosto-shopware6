@@ -6,7 +6,6 @@ build:
             before_hooks:
                 - jq '.repositories[0].options.symlink = false' composer.json > temp.json && mv temp.json composer.json
                 - composer update nosto/shopware6-job-scheduler
-                - composer install --no-dev --verbose
 
         pack:
             excludes:
