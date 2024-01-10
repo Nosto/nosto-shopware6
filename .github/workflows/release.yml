@@ -40,7 +40,6 @@ jobs:
         run: shopware-cli extension validate . --config ./.github/.shopware-extension.yml
 
       - name: Setup tmate session
-        working-directory: nosto-shopware6
         uses: mxschmitt/action-tmate@v3
 
       - name: Build plugin release zip file
