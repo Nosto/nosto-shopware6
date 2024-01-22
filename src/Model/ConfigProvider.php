@@ -72,16 +72,6 @@ class ConfigProvider
         );
     }
 
-    public function isMerchEnabled($channelId = null, $languageId = null): bool
-    {
-        return $this->configService->getBool(NostoConfigService::ENABLE_MERCH, $channelId, $languageId);
-    }
-
-    public function isEnabledNotLoggedInCache($channelId = null, $languageId = null): bool
-    {
-        return $this->configService->getBool(NostoConfigService::ENABLE_NOT_LOGGED_IN_CACHE, $channelId, $languageId);
-    }
-
     public function getDomainId($channelId = null, $languageId = null): ?string
     {
         $domainId = $this->configService->get(NostoConfigService::DOMAIN_ID, $channelId, $languageId);

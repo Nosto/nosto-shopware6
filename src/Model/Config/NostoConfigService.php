@@ -41,10 +41,6 @@ class NostoConfigService
 
     public const INITIALIZE_NOSTO_AFTER_INTERACTION = 'isInitializeNostoAfterInteraction';
 
-    public const ENABLE_MERCH = 'enableMerch';
-
-    public const ENABLE_NOT_LOGGED_IN_CACHE = 'notLoggedInCache';
-
     public const DOMAIN_ID = 'domain';
 
     public const SELECTED_CUSTOM_FIELDS = 'selectedCustomFields';

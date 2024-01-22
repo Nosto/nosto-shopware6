@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
-use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -42,12 +41,12 @@ class Lifecycle
 
     public function install(InstallContext $installContext): void
     {
-        $this->importSorting($installContext->getContext());
+        $this->removeSorting($installContext->getContext());
     }
 
     public function update(UpdateContext $updateContext): void
     {
-        $this->importSorting($updateContext->getContext());
+        $this->removeSorting($updateContext->getContext());
         if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
             $this->removeOldTags($updateContext->getContext());
         }
@@ -60,13 +59,16 @@ class Lifecycle
 
     public function activate(ActivateContext $activateContext): void
     {
-        $this->importSorting($activateContext->getContext());
+        $this->removeSorting($activateContext->getContext());
     }
 
+    /**
+     * The sorting was remove with v3, so only the remove sorting is called without it being added.
+     */
     public function removeSorting(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
+        $criteria->addFilter(new EqualsFilter('key', 'nosto-recommendation'));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
         if ($sorting == null) {
             return;
@@ -74,41 +76,6 @@ class Lifecycle
         $this->sortingRepository->delete([[
             'id' => $sorting->getId(),
         ]], $context);
-    }
-
-    public function importSorting(Context $context): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
-        $sorting = $this->sortingRepository->search($criteria, $context);
-
-        if ($sorting->count() > 0) {
-            $data = [
-                'id' => $sorting->first()->getId(),
-                'fields' => [[
-                    "field" => "product.name",
-                    "order" => "desc",
-                    "priority" => 1,
-                    "naturalSorting" => 0,
-                ]],
-            ];
-        } else {
-            $data = [
-                'key' => MerchandisingSearchApi::MERCHANDISING_SORTING_KEY,
-                'priority' => 0,
-                'active' => true,
-                'fields' => [[
-                    "field" => "product.name",
-                    "order" => "desc",
-                    "priority" => 1,
-                    "naturalSorting" => 0,
-                ]],
-                'label' => 'Recommendation',
-                'locked' => false,
-            ];
-        }
-
-        $this->sortingRepository->upsert([$data], $context);
     }
 
     public function uninstall(UninstallContext $context): void

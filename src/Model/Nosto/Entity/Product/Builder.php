@@ -18,7 +18,6 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
-use Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator;
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
@@ -45,6 +44,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class Builder
 {
     public const PRODUCT_ASSIGNMENT_TYPE = 'productAssignmentType';
+
+    public const SHIPPING_FREE_ATTR_NAME = 'Shipping Free';
 
     public function __construct(
         private readonly ConfigProvider $configProvider,
@@ -141,7 +142,7 @@ class Builder
         }
 
         if ($product->getShippingFree()) {
-            $nostoProduct->addCustomField(ShippingFreeFilterTranslator::SHIPPING_FREE_ATTR_NAME, 'true');
+            $nostoProduct->addCustomField(self::SHIPPING_FREE_ATTR_NAME, 'true');
         }
 
         if (

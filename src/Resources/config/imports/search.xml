@@ -69,11 +69,7 @@
             decoration-priority="-5000"
             autowire="true"
         >
-            <argument
-                type="service"
-                key="$salesChannelProductRepository"
-                id="Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi"
-            />
+            <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
             <argument type="service" key="$categoryRepository" id="category.repository" />
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
         </service>
@@ -89,7 +85,6 @@
             <tag name="shopware.listing.processor"/>
         </service>
 
-        <service id="Nosto\NostoIntegration\Search\Api\SortingService" autowire="true" />
         <service id="Nosto\NostoIntegration\Search\Api\PaginationService" />
         <service id="Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService" />
         <service id="Nosto\NostoIntegration\Search\Request\Handler\FilterHandler" />

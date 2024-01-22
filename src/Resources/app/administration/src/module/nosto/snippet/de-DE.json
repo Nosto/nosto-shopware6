@@ -51,14 +51,6 @@
                     "label": "Initialisieren Sie das Nosto-Skript nach der Iteration der ersten Seite",
                     "helpText": "Diese Einstellung ist eine Optimierung der Webseitenleistung. Wenn diese Einstellung aktiviert ist, wird das Nosto-Skript direkt nach dem Scrollen der Seite nach unten (erste Interaktion) beim allerersten Seitenbesuch geladen und initialisiert. Bei jedem weiteren Neuladen/Besuchen der Seite wird das Nosto-Skript sofort geladen und initialisiert."
                 },
-                "merch": {
-                    "label": "Nosto-Merchandising aktivieren.",
-                    "helpText": "Durch Aktivieren dieser Einstellung wird die Nosto Merchandising-Funktion aktiviert. Bitte stellen Sie sicher, dass Sie alle erforderlichen Produkt-Merchandising-Regeln eingerichtet haben, bevor Sie diese Funktion aktivieren."
-                },
-                "notLoggedInCache": {
-                    "label": "Aktivieren Sie den PLP-Cache für nicht angemeldete Kunden.",
-                    "helpText": "Wenn die Merchandising-Funktion aktiviert ist, wird der gesamte PLP-HTTP-Seiten-Cache deaktiviert, um das Caching der personalisierten PLP-Produkte für alle Kunden zu verhindern. Sie können den PLP-HTTP-Cache für nicht angemeldete Kunden (nicht personalisiert) aktivieren, um Leistungsprobleme im Schaufenster zu vermeiden."
-                },
                 "domain": {
                     "label": "Domäne für die Erzeugung der Produkturl.",
                     "helpText": "Diese Domain wird für Multi-Domain-Verkaufskanäle verwendet, und die ausgewählte Domain wird als Uri für die Produkt-Url verwendet."

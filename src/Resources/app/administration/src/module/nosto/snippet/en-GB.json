@@ -51,14 +51,6 @@
                     "label": "Initialize Nosto Script After First Page Iteration",
                     "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
-                "merch": {
-                    "label": "Enable Nosto Merchandising.",
-                    "helpText": "By enabling this setting, Nosto Merchandising feature will be activated. Please make sure you have setup all necessary product merchandising rules before enabling this feature."
-                },
-                "notLoggedInCache": {
-                    "label": "Enable PLP Cache for Not Logged In Customers.",
-                    "helpText": "When merchandising feature is enabled, Whole PLP HTTP page cache is being disabled to prevent caching of the personalized PLP products for all customers. You can enable PLP HTTP cache for Not Logged In customers (not-personalized) to prevent storefront performance issues."
-                },
                 "domain": {
                     "label": "Domain for generating product url",
                     "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url"
