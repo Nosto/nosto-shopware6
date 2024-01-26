@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\PriceSortingHandl
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ProductNameSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ProductNumberSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RatingSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ReleaseDateSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
@@ -43,6 +44,7 @@ class SortingHandlerService
             new RatingSortingHandler(),
             new ReleaseDateSortingHandler(),
             new ScoreSortingHandler(),
+            new RecommendationSortingHandler(),
             new StockSortingHandler(),
             new TopSellerSortingHandler(),
         ];

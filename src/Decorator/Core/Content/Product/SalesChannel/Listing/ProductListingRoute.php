@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListin
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -75,12 +76,17 @@ class ProductListingRoute extends AbstractProductListingRoute
 
         $this->listingProcessor->prepare($request, $criteria, $context);
 
-        $result = $this->fetchProductsById($criteria, $context);
-        $productListing = ProductListingResult::createFrom($result);
+        $productListing = ProductListingResult::createFrom(
+            $this->fetchProductsById($criteria, $context),
+        );
         $productListing->addCurrentFilter('navigationId', $categoryId);
         $productListing->setStreamId($streamId);
 
         $this->listingProcessor->process($request, $productListing, $context);
+
+        $productListing->getAvailableSortings()->removeByKey(
+            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+        );
 
         return new ProductListingRouteResponse($productListing);
     }
