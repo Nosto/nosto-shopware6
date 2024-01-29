@@ -65,7 +65,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
             return $mapping[$categoryId];
         }, array_filter($pathIds, fn ($id) => $id !== $navigationCategoryId));
 
-        $categoryNames[] = CategoryNamingOptions::WITH_ID
+        $categoryNames[] = $withId === CategoryNamingOptions::WITH_ID
             ? sprintf(
                 TreeBuilder::NAME_WITH_ID_TEMPLATE,
                 $categoryName,
