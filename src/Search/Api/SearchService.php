@@ -32,7 +32,7 @@ class SearchService
         private readonly PaginationService $paginationService,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
-        private readonly SalesChannelRepository $seoUrlRepository,
+        private readonly SalesChannelRepository $categoryRepository,
     ) {
     }
 
@@ -153,7 +153,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
-            $this->seoUrlRepository,
+            $this->categoryRepository,
         );
     }
 

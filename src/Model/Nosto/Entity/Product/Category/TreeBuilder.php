@@ -9,6 +9,8 @@ use Shopware\Core\Content\Category\CategoryEntity;
 
 class TreeBuilder
 {
+    public const NAME_WITH_ID_TEMPLATE = '%s (ID = %s)';
+
     public function fromCategoriesRo(CategoryCollection $categoriesRo): array
     {
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
@@ -34,8 +36,11 @@ class TreeBuilder
         $nostoCategoryNames = [];
 
         foreach ($categoryNameSets as $catNames) {
-            $catIdLabel = ' (ID = ' . array_key_last($catNames) . ')';
-            $nostoCategoryNames[] = '/' . implode('/', $catNames) . $catIdLabel;
+            $nostoCategoryNames[] = '/' . sprintf(
+                self::NAME_WITH_ID_TEMPLATE,
+                implode('/', $catNames),
+                array_key_last($catNames),
+            );
         }
 
         return $nostoCategoryNames;

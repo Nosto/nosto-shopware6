@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Monolog\Logger;
+use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\Result\Graphql\Search\SearchResult;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         ConfigProvider $configProvider,
         SortingHandlerService $sortingHandlerService,
         Logger $logger,
-        private readonly SalesChannelRepository $seoUrlRepository,
+        private readonly SalesChannelRepository $categoryRepository,
     ) {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
@@ -34,25 +35,44 @@ class NavigationRequestHandler extends AbstractRequestHandler
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setCategoryPath(
-            $this->fetchCategoryPath($request->getPathInfo(), $context),
+            $this->fetchCategoryPath($request->get('navigationId'), $context),
         );
 
         return $searchOperation->execute();
     }
 
-    private function fetchCategoryPath(string $pathInfo, SalesChannelContext $context): string
+    private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('pathInfo', $pathInfo),
-        );
+        /** @var ?CategoryEntity $category */
+        $category = $this->categoryRepository
+            ->search(new Criteria([$categoryId]), $context)
+            ->first();
 
-        /** @var ?SeoUrlEntity $seoUrl */
-        $seoUrl = $this->seoUrlRepository->search($criteria, $context)->first();
-        if (!$seoUrl) {
-            return $pathInfo;
+        if (!$category) {
+            return null;
         }
 
-        return '/' . trim($seoUrl->getSeoPathInfo(), '/');
+        $withId = $this->configProvider->getCategoryNamingOption(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        $pathIds = explode('|', trim($category->getPath(), '|'));
+        $mapping = $category->getTranslation('breadcrumb');
+        $categoryName = $category->getTranslation('name');
+        $navigationCategoryId = $context->getSalesChannel()->getNavigationCategoryId();
+
+        $categoryNames = array_map(function (string $categoryId) use ($mapping, $context, $navigationCategoryId) {
+            return $mapping[$categoryId];
+        }, array_filter($pathIds, fn ($id) => $id !== $navigationCategoryId));
+
+        $categoryNames[] = CategoryNamingOptions::WITH_ID
+            ? sprintf(
+                TreeBuilder::NAME_WITH_ID_TEMPLATE,
+                $categoryName,
+                $category->getId(),
+            )
+            : $categoryName;
+
+        return '/' . implode('/', $categoryNames);
     }
 }
