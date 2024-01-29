@@ -225,8 +225,8 @@ class ConfigProvider
         return $this->configService->getBool(NostoConfigService::OLD_JOB_CLEANUP_ENABLED, $channelId, $languageId);
     }
 
-    public function getOldJobCleanupPeriod($channelId = null, $languageId = null): ?string
+    public function getOldJobCleanupPeriod($channelId = null, $languageId = null): ?int
     {
-        return $this->configService->get(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
+        return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
     }
 }
