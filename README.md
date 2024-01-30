@@ -145,7 +145,8 @@ Some configurations are only available globally or for a specific channel.
 
 ![General Settings](images/general-settings.png?raw=true)
 
-1. **Global** By enabling this setting, Nosto will cache the product and category pages for not logged in users.
+1. By enabling this setting, Nosto tracking JS scripts will be initialized and loaded directly after guest’s very first
+   interaction with storefront page. It can be used for prevent storefront performance issues during page loading.
 2. **Channel specific** The selected domain will be used for the product URLs during the product sync.
 
 <a name="configuration-tag-assignment"></a>
