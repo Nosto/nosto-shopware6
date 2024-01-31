@@ -4,9 +4,7 @@ build:
     zip:
         composer:
             before_hooks:
-                - jq '.repositories[0].options.symlink = false' composer.json > temp.json && mv temp.json composer.json
-                - composer update nosto/shopware6-job-scheduler
-                - composer install --no-dev --verbose
+                - composer install --no-dev
 
         pack:
             excludes:
@@ -25,7 +23,3 @@ build:
                     - .eslintrc-administration.js
                     - .eslintrc-storefront.js
                     - "*.zip"
-                    - dependencies
-                    - vendor/nosto/shopware6-job-scheduler/.idea
-                    - vendor/nosto/shopware6-job-scheduler/.github
-                    - vendor/nosto/shopware6-job-scheduler/node_modules
