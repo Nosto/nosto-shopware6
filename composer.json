@@ -12,11 +12,8 @@
     ],
     "repositories": [
         {
-            "type": "path",
-            "url": "dependencies/*",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/Nosto/shopware6-job-scheduler"
         }
     ],
     "require": {
