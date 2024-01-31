@@ -269,7 +269,7 @@ Listing page contains all Nosto plugin jobs:
 
 <a name="dependencies"></a>
 # Dependencies
-* Nosto Job Scheduler which is included in the plugin sources
+* [Nosto Job Scheduler](https://github.com/Nosto/shopware6-job-scheduler) which is included in the plugin sources
 
 <a name="development"></a>
 # Development
