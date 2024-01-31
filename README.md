@@ -20,6 +20,9 @@
       3. [Chart View](#job-scheduling-view-chart)
    3. [Auto Load](#job-scheduling-auto-load)
 6. [Dependencies](#dependencies)
+7. [Development](#development)
+   1. [Local Setup](#local-setup)
+   2. [Test Setup](#test-setup)
 
 # Personalization for Shopware
 
@@ -97,7 +100,7 @@ After this, the plugin can be activated in Shopware admin My Extensions section.
 <a name="configuration"></a>
 # Configuration
 
-The Nosto plugin has a separate settings page.
+The Nosto plugin has a separate settings page. You can configure values for each sales channel and it's configured languages.
 
 Settings → Extensions → Nosto
 
@@ -106,8 +109,8 @@ Settings → Extensions → Nosto
 
 There are basic configuration fields and control buttons are located in plugin configuration page marked with digits:
 
-**Note!** Plugin requires to setup global Nosto account credentials. If you need to disable plugin functionality on
-specific sales channel, you can disable account on specific channel via toggle off “Enable Account“ switch field.
+> [!NOTE]
+> The account settings are only available for a specific sales channel and language. There are no global account settings.
 
 ![Account Settings](docs/images/account-settings.png?raw=true)
 
@@ -118,31 +121,33 @@ specific sales channel, you can disable account on specific channel via toggle o
    found [here](https://help.nosto.com/en/articles/613483-settings-account-settings).
 4. Required Field with account name. It can be retrieved in Nosto account (in account settings), additional guides can
    be found [here](https://help.nosto.com/en/articles/613483-settings-account-settings).
-5. Required Field with Product Token API key (API_PRODUCTS). It used to synchronize products between Shopware and Nosto
+5. Required Field with Product Token API key (API_PRODUCTS). Is used to synchronize products between Shopware and Nosto
    . The key must be requested from Nosto Technical Support, after which it will appear in authentication tokens section
    in the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
-6. Required Field with Email Token API key, (API_EMAIL). It used to synchronize emails between Shopware and Nosto . The
+6. Required Field with Email Token API key, (API_EMAIL). Is used to synchronize emails between Shopware and Nosto . The
    key must be requested from Nosto Technical Support, after which it will appear in authentication tokens section in
    the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
-7. Required Field with GraphQL Token API key, (API_APPS). It used to synchronize orders, recommendations, segments,
-   category merchandizing products between Shopware and Nosto . The key must be requested from Nosto Technical Support,
+7. Required Field with GraphQL Token API key, (API_APPS). Is used to synchronize orders, recommendations, segments,
+   category merchandising products between Shopware and Nosto . The key must be requested from Nosto Technical Support,
    after which it will appear in authentication tokens section in the admin, additional guides can be
    found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
+8. Required Field with Search Token API key, (API_SEARCH). Is used for all the search requests, when using the plug-and-play
+   solution. The key must be requested from Nosto Technical Support, after which it will appear in authentication tokens
+   section in the admin, additional guides can be found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
+9. Category update button, which will synchronize all the categories for the Category Merchandising.
 
 <a name="configuration-general-settings"></a>
 ## General Settings Overview
 
-![General Settings](docs/images/general-settings.png?raw=true)
+Some configurations are only available globally or for a specific channel.
+
+![General Settings](images/general-settings.png?raw=true)
 
 1. By enabling this setting, Nosto tracking JS scripts will be initialized and loaded directly after guest’s very first
    interaction with storefront page. It can be used for prevent storefront performance issues during page loading.
-2. By enabling this setting, Nosto Merchandising feature will be activated. Please make sure you have setup all
-   necessary product merchandising rules before enabling this feature.
-   **Note!** To prevent empty PLP displaying because of network issues or Nosto API unavailability, plugin will follow
-   the fallback to native Shopware 6 search engine.
-3. By enabling this setting, Nosto will cache the product and category pages for not logged in users.
+2. **Channel specific** The selected domain will be used for the product URLs during the product sync.
 
 <a name="configuration-tag-assignment"></a>
 ## Tags Assignment Overview
@@ -192,11 +197,11 @@ There are 7 columns here with the proper information about the current job.
 
 | Column name                         | Information                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Screenshot                                              | 
 |-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | ![Job Name](docs/images/job-scheduler-name.png?raw=true)     |
-| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                | ![Job Status](docs/images/job-scheduler-status.png?raw=true) |
-| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                  | ![Job Date](docs/images/job-scheduler-date.png?raw=true)     |
-| Child jobs                          | In this column we have 3 types of dot badges: <br> **Green** dot badge indicates to us how many successful sub jobs our current job has.<br>**Gray** dot badge indicates to us how many pending sub jobs our current job has. <br>**Red** dot badge indicates to us how many failed sub jobs our current job has.<br>By clicking on the corresponding row of the current job in the sub jobs column pop-up will open with the detailed listed view of the sub jobs of the current job. | ![Child Job](docs/images/job-scheduler-child.gif?raw=true)   |
-| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                                   | ![Messages](docs/images/job-scheduler-messages.gif?raw=true) |
+| Name                                | Job Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | ![Job Name](images/job-scheduler-name.png?raw=true)     |
+| Status                              | There are 4 type of statuses: Success, Failed, Running, Pending                                                                                                                                                                                                                                                                                                                                                                                                                | ![Job Status](images/job-scheduler-status.png?raw=true) |
+| Started At, Created At, Finished At | Job’s creation, starting and finishing dates.                                                                                                                                                                                                                                                                                                                                                                                                                                  | ![Job Date](images/job-scheduler-date.png?raw=true)     |
+| Child jobs                          | In this column we have 3 types of dot badges: <br> **Green** dot badge indicates to us how many successful sub jobs our current job has.<br>**Gray** dot badge indicates to us how many pending sub jobs our current job has. <br>**Red** dot badge indicates to us how many failed sub jobs our current job has.<br>By clicking on the corresponding row of the current job in the sub jobs column pop-up will open with the detailed listed view of the sub jobs of the current job. | ![Child Job](images/job-scheduler-child.gif?raw=true)   |
+| Messages                            | In the messages column we can see the colored icons and the numbers in front of them. <br> **Blue**: Indicates to us the quantity of the INFO type messages.<br>**Yellow**: Indicates to us the quantity of the WARNING type messages.<br>**Red**: Indicates to us the quantity of the ERROR type messages.<br>By clicking on the corresponding row of the current job in the messages column the pop-up will open with the messages of the current job.                                   | ![Messages](images/job-scheduler-messages.gif?raw=true) |
 
 <a name="job-scheduling-view"></a>
 ## Views of Job Scheduling Dashboard
@@ -258,6 +263,38 @@ Listing page contains all Nosto plugin jobs:
 
 <a name="dependencies"></a>
 # Dependencies
-* Nosto Job Scheduler which is included in the plugin sources
+* [Nosto Job Scheduler](https://github.com/Nosto/shopware6-job-scheduler) which is included in the plugin sources
 
-<a name="job-scheduling-view-listing"></a>
+<a name="development"></a>
+# Development
+
+<a name="local-setup"></a>
+## Local setup
+
+This setup requires the installation of the [Shopware CLI](https://sw-cli.fos.gg/install/).
+
+1. Install the shop with `shopware-cli project create <folder> <version>`
+   - Follow the instructions from the terminal to set up the store
+2. Clone or mount the plugin repository into `custom/plugins`. (Symlinking is not supported)
+3. Install all plugin dependencies
+   1. `composer install`
+   2. `npm install`
+4. In the store root, run the following command
+   1. `bin/console plugin:refresh`
+   2. `bin/console plugin:install NostoIntegration --activate --clearCache`
+
+<a name="test-setup"></a>
+## Test setup
+
+1. Follow the local setup above
+2. Shop folder: `composer require symfony/test-pack --dev`
+3. Plugin folder: `composer test`
+   - The tests will fail for this first run
+   - This will create the test database and run the migrations
+   - The database name will be the configured DB name suffixed with `_test`
+4. Shop folder: Change your database name in the env file to `<databaseName>_test`
+5. Shop folder: Run the following command
+   1. `bin/console plugin:refresh`
+   2. `bin/console plugin:install NostoIntegration --activate --clearCache`
+
+Now you can go back to point 3 and it will run successfully

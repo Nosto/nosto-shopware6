@@ -28,10 +28,6 @@ class Config extends Struct
 
     public ?bool $isInitializeNostoAfterInteraction = null;
 
-    public ?bool $enableMerch = null;
-
-    public ?bool $notLoggedInCache = null;
-
     public ?string $domain = null;
 
     public ?array $selectedCustomFields = [];

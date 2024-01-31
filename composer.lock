@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "817031049225d36edd7a3c66b24c1593",
+    "content-hash": "fb060691d86420dcc98e580e712480ec",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.2.0",
+            "version": "7.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "efe6218e43bf08b41ca9500b9b1434d1de25e564"
+                "reference": "ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/efe6218e43bf08b41ca9500b9b1434d1de25e564",
-                "reference": "efe6218e43bf08b41ca9500b9b1434d1de25e564",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8",
+                "reference": "ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8",
                 "shasum": ""
             },
             "require": {
@@ -58,17 +58,23 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.2.0"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.2.1"
             },
-            "time": "2023-11-23T15:12:57+00:00"
+            "time": "2024-01-29T08:40:10+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
             "version": "2.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
+                "reference": "c434a199cc75149310d396d71b12f1dd0437f326"
+            },
             "dist": {
-                "type": "path",
-                "url": "dependencies/shopware6-job-scheduler",
-                "reference": "b14ef0d46b2939cef3b566bef0100b47b063d8b8"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/c434a199cc75149310d396d71b12f1dd0437f326",
+                "reference": "c434a199cc75149310d396d71b12f1dd0437f326",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.1"
@@ -95,10 +101,11 @@
                 "proprietary"
             ],
             "description": "System library for async job scheduling for Shopware 6",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.7",
+                "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues"
+            },
+            "time": "2023-12-22T08:46:35+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -565,25 +572,25 @@
     "packages-dev": [
         {
             "name": "symplify/easy-coding-standard",
-            "version": "12.0.13",
+            "version": "12.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/easy-coding-standard/easy-coding-standard.git",
-                "reference": "d15707b14d50b7cb6d656f7a7a5e5b9a17099b3c"
+                "reference": "7962c810a8eebc4174a38d7dff673f1999e61595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/easy-coding-standard/easy-coding-standard/zipball/d15707b14d50b7cb6d656f7a7a5e5b9a17099b3c",
-                "reference": "d15707b14d50b7cb6d656f7a7a5e5b9a17099b3c",
+                "url": "https://api.github.com/repos/easy-coding-standard/easy-coding-standard/zipball/7962c810a8eebc4174a38d7dff673f1999e61595",
+                "reference": "7962c810a8eebc4174a38d7dff673f1999e61595",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
             "conflict": {
-                "friendsofphp/php-cs-fixer": "<3.0",
-                "phpcsstandards/php_codesniffer": "<3.6",
-                "symplify/coding-standard": "<11.3"
+                "friendsofphp/php-cs-fixer": "<3.46",
+                "phpcsstandards/php_codesniffer": "<3.8",
+                "symplify/coding-standard": "<12.1"
             },
             "bin": [
                 "bin/ecs"
@@ -607,7 +614,7 @@
             ],
             "support": {
                 "issues": "https://github.com/easy-coding-standard/easy-coding-standard/issues",
-                "source": "https://github.com/easy-coding-standard/easy-coding-standard/tree/12.0.13"
+                "source": "https://github.com/easy-coding-standard/easy-coding-standard/tree/12.1.8"
             },
             "funding": [
                 {
@@ -619,7 +626,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-07T09:18:07+00:00"
+            "time": "2024-01-16T22:56:06+00:00"
         }
     ],
     "aliases": [],
@@ -634,5 +641,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

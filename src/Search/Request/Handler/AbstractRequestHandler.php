@@ -19,13 +19,14 @@ use Throwable;
 
 abstract class AbstractRequestHandler
 {
+    protected readonly FilterHandler $filterHandler;
+
     public function __construct(
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
-        protected ?FilterHandler $filterHandler = null,
     ) {
-        $this->filterHandler = $filterHandler ?? new FilterHandler();
+        $this->filterHandler = new FilterHandler();
     }
 
     /**
