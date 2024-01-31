@@ -13,7 +13,7 @@ build:
                     - .github
                     - .git
                     - bin
-                    - images
+                    - docs
                     - node_modules
                     - tests
                     - ecs.php
@@ -23,5 +23,6 @@ build:
                     - .eslintignore
                     - .eslintrc-administration.js
                     - .eslintrc-storefront.js
+                    - .shopware-extension.yml
                     - "*.zip"
                     - "*.DS_Store"
