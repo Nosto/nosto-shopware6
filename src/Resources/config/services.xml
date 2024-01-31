@@ -57,7 +57,6 @@
             <tag name="messenger.message_handler" />
 
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
-            <argument type="service" id="cache.object" />
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
             <argument key="$cache" type="service" id="cache.object" />
         </service>
@@ -135,61 +134,9 @@
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument key="$newsletterRecipientRepository" type="service" id="newsletter_recipient.repository" />
         </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi">
-            <argument key="$repository" type="service" id="sales_channel.product.repository" />
-            <argument key="$categoryRepository" type="service" id="category.repository" />
-            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ResultTranslator" />
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\FilterTranslatorAggregate">
-            <argument type="tagged_iterator" tag="nosto.merch.filter_translator" index-by="code" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\SessionLookupResolver" />
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ManufacturerFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-manufacturer-filter" />
-
-            <argument type="service" id="product_manufacturer.repository" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\ShippingFreeFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-shipping-free-filter" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\AttributeFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-attribute-filter" />
-
-            <argument type="service" id="property_group_option.repository" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\Translator\PriceFilterTranslator">
-            <tag name="nosto.merch.filter_translator" code="nosto-price-filter" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoCacheResolver" />
         <!-- /Services -->
 
         <!-- Decorators -->
-        <service
-            id="nosto.aware_cached_listing"
-            class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedProductListingRoute"
-            decorates="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute"
-        >
-            <argument key="$decoratedService" type="service" id="nosto.aware_cached_listing.inner" />
-        </service>
-
-        <service
-            id="nosto.aware_cached_category_route"
-            class="Nosto\NostoIntegration\Service\CategoryMerchandising\NostoAwareCachedCategoryRoute"
-            decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute"
-        >
-            <argument key="$decoratedService" type="service" id="nosto.aware_cached_category_route.inner" />
-        </service>
-
         <service
             id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
             decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"
@@ -233,16 +180,6 @@
         </service>
 
         <service id="Nosto\NostoIntegration\EventListener\NewsletterEventListener">
-            <tag name="kernel.event_subscriber" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\EventListener\CmsPageLoaderListener">
-            <tag name="kernel.event_subscriber" />
-
-            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\EventListener\ListingPageEventListener">
             <tag name="kernel.event_subscriber" />
         </service>
         <!-- /Event Listeners -->

@@ -6,7 +6,7 @@ namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
-use Nosto\NostoIntegration\Service\CategoryMerchandising\MerchandisingSearchApi;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -66,7 +66,7 @@ class Lifecycle
     public function removeSorting(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
+        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
         if ($sorting == null) {
             return;
@@ -79,7 +79,7 @@ class Lifecycle
     public function importSorting(Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', MerchandisingSearchApi::MERCHANDISING_SORTING_KEY));
+        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
         $sorting = $this->sortingRepository->search($criteria, $context);
 
         if ($sorting->count() > 0) {
@@ -94,7 +94,7 @@ class Lifecycle
             ];
         } else {
             $data = [
-                'key' => MerchandisingSearchApi::MERCHANDISING_SORTING_KEY,
+                'key' => RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
                 'priority' => 0,
                 'active' => true,
                 'fields' => [[
