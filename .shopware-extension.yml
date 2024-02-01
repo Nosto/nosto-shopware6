@@ -2,10 +2,6 @@ build:
     shopwareVersionConstraint: "^6.5.4"
 
     zip:
-        composer:
-            before_hooks:
-                - composer install --no-dev
-
         pack:
             excludes:
                 paths:
