@@ -10,12 +10,6 @@
             "homepage": "https://www.nosto.com/"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Nosto/shopware6-job-scheduler"
-        }
-    ],
     "require": {
         "nosto/shopware6-job-scheduler": "^2.0.7",
         "nosto/php-sdk": "^7.2.1",

@@ -9,6 +9,7 @@ build:
         pack:
             excludes:
                 paths:
+                    - .shopware-extension.yml
                     - .gitignore
                     - .github
                     - .git
@@ -16,6 +17,7 @@ build:
                     - docs
                     - node_modules
                     - tests
+                    - vendor
                     - ecs.php
                     - phpunit.xml.dist
                     - package.json
