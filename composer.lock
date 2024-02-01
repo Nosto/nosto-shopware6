@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb060691d86420dcc98e580e712480ec",
+    "content-hash": "d3c86c6019127376907ec39fd122ace4",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -89,21 +89,14 @@
                     "Nosto\\Scheduler\\": "src/"
                 }
             },
-            "scripts": {
-                "lint": [
-                    "./vendor/bin/ecs check"
-                ],
-                "fix": [
-                    "./vendor/bin/ecs check --fix"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "proprietary"
             ],
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.7",
-                "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues"
+                "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.7"
             },
             "time": "2023-12-22T08:46:35+00:00"
         },
