@@ -37,11 +37,11 @@ jobs:
 
       - name: Validate plugin files
         working-directory: nosto-shopware6
-        run: shopware-cli extension validate . --config ./.github/.shopware-extension.yml
+        run: shopware-cli extension validate .
 
       - name: Build plugin release zip file
         working-directory: nosto-shopware6
-        run: shopware-cli extension zip . --disable-git --config ./.github/.shopware-extension.yml
+        run: shopware-cli extension zip . --disable-git
 
       - name: Upload release zip file
         uses: actions/upload-artifact@v2
