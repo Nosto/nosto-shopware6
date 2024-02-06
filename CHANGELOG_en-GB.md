@@ -1,6 +1,3 @@
-# 3.0.0
-* Changelog for test purposes
-
 # 2.5.1
 * Fix: Fixed few wording/typos
 * Fix: Fixed an issue that some customer may encounter after changing store language.
