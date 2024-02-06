@@ -143,7 +143,7 @@ There are basic configuration fields and control buttons are located in plugin c
 
 Some configurations are only available globally or for a specific channel.
 
-![General Settings](images/general-settings.png?raw=true)
+![General Settings](docs/images/general-settings.png?raw=true)
 
 1. By enabling this setting, Nosto tracking JS scripts will be initialized and loaded directly after guest’s very first
    interaction with storefront page. It can be used for prevent storefront performance issues during page loading.
