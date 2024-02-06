@@ -3,7 +3,7 @@
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
     "version": "2.5.1",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nosto Solutions Oy",
