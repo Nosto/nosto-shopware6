@@ -12,6 +12,7 @@ build:
                     - bin
                     - docs
                     - node_modules
+                    - release
                     - tests
                     - vendor
                     - ecs.php
