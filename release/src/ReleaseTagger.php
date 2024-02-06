@@ -69,7 +69,7 @@ class ReleaseTagger
 
     private function getReleaseVersionFromUser(): string
     {
-        $version = readline('Version number (e.g. 1.2.3 or 1.2.3-RC3): ');
+        $version = readline('Version number (x.x.x format): ');
         if (!is_string($version)) {
             $this->logger->error('Could not parse version number. Please try again.');
             exit(1);
