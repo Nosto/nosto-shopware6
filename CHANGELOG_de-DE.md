@@ -1,3 +1,6 @@
+# 3.0.0
+* Changelog for test purposes
+
 # 2.5.1
 * Fix: Einige Formulierungen/Tippfehler behoben
 * Fix: Es wurde ein Problem behoben, das bei einigen Kunden auftreten konnte, nachdem sie die Shop-Sprache geändert hatten.
