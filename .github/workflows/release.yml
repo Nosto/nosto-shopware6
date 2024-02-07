@@ -2,7 +2,6 @@
 
 name: Shopware Store Release
 on:
-  workflow_dispatch: ## Remove before merging
   push:
     tags:
       - '*'
