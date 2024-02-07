@@ -85,24 +85,14 @@ class Lifecycle
         if ($sorting->count() > 0) {
             $data = [
                 'id' => $sorting->first()->getId(),
-                'fields' => [[
-                    "field" => "product.name",
-                    "order" => "desc",
-                    "priority" => 1,
-                    "naturalSorting" => 0,
-                ]],
+                'fields' => [],
             ];
         } else {
             $data = [
                 'key' => RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
                 'priority' => 0,
                 'active' => true,
-                'fields' => [[
-                    "field" => "product.name",
-                    "order" => "desc",
-                    "priority" => 1,
-                    "naturalSorting" => 0,
-                ]],
+                'fields' => [],
                 'label' => 'Recommendation',
                 'locked' => false,
             ];

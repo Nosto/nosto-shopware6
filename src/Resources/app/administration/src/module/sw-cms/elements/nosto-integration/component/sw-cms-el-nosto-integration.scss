@@ -1,14 +1,15 @@
-.sw-cms-block-nosto-integration-block {
+.sw-cms-block-nosto-integration {
     .sw-cms-slot-nosto_integration {
         .nosto-integration-preview-container {
-            & {
-                padding: 20px;
-                margin: 15px auto 0;
-            }
+            padding: 10px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
 
-            & p{
-                float: right;
-                line-height: 60px;
+            .nosto-integration-settings-icon {
+                img {
+                    display: block;
+                }
             }
         }
     }

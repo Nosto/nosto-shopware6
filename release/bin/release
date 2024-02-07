@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Nosto\NostoIntegration\Release\ShopwarePluginRelease;
+use Nosto\NostoIntegration\Release\Utils;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+require_once __DIR__ . '/../src/ReleaseTagger.php';
+require_once __DIR__ . '/../src/ShopwarePluginRelease.php';
+require_once __DIR__ . '/../src/Utils.php';
+
+$logger = Utils::buildLogger('release');
+
+$shopwarePluginRelease = new ShopwarePluginRelease($logger);
+$shopwarePluginRelease->updateVersionAndCreateTag();
+
+$logger->info('Successfully released!');

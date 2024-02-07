@@ -1,20 +1,20 @@
 build:
-    shopwareVersionConstraint: "^6.5.4"
+    shopwareVersionConstraint: "~6.5.4"
 
     zip:
-        composer:
-            before_hooks:
-                - composer install --no-dev
-
         pack:
             excludes:
                 paths:
+                    - .shopware-extension.yml
                     - .gitignore
                     - .github
+                    - .git
                     - bin
-                    - images
+                    - docs
                     - node_modules
+                    - release
                     - tests
+                    - vendor
                     - ecs.php
                     - phpunit.xml.dist
                     - package.json
@@ -22,4 +22,6 @@ build:
                     - .eslintignore
                     - .eslintrc-administration.js
                     - .eslintrc-storefront.js
+                    - .shopware-extension.yml
                     - "*.zip"
+                    - "*.DS_Store"

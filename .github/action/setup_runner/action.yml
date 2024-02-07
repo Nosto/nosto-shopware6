@@ -4,7 +4,7 @@ inputs:
   php-version:
     description: 'PHP version for PHP setup'
     required: true
-    default: 8.1
+    default: '8.1'
 
 runs:
   using: 'composite'
@@ -22,3 +22,13 @@ runs:
         mysql version: 8.0
         mysql database: shopware_test
         mysql root password: root
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18.18.0 # Last version with npm 9 (Shopware requirement)
+
+    - name: Install Shopware-CLI
+      shell: bash
+      run: |
+        curl -1sLf "https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh" | sudo -E bash
+        sudo apt install shopware-cli
