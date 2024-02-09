@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Utils;
 
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Struct\Config;
 use Nosto\NostoIntegration\Struct\NostoService;
+use Nosto\NostoIntegration\Struct\PageInformation;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,7 +20,7 @@ class SearchHelper
     ): bool {
         /** @var NostoService $nostoService */
         $nostoService = $context->getContext()->getExtension('nostoService');
-        if ($nostoService && $nostoService->getEnabled()) {
+        if ($nostoService?->getEnabled()) {
             return $nostoService->getEnabled();
         }
 
@@ -38,6 +40,16 @@ class SearchHelper
             ($isNavigationPage && !$configProvider->isNavigationEnabled($channelId, $languageId))
         ) {
             return $nostoService->disable();
+        }
+
+        if (!$context->getContext()->hasExtension('nostoConfig')) {
+            $nostoConfig = new Config($configProvider->toArray($channelId, $languageId));
+            $context->getContext()->addExtension('nostoConfig', $nostoConfig);
+        }
+
+        if (!$context->getContext()->hasExtension('nostoPageInformation')) {
+            $nostoPageInformation = new PageInformation(!$isNavigationPage, $isNavigationPage);
+            $context->getContext()->addExtension('nostoPageInformation', $nostoPageInformation);
         }
 
         return $nostoService->enable();
