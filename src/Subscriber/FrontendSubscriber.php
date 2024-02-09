@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Subscriber;
 
-use Nosto\NostoIntegration\Model\Config\NostoConfigService;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
-use Nosto\NostoIntegration\Struct\NostoService;
-use Nosto\NostoIntegration\Struct\PageInformation;
-use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FrontendSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly NostoConfigService $nostoConfigService,
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
@@ -31,21 +28,11 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
     {
-        $config = $this->nostoConfigService->getConfigWithInheritance(
+        $config = $this->configProvider->toArray(
             $event->getSalesChannelContext()->getSalesChannelId(),
             $event->getSalesChannelContext()->getLanguageId(),
         );
         $nostoConfig = new Config($config);
         $event->getContext()->addExtension('nostoConfig', $nostoConfig);
-
-        $nostoService = new NostoService();
-        $event->getContext()->addExtension('nostoService', $nostoService);
-
-        $request = $event->getRequest();
-        $isSearchPage = SearchHelper::isSearchPage($request);
-        $isNavigationPage = SearchHelper::isNavigationPage($request);
-        $pageInformation = new PageInformation($isSearchPage, $isNavigationPage);
-
-        $event->getPagelet()->addExtension('nostoPageInformation', $pageInformation);
     }
 }

@@ -65,7 +65,7 @@ export default class NostoFilterSliderRange extends FilterRange {
 
         // Register slider events
         this.slider.noUiSlider.on('update', this.onUpdateValues.bind(this));
-        this.slider.noUiSlider.on('end', this._onChangeInput.bind(this));
+        this.slider.noUiSlider.on('end', this._onChangeKnob.bind(this));
 
         this._inputMin.addEventListener('blur', this._onChangeMin.bind(this));
         this._inputMax.addEventListener('blur', this._onChangeMax.bind(this));
@@ -274,6 +274,10 @@ export default class NostoFilterSliderRange extends FilterRange {
     _onChangeMax() {
         this.setMaxKnobValue();
         this._onChangeInput();
+    }
+
+    _onChangeKnob() {
+        this.listing.changeListing(true, { p: 1 });
     }
 
     hasMinValueSet() {

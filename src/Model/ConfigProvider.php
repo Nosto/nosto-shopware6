@@ -229,4 +229,9 @@ class ConfigProvider
     {
         return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
     }
+
+    public function toArray($channelId = null, $languageId = null): array
+    {
+        return $this->configService->getConfigWithInheritance($channelId, $languageId);
+    }
 }
