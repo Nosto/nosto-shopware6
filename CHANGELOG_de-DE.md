@@ -1,3 +1,11 @@
+# 3.0.0
+* Beachten Sie, dass diese Version nur Shop-Versionen ab v6.5.4 unterstützt 
+* Funktion: Unterstützung der nativen Nosto Search und Category Merchandising 2 
+* Funktion: Möglichkeit, sprachspezifische Plugin-Konfigurationen hinzuzufügen 
+* Funktion: Konfiguration zum Ausschließen von Produkten innerhalb spezifischer Kategorien 
+* Funktion: Die Produktsynchronisierung berücksichtigt nun die Storefront-Präsentation jedes Produkts 
+* Änderung: Wechsel zu einer OpenSource-Lizenz
+
 # 2.5.1
 * Fix: Einige Formulierungen/Tippfehler behoben
 * Fix: Es wurde ein Problem behoben, das bei einigen Kunden auftreten konnte, nachdem sie die Shop-Sprache geändert hatten.
