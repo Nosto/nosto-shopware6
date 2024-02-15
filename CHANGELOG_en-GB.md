@@ -1,3 +1,11 @@
+# 3.0.0
+* Be aware, that this version only supports the shop versions starting from v6.5.4
+* Feature: Support for native Nosto Search and Category Merchandising 2
+* Feature: Possibility to add language specific plugin configuration
+* Feature: Configuration to exclude products within specific categories
+* Feature: The product sync now considers the storefront presentation of each product
+* Change: Changed to an OpenSource license
+
 # 2.5.1
 * Fix: Fixed few wording/typos
 * Fix: Fixed an issue that some customer may encounter after changing store language.
