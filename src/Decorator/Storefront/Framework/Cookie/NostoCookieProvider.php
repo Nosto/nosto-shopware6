@@ -8,6 +8,12 @@ use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 
 class NostoCookieProvider implements CookieProviderInterface
 {
+    public const SHOPWARE_COOKIE_PREFERENCE_KEY = 'cookie-preference';
+
+    public const LEGACY_COOKIE_KEY = 'od-nosto-track-allow';
+
+    public const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
+
     public function __construct(
         private readonly CookieProviderInterface $originalService,
     ) {
@@ -33,7 +39,7 @@ class NostoCookieProvider implements CookieProviderInterface
             $cookie['entries'][] = [
                 'snippet_name' => 'nosto-integration.cookie.value',
                 'snippet_description' => 'nosto-integration.cookie.description',
-                'cookie' => 'nosto-integration-track-allow',
+                'cookie' => self::NOSTO_COOKIE_KEY,
                 'expiration' => '30',
                 'value' => 1,
             ];
