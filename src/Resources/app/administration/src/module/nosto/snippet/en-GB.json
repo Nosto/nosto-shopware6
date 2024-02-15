@@ -27,7 +27,7 @@
                 "nameTitle": "Account Name",
                 "nameHelpText": "The name of Nosto account. You are able to find it on top-right corner on your Nosto dashboard.",
                 "idTitle": "Account ID",
-                "idHelpText": "The unique Nosto account identifier. You are able to find it on top-right corner on your Nosto dashboard.",
+                "idHelpText": "The unique Nosto account identifier. Unique Nosto account identifier. Each Sales Channel/Language combination needs a specific account. You are able to find it on top-right corner on your Nosto dashboard.",
                 "productTokenTitle": "Product Token (API_PRODUCTS)",
                 "productTokenHelpText": "A token for accessing the Products API. You can request an API token (API_PRODUCTS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "emailTokenTitle": "Email Token (API_EMAIL)",
@@ -107,8 +107,8 @@
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "categoryNamingHelpText": "Product category names will contain the category ID or not",
                 "categoryNaming": "Product Category Names",
-                "categoryBlocklist": "Category Blacklist",
-                "categoryBlocklistHelpText": "Products in at least one selected category are excluded from the export",
+                "categoryBlocklist": "Category Exclusion",
+                "categoryBlocklistHelpText": "Products in selected categories are excluded from the export to Nosto",
                 "categoryBlocklistPlaceholder": "Select category:",
                 "oldJobCleanup": {
                     "label": "Enable cleanup of old jobs",
@@ -120,14 +120,14 @@
                 }
             },
             "search-navigation": {
-                "cardTitle": "Search/Navigation settings",
+                "cardTitle": "Personalized Search & Category Merchandising",
                 "enableSearch": {
-                    "label": "Enable search",
-                    "helpText": "This enables the integration for the Shopware Search. This does not affect the frontend solution."
+                    "label": "Enable Personalized Search",
+                    "helpText": "Activate this to integrate Nosto's personalized search functionality into your Shopware theme. This will apply your custom search and filter settings from Nosto Admin directly to your store's search experience."
                 },
                 "enableNavigation": {
-                    "label": "Enable navigation",
-                    "helpText": "This enables the integration for the Shopware category pages. This does not affect the frontend solution."
+                    "label": "Enable Category Merchandising",
+                    "helpText": "Activate this to integrate Nosto's Category Merchandising functionality into your Shopware theme. This will apply your custom merchandising and filter settings from Nosto Admin directly to your store's Category navigation experience."
                 }
             }
         },
