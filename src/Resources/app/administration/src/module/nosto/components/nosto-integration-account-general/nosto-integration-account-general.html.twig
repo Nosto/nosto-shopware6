@@ -86,16 +86,6 @@
                     name="searchToken"
                 />
             {% endblock %}
-
-            {% block nosto_listing_sending %}
-                <sw-button
-                    variant="ghost"
-                    class="validate-btn"
-                    @click="onTrackCategories"
-                >
-                    {{ $tc('nosto.configuration.account.apiValidation.sendCategoriesLabel') }}
-                </sw-button>
-            {% endblock %}
         </template>
         <template v-else>
             <h6>{{ $tc('nosto.selectSalesChannelAndLanguage') }}</h6>
