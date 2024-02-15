@@ -120,7 +120,7 @@
                 }
             },
             "search-navigation": {
-                "cardTitle": "Nosto Personalized Search & Category Merchandising",
+                "cardTitle": "Personalisierte Suche & Kategorie Merchandising",
                 "enableSearch": {
                     "label": "Personalisierte Suche aktivieren",
                     "helpText": "Aktiviert die Integration der personalisierten Suchfunktion von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf die Suche in Ihrem Shop angewendet."
