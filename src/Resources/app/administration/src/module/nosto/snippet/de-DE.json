@@ -27,7 +27,7 @@
                 "nameTitle": "Kontobezeichnung",
                 "nameHelpText": "Der Name des Nosto-Kontos. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
                 "idTitle": "Konto-ID",
-                "idHelpText": "Die eindeutige Kennung des Nosto-Kontos. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
+                "idHelpText": "Die eindeutige Kennung des Nosto-Kontos. Muss für jede Verkaufskanal und Sprach Kombination gesetzt werden. Sie finden es in der oberen rechten Ecke Ihres Nosto-Dashboards.",
                 "productTokenTitle": "Produkt-Token (API_PRODUCTS)",
                 "productTokenHelpText": "Ein Token für den Zugriff auf die Produkt-API. Sie können ein API-Token (API_PRODUCTS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgelistet.",
                 "emailTokenTitle": "E-Mail-Token (API_EMAIL)",
@@ -107,8 +107,8 @@
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
                 "categoryNaming": "Produktkategorienamen",
-                "categoryBlocklist": "Kategorie Blacklist",
-                "categoryBlocklistHelpText": "Produkte in mindestens einer dieser ausgewählten Kategorien werden vom Export ausgeschlossen",
+                "categoryBlocklist": "Kategorie Ausschluss",
+                "categoryBlocklistHelpText": "Produkte in den ausgewählten Kategorien werden vom Nosto Export ausgeschlossen",
                 "categoryBlocklistPlaceholder": "Kategorie auswählen:",
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
@@ -120,14 +120,14 @@
                 }
             },
             "search-navigation": {
-                "cardTitle": "Search/Navigation Einstellungen",
+                "cardTitle": "Nosto Personalized Search & Category Merchandising",
                 "enableSearch": {
-                    "label": "Suche aktivieren",
-                    "helpText": "Aktiviert die Integration mit der Shopware Suche. Beeinflusst nicht die Frontend Lösung."
+                    "label": "Personalisierte Suche aktivieren",
+                    "helpText": "Aktiviert die Integration der personalisierten Suchfunktion von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf die Suche in Ihrem Shop angewendet."
                 },
                 "enableNavigation": {
-                    "label": "Navigation aktivieren",
-                    "helpText": "Aktiviert die Integration mit den Shopware Kategorieseiten. Beeinflusst nicht die Frontend Lösung."
+                    "label": "Category Merchandising aktivieren",
+                    "helpText": "Aktiviert die Integration des Kategorie Merchandisings von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf den Kategorieseiten in Ihrem Shop angewendet."
                 }
             }
         },
