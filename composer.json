@@ -61,7 +61,7 @@
     "scripts": {
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
-        "test": "./bin/phpunit.sh",
+        "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit.sh",
         "release": "release/bin/release"
     }
 }
