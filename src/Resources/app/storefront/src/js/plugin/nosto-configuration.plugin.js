@@ -2,7 +2,10 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
-import NostoCookie from '../util/cookie';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+
+export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
 
 export default class NostoConfiguration extends Plugin {
     static options = {
@@ -10,34 +13,35 @@ export default class NostoConfiguration extends Plugin {
     };
 
     init() {
-        if (NostoCookie.getCookie('nosto-integration-track-allow')) {
-            this.storage = Storage;
-
-            if (this.options.initializeAfter) {
-                if (this.storage.getItem(this.options.nostoInitializedStorageKey) !== null) {
-                    return this._initNosto();
-                } else {
-                    return this.registerEvents();
-                }
-            }
-            this._initNosto()
-        }
-    }
-
-    onNostoCookieConsentAllowed() {
         this._initNosto();
+        this.cookieSubscriber();
     }
 
-    registerEvents() {
+    _registerInitializationEvents() {
         window.addEventListener('scroll', this._prepareForInitialization.bind(this), {once: true});
     }
 
     _prepareForInitialization() {
         this.storage.setItem(this.options.nostoInitializedStorageKey, '')
-        this._initNosto();
+        this._placeClientScript();
     }
 
     _initNosto() {
+        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+            this.storage = Storage;
+
+            if (this.options.initializeAfter) {
+                if (this.storage.getItem(this.options.nostoInitializedStorageKey) !== null) {
+                    return this._placeClientScript();
+                } else {
+                    return this._registerInitializationEvents();
+                }
+            }
+            this._placeClientScript()
+        }
+    }
+
+    _placeClientScript() {
         const name = 'nostojs';
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
@@ -94,4 +98,19 @@ export default class NostoConfiguration extends Plugin {
         });
     }
 
+    cookieSubscriber() {
+        const instances = window.PluginManager.getPluginInstances('CookiePermission');
+        Iterator.iterate(instances, instance => {
+            instance.$emitter.subscribe('onClickDenyButton', () => {
+                // The deny button accepts the technical cookies, so we can set the Nosto cookie as well
+                CookieStorage.setItem(NOSTO_COOKIE_KEY, '1', '30');
+
+                this._initNosto();
+            });
+        });
+
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, () => {
+            this._initNosto();
+        });
+    }
 }
