@@ -102,7 +102,7 @@ export default class NostoConfiguration extends Plugin {
         const instances = window.PluginManager.getPluginInstances('CookiePermission');
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('onClickDenyButton', () => {
-                // The deny button accepts the technical cookies, so we can set the Nosto cookie as well
+                // The deny button accepts the technically required cookies, so we can set the Nosto cookie as well
                 CookieStorage.setItem(NOSTO_COOKIE_KEY, '1', '30');
 
                 this._initNosto();
