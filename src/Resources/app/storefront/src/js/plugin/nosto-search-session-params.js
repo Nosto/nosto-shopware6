@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import { NOSTO_COOKIE_KEY } from './nosto-configuration.plugin';
 
 export default class NostoSearchSessionParams extends Plugin {
     init() {
@@ -12,7 +13,7 @@ export default class NostoSearchSessionParams extends Plugin {
 
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('scriptLoaded', () => {
-                if (CookieStorage.getItem('nosto-integration-track-allow')) {
+                if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
                     window.nostojs(api => {
                         api.getSearchSessionParams().then(function(response) {
                             CookieStorage.setItem(
