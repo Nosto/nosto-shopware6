@@ -3,7 +3,6 @@ import NostoConfiguration from './js/plugin/nosto-configuration.plugin';
 import NostoSearchSessionParams from './js/plugin/nosto-search-session-params';
 import NostoFilterRange from './js/plugin/listing/filter-range.plugin';
 import NostoFilterPropertySelectPlugin from './js/plugin/listing/filter-property-select.plugin';
-import './js/reacting-cookie/reacting-cookie';
 
 // Register plugins via the existing PluginManager
 const PluginManager = window.PluginManager;
