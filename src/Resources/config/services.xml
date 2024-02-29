@@ -215,6 +215,14 @@
             </call>
         </service>
 
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoDebugController" autowire="true">
+            <tag name="controller.service_arguments" />
+
+            <call method="setContainer">
+                <argument id="service_container" type="service" />
+            </call>
+        </service>
+
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
             <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository" />
