@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use FINDOLOGIC\FinSearch\Utils\Utils;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
@@ -16,6 +17,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Http\Exception\AbstractHttpException;
@@ -27,10 +29,13 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -49,6 +54,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
     ) {
     }
 
@@ -145,18 +151,21 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelId,
         );
 
-        /** @var SalesChannelProductEntity $product */
+        /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
             foreach ($this->processProductVariants($product, $context) as $handledProduct) {
-                $nostoProducts[] = $this->handleProduct(
-                    $handledProduct,
-                    $context,
-                    $account,
-                    $hideProductsAfterClearance,
-                    $ids,
-                );
+                $shopwareProduct = $this->getShopwareProduct($handledProduct->id, $context);
+                if (!is_null($shopwareProduct)) {
+                    $nostoProducts[] = $this->handleProduct(
+                        $shopwareProduct,
+                        $context,
+                        $account,
+                        $hideProductsAfterClearance,
+                        $ids,
+                    );
+                }
             }
 
             foreach ($nostoProducts as $preparedProductForSync) {
@@ -178,7 +187,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
-    private function processProductVariants(SalesChannelProductEntity $product, SalesChannelContext $context): array
+    private function processProductVariants(ProductEntity $product, SalesChannelContext $context): array
     {
         $variantConfig = $product->getVariantListingConfig();
         $configuratorGroups = array_filter(
@@ -206,7 +215,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     private function handleCheapestVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $context,
     ): ProductEntity {
         $cheapestVariant = $product;
@@ -231,7 +240,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     private function handleMainVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         VariantListingConfig $variantConfig,
     ): ProductEntity {
         $mainProduct = null;
@@ -254,7 +263,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleConfiguratorGroups(SalesChannelProductEntity $product): array
+    private function handleConfiguratorGroups(ProductEntity $product): array
     {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
@@ -263,7 +272,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = [];
         foreach ($groupedVariants as $variants) {
-            /** @var SalesChannelProductEntity $mainProduct */
+            /** @var ProductEntity $mainProduct */
             $mainProduct = array_shift($variants);
             $mainProduct->setChildren(
                 new ProductCollection(array_values($variants)),
@@ -398,5 +407,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+    }
+
+    protected function getShopwareProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
+    {
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('children');
+
+        return $this->salesChannelProductRepository->search(
+            $criteria,
+            $context,
+        )->first();
     }
 }
