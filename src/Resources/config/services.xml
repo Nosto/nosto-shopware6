@@ -150,7 +150,6 @@
         >
             <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner" />
         </service>
-
         <!-- /Decorators -->
 
         <!-- Entity Definitions -->
