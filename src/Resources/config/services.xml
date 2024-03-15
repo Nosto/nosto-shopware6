@@ -151,17 +151,6 @@
             <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner" />
         </service>
 
-        <service
-            id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
-            decorates="product.repository"
-        >
-            <argument key="$definition" type="service" id="Shopware\Core\Content\Product\ProductDefinition" />
-            <argument
-                key="$inner"
-                type="service"
-                id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"
-            />
-        </service>
         <!-- /Decorators -->
 
         <!-- Entity Definitions -->
