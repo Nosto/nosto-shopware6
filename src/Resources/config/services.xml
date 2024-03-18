@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 
 <container
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://symfony.com/schema/dic/services"
-        xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://symfony.com/schema/dic/services"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
     <imports>
         <import resource="imports/*" />
@@ -25,7 +25,6 @@
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$productProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader" />
-            <argument key="$salesChannelProductRepository" type="service" id="sales_channel.product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
@@ -139,28 +138,28 @@
 
         <!-- Decorators -->
         <service
-                id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
-                decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"
+            id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider"
+            decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"
         >
             <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner" />
         </service>
 
         <service
-                id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator"
-                decorates="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
+            id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator"
+            decorates="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
         >
             <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Theme\Twig\ThemeInheritanceBuilderDecorator.inner" />
         </service>
 
         <service
-                id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
-                decorates="product.repository"
+            id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator"
+            decorates="product.repository"
         >
             <argument key="$definition" type="service" id="Shopware\Core\Content\Product\ProductDefinition" />
             <argument
-                    key="$inner"
-                    type="service"
-                    id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"
+                key="$inner"
+                type="service"
+                id="Nosto\NostoIntegration\Decorator\Core\Framework\DataAbstractionLayer\ProductRepositoryDecorator.inner"
             />
         </service>
         <!-- /Decorators -->
@@ -254,16 +253,16 @@
 
         <!-- Symfony -->
         <service
-                id="Symfony\Component\DependencyInjection\ContainerInterface"
-                alias="service_container"
+            id="Symfony\Component\DependencyInjection\ContainerInterface"
+            alias="service_container"
         />
         <service
-                id="Symfony\Component\EventDispatcher\EventDispatcherInterface"
-                alias="event_dispatcher"
+            id="Symfony\Component\EventDispatcher\EventDispatcherInterface"
+            alias="event_dispatcher"
         />
         <service
-                id="Symfony\Component\HttpFoundation\RequestStack"
-                alias="request_stack"
+            id="Symfony\Component\HttpFoundation\RequestStack"
+            alias="request_stack"
         />
     </services>
 </container>
