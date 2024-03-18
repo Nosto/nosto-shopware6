@@ -86,7 +86,8 @@ class ProductHelper
     public function loadExistingParentProducts(
         array $existentParentProductIds,
         SalesChannelContext $context,
-    ): SalesChannelRepositoryIterator {
+    ): RepositoryIterator
+    {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -113,7 +114,7 @@ class ProductHelper
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
-        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        return new RepositoryIterator($this->pureProductRepository, $context->getContext(), $criteria);
     }
 
     public function getProductsIterator(
