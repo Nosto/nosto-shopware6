@@ -19,9 +19,9 @@ build:
                     - phpunit.xml.dist
                     - package.json
                     - package-lock.json
+                    - composer.lock
                     - .eslintignore
                     - .eslintrc-administration.js
                     - .eslintrc-storefront.js
-                    - .shopware-extension.yml
                     - "*.zip"
                     - "*.DS_Store"
