@@ -151,7 +151,34 @@ class NostoConfigService
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {
-        return $this->fetchConfigs($salesChannelId, $languageId);
+        $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId);
+        $databaseConfigs = $queryBuilder->executeQuery()->fetchAllNumeric();
+
+        if (!count($databaseConfigs)) {
+            return [];
+        }
+
+        $configs = [];
+
+        foreach ($databaseConfigs as [$key, $value]) {
+            if ($value !== null) {
+                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+
+                if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
+                    $value = null;
+                } else {
+                    $value = $value[ConfigJsonField::STORAGE_KEY];
+                }
+            }
+
+            if ($this->isEmpty($value)) {
+                continue;
+            }
+
+            $configs[$key] = $value;
+        }
+
+        return $configs;
     }
 
     /**
@@ -274,54 +301,15 @@ class NostoConfigService
         return $queryBuilder;
     }
 
-    /**
-     * @throws JsonException
-     * @throws Exception
-     */
-    private function fetchConfigs(
-        ?string $salesChannelId = null,
-        ?string $languageId = null,
-        ?string $key = null,
-    ): array {
-        $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId, $key);
-        $databaseConfigs = $queryBuilder->executeQuery()->fetchAllNumeric();
-
-        if (!count($databaseConfigs)) {
-            return [];
-        }
-
-        $configs = [];
-
-        foreach ($databaseConfigs as [$key, $value]) {
-            if ($value !== null) {
-                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
-
-                if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
-                    $value = null;
-                } else {
-                    $value = $value[ConfigJsonField::STORAGE_KEY];
-                }
-            }
-
-            if ($this->isEmpty($value)) {
-                continue;
-            }
-
-            $configs[$key] = $value;
-        }
-
-        return $configs;
-    }
-
     private function load(?string $salesChannelId = null, ?string $languageId = null): void
     {
         if (!isset($this->configs[self::PARENT_CONFIG_KEY])) {
-            $this->configs[self::PARENT_CONFIG_KEY] = $this->fetchConfigs();
+            $this->configs[self::PARENT_CONFIG_KEY] = $this->getConfig();
         }
 
         $key = $this->buildConfigKey($salesChannelId, $languageId);
         if (!isset($this->configs[$key])) {
-            $this->configs[$key] = $this->fetchConfigs($salesChannelId, $languageId);
+            $this->configs[$key] = $this->getConfig($salesChannelId, $languageId);
         }
     }
 
