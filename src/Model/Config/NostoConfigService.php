@@ -218,7 +218,7 @@ class NostoConfigService
             $this->connection->insert(
                 'nosto_integration_config',
                 [
-                    'id' => $id ?? Uuid::randomBytes(),
+                    'id' => Uuid::randomBytes(),
                     'configuration_key' => $key,
                     'configuration_value' => Json::encode(['_value' => $value]),
                     'sales_channel_id' => $salesChannelId,
