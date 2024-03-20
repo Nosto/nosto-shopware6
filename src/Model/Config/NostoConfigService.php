@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Config;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Query\QueryBuilder;
+use JsonException;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 
@@ -90,7 +89,7 @@ class NostoConfigService
     private array $configs = [];
 
     public function __construct(
-        private readonly EntityRepository $nostoConfigRepository,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -147,22 +146,44 @@ class NostoConfigService
     }
 
     /**
-     * @throws InvalidDomainException
-     * @throws InvalidUuidException
-     * @throws InconsistentCriteriaIdsException
+     * @throws JsonException
+     * @throws Exception
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {
-        $criteria = $this->buildCriteria($salesChannelId, $languageId);
+        $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId);
+        $databaseConfigs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
-        /** @var NostoConfigCollection $collection */
-        $collection = $this->nostoConfigRepository
-            ->search($criteria, Context::createDefaultContext())
-            ->getEntities();
+        if (!count($databaseConfigs)) {
+            return [];
+        }
 
-        return $this->buildConfig($collection);
+        $configs = [];
+
+        foreach ($databaseConfigs as [$key, $value]) {
+            if ($value !== null) {
+                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+
+                if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
+                    $value = null;
+                } else {
+                    $value = $value[ConfigJsonField::STORAGE_KEY];
+                }
+            }
+
+            if ($this->isEmpty($value)) {
+                continue;
+            }
+
+            $configs[$key] = $value;
+        }
+
+        return $configs;
     }
 
+    /**
+     * @throws Exception
+     */
     public function set(string $key, mixed $value, ?string $salesChannelId = null, ?string $languageId = null): void
     {
         $this->configs = [];
@@ -170,30 +191,47 @@ class NostoConfigService
         $this->validate($key, $salesChannelId, $languageId);
 
         $id = $this->getId($key, $salesChannelId, $languageId);
-        if ($value === null) {
+
+        if ($this->isEmpty($value)) {
             if ($id) {
-                $this->nostoConfigRepository->delete([[
-                    'id' => $id,
-                ]], Context::createDefaultContext());
+                $this->connection->delete(
+                    'nosto_integration_config',
+                    ['id' => Uuid::fromHexToBytes($id)],
+                );
             }
 
             return;
         }
 
-        $this->nostoConfigRepository->upsert(
-            [
+        if ($id) {
+            $this->connection->update(
+                'nosto_integration_config',
                 [
-                    'id' => $id ?? Uuid::randomHex(),
-                    'configurationKey' => $key,
-                    'configurationValue' => $value,
-                    'salesChannelId' => $salesChannelId,
-                    'languageId' => $languageId,
+                    'configuration_value' => Json::encode(['_value' => $value]),
+                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
-            ],
-            Context::createDefaultContext(),
-        );
+                [
+                    'id' => Uuid::fromHexToBytes($id),
+                ]
+            );
+        } else {
+            $this->connection->insert(
+                'nosto_integration_config',
+                [
+                    'id' => Uuid::randomBytes(),
+                    'configuration_key' => $key,
+                    'configuration_value' => Json::encode(['_value' => $value]),
+                    'sales_channel_id' => $salesChannelId,
+                    'language_id' => $languageId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
     }
 
+    /**
+     * @throws Exception
+     */
     public function delete(string $key, ?string $salesChannelId = null, ?string $languageId = null): void
     {
         $this->set($key, null, $salesChannelId, $languageId);
@@ -213,90 +251,71 @@ class NostoConfigService
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function getId(string $key, ?string $salesChannelId = null, ?string $languageId = null): ?string
     {
-        $criteria = $this->buildCriteria($salesChannelId, $languageId, $key);
-        $ids = $this->nostoConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId, $key);
+        $queryBuilder->addSelect('id');
 
-        return array_shift($ids);
+        $result = $queryBuilder->executeQuery()->fetchAssociative();
+
+        if (!$result || !array_key_exists('id', $result) || $this->isEmpty($result['id'])) {
+            return null;
+        }
+
+        return Uuid::fromBytesToHex($result['id']);
     }
 
-    private function buildCriteria(
+    private function fetchDefaultQueryBuilder(
         ?string $salesChannelId = null,
         ?string $languageId = null,
         ?string $key = null,
-    ): Criteria {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
-        $criteria->addFilter(new EqualsFilter('languageId', $languageId));
+    ): QueryBuilder {
+        $queryBuilder = $this->connection->createQueryBuilder()
+            ->select(['configuration_key', 'configuration_value'])
+            ->from('nosto_integration_config');
 
-        if ($key) {
-            $criteria->addFilter(new EqualsFilter('configurationKey', $key));
+        if ($salesChannelId) {
+            $queryBuilder->andWhere('sales_channel_id = :salesChannelId');
+        } else {
+            $queryBuilder->andWhere('sales_channel_id IS NULL');
         }
 
-        return $criteria;
+        if ($languageId) {
+            $queryBuilder->andWhere('language_id = :languageId');
+        } else {
+            $queryBuilder->andWhere('language_id IS NULL');
+        }
+
+        if ($key) {
+            $queryBuilder->andWhere('configuration_key = :key');
+        }
+
+        $queryBuilder->addOrderBy('id', 'ASC');
+        $queryBuilder->setParameter('salesChannelId', $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null);
+        $queryBuilder->setParameter('languageId', $languageId ? Uuid::fromHexToBytes($languageId) : null);
+        $queryBuilder->setParameter('key', $key);
+
+        return $queryBuilder;
     }
 
     private function load(?string $salesChannelId = null, ?string $languageId = null): void
     {
         if (!isset($this->configs[self::PARENT_CONFIG_KEY])) {
-            $this->configs[self::PARENT_CONFIG_KEY] = $this->loadConfigsFromDatabase();
+            $this->configs[self::PARENT_CONFIG_KEY] = $this->getConfig();
         }
 
         $key = $this->buildConfigKey($salesChannelId, $languageId);
         if (!isset($this->configs[$key])) {
-            $this->configs[$key] = $this->loadConfigsFromDatabase($salesChannelId, $languageId);
+            $this->configs[$key] = $this->getConfig($salesChannelId, $languageId);
         }
     }
 
     private function buildConfigKey(?string $salesChannelId = null, ?string $languageId = null): string
     {
         return $salesChannelId ? sprintf('%s-%s', $salesChannelId, $languageId) : self::PARENT_CONFIG_KEY;
-    }
-
-    private function loadConfigsFromDatabase(?string $salesChannelId = null, ?string $languageId = null): array
-    {
-        $criteria = new Criteria();
-        $criteria->setTitle('nosto-integration-config::load');
-
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [new EqualsFilter('salesChannelId', $salesChannelId), new EqualsFilter('languageId', $languageId)],
-            ),
-        );
-
-        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
-
-        $criteria->setLimit(500);
-
-        $configs = $this->nostoConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        return $this->parseConfiguration($configs);
-    }
-
-    private function buildConfig(NostoConfigCollection $configs): array
-    {
-        $nostoConfig = [];
-        foreach ($configs as $config) {
-            $keyExists = array_key_exists($config->getConfigurationKey(), $nostoConfig);
-            if (!$keyExists || !$this->isEmpty($config->getConfigurationValue())) {
-                $nostoConfig[$config->getConfigurationKey()] = $config->getConfigurationValue();
-            }
-        }
-
-        return $nostoConfig;
-    }
-
-    private function parseConfiguration(NostoConfigCollection $collection): array
-    {
-        $configValues = [];
-
-        foreach ($collection as $config) {
-            $configValues[$config->getConfigurationKey()] = $config->getConfigurationValue();
-        }
-
-        return $configValues;
     }
 
     private function isEmpty($value): bool
