@@ -154,7 +154,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $nostoProducts = [];
             foreach ($this->processProductVariants($product, $context) as $handledProduct) {
                 $shopwareProduct = $this->getShopwareProduct($handledProduct->id, $context);
-                if (!is_null($shopwareProduct)) {
+                if ($shopwareProduct) {
                     $shopwareProduct->setChildren($handledProduct->getChildren());
                     $nostoProducts[] = $this->handleProduct(
                         $shopwareProduct,
@@ -165,7 +165,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     );
                 } else {
                     $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
-                    $this->doDeleteOperation($account, $context, [$handledProduct->getParentId()], $ids);
+                    $this->doDeleteOperation(
+                        $account,
+                        $context,
+                        [$handledProduct->getId(), $handledProduct->getParentId()],
+                        $ids
+                    );
                 }
             }
 
@@ -210,7 +215,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $mainProducts,
                 $this->handleConfiguratorGroups($product),
             );
-        } elseif (!$variantConfig->getDisplayParent() || !$product->active) {
+        } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
             $mainProducts[] = $this->handleFirstActiveVariant($product);
         }
 
@@ -292,18 +297,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            if ($child === $product->getChildren()->filterByProperty('active', true)->first()) {
+            if ($child->getActive() && !$mainProduct) {
                 $mainProduct = $child;
             } else {
                 $variants->add($child);
             }
         }
 
-        if (!$mainProduct) {
-            return $product;
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
         }
-
-        $mainProduct->setChildren($variants);
 
         return $mainProduct;
     }
