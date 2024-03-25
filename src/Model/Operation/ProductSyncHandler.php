@@ -211,7 +211,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $this->handleConfiguratorGroups($product),
             );
         } elseif (!$variantConfig->getDisplayParent() || !$product->active) {
-            $mainProducts = $this->handleFirstActiveVariant($product);
+            $mainProducts[] = $this->handleFirstActiveVariant($product);
         }
 
         return count($mainProducts) ? $mainProducts : [$product];
@@ -286,30 +286,26 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): array
+    private function handleFirstActiveVariant(ProductEntity $product): ProductEntity
     {
-        $variants = [];
-        foreach ($product->getChildren() as $child) {
-            $variants[$child->getId()] = $child;
-        }
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
 
-        $mainProducts = [];
-        foreach ($variants as $key => $variant) {
-            if ($variant->active) {
-                $mainProduct = $variant;
-                unset($variants[$key]);
-                break;
+        foreach ($product->getChildren() as $child) {
+            if ($child === $product->getChildren()->filterByProperty('active', true)->first()) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
             }
         }
 
-        if (isset($mainProduct)) {
-            $mainProduct->setChildren(
-                new ProductCollection(array_values($variants)),
-            );
-            $mainProducts[] = $mainProduct;
+        if (!$mainProduct) {
+            return $product;
         }
 
-        return $mainProducts;
+        $mainProduct->setChildren($variants);
+
+        return $mainProduct;
     }
 
     private function handleProduct(

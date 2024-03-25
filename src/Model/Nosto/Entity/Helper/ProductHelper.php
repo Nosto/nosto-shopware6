@@ -86,8 +86,7 @@ class ProductHelper
     public function loadExistingParentProducts(
         array $existentParentProductIds,
         SalesChannelContext $context,
-    ): RepositoryIterator
-    {
+    ): RepositoryIterator {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
