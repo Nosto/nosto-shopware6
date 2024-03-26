@@ -119,7 +119,7 @@ class ProductHelper
     public function getProductsIterator(
         array $productIds,
         SalesChannelContext $context,
-    ): SalesChannelRepositoryIterator {
+    ): RepositoryIterator {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -143,7 +143,7 @@ class ProductHelper
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
-        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        return new RepositoryIterator($this->pureProductRepository, $context->getContext(), $criteria);
     }
 
     public function loadOrderNumberMapping(array $ids, Context $context): array
