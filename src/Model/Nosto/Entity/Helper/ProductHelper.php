@@ -29,7 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductHelper
 {
     public function __construct(
-        private readonly EntityRepository $pureProductRepository,
+        private readonly EntityRepository $productRepository,
         private readonly AbstractProductDetailRoute $productRoute,
         private readonly EntityRepository $reviewRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -110,7 +110,7 @@ class ProductHelper
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
-        return new RepositoryIterator($this->pureProductRepository, $context->getContext(), $criteria);
+        return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
     }
 
     public function getProductsIterator(
@@ -140,13 +140,13 @@ class ProductHelper
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
-        return new RepositoryIterator($this->pureProductRepository, $context->getContext(), $criteria);
+        return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
     }
 
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
         $criteria = new Criteria($ids);
-        $iterator = new RepositoryIterator($this->pureProductRepository, $context, $criteria);
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
         $orderNumberMapping = [];
         while (($result = $iterator->fetch()) !== null) {
             foreach ($result as $product) {
@@ -176,6 +176,6 @@ class ProductHelper
 
     public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
     {
-        return new RepositoryIterator($this->pureProductRepository, $context, $criteria);
+        return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 }

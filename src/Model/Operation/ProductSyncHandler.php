@@ -152,12 +152,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
-            $shopwareProducts = [];
             $nostoProducts = [];
             $handledProducts = $this->processProductVariants($product, $context, $account, $ids);
-            if ($handledProducts->count()) {
-                $shopwareProducts = $this->getShopwareProducts($handledProducts->getIds(), $context);
-            }
+            $shopwareProducts = $handledProducts->count()
+                ? $this->getShopwareProducts($handledProducts->getIds(), $context)
+                : new ProductCollection();
 
             foreach ($handledProducts as $handledProduct) {
                 $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
@@ -217,25 +216,24 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             return new ProductCollection([$product]);
         }
 
-        $mainProducts = [];
+        $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayCheapestVariant()) {
-            $mainProducts[] = $this->handleCheapestVariant($product, $context);
+            $mainProducts->merge($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
-                $mainProducts[] = $variant;
+                $mainProducts->merge($variant);
+            } elseif ($variant = $this->handleFirstActiveVariant($product)) {
+                $mainProducts->merge($variant);
             }
         } elseif (count($configuratorGroups)) {
-            $mainProducts = array_merge(
-                $mainProducts,
-                $this->handleConfiguratorGroups($product),
-            );
+            $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
             if ($variant = $this->handleFirstActiveVariant($product)) {
-                $mainProducts[] = $variant;
+                $mainProducts->merge($variant);
             }
         }
 
-        if (!$mainProducts) {
+        if (!$mainProducts->count()) {
             $this->deleteVariantProducts($product, $context, $account, $ids);
             $this->doDeleteOperation(
                 $account,
@@ -245,13 +243,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             );
         }
 
-        return new ProductCollection($mainProducts);
+        return $mainProducts;
     }
 
     private function handleCheapestVariant(
         ProductEntity $product,
         SalesChannelContext $context,
-    ): ProductEntity {
+    ): ProductCollection {
         $cheapestVariant = $product;
         $lowestPrice = null;
 
@@ -270,18 +268,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             ),
         );
 
-        return $cheapestVariant;
+        return new ProductCollection([$cheapestVariant]);
     }
 
     private function handleMainVariant(
         ProductEntity $product,
         VariantListingConfig $variantConfig,
-    ): ?ProductEntity {
+    ): ?ProductCollection {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            if ($child->getId() === $variantConfig->getMainVariantId() && $product->getActive()) {
+            if ($child->getId() === $variantConfig->getMainVariantId() && $child->getActive()) {
                 $mainProduct = $child;
             } else {
                 $variants->add($child);
@@ -289,35 +287,35 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         if (!$mainProduct) {
-            return $this->handleFirstActiveVariant($product);
+            return null;
         }
 
         $mainProduct->setChildren($variants);
 
-        return $mainProduct;
+        return new ProductCollection([$mainProduct]);
     }
 
-    private function handleConfiguratorGroups(ProductEntity $product): array
+    private function handleConfiguratorGroups(ProductEntity $product): ProductCollection
     {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
 
-        $mainProducts = [];
+        $mainProducts = new ProductCollection();
         foreach ($groupedVariants as $variants) {
             /** @var SalesChannelProductEntity $mainProduct */
             $mainProduct = array_shift($variants);
             $mainProduct->setChildren(
                 new ProductCollection(array_values($variants)),
             );
-            $mainProducts[] = $mainProduct;
+            $mainProducts->add($mainProduct);
         }
 
         return $mainProducts;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
+    private function handleFirstActiveVariant(ProductEntity $product): ?ProductCollection
     {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
@@ -330,11 +328,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
+        if (!$mainProduct) {
+            return null;
         }
 
-        return $mainProduct;
+        $mainProduct->setChildren($variants);
+
+        return new ProductCollection([$mainProduct]);
     }
 
     private function handleProduct(
