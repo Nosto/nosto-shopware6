@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -23,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -31,8 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductHelper
 {
     public function __construct(
-        private readonly SalesChannelRepository $productRepository,
-        private readonly EntityRepository $pureProductRepository,
+        private readonly EntityRepository $productRepository,
         private readonly AbstractProductDetailRoute $productRoute,
         private readonly EntityRepository $reviewRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -86,7 +83,7 @@ class ProductHelper
     public function loadExistingParentProducts(
         array $existentParentProductIds,
         SalesChannelContext $context,
-    ): SalesChannelRepositoryIterator {
+    ): RepositoryIterator {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -113,13 +110,13 @@ class ProductHelper
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
-        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
     }
 
     public function getProductsIterator(
         array $productIds,
         SalesChannelContext $context,
-    ): SalesChannelRepositoryIterator {
+    ): RepositoryIterator {
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -143,13 +140,13 @@ class ProductHelper
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
-        return new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
     }
 
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
         $criteria = new Criteria($ids);
-        $iterator = new RepositoryIterator($this->pureProductRepository, $context, $criteria);
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
         $orderNumberMapping = [];
         while (($result = $iterator->fetch()) !== null) {
             foreach ($result as $product) {
@@ -179,6 +176,6 @@ class ProductHelper
 
     public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
     {
-        return new RepositoryIterator($this->pureProductRepository, $context, $criteria);
+        return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 }
