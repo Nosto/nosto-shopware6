@@ -218,18 +218,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayCheapestVariant()) {
-            $mainProducts->merge($this->handleCheapestVariant($product, $context));
+            $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
-                $mainProducts->merge($variant);
+                $mainProducts->add($variant);
             } elseif ($variant = $this->handleFirstActiveVariant($product)) {
-                $mainProducts->merge($variant);
+                $mainProducts->add($variant);
             }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
             if ($variant = $this->handleFirstActiveVariant($product)) {
-                $mainProducts->merge($variant);
+                $mainProducts->add($variant);
             }
         }
 
@@ -249,7 +249,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function handleCheapestVariant(
         ProductEntity $product,
         SalesChannelContext $context,
-    ): ProductCollection {
+    ): ProductEntity {
         $cheapestVariant = $product;
         $lowestPrice = null;
 
@@ -268,13 +268,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             ),
         );
 
-        return new ProductCollection([$cheapestVariant]);
+        return $cheapestVariant;
     }
 
     private function handleMainVariant(
         ProductEntity $product,
         VariantListingConfig $variantConfig,
-    ): ?ProductCollection {
+    ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 
@@ -286,13 +286,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if (!$mainProduct) {
-            return null;
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
         }
 
-        $mainProduct->setChildren($variants);
-
-        return new ProductCollection([$mainProduct]);
+        return $mainProduct;
     }
 
     private function handleConfiguratorGroups(ProductEntity $product): ProductCollection
@@ -315,7 +313,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductCollection
+    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
     {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
@@ -328,13 +326,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if (!$mainProduct) {
-            return null;
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
         }
 
-        $mainProduct->setChildren($variants);
-
-        return new ProductCollection([$mainProduct]);
+        return $mainProduct;
     }
 
     private function handleProduct(
