@@ -68,19 +68,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "ee088c2a7615cf958caa19a135f877d166c8392a"
+                "reference": "33dfca4900d7f37a521cb14bf335c20b01f5b418"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/ee088c2a7615cf958caa19a135f877d166c8392a",
-                "reference": "ee088c2a7615cf958caa19a135f877d166c8392a",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/33dfca4900d7f37a521cb14bf335c20b01f5b418",
+                "reference": "33dfca4900d7f37a521cb14bf335c20b01f5b418",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.1"
+                "php": "^8.2"
             },
             "require-dev": {
-                "shopware/administration": "^6.5",
+                "shopware/administration": "^6.6",
                 "symplify/easy-coding-standard": "^12.0"
             },
             "type": "library",
@@ -98,7 +98,7 @@
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
                 "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/ADS-4478_fix_installation_bump_PHP"
             },
-            "time": "2024-04-02T10:57:28+00:00"
+            "time": "2024-04-02T13:46:06+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

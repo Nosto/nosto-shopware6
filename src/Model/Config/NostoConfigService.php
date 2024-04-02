@@ -196,7 +196,9 @@ class NostoConfigService
             if ($id) {
                 $this->connection->delete(
                     'nosto_integration_config',
-                    ['id' => Uuid::fromHexToBytes($id)],
+                    [
+                        'id' => Uuid::fromHexToBytes($id),
+                    ],
                 );
             }
 
@@ -207,12 +209,14 @@ class NostoConfigService
             $this->connection->update(
                 'nosto_integration_config',
                 [
-                    'configuration_value' => Json::encode(['_value' => $value]),
+                    'configuration_value' => Json::encode([
+                        '_value' => $value,
+                    ]),
                     'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'id' => Uuid::fromHexToBytes($id),
-                ]
+                ],
             );
         } else {
             $this->connection->insert(
@@ -220,11 +224,13 @@ class NostoConfigService
                 [
                     'id' => Uuid::randomBytes(),
                     'configuration_key' => $key,
-                    'configuration_value' => Json::encode(['_value' => $value]),
+                    'configuration_value' => Json::encode([
+                        '_value' => $value,
+                    ]),
                     'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                     'language_id' => $languageId ? Uuid::fromHexToBytes($languageId) : null,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
+                ],
             );
         }
     }
