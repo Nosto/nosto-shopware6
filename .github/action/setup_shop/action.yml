@@ -14,7 +14,9 @@ runs:
 
     - name: Set minimum stability to dev
       shell: bash
-      run: composer config minimum-stability dev
+      run: |
+        cd shopware
+        composer config minimum-stability dev
 
     - name: Install Shopware
       shell: bash
