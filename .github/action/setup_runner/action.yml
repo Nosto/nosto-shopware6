@@ -4,7 +4,7 @@ inputs:
   php-version:
     description: 'PHP version for PHP setup'
     required: true
-    default: '8.1'
+    default: '8.2'
 
 runs:
   using: 'composite'
@@ -25,7 +25,7 @@ runs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 18.18.0 # Last version with npm 9 (Shopware requirement)
+        node-version: 20
 
     - name: Install Shopware-CLI
       shell: bash
