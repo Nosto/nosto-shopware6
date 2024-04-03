@@ -25,6 +25,7 @@
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$productProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader" />
+            <argument key="$salesChannelProductRepository" type="service" id="sales_channel.product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
@@ -79,8 +80,7 @@
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder" />
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
-            <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
-            <argument key="$pureProductRepository" type="service" id="product.repository" />
+            <argument key="$productRepository" type="service" id="product.repository" />
             <argument key="$productRoute" type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" />
             <argument key="$reviewRepository" type="service" id="product_review.repository" />
         </service>

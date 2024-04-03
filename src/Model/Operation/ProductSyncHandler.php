@@ -25,12 +25,15 @@ use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -49,6 +52,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
     ) {
     }
 
@@ -145,18 +149,36 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelId,
         );
 
-        /** @var SalesChannelProductEntity $product */
+        /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            foreach ($this->processProductVariants($product, $context) as $handledProduct) {
-                $nostoProducts[] = $this->handleProduct(
-                    $handledProduct,
-                    $context,
-                    $account,
-                    $hideProductsAfterClearance,
-                    $ids,
-                );
+            $handledProducts = $this->processProductVariants($product, $context, $account, $ids);
+            $shopwareProducts = $handledProducts->count()
+                ? $this->getShopwareProducts($handledProducts->getIds(), $context)
+                : new ProductCollection();
+
+            foreach ($handledProducts as $handledProduct) {
+                $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
+
+                if ($shopwareProduct) {
+                    $shopwareProduct->setChildren($handledProduct->getChildren());
+                    $nostoProducts[] = $this->handleProduct(
+                        $shopwareProduct,
+                        $context,
+                        $account,
+                        $hideProductsAfterClearance,
+                        $ids,
+                    );
+                } else {
+                    $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
+                    $this->doDeleteOperation(
+                        $account,
+                        $context,
+                        [$handledProduct->getId(), $handledProduct->getParentId()],
+                        $ids
+                    );
+                }
             }
 
             foreach ($nostoProducts as $preparedProductForSync) {
@@ -178,8 +200,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
-    private function processProductVariants(SalesChannelProductEntity $product, SalesChannelContext $context): array
-    {
+    private function processProductVariants(
+        ProductEntity $product,
+        SalesChannelContext $context,
+        Account $account,
+        array $ids,
+    ): ProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $configuratorGroups = array_filter(
             $variantConfig?->getConfiguratorGroupConfig() ?? [],
@@ -187,26 +213,41 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
 
         if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
-            return [$product];
+            return new ProductCollection([$product]);
         }
 
-        $mainProducts = [];
+        $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayCheapestVariant()) {
-            $mainProducts[] = $this->handleCheapestVariant($product, $context);
+            $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
-            $mainProducts[] = $this->handleMainVariant($product, $variantConfig);
+            if ($variant = $this->handleMainVariant($product, $variantConfig)) {
+                $mainProducts->add($variant);
+            } elseif ($variant = $this->handleFirstActiveVariant($product)) {
+                $mainProducts->add($variant);
+            }
         } elseif (count($configuratorGroups)) {
-            $mainProducts = array_merge(
-                $mainProducts,
-                $this->handleConfiguratorGroups($product),
+            $mainProducts->merge($this->handleConfiguratorGroups($product));
+        } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
+            if ($variant = $this->handleFirstActiveVariant($product)) {
+                $mainProducts->add($variant);
+            }
+        }
+
+        if (!$mainProducts->count()) {
+            $this->deleteVariantProducts($product, $context, $account, $ids);
+            $this->doDeleteOperation(
+                $account,
+                $context,
+                [$product->getId(), $product->getParentId()],
+                $ids
             );
         }
 
-        return count($mainProducts) ? $mainProducts : [$product];
+        return $mainProducts;
     }
 
     private function handleCheapestVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $context,
     ): ProductEntity {
         $cheapestVariant = $product;
@@ -215,7 +256,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($product->getChildren() as $child) {
             $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
 
-            if (is_null($lowestPrice) || $variantPrice < $lowestPrice) {
+            if ((is_null($lowestPrice) || $variantPrice < $lowestPrice) && $child->getActive()) {
                 $lowestPrice = $variantPrice;
                 $cheapestVariant = $child;
             }
@@ -231,47 +272,65 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     private function handleMainVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         VariantListingConfig $variantConfig,
-    ): ProductEntity {
+    ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            if ($child->getId() === $variantConfig->getMainVariantId()) {
+            if ($child->getId() === $variantConfig->getMainVariantId() && $child->getActive()) {
                 $mainProduct = $child;
             } else {
                 $variants->add($child);
             }
         }
 
-        if (!$mainProduct) {
-            return $product;
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
         }
-
-        $mainProduct->setChildren($variants);
 
         return $mainProduct;
     }
 
-    private function handleConfiguratorGroups(SalesChannelProductEntity $product): array
+    private function handleConfiguratorGroups(ProductEntity $product): ProductCollection
     {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
 
-        $mainProducts = [];
+        $mainProducts = new ProductCollection();
         foreach ($groupedVariants as $variants) {
             /** @var SalesChannelProductEntity $mainProduct */
             $mainProduct = array_shift($variants);
             $mainProduct->setChildren(
                 new ProductCollection(array_values($variants)),
             );
-            $mainProducts[] = $mainProduct;
+            $mainProducts->add($mainProduct);
         }
 
         return $mainProducts;
+    }
+
+    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
+    {
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
+        foreach ($product->getChildren() as $child) {
+            if ($child->getActive() && !$mainProduct) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
+            }
+        }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
+        }
+
+        return $mainProduct;
     }
 
     private function handleProduct(
@@ -305,7 +364,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     private function deleteVariantProducts(
-        SalesChannelProductEntity $product,
+        SalesChannelProductEntity|ProductEntity $product,
         SalesChannelContext $context,
         Account $account,
         array $mapping,
@@ -398,5 +457,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+    }
+
+    protected function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
+    {
+        $criteria = new Criteria($productIds);
+
+        return $this->salesChannelProductRepository->search(
+            $criteria,
+            $context,
+        )->getEntities();
     }
 }
