@@ -1,3 +1,6 @@
+# 3.1.0
+* New: Added support for more storefront configuration options
+
 # 3.0.0
 * Be aware, that this version only supports the shop versions starting from v6.5.4
 * Feature: Support for native Nosto Search and Category Merchandising 2
