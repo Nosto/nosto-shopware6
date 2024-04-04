@@ -143,6 +143,8 @@ class FilterHandler
      * the same query parameter twice. Instead they have the same key and their values are
      * imploded via a special character (|). The query parameter looks like ?size=20|21.
      * This method simply explodes the given string into filter values.
+     *
+     * @return string[]
      */
     protected function getFilterValues(string $filterValues): array
     {
@@ -167,6 +169,9 @@ class FilterHandler
         $searchOperation->addValueFilter($filterField, $filterValue);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function handleAvailableFilters(Criteria $criteria): array
     {
         /** @var FiltersExtension $availableFilters */
@@ -177,6 +182,9 @@ class FilterHandler
         return $this->parseNostoFiltersForShopware($availableFilters, $allFilters);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function parseNostoFiltersForShopware(
         FiltersExtension $availableFilters,
         FiltersExtension $allFilters,

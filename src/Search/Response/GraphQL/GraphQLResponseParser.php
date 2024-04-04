@@ -59,7 +59,7 @@ class GraphQLResponseParser
     public function getProductIds(): array
     {
         return array_map(
-            static fn(Hit $product) => $product->getProductId(),
+            static fn (Hit $product) => $product->getProductId(),
             $this->searchResult->getProducts()->getHits(),
         );
     }

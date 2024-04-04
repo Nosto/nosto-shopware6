@@ -77,14 +77,14 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
         while (($events = $iterator->fetch()) !== null) {
             $ids = $entityType === ProductDefinition::ENTITY_NAME ?
-                $events->reduce(static function (array $result, ChangelogEntity $event) : array {
+                $events->reduce(static function (array $result, ChangelogEntity $event): array {
                     $result[$event->getEntityId()] = $event->getProductNumber();
                     return $result;
                 }, []) :
-                $events->map(static fn(ChangelogEntity $event): string => $event->getEntityId());
+                $events->map(static fn (ChangelogEntity $event): string => $event->getEntityId());
 
             $processCallback($ids);
-            $deleteDataSet = array_map(static fn($id): array => [
+            $deleteDataSet = array_map(static fn ($id): array => [
                 'id' => $id,
             ], array_values($events->getIds()));
             $this->entityChangelogRepository->delete($deleteDataSet, $context);
@@ -94,7 +94,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
-        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result, $context): void {
+        $this->processEventBatches($context, $type, function (array $orderIds) use (
+            $parentJobId,
+            $result,
+            $context
+        ): void {
             $jobMessage = new OrderSyncMessage(
                 Uuid::randomHex(),
                 $parentJobId,
@@ -113,7 +117,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private function processUpdatedOrderEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
-        $this->processEventBatches($context, $type, function (array $orderIds) use ($parentJobId, $result, $context): void {
+        $this->processEventBatches($context, $type, function (array $orderIds) use (
+            $parentJobId,
+            $result,
+            $context
+        ): void {
             $jobMessage = new OrderSyncMessage(
                 Uuid::randomHex(),
                 $parentJobId,
@@ -132,7 +140,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private function processProductEvents(Context $context, JobResult $result, string $parentJobId): void
     {
         $type = EventsWriter::PRODUCT_ENTITY_NAME;
-        $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId, $result, $context): void {
+        $this->processEventBatches($context, $type, function (array $productIds) use (
+            $parentJobId,
+            $result,
+            $context
+        ): void {
             $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds, $context);
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(

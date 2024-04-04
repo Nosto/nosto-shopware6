@@ -62,6 +62,9 @@ abstract class Filter
         return $this->field;
     }
 
+    /**
+     * @return FilterValue[]
+     */
     public function getValues(): array
     {
         return $this->values;

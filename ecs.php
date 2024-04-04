@@ -6,6 +6,8 @@ use PhpCsFixer\Fixer\ControlStructure\TrailingCommaInMultilineFixer;
 use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
+use SlevomatCodingStandard\Sniffs\TypeHints\DeclareStrictTypesSniff;
+use SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff;
 use Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
@@ -18,6 +20,7 @@ return function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->rules([
         DeclareStrictTypesFixer::class,
+        ReturnTypeHintSniff::class,
     ]);
 
     $ecsConfig->skip([
@@ -33,17 +36,16 @@ return function (ECSConfig $ecsConfig): void {
          SetList::PSR_12,
     ]);
 
-    $ecsConfig->ruleWithConfiguration(YodaStyleFixer::class, [
-        'equal' => false,
-        'identical' => false,
-        'less_and_greater' => false,
-    ]);
-
-    $ecsConfig->ruleWithConfiguration(LineLengthFixer::class, [
-        'inline_short_lines' => false,
-    ]);
-
-    $ecsConfig->ruleWithConfiguration(TrailingCommaInMultilineFixer::class, [
-        'elements' => ['arguments', 'arrays', 'match', 'parameters'],
+    $ecsConfig->rulesWithConfiguration([
+        DeclareStrictTypesSniff::class => ['spacesCountAroundEqualsSign' => false],
+        YodaStyleFixer::class => [
+            'equal' => false,
+            'identical' => false,
+            'less_and_greater' => false,
+        ],
+        LineLengthFixer::class => ['inline_short_lines' => false],
+        TrailingCommaInMultilineFixer::class => [
+            'elements' => ['arguments', 'arrays', 'match', 'parameters'],
+        ]
     ]);
 };

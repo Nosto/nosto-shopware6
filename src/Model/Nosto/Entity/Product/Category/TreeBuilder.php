@@ -11,13 +11,16 @@ class TreeBuilder
 {
     public const NAME_WITH_ID_TEMPLATE = '%s (ID = %s)';
 
+    /**
+     * @return string[]
+     */
     public function fromCategoriesRo(CategoryCollection $categoriesRo): array
     {
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
 
-        $nostoCategoryNames = array_map(static fn(array $nameSet): mixed => array_reduce(
+        $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
             $nameSet,
-            static function (array $acc, string $categoryName) : array {
+            static function (array $acc, string $categoryName): array {
                 $acc[] = end($acc) . '/' . $categoryName;
                 return $acc;
             },
@@ -27,6 +30,9 @@ class TreeBuilder
         return array_values(array_unique(array_merge([], ...array_values($nostoCategoryNames))));
     }
 
+    /**
+     * @return string[]
+     */
     public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
     {
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
@@ -43,6 +49,9 @@ class TreeBuilder
         return $nostoCategoryNames;
     }
 
+    /**
+     * @return string[][]
+     */
     private function getCategoryNameSets(CategoryCollection $categoriesRo): array
     {
         if ($categoriesRo->count() < 1) {
@@ -50,12 +59,12 @@ class TreeBuilder
         }
 
         $rootCategoryId = $categoriesRo
-            ->filter(static fn(CategoryEntity $category): bool => $category->getParentId() === null)
+            ->filter(static fn (CategoryEntity $category): bool => $category->getParentId() === null)
             ->first()->getId();
 
-        return array_filter(array_map(static fn(CategoryEntity $category): array => array_filter(
+        return array_filter(array_map(static fn (CategoryEntity $category): array => array_filter(
             $category->getPlainBreadcrumb(),
-            static fn(string $categoryId): bool => $categoryId !== $rootCategoryId,
+            static fn (string $categoryId): bool => $categoryId !== $rootCategoryId,
             ARRAY_FILTER_USE_KEY,
         ), $categoriesRo->getElements()));
     }

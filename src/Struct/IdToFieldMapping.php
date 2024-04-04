@@ -26,6 +26,9 @@ class IdToFieldMapping extends Struct
         return $this->map[$id] ?? null;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getMap(): array
     {
         return $this->map;

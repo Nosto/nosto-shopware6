@@ -78,12 +78,18 @@ class ConfigProvider
         return is_string($domainId) ? $domainId : null;
     }
 
+    /**
+     * @return string[]
+     */
     public function getSelectedCustomFields(?string $channelId = null, ?string $languageId = null): array
     {
         $value = $this->configService->get(NostoConfigService::SELECTED_CUSTOM_FIELDS, $channelId, $languageId);
         return is_array($value) ? $value : [];
     }
 
+    /**
+     * @return string[]
+     */
     public function getTagFieldKey(int $tagNumber, ?string $channelId = null, ?string $languageId = null): array
     {
         $config = $this->configService->get(
@@ -104,8 +110,10 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::GOOGLE_CATEGORY, $channelId, $languageId);
     }
 
-    public function getProductIdentifier(?string $channelId = null, ?string $languageId = null): ProductIdentifierOptions
-    {
+    public function getProductIdentifier(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): ProductIdentifierOptions {
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
 
         return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
@@ -125,20 +133,27 @@ class ConfigProvider
         return StockFieldOptions::tryFrom($value) ?? StockFieldOptions::AVAILABLE_STOCK;
     }
 
-    public function getCrossSellingSyncOption(?string $channelId = null, ?string $languageId = null): CrossSellingSyncOptions
-    {
+    public function getCrossSellingSyncOption(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): CrossSellingSyncOptions {
         $value = $this->configService->get(NostoConfigService::CROSS_SELLING_SYNC_FIELD, $channelId, $languageId);
 
         return CrossSellingSyncOptions::tryFrom($value) ?? CrossSellingSyncOptions::NO_SYNC;
     }
 
-    public function getCategoryNamingOption(?string $channelId = null, ?string $languageId = null): CategoryNamingOptions
-    {
+    public function getCategoryNamingOption(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): CategoryNamingOptions {
         $value = $this->configService->get(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
 
         return CategoryNamingOptions::tryFrom($value) ?? CategoryNamingOptions::NO_ID;
     }
 
+    /**
+     * @return string[]
+     */
     public function getCategoryBlocklist(?string $channelId = null, ?string $languageId = null): array
     {
         $value = $this->configService->get(NostoConfigService::CATEGORY_BLOCKLIST, $channelId, $languageId);
@@ -192,8 +207,10 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledReloadRecommendationsAfterAdding(?string $channelId = null, ?string $languageId = null): bool
-    {
+    public function isEnabledReloadRecommendationsAfterAdding(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING,
             $channelId,
@@ -230,6 +247,9 @@ class ConfigProvider
         return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(?string $channelId = null, ?string $languageId = null): array
     {
         return $this->configService->getConfigWithInheritance($channelId, $languageId);

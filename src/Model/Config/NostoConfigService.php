@@ -137,6 +137,9 @@ class NostoConfigService
         return (bool) $this->get($key, $salesChannelId, $languageId);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfigWithInheritance(string $salesChannelId = null, string $languageId = null): array
     {
         $key = $this->buildConfigKey($salesChannelId, $languageId);
@@ -148,6 +151,8 @@ class NostoConfigService
     /**
      * @throws JsonException
      * @throws Exception
+     *
+     * @return array<string, mixed>
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {

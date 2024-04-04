@@ -18,7 +18,8 @@
     "require-dev": {
         "symplify/easy-coding-standard": "^12.0",
         "monolog/monolog": "^3.5",
-        "bramus/monolog-colored-line-formatter": "^3.1"
+        "bramus/monolog-colored-line-formatter": "^3.1",
+        "slevomat/coding-standard": "^8.15"
     },
     "autoload": {
         "psr-4": {
@@ -35,7 +36,8 @@
             "php": "8.2"
         },
         "allow-plugins": {
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "dealerdirect/phpcodesniffer-composer-installer": false
         }
     },
     "extra": {

@@ -86,6 +86,9 @@ trait SearchResultHelper
         return $result;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function sortElementsByIdArray(array $elements, array $ids): array
     {
         $sorted = [];

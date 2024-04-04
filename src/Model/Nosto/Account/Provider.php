@@ -32,8 +32,8 @@ class Provider
         return array_values(
             array_filter(
                 $this->all($context),
-                static fn(Account $account): bool => $account->getChannelId() === $channelId && $account->getLanguageId() === $languageId,
-            )
+                static fn (Account $account): bool => $account->getChannelId() === $channelId && $account->getLanguageId() === $languageId,
+            ),
         )[0] ?? null;
     }
 

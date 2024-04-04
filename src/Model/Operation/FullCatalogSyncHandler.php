@@ -58,6 +58,9 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         return $result;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getIdsForMessage(EntityCollection $products): array
     {
         $data = [];
