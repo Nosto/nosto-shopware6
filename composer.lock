@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b2df556ef2a854df898047ed45b4671",
+    "content-hash": "4a5a213065b5c06b391a9c13bd128566",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -68,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "33dfca4900d7f37a521cb14bf335c20b01f5b418"
+                "reference": "c4a1e989727404e7a81d275368372321ea3eec27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/33dfca4900d7f37a521cb14bf335c20b01f5b418",
-                "reference": "33dfca4900d7f37a521cb14bf335c20b01f5b418",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/c4a1e989727404e7a81d275368372321ea3eec27",
+                "reference": "c4a1e989727404e7a81d275368372321ea3eec27",
                 "shasum": ""
             },
             "require": {
@@ -81,6 +81,7 @@
             },
             "require-dev": {
                 "shopware/administration": "^6.6",
+                "slevomat/coding-standard": "^8.15",
                 "symplify/easy-coding-standard": "^12.0"
             },
             "type": "library",
@@ -98,7 +99,7 @@
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
                 "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/ADS-4478_fix_installation_bump_PHP"
             },
-            "time": "2024-04-02T13:46:06+00:00"
+            "time": "2024-04-04T08:03:01+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
