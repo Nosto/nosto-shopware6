@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 
 abstract class AbstractMessage implements JobMessageInterface
 {
-    private string $name;
+    private readonly string $name;
 
     protected static string $defaultName = 'Unnamed Operation';
 

@@ -6,9 +6,9 @@ namespace Nosto\NostoIntegration\Search\Response\GraphQL\Filter;
 
 class RangeSliderFilter extends Filter
 {
-    private string $minKey;
+    private readonly string $minKey;
 
-    private string $maxKey;
+    private readonly string $maxKey;
 
     public function __construct(
         string $id,

@@ -86,9 +86,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function loadRuleIds(SalesChannelContext $channelContext): array
     {
         return $this->ruleLoader->load($channelContext->getContext())->filter(
-            function (RuleEntity $rule) use ($channelContext) {
-                return $rule->getPayload()->match(new CheckoutRuleScope($channelContext));
-            },
+            static fn(RuleEntity $rule) => $rule->getPayload()->match(new CheckoutRuleScope($channelContext)),
         )->getIds();
     }
 
@@ -264,7 +262,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $cheapestVariant->setChildren(
             $product->getChildren()->filter(
-                static fn (ProductEntity $child) => $child->getId() !== $cheapestVariant->getId(),
+                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
             ),
         );
 

@@ -63,11 +63,9 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
                 $idSearchResult = $this->jobRepository->searchIds($criteria, $context);
 
                 //Formatting IDs array and deleting config keys
-                $ids = array_map(static function ($id) {
-                    return [
-                        'id' => $id,
-                    ];
-                }, $idSearchResult->getIds());
+                $ids = array_map(static fn($id): array => [
+                    'id' => $id,
+                ], $idSearchResult->getIds());
 
                 $this->jobRepository->delete($ids, $context);
             }

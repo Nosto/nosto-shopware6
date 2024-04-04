@@ -18,52 +18,52 @@ class ConfigProvider
     ) {
     }
 
-    public function isAccountEnabled($channelId = null, $languageId = null): bool
+    public function isAccountEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ACCOUNT_ENABLED, $channelId, $languageId);
     }
 
-    public function getAccountId($channelId = null, $languageId = null): string
+    public function getAccountId(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::ACCOUNT_ID, $channelId, $languageId);
     }
 
-    public function getAccountName($channelId = null, $languageId = null): string
+    public function getAccountName(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::ACCOUNT_NAME, $channelId, $languageId);
     }
 
-    public function getProductToken($channelId = null, $languageId = null): string
+    public function getProductToken(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::PRODUCT_TOKEN, $channelId, $languageId);
     }
 
-    public function getEmailToken($channelId = null, $languageId = null): string
+    public function getEmailToken(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::EMAIL_TOKEN, $channelId, $languageId);
     }
 
-    public function getAppToken($channelId = null, $languageId = null): string
+    public function getAppToken(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::GRAPHQL_TOKEN, $channelId, $languageId);
     }
 
-    public function getSearchToken($channelId = null, $languageId = null): string
+    public function getSearchToken(?string $channelId = null, ?string $languageId = null): string
     {
         return $this->configService->getString(NostoConfigService::SEARCH_TOKEN, $channelId, $languageId);
     }
 
-    public function isSearchEnabled($channelId = null, $languageId = null): bool
+    public function isSearchEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
     }
 
-    public function isNavigationEnabled($channelId = null, $languageId = null): bool
+    public function isNavigationEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_NAVIGATION, $channelId, $languageId);
     }
 
-    public function shouldInitializeNostoAfterInteraction($channelId = null, $languageId = null): bool
+    public function shouldInitializeNostoAfterInteraction(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::INITIALIZE_NOSTO_AFTER_INTERACTION,
@@ -72,19 +72,19 @@ class ConfigProvider
         );
     }
 
-    public function getDomainId($channelId = null, $languageId = null): ?string
+    public function getDomainId(?string $channelId = null, ?string $languageId = null): ?string
     {
         $domainId = $this->configService->get(NostoConfigService::DOMAIN_ID, $channelId, $languageId);
         return is_string($domainId) ? $domainId : null;
     }
 
-    public function getSelectedCustomFields($channelId = null, $languageId = null): array
+    public function getSelectedCustomFields(?string $channelId = null, ?string $languageId = null): array
     {
         $value = $this->configService->get(NostoConfigService::SELECTED_CUSTOM_FIELDS, $channelId, $languageId);
         return is_array($value) ? $value : [];
     }
 
-    public function getTagFieldKey(int $tagNumber, $channelId = null, $languageId = null): array
+    public function getTagFieldKey(int $tagNumber, ?string $channelId = null, ?string $languageId = null): array
     {
         $config = $this->configService->get(
             NostoConfigService::TAG_FIELD_TEMPLATE . $tagNumber,
@@ -99,73 +99,73 @@ class ConfigProvider
         return [];
     }
 
-    public function getGoogleCategory($channelId = null, $languageId = null): ?string
+    public function getGoogleCategory(?string $channelId = null, ?string $languageId = null): ?string
     {
         return $this->configService->getString(NostoConfigService::GOOGLE_CATEGORY, $channelId, $languageId);
     }
 
-    public function getProductIdentifier($channelId = null, $languageId = null): ProductIdentifierOptions
+    public function getProductIdentifier(?string $channelId = null, ?string $languageId = null): ProductIdentifierOptions
     {
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
 
         return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
     }
 
-    public function getRatingReviews($channelId = null, $languageId = null): RatingOptions
+    public function getRatingReviews(?string $channelId = null, ?string $languageId = null): RatingOptions
     {
         $value = $this->configService->get(NostoConfigService::RATING_REVIEWS, $channelId, $languageId);
 
         return RatingOptions::tryFrom($value) ?? RatingOptions::SHOPWARE_RATINGS;
     }
 
-    public function getStockField($channelId = null, $languageId = null): StockFieldOptions
+    public function getStockField(?string $channelId = null, ?string $languageId = null): StockFieldOptions
     {
         $value = $this->configService->get(NostoConfigService::STOCK_FIELD, $channelId, $languageId);
 
         return StockFieldOptions::tryFrom($value) ?? StockFieldOptions::AVAILABLE_STOCK;
     }
 
-    public function getCrossSellingSyncOption($channelId = null, $languageId = null): CrossSellingSyncOptions
+    public function getCrossSellingSyncOption(?string $channelId = null, ?string $languageId = null): CrossSellingSyncOptions
     {
         $value = $this->configService->get(NostoConfigService::CROSS_SELLING_SYNC_FIELD, $channelId, $languageId);
 
         return CrossSellingSyncOptions::tryFrom($value) ?? CrossSellingSyncOptions::NO_SYNC;
     }
 
-    public function getCategoryNamingOption($channelId = null, $languageId = null): CategoryNamingOptions
+    public function getCategoryNamingOption(?string $channelId = null, ?string $languageId = null): CategoryNamingOptions
     {
         $value = $this->configService->get(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
 
         return CategoryNamingOptions::tryFrom($value) ?? CategoryNamingOptions::NO_ID;
     }
 
-    public function getCategoryBlocklist($channelId = null, $languageId = null): array
+    public function getCategoryBlocklist(?string $channelId = null, ?string $languageId = null): array
     {
         $value = $this->configService->get(NostoConfigService::CATEGORY_BLOCKLIST, $channelId, $languageId);
         return is_array($value) ? $value : [];
     }
 
-    public function isEnabledVariations($channelId = null, $languageId = null): bool
+    public function isEnabledVariations(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_VARIATIONS, $channelId, $languageId);
     }
 
-    public function isEnabledProductProperties($channelId = null, $languageId = null): bool
+    public function isEnabledProductProperties(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_PRODUCT_PROPERTIES, $channelId, $languageId);
     }
 
-    public function isEnabledAlternateImages($channelId = null, $languageId = null): bool
+    public function isEnabledAlternateImages(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_ALTERNATE_IMAGES, $channelId, $languageId);
     }
 
-    public function isEnabledInventoryLevels($channelId = null, $languageId = null): bool
+    public function isEnabledInventoryLevels(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_INVENTORY_LEVELS, $channelId, $languageId);
     }
 
-    public function isEnabledCustomerDataToNosto($channelId = null, $languageId = null): bool
+    public function isEnabledCustomerDataToNosto(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO,
@@ -174,7 +174,7 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledSyncInactiveProducts($channelId = null, $languageId = null): bool
+    public function isEnabledSyncInactiveProducts(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_SYNC_INACTIVE_PRODUCTS,
@@ -183,7 +183,7 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledProductPublishedDateTagging($channelId = null, $languageId = null): bool
+    public function isEnabledProductPublishedDateTagging(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_PRODUCT_PUBLISHED_DATE_TAGGING,
@@ -192,7 +192,7 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledReloadRecommendationsAfterAdding($channelId = null, $languageId = null): bool
+    public function isEnabledReloadRecommendationsAfterAdding(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_RELOAD_RECOMMENDATIONS_AFTER_ADDING,
@@ -201,7 +201,7 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledProductLabellingSync($channelId = null, $languageId = null): bool
+    public function isEnabledProductLabellingSync(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_PRODUCT_LABELLING_SYNC,
@@ -210,27 +210,27 @@ class ConfigProvider
         );
     }
 
-    public function isDailyProductSyncEnabled($channelId = null, $languageId = null): bool
+    public function isDailyProductSyncEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);
     }
 
-    public function getDailyProductSyncTime($channelId = null, $languageId = null): ?string
+    public function getDailyProductSyncTime(?string $channelId = null, ?string $languageId = null): ?string
     {
         return $this->configService->get(NostoConfigService::DAILY_PRODUCT_SYNC_TIME, $channelId, $languageId);
     }
 
-    public function isOldJobCleanupEnabled($channelId = null, $languageId = null): bool
+    public function isOldJobCleanupEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::OLD_JOB_CLEANUP_ENABLED, $channelId, $languageId);
     }
 
-    public function getOldJobCleanupPeriod($channelId = null, $languageId = null): ?int
+    public function getOldJobCleanupPeriod(?string $channelId = null, ?string $languageId = null): ?int
     {
         return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
     }
 
-    public function toArray($channelId = null, $languageId = null): array
+    public function toArray(?string $channelId = null, ?string $languageId = null): array
     {
         return $this->configService->getConfigWithInheritance($channelId, $languageId);
     }

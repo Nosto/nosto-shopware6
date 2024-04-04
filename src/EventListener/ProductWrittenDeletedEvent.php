@@ -43,7 +43,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         if (count($ids)) {
             $orderNumberMapping = $this->productHelper->loadOrderNumberMapping($ids, $event->getContext());
 
-            $event->addSuccess(function () use ($ids, $event, $orderNumberMapping) {
+            $event->addSuccess(function () use ($ids, $event, $orderNumberMapping): void {
                 $this->writeEvents($ids, ProductDefinition::ENTITY_NAME, $event->getContext(), $orderNumberMapping);
             });
         }
