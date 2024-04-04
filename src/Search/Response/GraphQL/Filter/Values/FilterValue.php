@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class FilterValue extends Struct
 {
-    private TranslatedName $translated;
+    private readonly TranslatedName $translated;
 
     public function __construct(
         private readonly string $id,

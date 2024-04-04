@@ -15,6 +15,9 @@ class ThemeInheritanceBuilderDecorator implements ThemeInheritanceBuilderInterfa
     ) {
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function build(array $bundles, array $themes): array
     {
         $result = $this->inner->build($bundles, $themes);

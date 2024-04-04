@@ -22,11 +22,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Lifecycle
 {
-    private Connection $connection;
+    private readonly Connection $connection;
 
-    private EntityRepository $sortingRepository;
+    private readonly EntityRepository $sortingRepository;
 
-    private EntityRepository $salesChannelRepository;
+    private readonly EntityRepository $salesChannelRepository;
 
     public function __construct(
         private readonly ContainerInterface $container,

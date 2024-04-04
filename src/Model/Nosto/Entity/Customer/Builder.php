@@ -28,7 +28,7 @@ class Builder
         $nostoCustomer->setEmail($customer->getEmail());
         $nostoCustomer->setFirstName($customer->getFirstName());
         $nostoCustomer->setLastName($customer->getLastName());
-        $nostoCustomer->setCustomerReference($this->generateCustomerReference($customer));
+        $nostoCustomer->setCustomerReference(static::generateCustomerReference($customer));
         $nostoCustomer->setMarketingPermission($this->hasMarketingPermission($customer, $context));
         $this->eventDispatcher->dispatch(new NostoCustomerBuiltEvent($customer, $nostoCustomer, $context));
 

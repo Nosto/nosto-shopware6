@@ -83,12 +83,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $operationResult;
     }
 
+    /**
+     * @return string[]
+     */
     private function loadRuleIds(SalesChannelContext $channelContext): array
     {
         return $this->ruleLoader->load($channelContext->getContext())->filter(
-            function (RuleEntity $rule) use ($channelContext) {
-                return $rule->getPayload()->match(new CheckoutRuleScope($channelContext));
-            },
+            static fn (RuleEntity $rule) => $rule->getPayload()->match(new CheckoutRuleScope($channelContext)),
         )->getIds();
     }
 
@@ -176,7 +177,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $account,
                         $context,
                         [$handledProduct->getId(), $handledProduct->getParentId()],
-                        $ids
+                        $ids,
                     );
                 }
             }
@@ -239,7 +240,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $account,
                 $context,
                 [$product->getId(), $product->getParentId()],
-                $ids
+                $ids,
             );
         }
 
@@ -264,7 +265,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $cheapestVariant->setChildren(
             $product->getChildren()->filter(
-                static fn (ProductEntity $child) => $child->getId() !== $cheapestVariant->getId(),
+                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
             ),
         );
 
@@ -419,6 +420,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->delete();
     }
 
+    /**
+     * @param string[] $productIds
+     * @param array<string, string> $mapping
+     *
+     * @return string[]
+     */
     private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
     {
         $identifierType = $this->configProvider->getProductIdentifier(
@@ -432,6 +439,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productIds;
     }
 
+    /**
+     * @param string[] $productIds
+     * @param array<string, string> $mapping
+     * @return string[]
+     */
     private function getProductNumbers(array $productIds, array $mapping): array
     {
         $productNumbers = [];
@@ -459,8 +471,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
     }
 
-    protected function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
-    {
+    protected function getShopwareProducts(
+        array $productIds,
+        SalesChannelContext $context,
+    ): SalesChannelProductCollection {
         $criteria = new Criteria($productIds);
 
         return $this->salesChannelProductRepository->search(

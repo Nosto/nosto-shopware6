@@ -29,12 +29,12 @@ class Provider
 
     public function get(Context $context, string $channelId, string $languageId): ?Account
     {
-        return array_values(array_filter($this->all($context), function (Account $account) use (
-            $channelId,
-            $languageId
-        ) {
-            return $account->getChannelId() === $channelId && $account->getLanguageId() === $languageId;
-        }))[0] ?? null;
+        return array_values(
+            array_filter(
+                $this->all($context),
+                static fn (Account $account): bool => $account->getChannelId() === $channelId && $account->getLanguageId() === $languageId,
+            ),
+        )[0] ?? null;
     }
 
     /**

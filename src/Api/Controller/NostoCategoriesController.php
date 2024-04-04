@@ -24,7 +24,7 @@ class NostoCategoriesController extends AbstractController
 {
     protected const APP_URL = 'https://api.nosto.com/v1/graphql';
 
-    private Client $client;
+    private readonly Client $client;
 
     public function __construct(
         private readonly EntityRepository $categoryRepository,

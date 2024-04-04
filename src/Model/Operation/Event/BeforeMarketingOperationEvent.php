@@ -17,6 +17,9 @@ class BeforeMarketingOperationEvent extends BeforeOperationEvent
         parent::__construct($operation, $context);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;

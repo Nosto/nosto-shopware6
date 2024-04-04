@@ -9,8 +9,14 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Throwable;
 
+/**
+ * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+ */
 class ContextHelper
 {
+    /**
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+     */
     public static function createContextFromException(Throwable $exception): array
     {
         $context = [
@@ -25,6 +31,9 @@ class ContextHelper
         return $context;
     }
 
+    /**
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+     */
     public static function convertLoggableContextToPlainRepresentation(array $context): array
     {
         try {
@@ -42,6 +51,8 @@ class ContextHelper
 
     /**
      * Convert objects into plain array
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
      *
      * @param int|float|string|array|object $value
      * @param int $deep How deep variable should be converted, by default 10 levels
@@ -83,12 +94,18 @@ class ContextHelper
         return $value;
     }
 
+    /**
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+     */
     private static function convertRequestToSerializable(Request $request): array
     {
         // TODO finalize method
         return [];
     }
 
+    /**
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+     */
     private static function convertResponseToSerializable(Response $response): array
     {
         // TODO finalize method

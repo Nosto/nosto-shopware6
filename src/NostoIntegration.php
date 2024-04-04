@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration;
 use Composer\Autoload\ClassLoader;
 use Nosto\Scheduler\NostoScheduler;
 use ReflectionClass;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -59,6 +60,9 @@ class NostoIntegration extends Plugin
         }
     }
 
+    /**
+     * @return Bundle[]
+     */
     private function getDependencyBundles(): array
     {
         return [
@@ -83,9 +87,7 @@ class NostoIntegration extends Plugin
 
             $schedulerDependencies = array_filter(
                 $bundle->getAdditionalBundles($bundleParameters),
-                function (BundleInterface $bundle) {
-                    return $bundle instanceof NostoScheduler;
-                },
+                static fn (BundleInterface $bundle): bool => $bundle instanceof NostoScheduler,
             );
 
             if (count($schedulerDependencies) !== 0) {
@@ -97,6 +99,9 @@ class NostoIntegration extends Plugin
         (new Utils\Lifecycle($this->container, $hasOtherSchedulerDependency))->uninstall($uninstallContext);
     }
 
+    /**
+     * @return Bundle[]
+     */
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
         self::classLoader();

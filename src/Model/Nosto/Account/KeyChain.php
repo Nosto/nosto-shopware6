@@ -16,6 +16,9 @@ class KeyChain
     ) {
     }
 
+    /**
+     * @return Token[]
+     */
     public function getTokens(): array
     {
         return $this->tokens;
