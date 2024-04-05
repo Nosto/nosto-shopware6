@@ -4,11 +4,7 @@
         :value="getInitialVariantMode()"
         :options="mainVariantModeOptions"
         :disabled="isDisabledListingMode('single')"
-        {% if VUE3 %}
-            @update:value="updateVariantMode"
-        {% else %}
-            @change="updateVariantMode"
-        {% endif %}
+        @update:value="updateVariantMode"
     />
 {% endblock %}
 

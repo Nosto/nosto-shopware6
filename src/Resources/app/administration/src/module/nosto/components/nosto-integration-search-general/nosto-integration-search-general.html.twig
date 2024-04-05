@@ -6,7 +6,7 @@
     >
         {% block nosto_integration_search_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['enableSearch']"
+                v-model:value="actualConfigData['enableSearch']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['enableSearch']"
             >
                 <template #content="props">
@@ -16,7 +16,7 @@
                         :help-text="$tc('nosto.configuration.search-navigation.enableSearch.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -24,7 +24,7 @@
 
         {% block nosto_integration_navigation_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['enableNavigation']"
+                v-model:value="actualConfigData['enableNavigation']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['enableNavigation']"
             >
                 <template #content="props">
@@ -34,7 +34,7 @@
                         :help-text="$tc('nosto.configuration.search-navigation.enableNavigation.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>

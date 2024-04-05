@@ -7,7 +7,7 @@
         >
             {% block nosto_integration_setting_deferred_init %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['isInitializeNostoAfterInteraction']"
+                    v-model:value="actualConfigData['isInitializeNostoAfterInteraction']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['isInitializeNostoAfterInteraction']"
                 >
                     <template #content="props">
@@ -16,8 +16,8 @@
                             :map-inheritance="props"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
                             :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -33,7 +33,7 @@
                     :criteria="domainCriteria"
                     show-clearable-button
                     entity="sales_channel_domain"
-                    v-model="actualConfigData['domain']"
+                    v-model:value="actualConfigData['domain']"
                 />
             {% endblock %}
         </sw-card>
@@ -45,7 +45,7 @@
         >
             {% block nosto_integration_settings_custom_fields %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['selectedCustomFields']"
+                    v-model:value="actualConfigData['selectedCustomFields']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['selectedCustomFields']"
                     :label="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsTitle')"
                     :help-text="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsHelpText')"
@@ -59,7 +59,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -67,7 +67,7 @@
 
             {% block nosto_integration_settings_tag_1 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag1']"
+                    v-model:value="actualConfigData['tag1']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['tag1']"
                     :label="$tc('nosto.configuration.tagAssignment.tag1title')"
                 >
@@ -80,7 +80,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -88,7 +88,7 @@
 
             {% block nosto_integration_settings_tag_2 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag2']"
+                    v-model:value="actualConfigData['tag2']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['tag2']"
                     :label="$tc('nosto.configuration.tagAssignment.tag2title')"
                 >
@@ -101,7 +101,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -109,7 +109,7 @@
 
             {% block nosto_integration_settings_tag_3 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag3']"
+                    v-model:value="actualConfigData['tag3']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['tag3']"
                     :label="$tc('nosto.configuration.tagAssignment.tag3title')"
                 >
@@ -122,7 +122,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -130,7 +130,7 @@
 
             {% block nosto_integration_settings_tag_google_category %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['googleCategory']"
+                    v-model:value="actualConfigData['googleCategory']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['googleCategory']"
                     :label="$tc('nosto.configuration.tagAssignment.googleCategoryTitle')"
                     :help-text="$tc('nosto.configuration.tagAssignment.googleCategoryHelpText')"
@@ -145,7 +145,7 @@
                             :disabled="props.isInherited"
                             show-clearable-button
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="props.updateCurrentValue"
                         />
                     </template>
                 </sw-inherit-wrapper>

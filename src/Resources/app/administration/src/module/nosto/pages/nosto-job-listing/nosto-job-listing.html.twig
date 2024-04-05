@@ -10,7 +10,7 @@
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
         </template>
-        <template slot="content">
+        <template #content>
             <nosto-job-listing-index ref="jobListing"
                                   :filterCriteria="filterCriteria"
                                   @job-display-type-changed="onDisplayModeChange"

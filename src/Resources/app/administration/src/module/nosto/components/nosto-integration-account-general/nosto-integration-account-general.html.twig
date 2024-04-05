@@ -7,7 +7,7 @@
         <template v-if="configKey">
             {% block nosto_integration_account_enabled %}
                 <sw-switch-field
-                    v-model="actualConfigData['isEnabled']"
+                    v-model:value="actualConfigData['isEnabled']"
                     :label="$tc('nosto.configuration.account.enabledTitle')"
                     :help-text="$tc('nosto.configuration.account.enabledHelpText')"
                 />
@@ -26,61 +26,55 @@
             {% endblock %}
 
             {% block nosto_integration_account_id %}
-                <sw-field
-                    v-model="actualConfigData['accountID']"
+                <sw-text-field
+                    v-model:value="actualConfigData['accountID']"
                     :label="$tc('nosto.configuration.account.idTitle')"
                     :help-text="$tc('nosto.configuration.account.idHelpText')"
-                    type="text"
                     :error="hasError(actualConfigData['accountID'])"
                     required
                     name="accountID"
                 />
             {% endblock %}
             {% block nosto_integration_account_name %}
-                <sw-field
-                    v-model="actualConfigData['accountName']"
+                <sw-text-field
+                    v-model:value="actualConfigData['accountName']"
                     :label="$tc('nosto.configuration.account.nameTitle')"
                     :help-text="$tc('nosto.configuration.account.nameHelpText')"
-                    type="text"
                     :error="hasError(actualConfigData['accountName'])"
                     required
                     name="accountName"
-                    @input="updateCurrentValue($event, props)"
+                    @update:value="updateCurrentValue($event, props)"
                 />
             {% endblock %}
             {% block nosto_integration_account_token %}
-                <sw-field
-                    v-model="actualConfigData['productToken']"
+                <sw-password-field
+                    v-model:value="actualConfigData['productToken']"
                     :label="$tc('nosto.configuration.account.productTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.productTokenHelpText')"
-                    type="password"
                     required
                     :error="hasError(actualConfigData['productToken'])"
                     name="productToken"
                 />
-                <sw-field
-                    v-model="actualConfigData['emailToken']"
+                <sw-password-field
+                    v-model:value="actualConfigData['emailToken']"
                     :label="$tc('nosto.configuration.account.emailTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.emailTokenHelpText')"
-                    type="password"
                     :error="hasError(actualConfigData['emailToken'])"
                     required
                     name="emailToken"
                 />
-                <sw-field
-                    v-model="actualConfigData['appToken']"
+                <sw-password-field
+                    v-model:value="actualConfigData['appToken']"
                     :label="$tc('nosto.configuration.account.appTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.appTokenHelpText')"
-                    type="password"
                     :error="hasError(actualConfigData['appToken'])"
                     required
                     name="appToken"
                 />
-                <sw-field
-                    v-model="actualConfigData['searchToken']"
+                <sw-password-field
+                    v-model:value="actualConfigData['searchToken']"
                     :label="$tc('nosto.configuration.account.searchTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
-                    type="password"
                     :error="hasError(actualConfigData['searchToken'])"
                     required
                     name="searchToken"

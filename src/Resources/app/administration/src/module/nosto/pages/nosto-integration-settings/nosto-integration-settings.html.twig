@@ -13,7 +13,7 @@
             <template #smart-bar-actions>
                 {% block nosto_integration_actions_save %}
                     <sw-button-process
-                        v-model="isSaveSuccessful"
+                        v-model:value="isSaveSuccessful"
                         variant="primary"
                         :isLoading="salesChannelsLoading || configsLoading || saving"
                         :disabled="salesChannelsLoading || configsLoading || saving"
@@ -37,7 +37,7 @@
                                 >
                                     {% block nosto_integration_content_card_channel_config_sales_channel_selection %}
                                         <sw-single-select
-                                            v-model="selectedSalesChannelId"
+                                            v-model:value="selectedSalesChannelId"
                                             :options="salesChannels"
                                             labelProperty="translated.name"
                                             valueProperty="id"
@@ -46,7 +46,7 @@
                                         />
 
                                         <sw-single-select
-                                            v-model="selectedLanguageId"
+                                            v-model:value="selectedLanguageId"
                                             :options="languages"
                                             labelProperty="name"
                                             valueProperty="id"
