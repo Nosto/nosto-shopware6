@@ -13,6 +13,7 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -61,7 +62,17 @@ abstract class AbstractRequestHandler
             return;
         }
 
-        $criteria->setIds($responseParser->getProductIds());
+        $productIds = [];
+        foreach($responseParser->getProductCustomFields() as $customFields) {
+            foreach($customFields as $customField) {
+                if ($customField->getKey() === 'productid') {
+                    $productIds[$customField->getValue()] = $customField->getValue();
+                    break;
+                }
+            }
+        }
+
+        $criteria->setIds($productIds);
 
         $this->setPagination(
             $criteria,

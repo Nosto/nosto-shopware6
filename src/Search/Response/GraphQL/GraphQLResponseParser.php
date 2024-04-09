@@ -63,4 +63,12 @@ class GraphQLResponseParser
             $this->searchResult->getProducts()->getHits(),
         );
     }
+
+    public function getProductCustomFields(): array
+    {
+        return array_map(
+            fn (Hit $product) => $product->getCustomFields(),
+            $this->searchResult->getProducts()->getHits(),
+        );
+    }
 }
