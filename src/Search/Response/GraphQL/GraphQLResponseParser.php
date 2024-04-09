@@ -58,17 +58,21 @@ class GraphQLResponseParser
      */
     public function getProductIds(): array
     {
-        return array_map(
-            fn (Hit $product) => $product->getProductId(),
-            $this->searchResult->getProducts()->getHits(),
-        );
-    }
-
-    public function getProductCustomFields(): array
-    {
-        return array_map(
+        $productCustomFields = array_map(
             fn (Hit $product) => $product->getCustomFields(),
             $this->searchResult->getProducts()->getHits(),
         );
+
+        $productIds = [];
+        foreach($productCustomFields as $customFields) {
+            foreach($customFields as $customField) {
+                if ($customField->getKey() === 'productid') {
+                    $productIds[$customField->getValue()] = $customField->getValue();
+                    break;
+                }
+            }
+        }
+
+        return $productIds;
     }
 }

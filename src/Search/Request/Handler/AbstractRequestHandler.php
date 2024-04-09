@@ -61,17 +61,7 @@ abstract class AbstractRequestHandler
             return;
         }
 
-        $productIds = [];
-        foreach($responseParser->getProductCustomFields() as $customFields) {
-            foreach($customFields as $customField) {
-                if ($customField->getKey() === 'productid') {
-                    $productIds[$customField->getValue()] = $customField->getValue();
-                    break;
-                }
-            }
-        }
-
-        $criteria->setIds($productIds);
+        $criteria->setIds($responseParser->getProductIds());
 
         $this->setPagination(
             $criteria,
