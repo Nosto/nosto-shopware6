@@ -1,6 +1,7 @@
 import './init/svg-icons.init';
 import './init/nosto-api-keys-validator-service-init';
 import './init/nosto-config-api';
+import './mixins/nosto-integration-config-component';
 import './module/nosto';
 import './extension/sw-cms/component/sw-cms-sidebar';
 import

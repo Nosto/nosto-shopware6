@@ -1,6 +1,6 @@
 import template from './nosto-integration-features-flags.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /** @private */
@@ -9,21 +9,9 @@ Component.register('nosto-integration-features-flags', {
 
     inject: ['repositoryFactory'],
 
-    props: {
-        actualConfigData: {
-            type: Object,
-            required: true,
-        },
-        allConfigs: {
-            type: Object,
-            required: true,
-        },
-        configKey: {
-            type: String,
-            required: false,
-            default: null,
-        },
-    },
+    mixins: [
+        Mixin.getByName('nosto-integration-config-component'),
+    ],
 
     data() {
         return {
@@ -38,7 +26,7 @@ Component.register('nosto-integration-features-flags', {
             return this.repositoryFactory.create('category');
         },
         selectedCategories() {
-            return this.actualConfigData.categoryBlocklist || this.allConfigs.null.categoryBlocklist;
+            return this.currentConfig.categoryBlocklist || this.allConfigs.null.categoryBlocklist;
         },
         selectedCategoriesCriteria() {
             const criteria = new Criteria(null, null);
@@ -163,13 +151,12 @@ Component.register('nosto-integration-features-flags', {
                 oldJobCleanupPeriod: 5,
             };
 
-            /**
-             * Initialize config data with default values.
-             */
-            Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[key] === undefined) {
-                    this.$set(this.allConfigs.null, key, defaultValue);
-                }
+            this.$emit('update:allConfigs', {
+                ...this.allConfigs,
+                null: {
+                    ...defaultConfigs,
+                    ...this.allConfigs.null,
+                },
             });
 
             this.createCategoryCollection();
@@ -186,25 +173,17 @@ Component.register('nosto-integration-features-flags', {
         },
 
         onCategoryAdd(item) {
-            if (this.actualConfigData.categoryBlocklist) {
-                this.$set(
-                    this.actualConfigData,
-                    'categoryBlocklist',
-                    [...this.actualConfigData.categoryBlocklist, item.id],
-                );
-            } else {
-                this.$set(this.actualConfigData, 'categoryBlocklist', [item.id]);
-            }
+            const newValue = this.currentConfig.categoryBlocklist
+                ? [...this.currentConfig.categoryBlocklist, item.id]
+                : [item.id];
+
+            this.onUpdateValue('categoryBlocklist', newValue);
         },
 
         onCategoryRemove(item) {
-            this.$set(
-                this.actualConfigData,
-                'categoryBlocklist',
-                this.actualConfigData.categoryBlocklist.filter(
-                    categoryId => categoryId !== item.id,
-                ),
-            );
+            this.onUpdateValue('categoryBlocklist', this.currentConfig.categoryBlocklist.filter(
+                categoryId => categoryId !== item.id,
+            ));
         },
     },
 });

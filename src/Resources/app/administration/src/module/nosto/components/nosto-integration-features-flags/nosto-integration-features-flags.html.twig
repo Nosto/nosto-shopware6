@@ -6,10 +6,11 @@
     >
         {% block nosto_integration_feature_product_identifier %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['productIdentifier']"
+                :value="currentConfig['productIdentifier']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['productIdentifier']"
                 :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
                 :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')"
+                @update:value="onUpdateValue('productIdentifier', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -21,7 +22,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('productIdentifier', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -29,10 +30,11 @@
 
         {% block nosto_integration_feature_ratings_reviews %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['ratingsReviews']"
+                :value="currentConfig['ratingsReviews']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['ratingsReviews']"
                 :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')"
                 :help-text="$tc('nosto.configuration.featuresFlags.enableRatingsReviewsHelpText')"
+                @update:value="onUpdateValue('ratingsReviews', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -44,7 +46,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('ratingsReviews', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -52,10 +54,11 @@
 
         {% block nosto_integration_feature_stock_field %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['stockField']"
+                :value="currentConfig['stockField']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['stockField']"
                 :label="$tc('nosto.configuration.featuresFlags.stockField')"
                 :help-text="$tc('nosto.configuration.featuresFlags.stockFieldHelpText')"
+                @update:value="onUpdateValue('stockField', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -67,7 +70,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('stockField', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -75,10 +78,11 @@
 
         {% block nosto_integration_cross_selling_sync %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['crossSellingSync']"
+                :value="currentConfig['crossSellingSync']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['crossSellingSync']"
                 :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
                 :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')"
+                @update:value="onUpdateValue('crossSellingSync', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -90,7 +94,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('crossSellingSync', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -98,10 +102,11 @@
 
         {% block nosto_integration_category_naming %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['categoryNaming']"
+                :value="currentConfig['categoryNaming']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['categoryNaming']"
                 :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
                 :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')"
+                @update:value="onUpdateValue('categoryNaming', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -113,7 +118,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('categoryNaming', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -121,10 +126,11 @@
 
         {% block nosto_integration_category_blocklist %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['categoryBlocklist']"
+                :value="currentConfig['categoryBlocklist']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['categoryBlocklist']"
                 :label="$tc('nosto.configuration.featuresFlags.categoryBlocklist')"
                 :help-text="$tc('nosto.configuration.featuresFlags.categoryBlocklistHelpText')"
+                @update:value="onUpdateValue('categoryBlocklist', $event)"
             >
                 <template #content="props">
                     <sw-category-tree-field
@@ -144,17 +150,19 @@
 
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['variations']"
+                :value="currentConfig['variations']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['variations']"
+                @update:value="onUpdateValue('variations', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="variations"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableVariations')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableVariationsHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('variations', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -162,17 +170,19 @@
 
         {% block nosto_integration_feature_product_properties %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['productProperties']"
+                :value="currentConfig['productProperties']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['productProperties']"
+                @update:value="onUpdateValue('productProperties', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="productProperties"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableProductProperties')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableProductPropertiesHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('productProperties', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -180,17 +190,19 @@
 
         {% block nosto_integration_feature_alternate_image %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['alternateImages']"
+                :value="currentConfig['alternateImages']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['alternateImages']"
+                @update:value="onUpdateValue('alternateImages', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="alternateImages"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableAlternateImages')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableAlternateImagesHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('alternateImages', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -198,17 +210,19 @@
 
         {% block nosto_integration_feature_inventory %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['inventory']"
+                :value="currentConfig['inventory']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['inventory']"
+                @update:value="onUpdateValue('inventory', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="inventory"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableInventory')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableInventoryHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('inventory', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -216,17 +230,19 @@
 
         {% block nosto_integration_feature_customer_data %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['customerDataToNosto']"
+                :value="currentConfig['customerDataToNosto']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['customerDataToNosto']"
+                @update:value="onUpdateValue('customerDataToNosto', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="customerDataToNosto"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNosto')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNostoHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('customerDataToNosto', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -234,17 +250,19 @@
 
         {% block nosto_integration_feature_inavtive_products %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['syncInactiveProducts']"
+                :value="currentConfig['syncInactiveProducts']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['syncInactiveProducts']"
+                @update:value="onUpdateValue('syncInactiveProducts', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="syncInactiveProducts"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProducts')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableSyncInactiveProductsHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('syncInactiveProducts', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -252,17 +270,19 @@
 
         {% block nosto_integration_feature_published_date %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['productPublishedDateTagging']"
+                :value="currentConfig['productPublishedDateTagging']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['productPublishedDateTagging']"
+                @update:value="onUpdateValue('productPublishedDateTagging', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="productPublishedDateTagging"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTagging')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableProductPublishedDateTaggingHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('productPublishedDateTagging', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -270,17 +290,19 @@
 
         {% block nosto_integration_feature_recommendations %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['reloadRecommendations']"
+                :value="currentConfig['reloadRecommendations']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['reloadRecommendations']"
+                @update:value="onUpdateValue('reloadRecommendations', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="reloadRecommendations"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableReloadRecommendations')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableReloadRecommendationsHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('reloadRecommendations', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -288,17 +310,19 @@
 
         {% block nosto_integration_feature_labelling %}
             <sw-inherit-wrapper
-                v-model:value="actualConfigData['enableLabelling']"
+                :value="currentConfig['enableLabelling']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['enableLabelling']"
+                @update:value="onUpdateValue('enableLabelling', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="enableLabelling"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableLabelling')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableLabellingHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('enableLabelling', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -307,17 +331,19 @@
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"
-                v-model:value="actualConfigData['dailySynchronization']"
+                :value="currentConfig['dailySynchronization']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronization']"
+                @update:value="onUpdateValue('dailySynchronization', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="dailySynchronization"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableDailySynchronization')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableDailySynchronizationHelp')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('dailySynchronization', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -325,19 +351,21 @@
 
         {% block nosto_integration_daily_synchronization_time %}
             <sw-inherit-wrapper
-                v-if="configKey === null && actualConfigData['dailySynchronization']"
-                v-model:value="actualConfigData['dailySynchronizationTime']"
+                v-if="configKey === null && currentConfig['dailySynchronization']"
+                :value="currentConfig['dailySynchronizationTime']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronizationTime']"
+                @update:value="onUpdateValue('dailySynchronizationTime', $event)"
             >
                 <template #content="props">
                     <sw-datepicker
+                        name="dailySynchronizationTime"
                         :map-inheritance="props"
                         :value="props.currentValue"
                         :disabled="props.isInherited"
                         date-type="time"
                         :label="$tc('nosto.configuration.featuresFlags.timeDailySynchronization')"
                         :help-text="$tc('nosto.configuration.featuresFlags.timeDailySynchronizationHelp')"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('dailySynchronizationTime', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -346,17 +374,19 @@
         {% block nosto_integration_old_job_cleanup_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"
-                v-model:value="actualConfigData['oldJobCleanup']"
+                :value="currentConfig['oldJobCleanup']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['oldJobCleanup']"
+                @update:value="onUpdateValue('oldJobCleanup', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="oldJobCleanup"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.oldJobCleanup.label')"
                         :help-text="$tc('nosto.configuration.featuresFlags.oldJobCleanup.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('oldJobCleanup', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -364,9 +394,10 @@
 
         {% block nosto_integration_old_job_cleanup_period %}
             <sw-inherit-wrapper
-                v-if="configKey === null && actualConfigData['oldJobCleanup']"
-                v-model:value="actualConfigData['oldJobCleanupPeriod']"
+                v-if="configKey === null && currentConfig['oldJobCleanup']"
+                :value="currentConfig['oldJobCleanupPeriod']"
                 :inheritedValue="configKey === null ? null : allConfigs['null']['oldJobCleanupPeriod']"
+                @update:value="onUpdateValue('oldJobCleanupPeriod', $event)"
             >
                 <template #content="props">
                     <sw-single-select
@@ -378,7 +409,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:value="props.updateCurrentValue"
+                        @update:value="onUpdateValue('oldJobCleanupPeriod', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
