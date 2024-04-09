@@ -13,7 +13,6 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
