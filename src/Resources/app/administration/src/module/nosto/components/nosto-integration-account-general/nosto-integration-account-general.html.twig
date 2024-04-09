@@ -7,9 +7,10 @@
         <template v-if="configKey">
             {% block nosto_integration_account_enabled %}
                 <sw-switch-field
-                    v-model:value="actualConfigData['isEnabled']"
+                    :value="currentConfig['isEnabled']"
                     :label="$tc('nosto.configuration.account.enabledTitle')"
                     :help-text="$tc('nosto.configuration.account.enabledHelpText')"
+                    @update:value="onUpdateValue('isEnabled', $event)"
                 />
             {% endblock %}
 
@@ -27,57 +28,62 @@
 
             {% block nosto_integration_account_id %}
                 <sw-text-field
-                    v-model:value="actualConfigData['accountID']"
+                    :value="currentConfig['accountID']"
                     :label="$tc('nosto.configuration.account.idTitle')"
                     :help-text="$tc('nosto.configuration.account.idHelpText')"
-                    :error="hasError(actualConfigData['accountID'])"
+                    :error="hasError(currentConfig['accountID'])"
                     required
                     name="accountID"
+                    @update:value="onUpdateValue('accountID', $event)"
                 />
             {% endblock %}
             {% block nosto_integration_account_name %}
                 <sw-text-field
-                    v-model:value="actualConfigData['accountName']"
+                    :value="currentConfig['accountName']"
                     :label="$tc('nosto.configuration.account.nameTitle')"
                     :help-text="$tc('nosto.configuration.account.nameHelpText')"
-                    :error="hasError(actualConfigData['accountName'])"
+                    :error="hasError(currentConfig['accountName'])"
                     required
                     name="accountName"
-                    @update:value="updateCurrentValue($event, props)"
+                    @update:value="onUpdateValue('accountName', $event)"
                 />
             {% endblock %}
             {% block nosto_integration_account_token %}
                 <sw-password-field
-                    v-model:value="actualConfigData['productToken']"
+                    :value="currentConfig['productToken']"
                     :label="$tc('nosto.configuration.account.productTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.productTokenHelpText')"
                     required
-                    :error="hasError(actualConfigData['productToken'])"
+                    :error="hasError(currentConfig['productToken'])"
                     name="productToken"
+                    @update:value="onUpdateValue('productToken', $event)"
                 />
                 <sw-password-field
-                    v-model:value="actualConfigData['emailToken']"
+                    :value="currentConfig['emailToken']"
                     :label="$tc('nosto.configuration.account.emailTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.emailTokenHelpText')"
-                    :error="hasError(actualConfigData['emailToken'])"
+                    :error="hasError(currentConfig['emailToken'])"
                     required
                     name="emailToken"
+                    @update:value="onUpdateValue('emailToken', $event)"
                 />
                 <sw-password-field
-                    v-model:value="actualConfigData['appToken']"
+                    :value="currentConfig['appToken']"
                     :label="$tc('nosto.configuration.account.appTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.appTokenHelpText')"
-                    :error="hasError(actualConfigData['appToken'])"
+                    :error="hasError(currentConfig['appToken'])"
                     required
                     name="appToken"
+                    @update:value="onUpdateValue('appToken', $event)"
                 />
                 <sw-password-field
-                    v-model:value="actualConfigData['searchToken']"
+                    :value="currentConfig['searchToken']"
                     :label="$tc('nosto.configuration.account.searchTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.searchTokenHelpText')"
-                    :error="hasError(actualConfigData['searchToken'])"
+                    :error="hasError(currentConfig['searchToken'])"
                     required
                     name="searchToken"
+                    @update:value="onUpdateValue('searchToken', $event)"
                 />
             {% endblock %}
         </template>

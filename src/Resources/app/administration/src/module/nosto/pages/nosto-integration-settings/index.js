@@ -28,7 +28,6 @@ Component.register('nosto-integration-settings', {
             salesChannels: [],
             selectedSalesChannelId: null,
             selectedLanguageId: null,
-            errorStates: {},
         };
     },
 
@@ -60,9 +59,6 @@ Component.register('nosto-integration-settings', {
             return this.salesChannels.find(
                 salesChannel => salesChannel.id === this.selectedSalesChannelId,
             )?.languages || [];
-        },
-        actualConfigData() {
-            return this.allConfigs[this.configKey] || {};
         },
     },
 

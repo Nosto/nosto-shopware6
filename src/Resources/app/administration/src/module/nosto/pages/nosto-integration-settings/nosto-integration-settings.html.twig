@@ -62,9 +62,7 @@
                                 <div v-if="Object.keys(allConfigs).length">
                                     {% block nosto_integration_content_card_account_general %}
                                         <nosto-integration-account-general
-                                            :actualConfigData="actualConfigData"
-                                            :allConfigs="allConfigs"
-                                            :errorStates="errorStates"
+                                            v-model:allConfigs="allConfigs"
                                             :selectedSalesChannelId="selectedSalesChannelId"
                                             :selectedLanguageId="selectedLanguageId"
                                             :configKey="configKey"
@@ -75,7 +73,6 @@
                                         <nosto-integration-search-general
                                             :actualConfigData="actualConfigData"
                                             :allConfigs="allConfigs"
-                                            :errorStates="errorStates"
                                             :configKey="configKey"
                                         />
                                     {% endblock %}

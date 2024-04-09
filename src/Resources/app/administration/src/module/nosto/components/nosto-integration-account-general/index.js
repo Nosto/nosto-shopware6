@@ -7,32 +7,19 @@ Component.register('nosto-integration-account-general', {
     template,
 
     inject: ['nostoApiKeyValidatorService', 'NostoCategoriesProviderService'],
-    mixins: [Mixin.getByName('notification')],
+
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('nosto-integration-config-component'),
+    ],
 
     props: {
-        actualConfigData: {
-            type: Object,
-            required: true,
-        },
-        allConfigs: {
-            type: Object,
-            required: true,
-        },
-        errorStates: {
-            type: Object,
-            required: true,
-        },
         selectedSalesChannelId: {
             type: String,
             required: false,
             default: null,
         },
         selectedLanguageId: {
-            type: String,
-            required: false,
-            default: null,
-        },
-        configKey: {
             type: String,
             required: false,
             default: null,
@@ -46,30 +33,7 @@ Component.register('nosto-integration-account-general', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.checkErrorState();
-        },
-
-        createErrorState(key) {
-            this.$set(this.errorStates, key, {
-                code: 1,
-                detail: this.$tc('nosto.messages.blank-field-error'),
-            });
-        },
-
-        checkErrorState() {
-            this.configurationKeys.forEach(key => {
-                if (!this.allConfigs.null[key]) {
-                    this.createErrorState(key);
-                }
-            });
-        },
-
         hasError(value) {
             return this.isActive() && !value ? {
                 code: 1,
@@ -86,30 +50,14 @@ Component.register('nosto-integration-account-general', {
                 : false;
         },
 
-        removeErrorState(key) {
-            return this.$delete(this.errorStates, key);
-        },
-
-        checkTextFieldInheritance(value) {
-            if (typeof value !== 'string') {
-                return true;
-            }
-
-            return value.length <= 0;
-        },
-
-        updateCurrentValue(value, props) {
-            props.updateCurrentValue(value === undefined || value.trim() === '' ? null : value);
-        },
-
         validateApiCredentials() {
             this.apiValidationInProgress = true;
-            const accountId = this.actualConfigData.accountID;
-            const accountName = this.actualConfigData.accountName;
-            const productToken = this.actualConfigData.productToken;
-            const emailToken = this.actualConfigData.emailToken;
-            const appToken = this.actualConfigData.appToken;
-            const searchToken = this.actualConfigData.searchToken;
+            const accountId = this.currentConfig.accountID;
+            const accountName = this.currentConfig.accountName;
+            const productToken = this.currentConfig.productToken;
+            const emailToken = this.currentConfig.emailToken;
+            const appToken = this.currentConfig.appToken;
+            const searchToken = this.currentConfig.searchToken;
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -145,7 +93,7 @@ Component.register('nosto-integration-account-general', {
                     } else {
                         this.createNotificationError({
                             title: this.$tc(`nosto.configuration.account.${prop}Title`),
-                            message: value.message,
+                            message: value.message ?? 'Unexpected Error',
                         });
                     }
                 });
