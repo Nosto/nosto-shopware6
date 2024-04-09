@@ -71,8 +71,7 @@
 
                                     {% block nosto_integration_content_card_search_general %}
                                         <nosto-integration-search-general
-                                            :actualConfigData="actualConfigData"
-                                            :allConfigs="allConfigs"
+                                            v-model:allConfigs="allConfigs"
                                             :configKey="configKey"
                                         />
                                     {% endblock %}

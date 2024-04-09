@@ -1,26 +1,14 @@
 import template from './nosto-integration-search-general.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /** @private */
 Component.register('nosto-integration-search-general', {
     template,
 
-    props: {
-        actualConfigData: {
-            type: Object,
-            required: true,
-        },
-        allConfigs: {
-            type: Object,
-            required: true,
-        },
-        configKey: {
-            type: String,
-            required: false,
-            default: null,
-        },
-    },
+    mixins: [
+        Mixin.getByName('nosto-integration-config-component'),
+    ],
 
     created() {
         this.createdComponent();
@@ -33,13 +21,12 @@ Component.register('nosto-integration-search-general', {
                 enableNavigation: false,
             };
 
-            /**
-             * Initialize config data with default values.
-             */
-            Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[key] === undefined) {
-                    this.$set(this.allConfigs.null, key, defaultValue);
-                }
+            this.$emit('update:allConfigs', {
+                ...this.allConfigs,
+                null: {
+                    ...defaultConfigs,
+                    ...this.allConfigs.null,
+                },
             });
         },
     },
