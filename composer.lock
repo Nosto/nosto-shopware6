@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f8163688bc9500d801ccc217c3689c8",
+    "content-hash": "b6a5fff1c71ffca4a1e02eb05803a9d8",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -64,7 +64,7 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "dev-SW_6.6_update",
+            "version": "dev-ADS-4480_storefront_and_administration_changes",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
@@ -97,7 +97,7 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/SW_6.6_update"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/ADS-4480_storefront_and_administration_changes"
             },
             "time": "2024-04-04T12:26:55+00:00"
         },

@@ -2,19 +2,20 @@
     <sw-page class="nosto-job-list">
         <template #smart-bar-actions>
             <sw-button
-                    @click="onScheduleProductSync"
-                    :isLoading="isLoading"
-                    class="nosto-integration-detail__smart-bar-edit-button"
-                    variant="primary"
+                @click="onScheduleProductSync"
+                :isLoading="isLoading"
+                class="nosto-integration-detail__smart-bar-edit-button"
+                variant="primary"
             >
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
         </template>
         <template #content>
-            <nosto-job-listing-index ref="jobListing"
-                                  :filterCriteria="filterCriteria"
-                                  @job-display-type-changed="onDisplayModeChange"
-                                  :jobTypes="nostoJobTypes">
+            <nosto-job-listing-index
+                ref="jobListing"
+                :filterCriteria="filterCriteria"
+                @job-display-type-changed="onDisplayModeChange"
+                :jobTypes="nostoJobTypes">
             </nosto-job-listing-index>
         </template>
         <template #sidebar>
@@ -27,14 +28,15 @@
                     </sw-sidebar-item>
                 {% endblock %}
 
-                <sw-sidebar-filter-panel ref="odFilter"
-                                         :hidden="hideFilters"
-                                         entity="nosto_scheduler_job"
-                                         :store-key="storeKey"
-                                         :filters="listFilters"
-                                         :defaults="defaultFilters"
-                                         :active-filter-number="activeFilterNumber"
-                                         @criteria-changed="updateCriteria">
+                <sw-sidebar-filter-panel
+                    ref="odFilter"
+                    :hidden="hideFilters"
+                    entity="nosto_scheduler_job"
+                    :store-key="storeKey"
+                    :filters="listFilters"
+                    :defaults="defaultFilters"
+                    :active-filter-number="activeFilterNumber"
+                    @criteria-changed="updateCriteria">
                 </sw-sidebar-filter-panel>
             </sw-sidebar>
         </template>
