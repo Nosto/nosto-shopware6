@@ -16,14 +16,12 @@ export default {
             state.loading = loading;
         },
         setDefaultConfigs(state, defaultConfig) {
-            console.log(defaultConfig);
             state.configs.null = {
                 ...defaultConfig,
                 ...state.configs.null,
             };
         },
         setConfig(state, { key, config }) {
-            console.log(key, config);
             state.configs[key] = {
                 ...config,
             };
