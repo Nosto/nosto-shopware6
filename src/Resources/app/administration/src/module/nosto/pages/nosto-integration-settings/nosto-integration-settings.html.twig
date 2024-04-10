@@ -15,6 +15,7 @@
                     <sw-button-process
                         v-model:value="isSaveSuccessful"
                         variant="primary"
+                        :processSuccess="false"
                         :isLoading="salesChannelsLoading || configsLoading || saving"
                         :disabled="salesChannelsLoading || configsLoading || saving"
                         @click="onSave"

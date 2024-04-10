@@ -13,6 +13,7 @@
                 >
                     <template #content="props">
                         <sw-switch-field
+                            name="isInitializeNostoAfterInteraction"
                             :label="$tc('nosto.configuration.general.deferredInit.label')"
                             :map-inheritance="props"
                             :disabled="props.isInherited"
