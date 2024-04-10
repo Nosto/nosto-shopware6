@@ -163,13 +163,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
                 if ($shopwareProduct) {
                     $shopwareProduct->setChildren($handledProduct->getChildren());
-                    $nostoProducts[] = $this->handleProduct(
+                    if ($nostoProduct = $this->handleProduct(
                         $shopwareProduct,
                         $context,
                         $account,
                         $hideProductsAfterClearance,
-                        $ids,
-                    );
+                        $ids)
+                    ) {
+                        $nostoProducts[] = $nostoProduct;
+                    }
                 } else {
                     $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
                     $this->doDeleteOperation(
