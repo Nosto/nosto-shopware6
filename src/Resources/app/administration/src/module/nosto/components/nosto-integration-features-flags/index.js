@@ -26,7 +26,7 @@ Component.register('nosto-integration-features-flags', {
             return this.repositoryFactory.create('category');
         },
         selectedCategories() {
-            return this.currentConfig.categoryBlocklist || this.allConfigs.null.categoryBlocklist;
+            return this.currentConfig.categoryBlocklist || this.configs.null.categoryBlocklist;
         },
         selectedCategoriesCriteria() {
             const criteria = new Criteria(null, null);
@@ -129,7 +129,7 @@ Component.register('nosto-integration-features-flags', {
 
     methods: {
         createdComponent() {
-            const defaultConfigs = {
+            this.setDefaultConfigs({
                 variations: true,
                 productProperties: true,
                 alternateImages: true,
@@ -149,14 +149,6 @@ Component.register('nosto-integration-features-flags', {
                 domain: null,
                 oldJobCleanup: false,
                 oldJobCleanupPeriod: 5,
-            };
-
-            this.$emit('update:allConfigs', {
-                ...this.allConfigs,
-                null: {
-                    ...defaultConfigs,
-                    ...this.allConfigs.null,
-                },
             });
 
             this.createCategoryCollection();

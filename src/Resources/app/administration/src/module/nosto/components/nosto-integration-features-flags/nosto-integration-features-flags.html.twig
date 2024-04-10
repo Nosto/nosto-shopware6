@@ -7,7 +7,7 @@
         {% block nosto_integration_feature_product_identifier %}
             <sw-inherit-wrapper
                 :value="currentConfig['productIdentifier']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['productIdentifier']"
+                :inheritedValue="configKey === null ? null : configs['null']['productIdentifier']"
                 :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
                 :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')"
                 @update:value="onUpdateValue('productIdentifier', $event)"
@@ -31,7 +31,7 @@
         {% block nosto_integration_feature_ratings_reviews %}
             <sw-inherit-wrapper
                 :value="currentConfig['ratingsReviews']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['ratingsReviews']"
+                :inheritedValue="configKey === null ? null : configs['null']['ratingsReviews']"
                 :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')"
                 :help-text="$tc('nosto.configuration.featuresFlags.enableRatingsReviewsHelpText')"
                 @update:value="onUpdateValue('ratingsReviews', $event)"
@@ -55,7 +55,7 @@
         {% block nosto_integration_feature_stock_field %}
             <sw-inherit-wrapper
                 :value="currentConfig['stockField']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['stockField']"
+                :inheritedValue="configKey === null ? null : configs['null']['stockField']"
                 :label="$tc('nosto.configuration.featuresFlags.stockField')"
                 :help-text="$tc('nosto.configuration.featuresFlags.stockFieldHelpText')"
                 @update:value="onUpdateValue('stockField', $event)"
@@ -79,7 +79,7 @@
         {% block nosto_integration_cross_selling_sync %}
             <sw-inherit-wrapper
                 :value="currentConfig['crossSellingSync']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['crossSellingSync']"
+                :inheritedValue="configKey === null ? null : configs['null']['crossSellingSync']"
                 :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
                 :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')"
                 @update:value="onUpdateValue('crossSellingSync', $event)"
@@ -103,7 +103,7 @@
         {% block nosto_integration_category_naming %}
             <sw-inherit-wrapper
                 :value="currentConfig['categoryNaming']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['categoryNaming']"
+                :inheritedValue="configKey === null ? null : configs['null']['categoryNaming']"
                 :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
                 :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')"
                 @update:value="onUpdateValue('categoryNaming', $event)"
@@ -127,7 +127,7 @@
         {% block nosto_integration_category_blocklist %}
             <sw-inherit-wrapper
                 :value="currentConfig['categoryBlocklist']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['categoryBlocklist']"
+                :inheritedValue="configKey === null ? null : configs['null']['categoryBlocklist']"
                 :label="$tc('nosto.configuration.featuresFlags.categoryBlocklist')"
                 :help-text="$tc('nosto.configuration.featuresFlags.categoryBlocklistHelpText')"
                 @update:value="onUpdateValue('categoryBlocklist', $event)"
@@ -151,7 +151,7 @@
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper
                 :value="currentConfig['variations']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['variations']"
+                :inheritedValue="configKey === null ? null : configs['null']['variations']"
                 @update:value="onUpdateValue('variations', $event)"
             >
                 <template #content="props">
@@ -171,7 +171,7 @@
         {% block nosto_integration_feature_product_properties %}
             <sw-inherit-wrapper
                 :value="currentConfig['productProperties']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['productProperties']"
+                :inheritedValue="configKey === null ? null : configs['null']['productProperties']"
                 @update:value="onUpdateValue('productProperties', $event)"
             >
                 <template #content="props">
@@ -191,7 +191,7 @@
         {% block nosto_integration_feature_alternate_image %}
             <sw-inherit-wrapper
                 :value="currentConfig['alternateImages']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['alternateImages']"
+                :inheritedValue="configKey === null ? null : configs['null']['alternateImages']"
                 @update:value="onUpdateValue('alternateImages', $event)"
             >
                 <template #content="props">
@@ -211,7 +211,7 @@
         {% block nosto_integration_feature_inventory %}
             <sw-inherit-wrapper
                 :value="currentConfig['inventory']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['inventory']"
+                :inheritedValue="configKey === null ? null : configs['null']['inventory']"
                 @update:value="onUpdateValue('inventory', $event)"
             >
                 <template #content="props">
@@ -231,7 +231,7 @@
         {% block nosto_integration_feature_customer_data %}
             <sw-inherit-wrapper
                 :value="currentConfig['customerDataToNosto']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['customerDataToNosto']"
+                :inheritedValue="configKey === null ? null : configs['null']['customerDataToNosto']"
                 @update:value="onUpdateValue('customerDataToNosto', $event)"
             >
                 <template #content="props">
@@ -251,7 +251,7 @@
         {% block nosto_integration_feature_inavtive_products %}
             <sw-inherit-wrapper
                 :value="currentConfig['syncInactiveProducts']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['syncInactiveProducts']"
+                :inheritedValue="configKey === null ? null : configs['null']['syncInactiveProducts']"
                 @update:value="onUpdateValue('syncInactiveProducts', $event)"
             >
                 <template #content="props">
@@ -271,7 +271,7 @@
         {% block nosto_integration_feature_published_date %}
             <sw-inherit-wrapper
                 :value="currentConfig['productPublishedDateTagging']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['productPublishedDateTagging']"
+                :inheritedValue="configKey === null ? null : configs['null']['productPublishedDateTagging']"
                 @update:value="onUpdateValue('productPublishedDateTagging', $event)"
             >
                 <template #content="props">
@@ -291,7 +291,7 @@
         {% block nosto_integration_feature_recommendations %}
             <sw-inherit-wrapper
                 :value="currentConfig['reloadRecommendations']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['reloadRecommendations']"
+                :inheritedValue="configKey === null ? null : configs['null']['reloadRecommendations']"
                 @update:value="onUpdateValue('reloadRecommendations', $event)"
             >
                 <template #content="props">
@@ -311,7 +311,7 @@
         {% block nosto_integration_feature_labelling %}
             <sw-inherit-wrapper
                 :value="currentConfig['enableLabelling']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['enableLabelling']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableLabelling']"
                 @update:value="onUpdateValue('enableLabelling', $event)"
             >
                 <template #content="props">
@@ -332,7 +332,7 @@
             <sw-inherit-wrapper
                 v-if="configKey === null"
                 :value="currentConfig['dailySynchronization']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronization']"
+                :inheritedValue="configKey === null ? null : configs['null']['dailySynchronization']"
                 @update:value="onUpdateValue('dailySynchronization', $event)"
             >
                 <template #content="props">
@@ -353,7 +353,7 @@
             <sw-inherit-wrapper
                 v-if="configKey === null && currentConfig['dailySynchronization']"
                 :value="currentConfig['dailySynchronizationTime']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['dailySynchronizationTime']"
+                :inheritedValue="configKey === null ? null : configs['null']['dailySynchronizationTime']"
                 @update:value="onUpdateValue('dailySynchronizationTime', $event)"
             >
                 <template #content="props">
@@ -375,7 +375,7 @@
             <sw-inherit-wrapper
                 v-if="configKey === null"
                 :value="currentConfig['oldJobCleanup']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['oldJobCleanup']"
+                :inheritedValue="configKey === null ? null : configs['null']['oldJobCleanup']"
                 @update:value="onUpdateValue('oldJobCleanup', $event)"
             >
                 <template #content="props">
@@ -396,7 +396,7 @@
             <sw-inherit-wrapper
                 v-if="configKey === null && currentConfig['oldJobCleanup']"
                 :value="currentConfig['oldJobCleanupPeriod']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['oldJobCleanupPeriod']"
+                :inheritedValue="configKey === null ? null : configs['null']['oldJobCleanupPeriod']"
                 @update:value="onUpdateValue('oldJobCleanupPeriod', $event)"
             >
                 <template #content="props">

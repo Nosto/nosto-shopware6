@@ -59,10 +59,14 @@
                             {% endblock %}
 
                             {% block nosto_integration_content_card_configs_old %}
-                                <div v-if="Object.keys(allConfigs).length">
+                                <sw-loader
+                                    v-if="loading"
+                                    class="nosto-config-loader"
+                                    size="50px"
+                                />
+                                <div v-else>
                                     {% block nosto_integration_content_card_account_general %}
                                         <nosto-integration-account-general
-                                            v-model:allConfigs="allConfigs"
                                             :selectedSalesChannelId="selectedSalesChannelId"
                                             :selectedLanguageId="selectedLanguageId"
                                             :configKey="configKey"
@@ -70,16 +74,11 @@
                                     {% endblock %}
 
                                     {% block nosto_integration_content_card_search_general %}
-                                        <nosto-integration-search-general
-                                            v-model:allConfigs="allConfigs"
-                                            :configKey="configKey"
-                                        />
+                                        <nosto-integration-search-general :configKey="configKey" />
                                     {% endblock %}
 
                                     {% block nosto_integration_content_card_tags_general %}
                                         <nosto-integration-settings-general
-                                            :actualConfigData="actualConfigData"
-                                            :allConfigs="allConfigs"
                                             :selectedSalesChannelId="selectedSalesChannelId"
                                             :selectedLanguageId="selectedLanguageId"
                                             :configKey="configKey"
@@ -87,17 +86,9 @@
                                     {% endblock %}
 
                                     {% block nosto_integration_content_card_features_flags %}
-                                        <nosto-integration-features-flags
-                                            v-model:allConfigs="allConfigs"
-                                            :configKey="configKey"
-                                        />
+                                        <nosto-integration-features-flags :configKey="configKey" />
                                     {% endblock %}
                                 </div>
-                                <sw-loader
-                                    v-else
-                                    class="nosto-config-loader"
-                                    size="50px"
-                                />
                             {% endblock %}
                         </sw-card-view>
                     {% endblock %}

@@ -43,7 +43,7 @@ Component.register('nosto-integration-account-general', {
 
         isActive() {
             const configurationKey = 'isEnabled';
-            const channelConfig = this.allConfigs[this.configKey] || {};
+            const channelConfig = this.configs[this.configKey] || {};
 
             return typeof channelConfig[configurationKey] === 'boolean'
                 ? channelConfig[configurationKey]

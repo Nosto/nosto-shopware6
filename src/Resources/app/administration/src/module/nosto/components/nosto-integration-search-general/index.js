@@ -16,17 +16,9 @@ Component.register('nosto-integration-search-general', {
 
     methods: {
         createdComponent() {
-            const defaultConfigs = {
+            this.setDefaultConfigs({
                 enableSearch: false,
                 enableNavigation: false,
-            };
-
-            this.$emit('update:allConfigs', {
-                ...this.allConfigs,
-                null: {
-                    ...defaultConfigs,
-                    ...this.allConfigs.null,
-                },
             });
         },
     },

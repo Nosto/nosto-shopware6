@@ -1,6 +1,6 @@
 import template from './nosto-integration-settings-general.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
@@ -11,26 +11,17 @@ Component.register('nosto-integration-settings-general', {
         'repositoryFactory',
     ],
 
+    mixins: [
+        Mixin.getByName('nosto-integration-config-component'),
+    ],
+
     props: {
-        actualConfigData: {
-            type: Object,
-            required: true,
-        },
-        allConfigs: {
-            type: Object,
-            required: true,
-        },
         selectedSalesChannelId: {
             type: String,
             required: false,
             default: null,
         },
         selectedLanguageId: {
-            type: String,
-            required: false,
-            default: null,
-        },
-        configKey: {
             type: String,
             required: false,
             default: null,
@@ -75,34 +66,14 @@ Component.register('nosto-integration-settings-general', {
 
     methods: {
         createdComponent() {
-            const defaultConfigs = {
-                tag1: null,
-                tag2: null,
-                tag3: null,
+            this.setDefaultConfigs({
+                tag1: [],
+                tag2: [],
+                tag3: [],
                 selectedCustomFields: null,
                 googleCategory: null,
                 isInitializeNostoAfterInteraction: null,
-            };
-
-            /**
-             * Initialize config data with default values.
-             */
-            Object.entries(defaultConfigs).forEach(([key, defaultValue]) => {
-                if (this.allConfigs.null[key] === undefined) {
-                    this.$set(this.allConfigs.null, key, defaultValue);
-                }
             });
-
-            // For old single select config
-            for (let i = 1; i < 4; i += 1) {
-                const key = `tag${i}`;
-                if (typeof this.allConfigs.null[key] === 'string' || this.allConfigs.null[key] instanceof String) {
-                    this.$set(this.allConfigs.null, key, [this.allConfigs.null[key]]);
-                }
-                if (typeof this.actualConfigData[key] === 'string' || this.actualConfigData[key] instanceof String) {
-                    this.$set(this.actualConfigData, key, [this.actualConfigData[key]]);
-                }
-            }
         },
 
         async initLanguageCode() {

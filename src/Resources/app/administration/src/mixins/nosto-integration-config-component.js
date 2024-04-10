@@ -1,13 +1,12 @@
 const { Mixin } = Shopware;
 
-Mixin.register('nosto-integration-config-component', {
-    emits: ['update:allConfigs'],
+const {
+    mapState,
+    mapMutations,
+} = Shopware.Component.getComponentHelper();
 
+Mixin.register('nosto-integration-config-component', {
     props: {
-        allConfigs: {
-            type: Object,
-            required: true,
-        },
         configKey: {
             type: String,
             required: false,
@@ -16,25 +15,25 @@ Mixin.register('nosto-integration-config-component', {
     },
 
     computed: {
-        currentConfig: {
-            get() {
-                return this.allConfigs[this.configKey] || {};
-            },
-            set(newValue) {
-                this.$emit('update:allConfigs', {
-                    ...this.allConfigs,
-                    [this.configKey]: newValue,
-                });
-            },
+        ...mapState('nostoIntegrationConfig', [
+            'configs',
+        ]),
+        currentConfig() {
+            return this.configs[this.configKey] || {};
         },
     },
 
     methods: {
+        ...mapMutations('nostoIntegrationConfig', [
+            'setDefaultConfigs',
+            'setConfigValue',
+        ]),
         onUpdateValue(key, value) {
-            this.currentConfig = {
-                ...this.currentConfig,
-                [key]: value,
-            };
+            this.setConfigValue({
+                configKey: this.configKey,
+                key,
+                value,
+            });
         },
     },
 });
