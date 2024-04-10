@@ -1,6 +1,5 @@
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
-import configurationState from '../../store/configuration';
 
 const { Component, Defaults, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -79,14 +78,6 @@ Component.register('nosto-integration-settings', {
                 }
             },
         },
-    },
-
-    beforeCreate() {
-        State.registerModule('nostoIntegrationConfig', configurationState);
-    },
-
-    beforeDestroy() {
-        State.unregisterModule('nostoIntegrationConfig');
     },
 
     created() {
