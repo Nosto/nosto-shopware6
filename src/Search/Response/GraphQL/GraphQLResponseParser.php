@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Response\GraphQL;
 
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
@@ -66,7 +67,7 @@ class GraphQLResponseParser
         $productIds = [];
         foreach($productCustomFields as $customFields) {
             foreach($customFields as $customField) {
-                if ($customField->getKey() === 'productid') {
+                if ($customField->getKey() === Builder::PRODUCT_ID_KEY) {
                     $productIds[$customField->getValue()] = $customField->getValue();
                     break;
                 }

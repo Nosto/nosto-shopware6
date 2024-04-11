@@ -42,7 +42,7 @@ class SkuBuilder
                 : $product->getId(),
         );
         $nostoSku->addCustomField('productNumber', $product->getProductNumber());
-        $nostoSku->addCustomField('productId', $product->getId());
+        $nostoSku->addCustomField(Builder::PRODUCT_ID_KEY, $product->getId());
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {
