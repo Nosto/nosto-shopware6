@@ -68,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "c3ded3a64098286b0b9c399b4b291d980eaf6bd4"
+                "reference": "bfd9092487a4072161056843fd3cff79ea6b8afa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/c3ded3a64098286b0b9c399b4b291d980eaf6bd4",
-                "reference": "c3ded3a64098286b0b9c399b4b291d980eaf6bd4",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/bfd9092487a4072161056843fd3cff79ea6b8afa",
+                "reference": "bfd9092487a4072161056843fd3cff79ea6b8afa",
                 "shasum": ""
             },
             "require": {
@@ -99,7 +99,7 @@
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
                 "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/ADS-4480_storefront_and_administration_changes"
             },
-            "time": "2024-04-04T12:26:55+00:00"
+            "time": "2024-04-12T10:58:50+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
