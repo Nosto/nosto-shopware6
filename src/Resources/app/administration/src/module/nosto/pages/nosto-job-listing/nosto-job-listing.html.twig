@@ -19,7 +19,7 @@
             </nosto-job-listing-index>
         </template>
         <template #sidebar>
-            <sw-sidebar ref="odSidebar">
+            <sw-sidebar ref="nostoSidebar">
                 {% block sw_jobs_list_sidebar_refresh %}
                     <sw-sidebar-item
                         icon="regular-undo"
@@ -29,7 +29,7 @@
                 {% endblock %}
 
                 <sw-sidebar-filter-panel
-                    ref="odFilter"
+                    ref="nostoFilter"
                     :hidden="hideFilters"
                     entity="nosto_scheduler_job"
                     :store-key="storeKey"

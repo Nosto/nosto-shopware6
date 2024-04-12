@@ -128,10 +128,10 @@ Component.register('nosto-job-listing', {
 
             if (mode !== 'list') {
                 innerBox.classList.add('no-filter');
-                this.$refs.odSidebar.closeSidebar();
+                this.$refs.nostoSidebar.closeSidebar();
 
-                if (this.$refs.odFilter.$el.length !== 0) {
-                    this.$refs.odFilter.resetAll();
+                if (this.$refs.nostoFilter.$el.length !== 0) {
+                    this.$refs.nostoFilter.resetAll();
                 }
 
                 this.hideFilters = true;
