@@ -1,7 +1,7 @@
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 
-const { Component, Defaults, Mixin, State } = Shopware;
+const { Component, Defaults, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const {
