@@ -1,4 +1,3 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
@@ -7,7 +6,7 @@ import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configurat
 
 export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
 
-export default class NostoConfiguration extends Plugin {
+export default class NostoConfiguration extends window.PluginBaseClass {
     static options = {
         nostoInitializedStorageKey: 'nostoInitializedStorageKey',
     };

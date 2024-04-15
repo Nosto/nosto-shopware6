@@ -4,6 +4,11 @@ import './nosto-integration-settings.scss';
 const { Component, Defaults, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const {
+    mapState,
+    mapMutations,
+} = Component.getComponentHelper();
+
 /** @private */
 Component.register('nosto-integration-settings', {
     template,
@@ -24,11 +29,9 @@ Component.register('nosto-integration-settings', {
             configsLoading: false,
             saving: false,
             isSaveSuccessful: false,
-            allConfigs: {},
             salesChannels: [],
             selectedSalesChannelId: null,
             selectedLanguageId: null,
-            errorStates: {},
         };
     },
 
@@ -39,6 +42,10 @@ Component.register('nosto-integration-settings', {
     },
 
     computed: {
+        ...mapState('nostoIntegrationConfig', [
+            'configs',
+            'loading',
+        ]),
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -61,16 +68,13 @@ Component.register('nosto-integration-settings', {
                 salesChannel => salesChannel.id === this.selectedSalesChannelId,
             )?.languages || [];
         },
-        actualConfigData() {
-            return this.allConfigs[this.configKey] || {};
-        },
     },
 
     watch: {
         configKey: {
             handler(newKey) {
-                if (!this.allConfigs[newKey]) {
-                    this.$set(this.allConfigs, newKey, {});
+                if (!this.configs[newKey]) {
+                    this.setConfig({ key: newKey, config: {} });
                 }
             },
         },
@@ -81,6 +85,11 @@ Component.register('nosto-integration-settings', {
     },
 
     methods: {
+        ...mapMutations('nostoIntegrationConfig', [
+            'setConfig',
+            'setLoading',
+        ]),
+
         createdComponent() {
             this.getAllConfigs();
             this.getSalesChannels();
@@ -115,41 +124,49 @@ Component.register('nosto-integration-settings', {
         getAllConfigs() {
             const criteria = new Criteria();
 
-            this.nostoConfigRepository.search(criteria, Shopware.Context.api).then(res => {
-                const configs = {
-                    null: {},
-                };
+            this.setLoading(true);
 
-                res.forEach(item => {
-                    const { salesChannelId, languageId, configurationKey, configurationValue } = item;
-                    const key = salesChannelId ? `${salesChannelId}-${languageId}` : null;
+            this.nostoConfigRepository.search(criteria, Shopware.Context.api)
+                .then(res => {
+                    const configs = {
+                        null: {},
+                    };
 
-                    if (!configs[key]) {
-                        configs[key] = {};
-                    }
+                    res.forEach(item => {
+                        const { salesChannelId, languageId, configurationKey, configurationValue } = item;
+                        const key = salesChannelId ? `${salesChannelId}-${languageId}` : null;
 
-                    configs[key][configurationKey] = configurationValue;
+                        if (!configs[key]) {
+                            configs[key] = {};
+                        }
+
+                        configs[key][configurationKey] = configurationValue;
+                    });
+
+                    Object.entries(configs).forEach(([key, config]) => {
+                        this.setConfig({ key, config });
+                    });
+                })
+                .finally(() => {
+                    this.setLoading(false);
                 });
-
-                this.allConfigs = configs;
-            });
         },
 
         isActive(configKey) {
             const key = 'isEnabled';
-            const channelConfig = this.allConfigs[configKey] || {};
+            const channelConfig = this.configs[configKey] || {};
 
-            return typeof channelConfig[key] === 'boolean' ? channelConfig[key] : this.allConfigs.null[key];
+            return typeof channelConfig[key] === 'boolean' ? channelConfig[key] : this.configs.null[key];
         },
 
         getInheritedValue(configKey, key) {
-            return this.allConfigs[configKey]?.[key] ?? this.allConfigs.null[key];
+            return this.configs[configKey]?.[key] ?? this.configs.null[key];
         },
 
         checkErrorsBeforeSave() {
             const result = [];
 
-            Object.keys(this.allConfigs).forEach(configKey => {
+            Object.keys(this.configs).forEach(configKey => {
                 if (
                     this.isActive(configKey) &&
                     (!this.getInheritedValue(configKey, 'accountID') ||
@@ -206,7 +223,7 @@ Component.register('nosto-integration-settings', {
                 return;
             }
 
-            this.NostoConfigApiService.batchSave(this.allConfigs)
+            this.NostoConfigApiService.batchSave(this.configs)
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.createNotificationSuccess({
