@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "nosto/shopware6-job-scheduler": "dev-ADS-4480_storefront_and_administration_changes",
+        "nosto/shopware6-job-scheduler": "dev-SW_6.6_update",
         "nosto/php-sdk": "^7.2.1",
         "php": "^8.2"
     },
