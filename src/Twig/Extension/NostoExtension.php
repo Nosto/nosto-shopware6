@@ -34,7 +34,7 @@ class NostoExtension extends AbstractExtension
         return [
             new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
             new TwigFunction('nosto_page_type', [$this, 'getPageType']),
-            new TwigFunction('nosto_product_by_id', [$this, 'getNostoProductByID']),
+            new TwigFunction('nosto_shopware_product_by_id', [$this, 'getShopwareProductByID']),
         ];
     }
 
@@ -71,7 +71,7 @@ class NostoExtension extends AbstractExtension
         return 'nothing';
     }
 
-    public function getNostoProductByID($id, SalesChannelContext $context): ?NostoProduct
+    public function getShopwareProductByID($id, SalesChannelContext $context): ?SalesChannelProductEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
