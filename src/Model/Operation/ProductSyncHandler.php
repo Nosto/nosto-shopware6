@@ -463,9 +463,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     protected function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
     {
-        $criteria = new Criteria($productIds);
-        $criteria->addAssociation('media');
-        $criteria->addAssociation('categoriesRo');
+        $criteria = $this->productHelper->getCommonCriteria();
+        $criteria->setIds($productIds);
 
         return $this->salesChannelProductRepository->search(
             $criteria,

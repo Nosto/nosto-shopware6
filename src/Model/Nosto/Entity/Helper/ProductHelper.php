@@ -62,7 +62,7 @@ class ProductHelper
         return $this->productRoute->load($productId, new Request(), $context, $criteria)->getProduct();
     }
 
-    private function getCommonCriteria(): Criteria
+    public function getCommonCriteria(): Criteria
     {
         $criteria = new Criteria();
         $criteria->addAssociation('media');
