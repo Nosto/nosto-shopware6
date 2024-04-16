@@ -217,7 +217,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         $mainProducts = new ProductCollection();
-        if ($variantConfig->getDisplayCheapestVariant()) {
+        if ($variantConfig->getDisplayParent()) {
+            $mainProducts->add($product);
+        } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
@@ -227,7 +229,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
-        } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
+        } elseif (!$product->getActive()) {
             if ($variant = $this->handleFirstActiveVariant($product)) {
                 $mainProducts->add($variant);
             }
@@ -462,6 +464,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     protected function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
     {
         $criteria = new Criteria($productIds);
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('categoriesRo');
 
         return $this->salesChannelProductRepository->search(
             $criteria,
