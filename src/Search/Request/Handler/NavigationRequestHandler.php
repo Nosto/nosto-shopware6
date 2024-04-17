@@ -62,7 +62,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         $navigationCategoryId = $context->getSalesChannel()->getNavigationCategoryId();
 
         $categoryNames = array_map(
-            static fn (string $categoryId): array => $mapping[$categoryId],
+            static fn (string $categoryId): string => $mapping[$categoryId],
             array_filter($pathIds, static fn (string $id): bool => $id !== $navigationCategoryId),
         );
 
