@@ -16,6 +16,6 @@ class ProductNumberSortingHandler implements SortingHandlerInterface
 
     public function generateSorting(FieldSorting $fieldSorting, SearchOperation $searchOperation): void
     {
-        $searchOperation->setSort('customFields.productNumber', $fieldSorting->getDirection());
+        $searchOperation->setSort('customFields.productnumber', $fieldSorting->getDirection());
     }
 }

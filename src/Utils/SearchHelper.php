@@ -87,4 +87,17 @@ class SearchHelper
         $nostoService = $context->getContext()->getExtension('nostoService');
         $nostoService->disable();
     }
+
+    public static function prepareCustomFieldName(string $field): string
+    {
+        $delimiter = "customFields";
+        $position = strrpos($field, $delimiter);
+        if (!$position) {
+            $substring = substr($field, $position + strlen($delimiter));
+
+            $field = $delimiter . strtolower($substring);
+        }
+
+        return $field;
+    }
 }
