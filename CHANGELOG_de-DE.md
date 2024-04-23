@@ -3,6 +3,9 @@
 * Fix: Fehler im Produktsynchronisierung bei Produkten im Ausverkauf
 * Fix: Fehler bei Produkten mit der Storefront-Präsentation "Hauptprodukt" für Produkte mit Varianten
 
+# 3.1.0
+* Neu: Support für mehr Optionen in der Storefront-Darstellung
+
 # 3.0.0
 * Beachten Sie, dass diese Version nur Shop-Versionen ab v6.5.4 unterstützt 
 * Funktion: Unterstützung der nativen Nosto Search und Category Merchandising 2 
