@@ -4,27 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "123ff02e8791b14977b5aa8b51438637",
+    "content-hash": "cc4a5899c1b21e4cc6cb72d0117513ab",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.2.1",
+            "version": "7.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8"
+                "reference": "1d3f242180a1165cced452e896bd81cad77bed66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8",
-                "reference": "ea77a25c43eb9594bb077a3b9f3d6caeff5c91b8",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/1d3f242180a1165cced452e896bd81cad77bed66",
+                "reference": "1d3f242180a1165cced452e896bd81cad77bed66",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "php": ">=5.5",
-                "phpseclib/phpseclib": "2.0.* || ~3.0.9",
+                "phpseclib/phpseclib": "3.0.*",
                 "vlucas/phpdotenv": "^2.4 || ^3.6"
             },
             "require-dev": {
@@ -58,9 +58,9 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.2.1"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.5.0"
             },
-            "time": "2024-01-29T08:40:10+00:00"
+            "time": "2024-04-22T12:49:57+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",

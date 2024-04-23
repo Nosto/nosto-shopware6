@@ -1,3 +1,8 @@
+# 3.1.1
+* Fix: Fehlerhafte suche bei konfigurierter Produktnummer als Nosto ID in ther Pluginkonfiguration
+* Fix: Fehler im Produktsynchronisierung bei Produkten im Ausverkauf
+* Fix: Fehler bei Produkten mit der Storefront-Präsentation "Hauptprodukt" für Produkte mit Varianten
+
 # 3.1.0
 * Neu: Support für mehr Optionen in der Storefront-Darstellung
 
