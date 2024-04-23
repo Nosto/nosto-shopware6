@@ -47,6 +47,8 @@ class Builder
 
     public const SHIPPING_FREE_ATTR_NAME = 'Shipping Free';
 
+    public const PRODUCT_ID_KEY = 'productid';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -93,7 +95,7 @@ class Builder
                 : $product->getId(),
         );
         $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
-        $nostoProduct->addCustomField('productId', $product->getId());
+        $nostoProduct->addCustomField(self::PRODUCT_ID_KEY, $product->getId());
         $name = $product->getTranslation('name');
         if (!empty($name)) {
             $nostoProduct->setName($name);

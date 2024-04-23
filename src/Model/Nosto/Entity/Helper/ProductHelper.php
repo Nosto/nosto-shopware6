@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingP
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,6 +37,7 @@ class ProductHelper
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ConfigProvider $configProvider,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
     ) {
     }
 
@@ -180,5 +183,16 @@ class ProductHelper
     public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
     {
         return new RepositoryIterator($this->productRepository, $context, $criteria);
+    }
+
+    public function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
+    {
+        $criteria = $this->getCommonCriteria();
+        $criteria->setIds($productIds);
+
+        return $this->salesChannelProductRepository->search(
+            $criteria,
+            $context,
+        )->getEntities();
     }
 }

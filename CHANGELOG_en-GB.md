@@ -1,3 +1,8 @@
+# 3.1.1
+* Fix: Search not working when configuring the product number as Nosto identifier in the plugin configuration
+* Fix: Product sync errors for products on clearance
+* Fix: Issue with the "Main Product" storefront configuration for products with variants
+
 # 3.1.0
 * New: Added support for more storefront configuration options
 
