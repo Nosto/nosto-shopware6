@@ -25,15 +25,12 @@ use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -52,7 +49,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
-        private readonly SalesChannelRepository $salesChannelProductRepository,
     ) {
     }
 
@@ -155,7 +151,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $nostoProducts = [];
             $handledProducts = $this->processProductVariants($product, $context, $account, $ids);
             $shopwareProducts = $handledProducts->count()
-                ? $this->getShopwareProducts($handledProducts->getIds(), $context)
+                ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
 
             foreach ($handledProducts as $handledProduct) {
@@ -217,7 +213,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         $mainProducts = new ProductCollection();
-        if ($variantConfig->getDisplayCheapestVariant()) {
+        if ($variantConfig->getDisplayParent()) {
+            $mainProducts->add($product);
+        } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
@@ -227,7 +225,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
-        } elseif (!$variantConfig->getDisplayParent() || !$product->getActive()) {
+        } elseif (!$product->getActive()) {
             if ($variant = $this->handleFirstActiveVariant($product)) {
                 $mainProducts->add($variant);
             }
@@ -457,15 +455,5 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
-    }
-
-    protected function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
-    {
-        $criteria = new Criteria($productIds);
-
-        return $this->salesChannelProductRepository->search(
-            $criteria,
-            $context,
-        )->getEntities();
     }
 }
