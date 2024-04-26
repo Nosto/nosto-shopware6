@@ -179,7 +179,7 @@ class Builder
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
 
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
-                    $nostoProduct->addCustomField(strtolower($fieldName), $fieldValue);
+                    $nostoProduct->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
             }
         }

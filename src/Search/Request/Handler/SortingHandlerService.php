@@ -49,4 +49,11 @@ class SortingHandlerService
             new TopSellerSortingHandler(),
         ];
     }
+
+    public static function prepareCustomFieldName(string $field): string
+    {
+        [$delimiter, $fieldKey] = explode('.', $field);
+
+        return $delimiter . '.' . mb_strtolower($fieldKey);
+    }
 }
