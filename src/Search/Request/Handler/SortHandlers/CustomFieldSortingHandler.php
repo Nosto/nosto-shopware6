@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
-use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
