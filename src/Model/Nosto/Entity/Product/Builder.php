@@ -49,6 +49,8 @@ class Builder
 
     public const PRODUCT_ID_KEY = 'productid';
 
+    public const PRODUCT_NUMBER_KEY = 'productnumber';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -94,7 +96,7 @@ class Builder
                 ? $product->getProductNumber()
                 : $product->getId(),
         );
-        $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
+        $nostoProduct->addCustomField(self::PRODUCT_NUMBER_KEY, $product->getProductNumber());
         $nostoProduct->addCustomField(self::PRODUCT_ID_KEY, $product->getId());
         $name = $product->getTranslation('name');
         if (!empty($name)) {
@@ -177,7 +179,7 @@ class Builder
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
 
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
-                    $nostoProduct->addCustomField($fieldName, $fieldValue);
+                    $nostoProduct->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
             }
         }
