@@ -1,3 +1,6 @@
+# 3.1.2
+* Fix: Suche und Category Merchandising 2 Produktsortierung nach einer Produktnummer
+
 # 3.1.1
 * Fix: Fehlerhafte suche bei konfigurierter Produktnummer als Nosto ID in ther Pluginkonfiguration
 * Fix: Fehler im Produktsynchronisierung bei Produkten im Ausverkauf

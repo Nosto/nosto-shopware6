@@ -1,3 +1,6 @@
+# 3.1.2
+* Fix: Search and Category Merchandising 2 product sorting by a product number 
+
 # 3.1.1
 * Fix: Search not working when configuring the product number as Nosto identifier in the plugin configuration
 * Fix: Product sync errors for products on clearance
