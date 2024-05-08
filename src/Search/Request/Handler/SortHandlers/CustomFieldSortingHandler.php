@@ -19,7 +19,7 @@ class CustomFieldSortingHandler implements SortingHandlerInterface
     {
         $searchOperation->setSort(
             SortingHandlerService::prepareCustomFieldName($fieldSorting->getField()),
-            $fieldSorting->getDirection()
+            $fieldSorting->getDirection(),
         );
     }
 }
