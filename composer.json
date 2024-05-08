@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "nosto/shopware6-job-scheduler": "dev-SW_6.6_update",
+        "nosto/shopware6-job-scheduler": "^3.0",
         "nosto/php-sdk": "^7.5.0",
         "php": "^8.2"
     },

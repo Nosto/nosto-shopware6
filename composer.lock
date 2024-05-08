@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12d3779cd48e7476ada81071f916e4ab",
+    "content-hash": "b10b37d88e2f65fb7fe4148fcd60f60e",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -64,16 +64,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "dev-SW_6.6_update",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "6a0098ec7b31c7f53e6562f40420b16c3557aa83"
+                "reference": "61565ff4aa3272c2bd5e870706d2181089e7da19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/6a0098ec7b31c7f53e6562f40420b16c3557aa83",
-                "reference": "6a0098ec7b31c7f53e6562f40420b16c3557aa83",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/61565ff4aa3272c2bd5e870706d2181089e7da19",
+                "reference": "61565ff4aa3272c2bd5e870706d2181089e7da19",
                 "shasum": ""
             },
             "require": {
@@ -92,14 +92,14 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "proprietary"
+                "OSL-3.0"
             ],
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/SW_6.6_update"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.0"
             },
-            "time": "2024-04-15T08:25:08+00:00"
+            "time": "2024-05-08T10:39:56+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -1139,9 +1139,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "nosto/shopware6-job-scheduler": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
