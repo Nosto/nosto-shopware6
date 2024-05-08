@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler\SortHandlers;
 
+use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
@@ -16,6 +17,9 @@ class CustomFieldSortingHandler implements SortingHandlerInterface
 
     public function generateSorting(FieldSorting $fieldSorting, SearchOperation $searchOperation): void
     {
-        $searchOperation->setSort($fieldSorting->getField(), $fieldSorting->getDirection());
+        $searchOperation->setSort(
+            SortingHandlerService::prepareCustomFieldName($fieldSorting->getField()),
+            $fieldSorting->getDirection(),
+        );
     }
 }
