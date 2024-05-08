@@ -19,7 +19,7 @@ runs:
 
     - uses: mirromutth/mysql-action@v1.1
       with:
-        mysql version: 8.0
+        mysql version: 8.0.36
         mysql database: shopware_test
         mysql root password: root
 
