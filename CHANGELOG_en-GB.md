@@ -1,3 +1,9 @@
+# 4.0.0
+* Be aware, that this version only supports the shop versions starting from v6.6.0
+* Fix: Replaced usage of removed classes & files.
+* New: Controller routes now use attribute declaration.
+* Change: Extension configuration upgraded to Vue3
+
 # 3.1.2
 * Fix: Search and Category Merchandising 2 product sorting by a product number 
 

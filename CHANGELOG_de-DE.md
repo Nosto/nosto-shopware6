@@ -1,3 +1,9 @@
+# 4.0.0
+* Beachten Sie, dass diese Version nur Shop-Versionen ab v6.6.0 unterstützt
+* Fix: Verwendung entfernter Klassen und Dateien ersetzt.
+* Neu: Controller-Routen verwenden die neue Attributdeklaration.
+* Änderung: Erweiterungskonfigurationsseite verwendet nun Vue3
+
 # 3.1.2
 * Fix: Suche und Category Merchandising 2 Produktsortierung nach einer Produktnummer
 
