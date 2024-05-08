@@ -36,6 +36,9 @@ class MockSearchOperation extends AbstractSearchOperation
         GRAPHQL;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getVariables(): array
     {
         return [

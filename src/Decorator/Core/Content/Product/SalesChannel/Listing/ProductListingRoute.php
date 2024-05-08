@@ -99,11 +99,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         }
 
         // In case request came from the home page, Nosto should not trigger on those.
-        if ($this->isRequestFromHomePage($request)) {
-            return false;
-        }
-
-        return true;
+        return !$this->isRequestFromHomePage($request);
     }
 
     private function isHomePage(Request $request): bool

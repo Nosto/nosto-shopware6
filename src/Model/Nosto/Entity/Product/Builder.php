@@ -192,11 +192,11 @@ class Builder
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
             $alternateMedia = $product->getMedia();
             $alternateMedia->sort(
-                fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition(),
+                static fn (ProductMediaEntity $a, ProductMediaEntity $b): int => $a->getPosition() <=> $b->getPosition(),
             );
 
             $alternateMediaUrls = $alternateMedia->map(
-                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
+                static fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
             );
 
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
@@ -297,7 +297,7 @@ class Builder
     }
 
     private function initTags(
-        ProductEntity $productEntity,
+        SalesChannelProductEntity $productEntity,
         NostoProduct $nostoProduct,
         SalesChannelContext $context,
     ): void {
@@ -322,6 +322,9 @@ class Builder
         ));
     }
 
+    /**
+     * @return string[]
+     */
     private function getTagValues(ProductEntity $productEntity, array $tagIds, TagCollection $allTags): array
     {
         $result = [];
@@ -344,12 +347,13 @@ class Builder
         return $this->tagRepository->search($criteria, $context)->getEntities();
     }
 
+    /**
+     * @return string[]
+     */
     private function getCategoryIds(CategoryCollection $categoriesRo): array
     {
         return array_values(
-            array_map(function (CategoryEntity $category) {
-                return $category->getId();
-            }, $categoriesRo->getElements()),
+            array_map(static fn (CategoryEntity $category) => $category->getId(), $categoriesRo->getElements()),
         );
     }
 
@@ -436,7 +440,7 @@ class Builder
         }
     }
 
-    private function getCategoriesTreeCollection($allProductCategoryPaths, $context): CategoryCollection
+    private function getCategoriesTreeCollection(string $allProductCategoryPaths, $context): CategoryCollection
     {
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
@@ -448,8 +452,10 @@ class Builder
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
-    private function preparingChildrenSkuCollection(ProductEntity $product, SalesChannelContext $context): SkuCollection
-    {
+    private function preparingChildrenSkuCollection(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): SkuCollection {
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {

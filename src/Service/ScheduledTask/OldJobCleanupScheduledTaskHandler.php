@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Throwable;
 
@@ -30,6 +31,9 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
         parent::__construct($scheduledTaskRepository);
     }
 
+    /**
+     * @return ScheduledTask[]
+     */
     public static function getHandledMessages(): iterable
     {
         return [OldJobCleanupScheduledTask::class];
@@ -63,11 +67,9 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
                 $idSearchResult = $this->jobRepository->searchIds($criteria, $context);
 
                 //Formatting IDs array and deleting config keys
-                $ids = array_map(static function ($id) {
-                    return [
-                        'id' => $id,
-                    ];
-                }, $idSearchResult->getIds());
+                $ids = array_map(static fn ($id): array => [
+                    'id' => $id,
+                ], $idSearchResult->getIds());
 
                 $this->jobRepository->delete($ids, $context);
             }

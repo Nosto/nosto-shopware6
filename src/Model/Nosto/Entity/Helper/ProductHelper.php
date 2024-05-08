@@ -146,6 +146,9 @@ class ProductHelper
         return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
         $criteria = new Criteria($ids);

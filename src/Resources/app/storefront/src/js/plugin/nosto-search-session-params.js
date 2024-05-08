@@ -1,9 +1,8 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { NOSTO_COOKIE_KEY } from './nosto-configuration.plugin';
 
-export default class NostoSearchSessionParams extends Plugin {
+export default class NostoSearchSessionParams extends window.PluginBaseClass {
     init() {
         this.nostoSubscriber();
     }

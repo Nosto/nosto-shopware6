@@ -29,11 +29,17 @@ class OrderSyncMessage extends AbstractMessage implements ParentAwareMessageInte
         return OrderSyncHandler::HANDLER_CODE;
     }
 
+    /**
+     * @return string[]
+     */
     public function getNewOrderIds(): array
     {
         return $this->newOrderIds;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUpdatedOrderIds(): array
     {
         return $this->updatedOrderIds;

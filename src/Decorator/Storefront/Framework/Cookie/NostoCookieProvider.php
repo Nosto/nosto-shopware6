@@ -19,6 +19,9 @@ class NostoCookieProvider implements CookieProviderInterface
     ) {
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array
     {
         $cookies = $this->originalService->getCookieGroups();

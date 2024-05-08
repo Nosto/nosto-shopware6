@@ -27,6 +27,9 @@ class MarketingPermissionSyncMessage extends AbstractMessage implements ParentAw
         return MarketingPermissionSyncHandler::HANDLER_CODE;
     }
 
+    /**
+     * @return string[]
+     */
     public function getNewsletterRecipientIds(): array
     {
         return $this->newsletterRecipientIds;

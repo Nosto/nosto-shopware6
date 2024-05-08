@@ -6,17 +6,19 @@
     >
         {% block nosto_integration_search_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['enableSearch']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['enableSearch']"
+                :value="currentConfig['enableSearch']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableSearch']"
+                @update:value="onUpdateValue('enableSearch', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="enableSearch"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.search-navigation.enableSearch.label')"
                         :help-text="$tc('nosto.configuration.search-navigation.enableSearch.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="onUpdateValue('enableSearch', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -24,17 +26,19 @@
 
         {% block nosto_integration_navigation_active %}
             <sw-inherit-wrapper
-                v-model="actualConfigData['enableNavigation']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['enableNavigation']"
+                :value="currentConfig['enableNavigation']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableNavigation']"
+                @update:value="onUpdateValue('enableNavigation', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
+                        name="enableNavigation"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.search-navigation.enableNavigation.label')"
                         :help-text="$tc('nosto.configuration.search-navigation.enableNavigation.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="onUpdateValue('enableNavigation', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>

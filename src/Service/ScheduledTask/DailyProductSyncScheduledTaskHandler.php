@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +36,9 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         parent::__construct($scheduledTaskRepository);
     }
 
+    /**
+     * @return ScheduledTask[]
+     */
     public static function getHandledMessages(): iterable
     {
         return [DailyProductSyncScheduledTask::class];

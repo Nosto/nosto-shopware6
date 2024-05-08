@@ -7,17 +7,19 @@
         >
             {% block nosto_integration_setting_deferred_init %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['isInitializeNostoAfterInteraction']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['isInitializeNostoAfterInteraction']"
+                    :value="currentConfig['isInitializeNostoAfterInteraction']"
+                    :inheritedValue="configKey === null ? null : configs['null']['isInitializeNostoAfterInteraction']"
+                    @update:value="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
                 >
                     <template #content="props">
                         <sw-switch-field
+                            name="isInitializeNostoAfterInteraction"
                             :label="$tc('nosto.configuration.general.deferredInit.label')"
                             :map-inheritance="props"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
                             :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
+                            @update:value="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -33,7 +35,8 @@
                     :criteria="domainCriteria"
                     show-clearable-button
                     entity="sales_channel_domain"
-                    v-model="actualConfigData['domain']"
+                    :value="currentConfig['domain']"
+                    @update:value="onUpdateValue('domain', $event)"
                 />
             {% endblock %}
         </sw-card>
@@ -45,10 +48,11 @@
         >
             {% block nosto_integration_settings_custom_fields %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['selectedCustomFields']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['selectedCustomFields']"
+                    :value="currentConfig['selectedCustomFields']"
+                    :inheritedValue="configKey === null ? null : configs['null']['selectedCustomFields']"
                     :label="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsTitle')"
                     :help-text="$tc('nosto.configuration.tagAssignment.selectedCustomFieldsHelpText')"
+                    @update:value="onUpdateValue('selectedCustomFields', $event)"
                 >
                     <template #content="props">
                         <sw-multi-select
@@ -59,7 +63,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="onUpdateValue('selectedCustomFields', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -67,9 +71,10 @@
 
             {% block nosto_integration_settings_tag_1 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag1']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['tag1']"
+                    :value="currentConfig['tag1']"
+                    :inheritedValue="configKey === null ? null : configs['null']['tag1']"
                     :label="$tc('nosto.configuration.tagAssignment.tag1title')"
+                    @update:value="onUpdateValue('tag1', $event)"
                 >
                     <template #content="props">
                         <sw-multi-select
@@ -80,7 +85,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="onUpdateValue('tag1', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -88,9 +93,10 @@
 
             {% block nosto_integration_settings_tag_2 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag2']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['tag2']"
+                    :value="currentConfig['tag2']"
+                    :inheritedValue="configKey === null ? null : configs['null']['tag2']"
                     :label="$tc('nosto.configuration.tagAssignment.tag2title')"
+                    @update:value="onUpdateValue('tag2', $event)"
                 >
                     <template #content="props">
                         <sw-multi-select
@@ -101,7 +107,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="onUpdateValue('tag2', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -109,9 +115,10 @@
 
             {% block nosto_integration_settings_tag_3 %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['tag3']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['tag3']"
+                    :value="currentConfig['tag3']"
+                    :inheritedValue="configKey === null ? null : configs['null']['tag3']"
                     :label="$tc('nosto.configuration.tagAssignment.tag3title')"
+                    @update:value="onUpdateValue('tag3', $event)"
                 >
                     <template #content="props">
                         <sw-multi-select
@@ -122,7 +129,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="onUpdateValue('tag3', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -130,10 +137,11 @@
 
             {% block nosto_integration_settings_tag_google_category %}
                 <sw-inherit-wrapper
-                    v-model="actualConfigData['googleCategory']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['googleCategory']"
+                    :value="currentConfig['googleCategory']"
+                    :inheritedValue="configKey === null ? null : configs['null']['googleCategory']"
                     :label="$tc('nosto.configuration.tagAssignment.googleCategoryTitle')"
                     :help-text="$tc('nosto.configuration.tagAssignment.googleCategoryHelpText')"
+                    @update:value="onUpdateValue('googleCategory', $event)"
                 >
                     <template #content="props">
                         <sw-single-select
@@ -145,7 +153,7 @@
                             :disabled="props.isInherited"
                             show-clearable-button
                             :value="props.currentValue"
-                            @change="props.updateCurrentValue"
+                            @update:value="onUpdateValue('googleCategory', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>

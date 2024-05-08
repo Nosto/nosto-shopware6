@@ -21,6 +21,9 @@ class CustomerExtension extends AbstractExtension
     ) {
     }
 
+    /**
+     * @return TwigFunction[]
+     */
     public function getFunctions(): array
     {
         return [

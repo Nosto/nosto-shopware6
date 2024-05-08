@@ -15,6 +15,9 @@ class MockResultHandler extends ResultHandler
         return $this->parseResponse($response);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function parseResponse(HttpResponse $response): array
     {
         if ($response->getCode() > 400) {

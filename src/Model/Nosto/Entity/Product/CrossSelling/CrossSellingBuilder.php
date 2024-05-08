@@ -34,6 +34,9 @@ class CrossSellingBuilder
     ) {
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function build(string $productId, SalesChannelContext $context): array
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
@@ -86,6 +89,9 @@ class CrossSellingBuilder
             && $crossSelling->getProductStreamId() !== null;
     }
 
+    /**
+     * @return string[]
+     */
     protected function loadByStream(
         ProductCrossSellingEntity $crossSelling,
         SalesChannelContext $context,
@@ -127,6 +133,9 @@ class CrossSellingBuilder
         return $criteria;
     }
 
+    /**
+     * @return string[]
+     */
     protected function loadByIds(
         ProductCrossSellingEntity $crossSelling,
         SalesChannelContext $context,

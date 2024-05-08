@@ -65,8 +65,8 @@ class GraphQLResponseParser
         );
 
         $productIds = [];
-        foreach($productCustomFields as $customFields) {
-            foreach($customFields as $customField) {
+        foreach ($productCustomFields as $customFields) {
+            foreach ($customFields as $customField) {
                 if ($customField->getKey() === Builder::PRODUCT_ID_KEY) {
                     $productIds[$customField->getValue()] = $customField->getValue();
                     break;

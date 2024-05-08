@@ -13,12 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: [ '8.1', '8.2' ]
+        php-versions: [ '8.2', '8.3' ]
         shopware-versions: [
-          '6.5.4.1',
-          '6.5.5.2',
-          '6.5.6.1',
-          '6.5.7.3',
+          '6.6.0.3',
+          '6.6.1.2',
+          '6.6.2.0',
         ]
 
     name: Shopware ${{ matrix.shopware-versions }} Test (PHP ${{ matrix.php-versions }})

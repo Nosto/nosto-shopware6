@@ -98,7 +98,7 @@ class Migration1699534500ConfigTable extends MigrationStep
         }
     }
 
-    private function getDefaultSalesChannelId(Connection $connection)
+    private function getDefaultSalesChannelId(Connection $connection): mixed
     {
         $sql = 'SELECT LOWER(HEX(`id`)) AS `id` FROM `sales_channel` WHERE `type_id` = UNHEX(?) AND `active` = \'1\'';
 

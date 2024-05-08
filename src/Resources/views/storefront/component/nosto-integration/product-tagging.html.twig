@@ -13,7 +13,7 @@
             {% if product.parentId and nostoProduct.variationStatus == 'singleProduct' %}
 
                 {% set parentId = product.parentId %}
-                {% set nostoParentProduct = nosto_product_by_id(parentId, context) %}
+                {% set nostoParentProduct = nosto_shopware_product_by_id(parentId, context) %}
 
                 <span class="product_id">{{ parentId }}</span>
                 <span class="name">{{ nostoParentProduct.name }}</span>

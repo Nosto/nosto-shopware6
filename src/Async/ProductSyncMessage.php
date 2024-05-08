@@ -28,6 +28,9 @@ class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageIn
         return ProductSyncHandler::HANDLER_CODE;
     }
 
+    /**
+     * @return string[]
+     */
     public function getProductIds(): array
     {
         return $this->productIds;
