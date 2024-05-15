@@ -358,6 +358,9 @@ class Builder
         );
     }
 
+    /**
+     * @return string[]
+     */
     private function getParentCategoryIds(CategoryCollection $categoriesRo): array
     {
         $parentIds = [];
@@ -369,7 +372,7 @@ class Builder
             $parentIds = array_merge($parentIds, explode('|', $category->getPath()));
         }
 
-        $parentIds = array_filter($parentIds, static fn(string $id) => !empty($id));
+        $parentIds = array_filter($parentIds, static fn (string $id) => !empty($id));
 
         return array_values(array_unique($parentIds));
     }
