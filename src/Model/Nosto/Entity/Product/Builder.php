@@ -133,6 +133,11 @@ class Builder
             $nostoProduct->setCategoryIds($categoryIds);
         }
 
+        $parentCategoryIds = $this->getParentCategoryIds($product->getCategoriesRo());
+        if (!empty($parentCategoryIds)) {
+            $nostoProduct->setParentCategoryIds($parentCategoryIds);
+        }
+
         $ratingAvg = $product->getRatingAverage();
         if ($ratingAvg && $this->configProvider->getRatingReviews() === RatingOptions::SHOPWARE_RATINGS) {
             $nostoProduct->setRatingValue(round($ratingAvg, 1));
@@ -351,6 +356,25 @@ class Builder
                 return $category->getId();
             }, $categoriesRo->getElements()),
         );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getParentCategoryIds(CategoryCollection $categoriesRo): array
+    {
+        $parentIds = [];
+        foreach ($categoriesRo as $category) {
+            if (!$category->getPath()) {
+                continue;
+            }
+
+            $parentIds = array_merge($parentIds, explode('|', $category->getPath()));
+        }
+
+        $parentIds = array_filter($parentIds, static fn (string $id) => !empty($id));
+
+        return array_values(array_unique($parentIds));
     }
 
     private function makeActualProductCategories(

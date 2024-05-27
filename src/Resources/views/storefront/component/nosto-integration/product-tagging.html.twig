@@ -58,9 +58,27 @@
             {% endif %}
 
             {% if nostoProduct.categories %}
-                {% for key, category in nostoProduct.categories %}
-                    <span class="category">{{ category }}</span>
-                {% endfor %}
+                <span class="categories">
+                    {% for category in nostoProduct.categories %}
+                        <span class="category">{{ category }}</span>
+                    {% endfor %}
+                </span>
+            {% endif %}
+
+            {% if nostoProduct.categoryIds %}
+                <span class="category_ids">
+                    {% for categoryId in nostoProduct.categoryIds %}
+                        <span class="category_id">{{ categoryId }}</span>
+                    {% endfor %}
+                </span>
+            {% endif %}
+
+            {% if nostoProduct.parentCategoryIds %}
+                <span class="parent_category_ids">
+                    {% for parentCategoryId in nostoProduct.parentCategoryIds %}
+                        <span class="parent_category_id">{{ parentCategoryId }}</span>
+                    {% endfor %}
+                </span>
             {% endif %}
 
             {% if nostoProduct.brand %}
