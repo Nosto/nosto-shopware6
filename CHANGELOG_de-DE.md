@@ -1,3 +1,6 @@
+# 3.2.0
+* New: Übergeordnete Kategorien werden nun für Category Merchandising 2 exportiert
+
 # 3.1.2
 * Fix: Suche und Category Merchandising 2 Produktsortierung nach einer Produktnummer
 

@@ -1,3 +1,6 @@
+# 3.2.0
+* New: Add parent categories for Category Merchandising 2 to the product sync
+
 # 3.1.2
 * Fix: Search and Category Merchandising 2 product sorting by a product number 
 
