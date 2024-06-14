@@ -82,6 +82,9 @@ class TreeBuilder
         ), $categoriesRo->getElements()));
     }
 
+    /**
+     * @return string[]
+     */
     private function getCategorySeoUrlsSets(CategoryCollection $categoriesRo): array
     {
         if ($categoriesRo->count() < 1) {
