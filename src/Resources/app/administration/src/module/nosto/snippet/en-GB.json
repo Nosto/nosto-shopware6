@@ -117,6 +117,14 @@
                 "oldJobCleanupPeriod": {
                     "after": "After",
                     "days": "days"
+                },
+                "oldNostoDataCleanup": {
+                    "label": "Enable cleanup of old Nosto data",
+                    "helpText": "Enable cleaning up of old Nosto data that stores cart link information for all unique visitors"
+                },
+                "oldNostoDataPeriod": {
+                    "after": "After",
+                    "months": "months"
                 }
             },
             "search-navigation": {
