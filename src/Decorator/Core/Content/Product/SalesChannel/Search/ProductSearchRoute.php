@@ -8,6 +8,8 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -21,6 +23,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
@@ -31,6 +34,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
+        private readonly EventDispatcherInterface      $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly CompositeListingProcessor $listingProcessor,
@@ -76,6 +80,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $query = $request->query->get('search');
         $result = $this->fetchProductsById($criteria, $context, $query);
         $productListing = ProductListingResult::createFrom($result);
+        $this->eventDispatcher->dispatch(
+            new ProductSearchResultEvent($request, $productListing, $context),
+            ProductEvents::PRODUCT_SEARCH_RESULT
+        );
         $productListing->addCurrentFilter('search', $query);
 
         $this->listingProcessor->process($request, $productListing, $context);
