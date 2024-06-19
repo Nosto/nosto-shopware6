@@ -34,7 +34,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
-        private readonly EventDispatcherInterface      $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly CompositeListingProcessor $listingProcessor,
@@ -82,7 +82,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $productListing = ProductListingResult::createFrom($result);
         $this->eventDispatcher->dispatch(
             new ProductSearchResultEvent($request, $productListing, $context),
-            ProductEvents::PRODUCT_SEARCH_RESULT
+            ProductEvents::PRODUCT_SEARCH_RESULT,
         );
         $productListing->addCurrentFilter('search', $query);
 
