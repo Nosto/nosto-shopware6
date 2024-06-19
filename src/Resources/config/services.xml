@@ -71,7 +71,6 @@
             <tag name="messenger.message_handler" />
 
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
         </service>
         <!-- /Handlers -->
