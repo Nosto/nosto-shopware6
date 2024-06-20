@@ -414,5 +414,49 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_old_nosto_data_cleanup_flag %}
+            <sw-inherit-wrapper
+                v-if="configKey === null"
+                :value="currentConfig['oldNostoDataCleanup']"
+                :inheritedValue="configKey === null ? null : configs['null']['oldNostoDataCleanup']"
+                @update:value="onUpdateValue('oldNostoDataCleanup', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="oldNostoDataCleanup"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.oldNostoDataCleanup.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.oldNostoDataCleanup.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('oldNostoDataCleanup', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_old_nosto_data_cleanup_period %}
+            <sw-inherit-wrapper
+                v-if="configKey === null && currentConfig['oldNostoDataCleanup']"
+                :value="currentConfig['oldNostoDataCleanupPeriod']"
+                :inheritedValue="configKey === null ? null : configs['null']['oldNostoDataCleanupPeriod']"
+                @update:value="onUpdateValue('oldNostoDataCleanupPeriod', $event)"
+            >
+                <template #content="props">
+                    <sw-single-select
+                        name="oldNostoDataCleanupPeriod"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createOldNostoDataCleanupPeriodOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('oldNostoDataCleanupPeriod', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}
