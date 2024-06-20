@@ -45,7 +45,7 @@ class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
                 $this->connection->executeStatement(
                     'DELETE FROM nosto_integration_checkout_mapping WHERE created_at <= :timestamp',
                     [
-                        'timestamp' => $numberOfMonthsBeforeToday->format(Defaults::STORAGE_DATE_FORMAT)
+                        'timestamp' => $numberOfMonthsBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
                     ],
                 );
             }

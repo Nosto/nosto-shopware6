@@ -252,7 +252,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
