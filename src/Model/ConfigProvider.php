@@ -247,6 +247,16 @@ class ConfigProvider
         return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
     }
 
+    public function isOldNostoDataCleanupEnabled($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED, $channelId, $languageId);
+    }
+
+    public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
+    {
+        return $this->configService->getInt(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD, $channelId, $languageId);
+    }
+
     /**
      * @return array<string, mixed>
      */

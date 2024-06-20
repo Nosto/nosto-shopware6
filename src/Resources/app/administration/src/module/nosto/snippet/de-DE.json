@@ -117,6 +117,14 @@
                 "oldJobCleanupPeriod": {
                     "after": "Nach",
                     "days": "Tagen"
+                },
+                "oldNostoDataCleanup": {
+                    "label": "Aktiviere Bereinigung alter Nosto-Daten",
+                    "helpText": "Aktiviere die Bereinigung alter Nosto-Daten, die Warenkorblink-Informationen für alle eindeutigen Besucher speichern"
+                },
+                "oldNostoDataPeriod": {
+                    "after": "Nach",
+                    "months": "monate"
                 }
             },
             "search-navigation": {

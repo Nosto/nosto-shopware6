@@ -86,6 +86,10 @@ class NostoConfigService
 
     public const OLD_JOB_CLEANUP_PERIOD = 'oldJobCleanupPeriod';
 
+    public const OLD_NOSTO_DATA_CLEANUP_ENABLED = 'oldNostoDataCleanup';
+
+    public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
+
     private array $configs = [];
 
     public function __construct(
