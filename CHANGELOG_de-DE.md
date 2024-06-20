@@ -1,3 +1,8 @@
+# 4.2.0
+* New: Neuer geplanter Bereinigungsjob zum Entfernen alter Nosto-Warenkorbdaten hinzugefügt
+* Fix: Such- und Kategorie-Merchandising-Konflikt mit anderen Plugins auf einer Suchseite
+* Fix: Kategorien werden beim Tagging nicht erkannt
+
 # 4.1.0
 * New: Übergeordnete Kategorien werden nun für Category Merchandising 2 exportiert
 
