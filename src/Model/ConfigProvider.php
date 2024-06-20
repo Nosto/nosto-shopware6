@@ -249,7 +249,11 @@ class ConfigProvider
 
     public function isOldNostoDataCleanupEnabled($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED, $channelId, $languageId);
+        return $this->configService->getBool(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED,
+            $channelId,
+            $languageId
+        );
     }
 
     public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
