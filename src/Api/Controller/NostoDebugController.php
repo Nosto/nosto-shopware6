@@ -4,6 +4,8 @@ namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\NostoIntegration\Async\AbstractMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\Scheduler\Model\Job\Message\JobMessage;
 use Shopware\Core\Framework\Context;
@@ -23,6 +25,7 @@ class NostoDebugController extends AbstractController
 {
     public function __construct(
         private readonly ProductSyncHandler $productSyncHandler,
+        private readonly OrderSyncHandler $orderSyncHandler,
     ) {
     }
 
@@ -39,6 +42,27 @@ class NostoDebugController extends AbstractController
         );
 
         $result = $this->productSyncHandler->execute($message);
+
+        return new JsonResponse([
+            'messages' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getMessages()),
+            'errors' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getErrors()),
+        ]);
+    }
+
+    #[Route(path: '/nosto-order-debug', name: 'storefront.nosto_integration.order_debug', methods: ['GET'])]
+    public function debugOrder(Request $request, SalesChannelContext $context): JsonResponse
+    {
+        $orderId = $request->get('orderId');
+        $message = new OrderSyncMessage(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            [$orderId => $orderId],
+            [$orderId => $orderId],
+            $context->getContext(),
+            'Order Debug'
+        );
+
+        $result = $this->orderSyncHandler->execute($message);
 
         return new JsonResponse([
             'messages' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getMessages()),
