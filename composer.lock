@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa90a65cb75bc41b854381e3d1b67d3d",
+    "content-hash": "2331f6417e69018657fa5807d5a3c5b7",
     "packages": [
         {
             "name": "nosto/php-sdk",
