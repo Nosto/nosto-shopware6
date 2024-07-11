@@ -1,3 +1,7 @@
+# 4.2.1
+* Fix: Improving the performance of the data stored for abandoned carts
+* Fix: Now showing pagination on sort order change using Category Merchandising
+
 # 4.2.0
 * New: Added new scheduled clean up job for removing old Nosto cart data
 * Fix: Search and Category Merchandising interference with other plugins on a search page

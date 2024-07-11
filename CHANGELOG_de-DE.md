@@ -1,3 +1,7 @@
+# 4.2.1
+* Fix: Daten für abgebrochene Warenkörbe werden jetzt effizienter und leistungsstärker gespeichert.
+* Fix: Category Merchandising beinhaltet nun korrekte Paginierung bei Änderung der Sortierreihenfolge.
+
 # 4.2.0
 * New: Neuer geplanter Bereinigungsjob zum Entfernen alter Nosto-Warenkorbdaten hinzugefügt
 * Fix: Such- und Kategorie-Merchandising-Konflikt mit anderen Plugins auf einer Suchseite
