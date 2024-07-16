@@ -38,7 +38,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
             $this->fetchCategoryPath($request->get('navigationId'), $context),
         );
 
-        if ($searchOperation->getVariables()["query"] === "") {
+        if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
 
