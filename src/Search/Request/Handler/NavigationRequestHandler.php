@@ -18,25 +18,31 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationRequestHandler extends AbstractRequestHandler
 {
     public function __construct(
-        ConfigProvider $configProvider,
-        SortingHandlerService $sortingHandlerService,
-        Logger $logger,
+        ConfigProvider                          $configProvider,
+        SortingHandlerService                   $sortingHandlerService,
+        Logger                                  $logger,
         private readonly SalesChannelRepository $categoryRepository,
-    ) {
+    )
+    {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
 
     public function sendRequest(
-        Request $request,
-        Criteria $criteria,
+        Request             $request,
+        Criteria            $criteria,
         SalesChannelContext $context,
-        ?int $limit = null,
-    ): SearchResult {
+        ?int                $limit = null,
+    ): SearchResult
+    {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setCategoryPath(
             $this->fetchCategoryPath($request->get('navigationId'), $context),
         );
+
+        if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
+            $searchOperation->setQuery(null);
+        }
 
         return $searchOperation->execute();
     }
@@ -63,7 +69,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
         $categoryNames = array_map(function (string $categoryId) use ($mapping, $context, $navigationCategoryId) {
             return $mapping[$categoryId];
-        }, array_filter($pathIds, fn ($id) => $id !== $navigationCategoryId));
+        }, array_filter($pathIds, fn($id) => $id !== $navigationCategoryId));
 
         $categoryNames[] = $withId === CategoryNamingOptions::WITH_ID
             ? sprintf(
