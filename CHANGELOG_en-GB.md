@@ -1,3 +1,6 @@
+# 3.3.2
+* Fix: Fixed an issue where CM2 sorting was not applied correctly due to changes in the search query handling.
+
 # 3.3.1
 * Fix: Improving the performance of the data stored for abandoned carts
 * Fix: Now showing pagination on sort order change using Category Merchandising
