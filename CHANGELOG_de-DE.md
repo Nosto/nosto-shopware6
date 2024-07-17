@@ -1,3 +1,6 @@
+# 4.2.2
+* Fix: Ein Problem wurde behoben, bei dem die Category Merchandising 2 Sortierung aufgrund von Änderungen in der Verarbeitung der Suchabfrage nicht korrekt angewendet wurde.
+
 # 4.2.1
 * Fix: Daten für abgebrochene Warenkörbe werden jetzt effizienter und leistungsstärker gespeichert.
 * Fix: Category Merchandising beinhaltet nun korrekte Paginierung bei Änderung der Sortierreihenfolge.
