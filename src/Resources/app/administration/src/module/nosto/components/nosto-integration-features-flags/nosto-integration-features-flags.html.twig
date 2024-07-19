@@ -304,6 +304,24 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_store_data_abundant_carts %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['storeDataAbundantCarts']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['storeDataAbundantCarts']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.storeDataAbundantCarts')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.storeDataAbundantCartsHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"

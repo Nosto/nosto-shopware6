@@ -210,6 +210,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledStoreDataAbundantCarts($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_STORE_DATA_ABUNDANT_CARTS,
+            $channelId,
+            $languageId
+        );
+    }
+
     public function isDailyProductSyncEnabled($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);
@@ -232,12 +241,20 @@ class ConfigProvider
 
     public function isOldNostoDataCleanupEnabled($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED, $channelId, $languageId);
+        return $this->configService->getBool(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED,
+            $channelId,
+            $languageId
+        );
     }
 
     public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
     {
-        return $this->configService->getInt(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD, $channelId, $languageId);
+        return $this->configService->getInt(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
+            $channelId,
+            $languageId
+        );
     }
 
     public function toArray($channelId = null, $languageId = null): array
