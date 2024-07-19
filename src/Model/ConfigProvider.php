@@ -232,7 +232,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_STORE_DATA_ABUNDANT_CARTS,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -270,7 +270,7 @@ class ConfigProvider
         return $this->configService->getInt(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
