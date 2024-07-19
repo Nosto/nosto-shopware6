@@ -149,14 +149,14 @@
         },
         "job": {
             "navigation": {
-                "label": "Nosto-Stellenangebot"
+                "label": "Nosto Task-Übersicht"
             },
             "notification": {
                 "success": "Job wurde erfolgreich eingeplant!",
                 "unknownError": "Unbekannter Fehler."
             },
             "date-filter": {
-                "label": "Job erstellt am",
+                "label": "Task erstellt am",
                 "from": "Aus",
                 "to": "Zu"
             },
@@ -165,7 +165,7 @@
                 "placeholder": "Art auswählen..."
             },
             "status-filter": {
-                "label": "Beruflicher Status",
+                "label": "Task Status",
                 "placeholder": "Status auswählen..."
             }
         }
