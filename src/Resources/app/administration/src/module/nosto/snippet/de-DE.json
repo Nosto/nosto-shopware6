@@ -157,6 +157,7 @@
             },
             "date-filter": {
                 "label": "Task erstellt am",
+                "placeholder": "Zeitraum auswählen...",
                 "from": "Von",
                 "to": "Bis"
             },
