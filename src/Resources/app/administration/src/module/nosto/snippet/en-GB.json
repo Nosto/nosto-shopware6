@@ -126,7 +126,7 @@
                 },
                 "oldNostoDataPeriod": {
                     "after": "After",
-                    "months": "months"
+                    "days": "days"
                 }
             },
             "search-navigation": {
