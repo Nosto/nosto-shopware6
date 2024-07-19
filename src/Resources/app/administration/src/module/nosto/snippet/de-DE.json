@@ -112,7 +112,7 @@
                 "categoryBlocklistPlaceholder": "Kategorie auswählen:",
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
-                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto-Stellenanzeige"
+                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",
@@ -168,6 +168,11 @@
             "status-filter": {
                 "label": "Task Status",
                 "placeholder": "Status auswählen..."
+            }
+        },
+        "job-listing": {
+                    "child-jobs": "Sub-Tasks"
+                }
             }
         }
     }
