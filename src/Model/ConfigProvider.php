@@ -248,9 +248,9 @@ class ConfigProvider
         );
     }
 
-    public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?string
+    public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
     {
-        return $this->configService->getString(
+        return $this->configService->getInt(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
             $channelId,
             $languageId
