@@ -172,6 +172,6 @@
         },
         "job-listing": {
                     "child-jobs": "Sub-Tasks"
-                }
-            }
+        }
+    }
 }
