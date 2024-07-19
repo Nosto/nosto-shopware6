@@ -37,15 +37,15 @@ class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
     {
         try {
             $isNostoDataCleanupEnabled = $this->configProvider->isOldNostoDataCleanupEnabled();
-            $monthPeriod = $this->configProvider->getOldNostoDataCleanupPeriod();
+            $dayPeriod = $this->configProvider->getOldNostoDataCleanupPeriod();
 
-            if ($isNostoDataCleanupEnabled && $monthPeriod) {
-                $numberOfMonthsBeforeToday = new DateTime(' - ' . $monthPeriod . ' month');
+            if ($isNostoDataCleanupEnabled && $dayPeriod) {
+                $numberOfDaysBeforeToday = new DateTime(' - ' . $dayPeriod . ' day');
 
                 $this->connection->executeStatement(
                     'DELETE FROM nosto_integration_checkout_mapping WHERE created_at <= :timestamp',
                     [
-                        'timestamp' => $numberOfMonthsBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
+                        'timestamp' => $numberOfDaysBeforeToday->format(Defaults::STORAGE_DATE_FORMAT),
                     ],
                 );
             }
