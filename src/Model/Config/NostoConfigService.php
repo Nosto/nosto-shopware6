@@ -78,7 +78,7 @@ class NostoConfigService
 
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'enableLabelling';
 
-    public const ENABLE_STORE_DATA_ABUNDANT_CARTS = 'storeDataAbundantCarts';
+    public const ENABLE_STORE_ABANDONED_CART_DATA = 'storeAbandonedCartData';
 
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
 

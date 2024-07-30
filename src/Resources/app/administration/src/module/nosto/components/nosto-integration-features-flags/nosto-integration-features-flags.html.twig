@@ -328,21 +328,21 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
-        {% block nosto_integration_feature_store_data_abundant_carts %}
+        {% block nosto_integration_feature_store_abandoned_cart_data %}
             <sw-inherit-wrapper
-                :value="currentConfig['storeDataAbundantCarts']"
-                :inheritedValue="configKey === null ? null : configs['null']['storeDataAbundantCarts']"
-                @update:value="onUpdateValue('storeDataAbundantCarts', $event)"
+                :value="currentConfig['storeAbandonedCartData']"
+                :inheritedValue="configKey === null ? null : configs['null']['storeAbandonedCartData']"
+                @update:value="onUpdateValue('storeAbandonedCartData', $event)"
             >
                 <template #content="props">
                     <sw-switch-field
-                        name="storeDataAbundantCarts"
+                        name="storeAbandonedCartData"
                         :map-inheritance="props"
-                        :label="$tc('nosto.configuration.featuresFlags.storeDataAbundantCarts')"
-                        :help-text="$tc('nosto.configuration.featuresFlags.storeDataAbundantCartsHelpText')"
+                        :label="$tc('nosto.configuration.featuresFlags.storeAbandonedCartData')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.storeAbandonedCartDataHelpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="onUpdateValue('storeDataAbundantCarts', $event)"
+                        @update:value="onUpdateValue('storeAbandonedCartData', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
