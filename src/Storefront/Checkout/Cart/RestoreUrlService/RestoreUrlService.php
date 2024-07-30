@@ -30,7 +30,7 @@ class RestoreUrlService
 
     public function getCurrentRestoreUrl(SalesChannelContext $context): ?string
     {
-        if ($this->configProvider->isEnabledStoreDataAbundantCarts()) {
+        if ($this->configProvider->isEnabledStoreAbandonedCartData()) {
             $current = $this->fetchFromDb($context->getToken(), $context->getContext());
             return $this->generate(
                 $current ? $current->getId() : $this->createNew($context->getToken(), $context->getContext()),

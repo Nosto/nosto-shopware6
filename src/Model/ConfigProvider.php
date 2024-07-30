@@ -210,10 +210,10 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledStoreDataAbundantCarts($channelId = null, $languageId = null): bool
+    public function isEnabledStoreAbandonedCartData($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(
-            NostoConfigService::ENABLE_STORE_DATA_ABUNDANT_CARTS,
+            NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
             $channelId,
             $languageId
         );
