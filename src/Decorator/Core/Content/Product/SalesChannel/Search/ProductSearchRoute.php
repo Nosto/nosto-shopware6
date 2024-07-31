@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
+use Exception;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
@@ -52,43 +53,44 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria,
     ): ProductSearchRouteResponse {
-        if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+
+        try {
+            if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+                return $this->decorated->load($request, $context, $criteria);
+            }
+
+            if (!$request->get('search')) {
+                throw RoutingException::missingRequestParameter('search');
+            }
+
+            if (!$request->get('order')) {
+                $request->request->set('order', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT);
+            }
+
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+            $criteria->addFilter(
+                new ProductAvailableFilter(
+                    $context->getSalesChannel()->getId(),
+                    ProductVisibilityDefinition::VISIBILITY_SEARCH,
+                ),
+            );
+
+            $this->searchBuilder->build($request, $criteria, $context);
+
+            $this->listingProcessor->prepare($request, $criteria, $context);
+
+            $query = $request->query->get('search');
+            $result = $this->fetchProductsById($criteria, $context, $query);
+            $productListing = ProductListingResult::createFrom($result);
+            $productListing->addCurrentFilter('search', $query);
+
+            $this->listingProcessor->process($request, $productListing, $context);
+
+            return new ProductSearchRouteResponse($productListing);
+        } catch (Exception) {
             return $this->decorated->load($request, $context, $criteria);
         }
-
-        if (!$request->get('search')) {
-            throw RoutingException::missingRequestParameter('search');
-        }
-
-        if (!$request->get('order')) {
-            $request->request->set('order', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT);
-        }
-
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        $criteria->addFilter(
-            new ProductAvailableFilter(
-                $context->getSalesChannel()->getId(),
-                ProductVisibilityDefinition::VISIBILITY_SEARCH,
-            ),
-        );
-
-        $this->searchBuilder->build($request, $criteria, $context);
-
-        $this->listingProcessor->prepare($request, $criteria, $context);
-
-        $query = $request->query->get('search');
-        $result = $this->fetchProductsById($criteria, $context, $query);
-        $productListing = ProductListingResult::createFrom($result);
-        $this->eventDispatcher->dispatch(
-            new ProductSearchResultEvent($request, $productListing, $context),
-            ProductEvents::PRODUCT_SEARCH_RESULT,
-        );
-        $productListing->addCurrentFilter('search', $query);
-
-        $this->listingProcessor->process($request, $productListing, $context);
-
-        return new ProductSearchRouteResponse($productListing);
     }
 
     private function fetchProductsById(
