@@ -1,3 +1,8 @@
+# 3.3.3
+* Feature: Added a configuration option to determine if data for abandoned carts should be stored in the relevant table.
+* Fix: The pagination disappeared when the sort order has been changed
+* Change: Improved German Translations for the Nosto Job-Scheduler
+
 # 3.3.2
 * Fix: Fixed an issue where CM2 sorting was not applied correctly due to changes in the search query handling.
 
