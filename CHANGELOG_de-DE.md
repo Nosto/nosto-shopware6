@@ -1,3 +1,8 @@
+# 4.2.3
+* Feature: Eine Konfigurationsoption hinzugefügt, um festzulegen, ob Daten für abgebrochene Warenkörbe in der entsprechenden Tabelle gespeichert werden sollen.
+* Fix: Die Paginierung verschwand, wenn die Sortierreihenfolge geändert wurde.
+* Änderung: Verbesserte deutsche Übersetzungen für den Nosto-Job-Scheduler.
+
 # 4.2.2
 * Fix: Ein Problem wurde behoben, bei dem die Category Merchandising 2 Sortierung aufgrund von Änderungen in der Verarbeitung der Suchabfrage nicht korrekt angewendet wurde.
 
