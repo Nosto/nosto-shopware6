@@ -53,7 +53,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria,
     ): ProductSearchRouteResponse {
-
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 return $this->decorated->load($request, $context, $criteria);
