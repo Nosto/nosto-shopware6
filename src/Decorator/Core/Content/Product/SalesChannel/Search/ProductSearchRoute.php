@@ -25,7 +25,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function PHPUnit\Framework\throwException;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
