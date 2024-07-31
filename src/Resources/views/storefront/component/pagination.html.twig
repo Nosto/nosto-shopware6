@@ -15,10 +15,14 @@
     {% endif %}
 
     {% if totalPages > 1 %}
-        <nav aria-label="pagination" class="pagination-nav">
+        <nav aria-label="pagination" class="pagination-nav nosto-ns-nav">
             {% block component_pagination %}
                 {{ parent() }}
             {% endblock %}
         </nav>
+        <style>
+            .nosto-ns-nav { display: none }
+            .nosto-ns-nav:first-of-type { display: block }
+        </style>
     {% endif %}
 {% endblock %}
