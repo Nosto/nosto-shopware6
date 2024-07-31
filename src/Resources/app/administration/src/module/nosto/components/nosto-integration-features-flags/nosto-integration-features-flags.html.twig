@@ -328,6 +328,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_store_abandoned_cart_data %}
+            <sw-inherit-wrapper
+                :value="currentConfig['storeAbandonedCartData']"
+                :inheritedValue="configKey === null ? null : configs['null']['storeAbandonedCartData']"
+                @update:value="onUpdateValue('storeAbandonedCartData', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="storeAbandonedCartData"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.storeAbandonedCartData')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.storeAbandonedCartDataHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('storeAbandonedCartData', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"

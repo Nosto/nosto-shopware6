@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,16 +23,21 @@ class RestoreUrlService
     public function __construct(
         private readonly EntityRepository $mappingRepository,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ConfigProvider $configProvider,
         private readonly RequestStack $requestStack,
     ) {
     }
 
-    public function getCurrentRestoreUrl(SalesChannelContext $context): string
+    public function getCurrentRestoreUrl(SalesChannelContext $context): ?string
     {
-        $current = $this->fetchFromDb($context->getToken(), $context->getContext());
-        return $this->generate(
-            $current ? $current->getId() : $this->createNew($context->getToken(), $context->getContext()),
-        );
+        if ($this->configProvider->isEnabledStoreAbandonedCartData()) {
+            $current = $this->fetchFromDb($context->getToken(), $context->getContext());
+            return $this->generate(
+                $current ? $current->getId() : $this->createNew($context->getToken(), $context->getContext()),
+            );
+        }
+
+        return null;
     }
 
     protected function fetchFromDb(string $token, Context $context): ?CheckoutMappingEntity

@@ -116,15 +116,15 @@ Component.register('nosto-integration-features-flags', {
             return options;
         },
         createOldNostoDataCleanupPeriodOptions() {
-            const monthPeriods = [3];
+            const dayPeriods = [7, 30, 60, 90];
             const options = [];
             const translationAfter = this.$tc('nosto.configuration.featuresFlags.oldNostoDataPeriod.after');
-            const translationMonths = this.$tc('nosto.configuration.featuresFlags.oldNostoDataPeriod.months');
+            const translationDays = this.$tc('nosto.configuration.featuresFlags.oldNostoDataPeriod.days');
 
-            monthPeriods.forEach((period) => {
+            dayPeriods.forEach((period) => {
                 options.push(
                     {
-                        label: `${translationAfter} ${period} ${translationMonths}`,
+                        label: `${translationAfter} ${period} ${translationDays}`,
                         value: period,
                     },
                 );

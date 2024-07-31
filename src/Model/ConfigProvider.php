@@ -227,6 +227,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledStoreAbandonedCartData($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isDailyProductSyncEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);
@@ -258,7 +267,11 @@ class ConfigProvider
 
     public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
     {
-        return $this->configService->getInt(NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD, $channelId, $languageId);
+        return $this->configService->getInt(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
+            $channelId,
+            $languageId,
+        );
     }
 
     /**
