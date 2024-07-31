@@ -34,7 +34,7 @@ class CustomerExtension extends AbstractExtension
         return $this->builder->build($customer, $context);
     }
 
-    public function getRestoreCartLink(SalesChannelContext $context): string
+    public function getRestoreCartLink(SalesChannelContext $context): ?string
     {
         return $this->restoreUrlService->getCurrentRestoreUrl($context);
     }
