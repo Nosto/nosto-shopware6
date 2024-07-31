@@ -112,7 +112,7 @@
                 "categoryBlocklistPlaceholder": "Kategorie auswählen:",
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
-                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto-Stellenanzeige"
+                    "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",
@@ -149,25 +149,29 @@
         },
         "job": {
             "navigation": {
-                "label": "Nosto-Stellenangebot"
+                "label": "Nosto Task-Übersicht"
             },
             "notification": {
                 "success": "Job wurde erfolgreich eingeplant!",
                 "unknownError": "Unbekannter Fehler."
             },
             "date-filter": {
-                "label": "Job erstellt am",
-                "from": "Aus",
-                "to": "Zu"
+                "label": "Task erstellt am",
+                "placeholder": "Zeitraum auswählen...",
+                "from": "Von",
+                "to": "Bis"
             },
             "type-filter": {
                 "label": "Auftragstyp",
                 "placeholder": "Art auswählen..."
             },
             "status-filter": {
-                "label": "Beruflicher Status",
+                "label": "Task Status",
                 "placeholder": "Status auswählen..."
             }
+        },
+        "job-listing": {
+            "child-jobs": "Sub-Tasks"
         }
     }
 }
