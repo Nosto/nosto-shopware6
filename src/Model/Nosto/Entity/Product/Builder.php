@@ -515,7 +515,7 @@ class Builder
                 $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
                 foreach ($children as $variationProduct) {
                     $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
-                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ? : $variationProduct, $context));
+                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
                 }
             }
         }
