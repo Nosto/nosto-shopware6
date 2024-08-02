@@ -518,8 +518,10 @@ class Builder
             $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
 
             while (($children = $iterator->fetch()) !== null) {
+                $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
                 foreach ($children as $variationProduct) {
-                    $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                    $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
+                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ? : $variationProduct, $context));
                 }
             }
         }
