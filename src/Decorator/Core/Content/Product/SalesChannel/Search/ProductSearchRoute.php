@@ -41,8 +41,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
-        private readonly LoggerInterface $logger
-    ) {
+        private readonly LoggerInterface $logger,
+    )
+    {
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -53,8 +54,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     public function load(
         Request $request,
         SalesChannelContext $context,
-        Criteria $criteria
-    ): ProductSearchRouteResponse {
+        Criteria $criteria,
+    ): ProductSearchRouteResponse
+    {
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 return $this->decorated->load($request, $context, $criteria);
@@ -73,8 +75,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $criteria->addFilter(
                 new ProductAvailableFilter(
                     $context->getSalesChannel()->getId(),
-                    ProductVisibilityDefinition::VISIBILITY_SEARCH
-                )
+                    ProductVisibilityDefinition::VISIBILITY_SEARCH,
+                ),
             );
 
             $this->searchBuilder->build($request, $criteria, $context);
@@ -106,8 +108,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     private function fetchProductsById(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
-        ?string $query
-    ): EntitySearchResult {
+        ?string $query,
+    ): EntitySearchResult
+    {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
