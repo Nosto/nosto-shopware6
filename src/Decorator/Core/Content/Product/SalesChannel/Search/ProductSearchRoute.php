@@ -8,6 +8,7 @@ use Exception;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -40,6 +41,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly SalesChannelRepository        $salesChannelProductRepository,
         private readonly CompositeListingProcessor     $listingProcessor,
         private readonly ConfigProvider                $configProvider,
+        private readonly LoggerInterface               $logger
     )
     {
     }
@@ -88,8 +90,17 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->process($request, $productListing, $context);
 
+            $this->eventDispatcher->dispatch(
+                new ProductSearchResultEvent($request, $productListing, $context),
+                ProductEvents::PRODUCT_SEARCH_RESULT
+            );
+
             return new ProductSearchRouteResponse($productListing);
-        } catch (Exception) {
+        } catch (RoutingException $e) {
+            $this->logger->error('Routing exception occurred: ' . $e->getMessage());
+            return $this->decorated->load($request, $context, $criteria);
+        } catch (Exception $e) {
+            $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
             return $this->decorated->load($request, $context, $criteria);
         }
     }
