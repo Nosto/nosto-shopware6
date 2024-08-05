@@ -42,8 +42,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -55,8 +54,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Request $request,
         SalesChannelContext $context,
         Criteria $criteria,
-    ): ProductSearchRouteResponse
-    {
+    ): ProductSearchRouteResponse {
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 return $this->decorated->load($request, $context, $criteria);
@@ -92,7 +90,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->eventDispatcher->dispatch(
                 new ProductSearchResultEvent($request, $productListing, $context),
-                ProductEvents::PRODUCT_SEARCH_RESULT
+                ProductEvents::PRODUCT_SEARCH_RESULT,
             );
 
             return new ProductSearchRouteResponse($productListing);
@@ -109,8 +107,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query,
-    ): EntitySearchResult
-    {
+    ): EntitySearchResult {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
