@@ -1,3 +1,7 @@
+# 4.2.4
+* Fix: In Stock items would not show for SKU's
+* Feature: In rare cases where Nosto Search API is not responsive we will fall back to your native Shopware Search settings.
+
 # 4.2.3
 * Feature: Added a configuration option to determine if data for abandoned carts should be stored in the relevant table.
 * Fix: The pagination disappeared when the sort order has been changed

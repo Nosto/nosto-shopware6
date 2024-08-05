@@ -1,3 +1,7 @@
+# 4.2.4
+* Fix: Verfügbare Produkte werden in SKU's nicht angezeig
+* Feature: In den selten Fällen in denen die Nosto API nicht reagiert wird Nosto nun auf die Standart Shopware Suche zurückfallen.
+
 # 4.2.3
 * Feature: Eine Konfigurationsoption hinzugefügt, um festzulegen, ob Daten für abgebrochene Warenkörbe in der entsprechenden Tabelle gespeichert werden sollen.
 * Fix: Die Paginierung verschwand, wenn die Sortierreihenfolge geändert wurde.
