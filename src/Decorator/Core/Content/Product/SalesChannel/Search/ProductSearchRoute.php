@@ -35,13 +35,13 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     use SearchResultHelper;
 
     public function __construct(
-        private readonly AbstractProductSearchRoute    $decorated,
-        private readonly EventDispatcherInterface      $eventDispatcher,
+        private readonly AbstractProductSearchRoute $decorated,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
-        private readonly SalesChannelRepository        $salesChannelProductRepository,
-        private readonly CompositeListingProcessor     $listingProcessor,
-        private readonly ConfigProvider                $configProvider,
-        private readonly LoggerInterface               $logger
+        private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly CompositeListingProcessor $listingProcessor,
+        private readonly ConfigProvider $configProvider,
+        private readonly LoggerInterface $logger,
     )
     {
     }
@@ -52,9 +52,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     public function load(
-        Request             $request,
+        Request $request,
         SalesChannelContext $context,
-        Criteria            $criteria,
+        Criteria $criteria,
     ): ProductSearchRouteResponse
     {
         try {
@@ -106,9 +106,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     private function fetchProductsById(
-        Criteria            $criteria,
+        Criteria $criteria,
         SalesChannelContext $salesChannelContext,
-        ?string             $query,
+        ?string $query,
     ): EntitySearchResult
     {
         if (empty($criteria->getIds())) {
