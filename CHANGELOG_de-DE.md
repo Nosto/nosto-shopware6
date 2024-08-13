@@ -1,5 +1,5 @@
 # 3.3.4
-* Fix: Verfügbare Produkte werden in SKU's nicht angezeig
+* Fix: Verfügbare Produkte werden in SKU's nicht angezeigt
 * Feature: In den selten Fällen in denen die Nosto API nicht reagiert wird Nosto nun auf die Standart Shopware Suche zurückfallen.
 
 # 3.3.3
