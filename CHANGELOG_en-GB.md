@@ -1,4 +1,5 @@
 # 3.3.4
+
 * Fix: In Stock items would not show for SKU's.
 * Feature: In rare cases where Nosto Search API is not responsive we will fall back to your native Shopware Search settings.
 
