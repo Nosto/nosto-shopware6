@@ -1,4 +1,5 @@
-const { Mixin } = Shopware;
+const { Component, Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 const {
     mapState,
@@ -13,6 +14,10 @@ Mixin.register('nosto-integration-config-component', {
             default: null,
         },
     },
+
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
 
     computed: {
         ...mapState('nostoIntegrationConfig', [
@@ -29,6 +34,11 @@ Mixin.register('nosto-integration-config-component', {
             'setConfigValue',
         ]),
         onUpdateValue(key, value) {
+            if (key === 'productIdentifier') {
+                this.createNotificationWarning({
+                    message: this.$tc('nosto.configuration.featuresFlags.productIdentifierMerchantInfo'),
+                });
+            }
             this.setConfigValue({
                 configKey: this.configKey,
                 key,
