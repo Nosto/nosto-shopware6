@@ -39,6 +39,7 @@ Mixin.register('nosto-integration-config-component', {
                     message: this.$tc('nosto.configuration.featuresFlags.productIdentifierMerchantInfo'),
                 });
             }
+
             this.setConfigValue({
                 configKey: this.configKey,
                 key,
