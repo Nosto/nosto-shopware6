@@ -1,5 +1,4 @@
-const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 
 const {
     mapState,
