@@ -58,7 +58,7 @@ class ProductHelper
 
     public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
     {
-        $criteria = $this->getCommonCriteria();
+        $criteria = $this->getCommonCriteriaWithoutChildren();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
 
@@ -76,6 +76,20 @@ class ProductHelper
         $criteria->addAssociation('children.cover');
         $criteria->addAssociation('children.options.group');
         $criteria->addAssociation('children.properties.group');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
+        $criteria->addAssociation('categoriesRo');
+
+        return $criteria;
+    }
+
+    private function getCommonCriteriaWithoutChildren(): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('cover');
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
