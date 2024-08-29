@@ -150,7 +150,7 @@ class Builder
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
-        if($product->getChildren()) {
+        if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
                 $channelId,
                 $languageId,
