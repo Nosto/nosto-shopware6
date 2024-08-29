@@ -150,11 +150,16 @@ class Builder
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
-        if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildren()->count()) {
-            $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
-
-            $nostoProduct->setSkus($skuCollection);
+        if ($product->getChildren()) {
+            if ($this->configProvider->isEnabledVariations(
+                    $channelId,
+                    $languageId,
+            ) && $product->getChildren()->count()) {
+                $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
+                $nostoProduct->setSkus($skuCollection);
+            }
         }
+
 
         if ($product->getShippingFree()) {
             $nostoProduct->addCustomField(self::SHIPPING_FREE_ATTR_NAME, 'true');
