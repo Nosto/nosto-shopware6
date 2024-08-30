@@ -67,6 +67,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
+                        @change="props.updateCurrentValue"
                         @change="onUpdateValue('productIdentifier')"
                     />
                 </template>
