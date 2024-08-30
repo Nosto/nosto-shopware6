@@ -160,7 +160,6 @@ class Builder
             }
         }
 
-
         if ($product->getShippingFree()) {
             $nostoProduct->addCustomField(self::SHIPPING_FREE_ATTR_NAME, 'true');
         }
