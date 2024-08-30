@@ -84,6 +84,7 @@
                 "enableAlternateImages": "Alternative Bilder aktivieren",
                 "enableAlternateImagesHelpText": "Das Kontrollkästchen aktiviert das Tagging alternativer Bilder.",
                 "productIdentifier": "Produkt-Identifikator",
+                "productIdentifierMerchantInfo": "Das Wechseln zwischen 'Produkt-ID' und 'Produktnummer' führt zu doppelten Produkten, wenn eine Produktsynchronisierung bereits durchgeführt wurde. Um dieses Problem zu vermeiden, wenden Sie sich bitte an den Nosto-Support, um den Produkt Katalog zu leeren, bevor Sie den Synchronisierungsprozess erneut starten.",
                 "productIdentifierHelpText": "Das ausgewählte Feld des Produkts wird als Nosto-Produkt-ID synchronisiert.",
                 "enableRatingsReviews": "Bewertungen & Rezensionen aktivieren",
                 "enableRatingsReviewsHelpText": "Die Auswahl ermöglicht Bewertungen & Rezensionen.",
