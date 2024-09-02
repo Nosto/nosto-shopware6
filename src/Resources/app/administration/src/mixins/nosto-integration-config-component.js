@@ -14,6 +14,10 @@ Mixin.register('nosto-integration-config-component', {
         },
     },
 
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
+
     computed: {
         ...mapState('nostoIntegrationConfig', [
             'configs',
@@ -29,6 +33,12 @@ Mixin.register('nosto-integration-config-component', {
             'setConfigValue',
         ]),
         onUpdateValue(key, value) {
+            if (key === 'productIdentifier') {
+                this.createNotificationWarning({
+                    message: this.$tc('nosto.configuration.featuresFlags.productIdentifierMerchantInfo'),
+                });
+            }
+
             this.setConfigValue({
                 configKey: this.configKey,
                 key,
