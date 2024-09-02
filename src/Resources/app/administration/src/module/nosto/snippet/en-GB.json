@@ -85,6 +85,7 @@
                 "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
                 "productIdentifier": "Product Identifier",
                 "productIdentifierHelpText": "The selected field of the product will be synced as Nosto product id",
+                "productIdentifierMerchantInfo": "Switching between 'Product Id' and 'Product Number' will result in product duplication if a product sync has already been completed. To avoid this issue, please contact Nosto Support to flush the catalog before restarting the sync process.",
                 "enableRatingsReviews": "Enable Ratings & Reviews",
                 "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
                 "stockField": "Stock Field",
