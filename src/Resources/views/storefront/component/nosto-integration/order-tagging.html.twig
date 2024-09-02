@@ -2,6 +2,7 @@
 
     {% set order = page.order %}
     {% set customerDataToNosto = context.context.extensions.nostoConfig.customerDataToNosto %}
+    {% set productIdentifier = context.context.extensions.nostoConfig.productIdentifier %}
 
     {% if order %}
         <div class="nosto_purchase_order" style="display:none">
@@ -23,7 +24,13 @@
                 {% for lineItem in order.lineItems %}
                     {% if lineItem.type == 'product' %}
                         <div class="line_item">
-                            <span class="product_id">{{ lineItem.referencedId }}</span>
+                            <span class="product_id">
+                                {% if productIdentifier == 'product-number' %}
+                                    {{ lineItem.payload.productNumber }}
+                                {% else %}
+                                    {{ lineItem.referencedId }}
+                                {% endif %}
+                            </span>
                             <span class="quantity">{{ lineItem.quantity }}</span>
                             <span class="name">{{ lineItem.label }}</span>
                             <span class="unit_price">{{ lineItem.unitPrice }}</span>
