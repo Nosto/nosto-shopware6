@@ -72,15 +72,19 @@ class ProductHelper
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('properties.group');
-        $criteria->addAssociation('children.media');
-        $criteria->addAssociation('children.cover');
-        $criteria->addAssociation('children.options.group');
-        $criteria->addAssociation('children.properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
 
         return $criteria;
+    }
+
+    private function getCommonCriteriaChildren($criteria): void
+    {
+        $criteria->addAssociation('children.media');
+        $criteria->addAssociation('children.cover');
+        $criteria->addAssociation('children.options.group');
+        $criteria->addAssociation('children.properties.group');
     }
 
     public function loadExistingParentProducts(
@@ -91,6 +95,7 @@ class ProductHelper
         $languageId = $context->getLanguageId();
 
         $criteria = $this->getCommonCriteria();
+        $this->getCommonCriteriaChildren($criteria);
         $criteria->setLimit(100);
         $criteria->addAssociation('children.manufacturer');
         $criteria->addAssociation('children.manufacturer.media');
@@ -188,6 +193,7 @@ class ProductHelper
     public function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
     {
         $criteria = $this->getCommonCriteria();
+        $this->getCommonCriteriaChildren($criteria);
         $criteria->setIds($productIds);
 
         return $this->salesChannelProductRepository->search(
