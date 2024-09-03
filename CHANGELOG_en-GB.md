@@ -1,3 +1,8 @@
+# 4.2.5
+* Fix: Include product number in the order tagging to account for setups where the product number is being used as the product identifier instead of the product ID.
+* Fix: Add a warning when the nosto identifier is changed
+* Fix: Refactor product builder when building product variations
+
 # 4.2.4
 * Fix: In Stock items would not show for SKU's
 * Feature: In rare cases where Nosto Search API is not responsive we will fall back to your native Shopware Search settings.
