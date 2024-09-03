@@ -1,3 +1,8 @@
+# 3.3.5
+* Fix: Inklusion von Produktnummern im Order-Tagging, für Fälle in denen die Produktnummer anstelle der Product-ID als Identifikation genutzt werden.
+* Fix: Warnung hinzugefügt die ausgespielt wird, wenn die Nosto-Identifikation geändert wird.
+* Fix: Refaktorierung des Produkt-Generators bei der Erstellung von Produktvariationen.
+
 # 3.3.4
 * Fix: Verfügbare Produkte werden in SKU's nicht angezeigt
 * Feature: In den selten Fällen in denen die Nosto API nicht reagiert wird Nosto nun auf die Standart Shopware Suche zurückfallen.
