@@ -325,8 +325,8 @@
 
         {% block nosto_integration_feature_ignore_cookie_consent %}
             <sw-inherit-wrapper
-                    v-model="actualConfigData['ignoreCookieConsent']"
-                    :inheritedValue="configKey === null ? null : allConfigs['null']['ignoreCookieConsent']"
+                v-model="actualConfigData['ignoreCookieConsent']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['ignoreCookieConsent']"
             >
                 <template #content="props">
                     <sw-switch-field
