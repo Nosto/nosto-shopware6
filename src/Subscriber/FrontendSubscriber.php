@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Subscriber;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
