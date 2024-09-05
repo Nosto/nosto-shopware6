@@ -223,7 +223,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
