@@ -46,7 +46,7 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     public function onKernelResponse(ResponseEvent $event): void
     {
-        if (!($event->getResponse() instanceof StorefrontResponse)) {
+        if (!($event->getResponse())) {
             return;
         }
 
@@ -59,7 +59,10 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     private function migrateOverdoseCookie(Response $response, Request $request): void
     {
-        if ($request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY)) {
+        if (
+            $request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY) ||
+            $this->configProvider->isEnabledIgnoreCookieConsent()
+        ) {
             $cookie = Cookie::create(NostoCookieProvider::LEGACY_COOKIE_KEY, '1', strtotime('-1 day'))
                 ->withHttpOnly(false);
             $cookie->setSecureDefault($request->isSecure());
