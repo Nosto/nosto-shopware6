@@ -109,7 +109,7 @@
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "storeAbandonedCartDataHelpText": "Diese Konfigurationsoption steuert, ob Daten für abgebrochene Warenkörbe in der entsprechenden Datenbank Tabelle gespeichert werden sollen. Wenn diese Option aktiviert ist, ruft das System die Daten ab und erstellt neue Zeilen in der Tabelle für jeden abgebrochenen Warenkorb. Wenn sie deaktiviert ist, werden keine neuen Zeilen hinzugefügt, was möglicherweise Leistungsprobleme verhindert.",
-                "ignoreCookieConsentHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Cookies für Nosto automatisch akzeptiert",
+                "ignoreCookieConsentHelpText": "Die Zustimmung zu Cookies kann deaktiviert werden, wenn Sie bestimmen, dass sie für die rechtliche Einhaltung nicht erforderlich ist.",
                 "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
                 "categoryNaming": "Produktkategorienamen",
                 "categoryBlocklist": "Kategorie Ausschluss",

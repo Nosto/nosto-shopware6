@@ -109,7 +109,7 @@
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "storeAbandonedCartDataHelpText": "This configuration option controls whether data for abandoned carts should be stored in the relevant table. When this option is enabled, the system will fetch and create new rows in the table for each abandoned cart. If disabled, no new rows will be added, potentially preventing performance issues.",
-                "ignoreCookieConsentHelpText": "If the checkbox is checked, cookies for Nosto will be automatically accepted",
+                "ignoreCookieConsentHelpText": "Cookie consent may be turned off if you determine it is not required for legal compliance.",
                 "categoryNamingHelpText": "Product category names will contain the category ID or not",
                 "categoryNaming": "Product Category Names",
                 "categoryBlocklist": "Category Exclusion",
