@@ -1,3 +1,8 @@
+# 4.2.6
+* Feature: Adding possibility to disable cookie consent requirement
+* Fix: Resolved issue where pagination disappeared when the sort order has been changed
+* Fix: Increased timeout when sending product data to Nosto to have less false positive sync issues
+
 # 4.2.5
 * Fix: Include product number in the order tagging to account for setups where the product number is being used as the product identifier instead of the product ID.
 * Fix: Add a warning when the nosto identifier is changed

@@ -41,7 +41,7 @@ jobs:
         run: shopware-cli extension zip . --disable-git
 
       - name: Upload release zip file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}.zip
           path: ./nosto-shopware6/${{ env.PLUGIN_NAME }}.zip
@@ -61,7 +61,7 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
       - name: Download release zip file
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}.zip
           path: ./
