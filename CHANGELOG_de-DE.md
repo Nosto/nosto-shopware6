@@ -1,3 +1,8 @@
+# 3.3.6
+* Feature: Funktion hinzugefügt um Cookie-Zustimmungsabhängigkeit auszuschalten
+* Fix: Fehler behoben der dafür sorgte, dass nach Änderung der öOrtierung die Seitennummerierung ausgeblendet wurde
+* Fix: Erhöhte Timeout-Zeit beim Senden von Produktdaten an Nosto, um weniger Fehlalarme bei Synchronisierungsproblemen zu verursachen
+
 # 3.3.5
 * Fix: Inklusion von Produktnummern im Order-Tagging, für Fälle in denen die Produktnummer anstelle der Product-ID als Identifikation genutzt werden.
 * Fix: Warnung hinzugefügt die ausgespielt wird, wenn die Nosto-Identifikation geändert wird.
