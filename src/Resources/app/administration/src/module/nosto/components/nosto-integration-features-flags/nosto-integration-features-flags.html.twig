@@ -348,6 +348,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_ignore_cookie_consent %}
+            <sw-inherit-wrapper
+                :value="currentConfig['ignoreCookieConsent']"
+                :inheritedValue="configKey === null ? null : configs['null']['ignoreCookieConsent']"
+                @update:value="onUpdateValue('ignoreCookieConsent', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="ignoreCookieConsent"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.ignoreCookieConsent')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.ignoreCookieConsentHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('ignoreCookieConsent', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"

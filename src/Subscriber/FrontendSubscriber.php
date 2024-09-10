@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Subscriber;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -46,7 +45,7 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     public function onKernelResponse(ResponseEvent $event): void
     {
-        if (!($event->getResponse() instanceof StorefrontResponse)) {
+        if (!($event->getResponse())) {
             return;
         }
 
@@ -59,7 +58,10 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     private function migrateOverdoseCookie(Response $response, Request $request): void
     {
-        if ($request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY)) {
+        if (
+            $request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY) ||
+            $this->configProvider->isEnabledIgnoreCookieConsent()
+        ) {
             $cookie = Cookie::create(NostoCookieProvider::LEGACY_COOKIE_KEY, '1', strtotime('-1 day'))
                 ->withHttpOnly(false);
             $cookie->setSecureDefault($request->isSecure());
