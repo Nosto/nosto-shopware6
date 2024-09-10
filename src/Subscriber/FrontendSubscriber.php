@@ -7,6 +7,8 @@ namespace Nosto\NostoIntegration\Subscriber;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
+use Nosto\NostoIntegration\Utils\SearchHelper;
+use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -30,6 +32,7 @@ class FrontendSubscriber implements EventSubscriberInterface
         return [
             HeaderPageletLoadedEvent::class => 'onHeaderLoaded',
             KernelEvents::RESPONSE => 'onKernelResponse',
+            CategoryRouteCacheKeyEvent::class => 'addNostoData',
         ];
     }
 
@@ -85,5 +88,10 @@ class FrontendSubscriber implements EventSubscriberInterface
             $cookie->setSecureDefault($request->isSecure());
             $response->headers->setCookie($cookie);
         }
+    }
+
+    public function addNostoData(CategoryRouteCacheKeyEvent $event): void
+    {
+        SearchHelper::shouldHandleRequest($event->getContext(), $this->configProvider, true);
     }
 }
