@@ -219,6 +219,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
+            $channelId,
+            $languageId
+        );
+    }
+
     public function isDailyProductSyncEnabled($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);

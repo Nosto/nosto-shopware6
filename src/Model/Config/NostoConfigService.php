@@ -80,6 +80,8 @@ class NostoConfigService
 
     public const ENABLE_STORE_ABANDONED_CART_DATA = 'storeAbandonedCartData';
 
+    public const ENABLE_IGNORE_COOKIE_CONSENT = 'ignoreCookieConsent';
+
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
 
     public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
