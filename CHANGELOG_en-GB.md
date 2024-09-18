@@ -1,3 +1,40 @@
+# 3.3.6
+* Feature: Adding possibility to disable cookie consent requirement
+* Fix: Resolved issue where pagination disappeared when the sort order has been changed
+* Fix: Increased timeout when sending product data to Nosto to have less false positive sync issues
+
+# 3.3.5
+* Fix: Include product number in the order tagging to account for setups where the product number is being used as the product identifier instead of the product ID.
+* Fix: Add a warning when the nosto identifier is changed
+* Fix: Refactor product builder when building product variations
+
+# 3.3.4
+* Fix: In Stock items would not show for SKU's.
+* Feature: In rare cases where Nosto Search API is not responsive we will fall back to your native Shopware Search settings.
+
+# 3.3.3
+* Feature: Added a configuration option to determine if data for abandoned carts should be stored in the relevant table.
+* Fix: The pagination disappeared when the sort order has been changed
+* Change: Improved German Translations for the Nosto Job-Scheduler
+
+# 3.3.2
+* Fix: Fixed an issue where CM2 sorting was not applied correctly due to changes in the search query handling.
+
+# 3.3.1
+* Fix: Improving the performance of the data stored for abandoned carts
+* Fix: Now showing pagination on sort order change using Category Merchandising
+  
+# 3.3.0
+* New: Added new scheduled clean up job for removing old Nosto cart data
+* Fix: Search and Category Merchandising interference with other plugins on a search page
+* Fix: Not recognising categories in tagging
+  
+# 3.2.0
+* New: Add parent categories for Category Merchandising 2 to the product sync
+
+# 3.1.2
+* Fix: Search and Category Merchandising 2 product sorting by a product number 
+
 # 3.1.1
 * Fix: Search not working when configuring the product number as Nosto identifier in the plugin configuration
 * Fix: Product sync errors for products on clearance

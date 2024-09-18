@@ -49,6 +49,8 @@ class Builder
 
     public const PRODUCT_ID_KEY = 'productid';
 
+    public const PRODUCT_NUMBER_KEY = 'productnumber';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -94,7 +96,7 @@ class Builder
                 ? $product->getProductNumber()
                 : $product->getId(),
         );
-        $nostoProduct->addCustomField('productNumber', $product->getProductNumber());
+        $nostoProduct->addCustomField(self::PRODUCT_NUMBER_KEY, $product->getProductNumber());
         $nostoProduct->addCustomField(self::PRODUCT_ID_KEY, $product->getId());
         $name = $product->getTranslation('name');
         if (!empty($name)) {
@@ -110,6 +112,12 @@ class Builder
         if (!$product->getIsCloseout() && $stock < 1) {
             $stockStatus = ProductInterface::IN_STOCK;
         }
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('seoUrls');
+        $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
+        $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $product->setCategoriesRo($productCategoriesRo);
 
         $nostoProduct->setAvailability($stockStatus);
 
@@ -131,16 +139,25 @@ class Builder
             $nostoProduct->setCategoryIds($categoryIds);
         }
 
+        $parentCategoryIds = $this->getParentCategoryIds($product->getCategoriesRo());
+        if (!empty($parentCategoryIds)) {
+            $nostoProduct->setParentCategoryIds($parentCategoryIds);
+        }
+
         $ratingAvg = $product->getRatingAverage();
         if ($ratingAvg && $this->configProvider->getRatingReviews() === RatingOptions::SHOPWARE_RATINGS) {
             $nostoProduct->setRatingValue(round($ratingAvg, 1));
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
-        if ($this->configProvider->isEnabledVariations($channelId, $languageId) && $product->getChildren()->count()) {
-            $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
-
-            $nostoProduct->setSkus($skuCollection);
+        if ($product->getChildren()) {
+            if ($this->configProvider->isEnabledVariations(
+                    $channelId,
+                    $languageId,
+            ) && $product->getChildren()->count()) {
+                $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
+                $nostoProduct->setSkus($skuCollection);
+            }
         }
 
         if ($product->getShippingFree()) {
@@ -177,7 +194,7 @@ class Builder
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
 
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
-                    $nostoProduct->addCustomField($fieldName, $fieldValue);
+                    $nostoProduct->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
             }
         }
@@ -351,6 +368,25 @@ class Builder
         );
     }
 
+    /**
+     * @return string[]
+     */
+    private function getParentCategoryIds(CategoryCollection $categoriesRo): array
+    {
+        $parentIds = [];
+        foreach ($categoriesRo as $category) {
+            if (!$category->getPath()) {
+                continue;
+            }
+
+            $parentIds = array_merge($parentIds, explode('|', $category->getPath()));
+        }
+
+        $parentIds = array_filter($parentIds, static fn (string $id) => !empty($id));
+
+        return array_values(array_unique($parentIds));
+    }
+
     private function makeActualProductCategories(
         ?SalesChannelProductEntity $product,
         SalesChannelContext $context,
@@ -480,8 +516,10 @@ class Builder
             $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
 
             while (($children = $iterator->fetch()) !== null) {
+                $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
                 foreach ($children as $variationProduct) {
-                    $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                    $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
+                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
                 }
             }
         }

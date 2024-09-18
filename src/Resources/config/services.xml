@@ -66,6 +66,13 @@
 
             <argument type="service" id="newsletter_recipient.repository" />
         </service>
+
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldNostoDataCleanupScheduledTaskHandler">
+            <tag name="messenger.message_handler" />
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository" />
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
+        </service>
         <!-- /Handlers -->
 
         <!-- Services -->
@@ -99,6 +106,10 @@
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder" />
 
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldNostoDataCleanupScheduledTask">
             <tag name="shopware.scheduled.task" />
         </service>
 

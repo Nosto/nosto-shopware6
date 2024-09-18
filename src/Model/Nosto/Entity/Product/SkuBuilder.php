@@ -41,7 +41,7 @@ class SkuBuilder
                 ? $product->getProductNumber()
                 : $product->getId(),
         );
-        $nostoSku->addCustomField('productNumber', $product->getProductNumber());
+        $nostoSku->addCustomField(Builder::PRODUCT_NUMBER_KEY, $product->getProductNumber());
         $nostoSku->addCustomField(Builder::PRODUCT_ID_KEY, $product->getId());
 
         $name = $product->getTranslation('name');

@@ -85,6 +85,7 @@
                 "enableAlternateImagesHelpText": "The checkbox enables alternate images tagging.",
                 "productIdentifier": "Product Identifier",
                 "productIdentifierHelpText": "The selected field of the product will be synced as Nosto product id",
+                "productIdentifierMerchantInfo": "Switching between 'Product Id' and 'Product Number' will result in product duplication if a product sync has already been completed. To avoid this issue, please contact Nosto Support to flush the catalog before restarting the sync process.",
                 "enableRatingsReviews": "Enable Ratings & Reviews",
                 "enableRatingsReviewsHelpText": "The selection enables ratings & reviews.",
                 "stockField": "Stock Field",
@@ -98,6 +99,8 @@
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
                 "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
                 "enableLabelling": "Enable Product Labelling Sync",
+                "storeAbandonedCartData": "Store data for abandoned carts",
+                "ignoreCookieConsent": "Ignore cookie consent",
                 "enableDailySynchronization": "Enable Daily Product Synchronization",
                 "enableDailySynchronizationHelp": "If the field is enabled products will be synchronized at the mentioned time each day",
                 "timeDailySynchronization": "Time for Daily Product Synchronization",
@@ -105,6 +108,8 @@
                 "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
+                "storeAbandonedCartDataHelpText": "This configuration option controls whether data for abandoned carts should be stored in the relevant table. When this option is enabled, the system will fetch and create new rows in the table for each abandoned cart. If disabled, no new rows will be added, potentially preventing performance issues.",
+                "ignoreCookieConsentHelpText": "Cookie consent may be turned off if you determine it is not required for legal compliance.",
                 "categoryNamingHelpText": "Product category names will contain the category ID or not",
                 "categoryNaming": "Product Category Names",
                 "categoryBlocklist": "Category Exclusion",
@@ -115,6 +120,14 @@
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
                 "oldJobCleanupPeriod": {
+                    "after": "After",
+                    "days": "days"
+                },
+                "oldNostoDataCleanup": {
+                    "label": "Enable cleanup of old Nosto data",
+                    "helpText": "Enable cleaning up of old Nosto data that stores cart link information for all unique visitors"
+                },
+                "oldNostoDataPeriod": {
                     "after": "After",
                     "days": "days"
                 }

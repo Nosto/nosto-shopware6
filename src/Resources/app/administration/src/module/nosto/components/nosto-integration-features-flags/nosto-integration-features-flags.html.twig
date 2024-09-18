@@ -68,6 +68,7 @@
                         show-clearable-button
                         :value="props.currentValue"
                         @change="props.updateCurrentValue"
+                        @change="onUpdateValue('productIdentifier')"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -304,6 +305,42 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_store_abandoned_cart_data %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['storeAbandonedCartData']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['storeAbandonedCartData']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.storeAbandonedCartData')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.storeAbandonedCartDataHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_feature_ignore_cookie_consent %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['ignoreCookieConsent']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['ignoreCookieConsent']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.ignoreCookieConsent')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.ignoreCookieConsentHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"
@@ -375,6 +412,47 @@
                         labelProperty="label"
                         valueProperty="value"
                         :options="createOldJobCleanupPeriodOptions"
+                        :isInherited="props.isInherited"
+                        :disabled="props.isInherited"
+                        show-clearable-button
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_old_nosto_data_cleanup_flag %}
+            <sw-inherit-wrapper
+                v-if="configKey === null"
+                v-model="actualConfigData['oldNostoDataCleanup']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['oldNostoDataCleanup']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.oldNostoDataCleanup.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.oldNostoDataCleanup.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_old_nosto_data_cleanup_period %}
+            <sw-inherit-wrapper
+                v-if="configKey === null && actualConfigData['oldNostoDataCleanup']"
+                v-model="actualConfigData['oldNostoDataCleanupPeriod']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['oldNostoDataCleanupPeriod']"
+            >
+                <template #content="props">
+                    <sw-single-select
+                        name="oldNostoDataCleanupPeriod"
+                        labelProperty="label"
+                        valueProperty="value"
+                        :options="createOldNostoDataCleanupPeriodOptions"
                         :isInherited="props.isInherited"
                         :disabled="props.isInherited"
                         show-clearable-button

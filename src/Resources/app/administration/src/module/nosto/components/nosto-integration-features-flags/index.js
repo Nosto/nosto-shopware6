@@ -1,6 +1,6 @@
 import template from './nosto-integration-features-flags.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /** @private */
@@ -8,6 +8,10 @@ Component.register('nosto-integration-features-flags', {
     template,
 
     inject: ['repositoryFactory'],
+
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
 
     props: {
         actualConfigData: {
@@ -127,6 +131,23 @@ Component.register('nosto-integration-features-flags', {
 
             return options;
         },
+        createOldNostoDataCleanupPeriodOptions() {
+            const dayPeriods = [7, 30, 60, 90];
+            const options = [];
+            const translationAfter = this.$tc('nosto.configuration.featuresFlags.oldNostoDataPeriod.after');
+            const translationDays = this.$tc('nosto.configuration.featuresFlags.oldNostoDataPeriod.days');
+
+            dayPeriods.forEach((period) => {
+                options.push(
+                    {
+                        label: `${translationAfter} ${period} ${translationDays}`,
+                        value: period,
+                    },
+                );
+            });
+
+            return options;
+        },
     },
 
     watch: {
@@ -205,6 +226,14 @@ Component.register('nosto-integration-features-flags', {
                     categoryId => categoryId !== item.id,
                 ),
             );
+        },
+
+        onUpdateValue(key) {
+            if (key === 'productIdentifier') {
+                this.createNotificationWarning({
+                    message: this.$tc('nosto.configuration.featuresFlags.productIdentifierMerchantInfo'),
+                });
+            }
         },
     },
 });

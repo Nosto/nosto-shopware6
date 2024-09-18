@@ -210,6 +210,24 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledStoreAbandonedCartData($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
+            $channelId,
+            $languageId
+        );
+    }
+
+    public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
+            $channelId,
+            $languageId
+        );
+    }
+
     public function isDailyProductSyncEnabled($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);
@@ -228,6 +246,24 @@ class ConfigProvider
     public function getOldJobCleanupPeriod($channelId = null, $languageId = null): ?int
     {
         return $this->configService->getInt(NostoConfigService::OLD_JOB_CLEANUP_PERIOD, $channelId, $languageId);
+    }
+
+    public function isOldNostoDataCleanupEnabled($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED,
+            $channelId,
+            $languageId
+        );
+    }
+
+    public function getOldNostoDataCleanupPeriod($channelId = null, $languageId = null): ?int
+    {
+        return $this->configService->getInt(
+            NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
+            $channelId,
+            $languageId
+        );
     }
 
     public function toArray($channelId = null, $languageId = null): array

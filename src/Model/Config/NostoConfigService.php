@@ -78,6 +78,10 @@ class NostoConfigService
 
     public const ENABLE_PRODUCT_LABELLING_SYNC = 'enableLabelling';
 
+    public const ENABLE_STORE_ABANDONED_CART_DATA = 'storeAbandonedCartData';
+
+    public const ENABLE_IGNORE_COOKIE_CONSENT = 'ignoreCookieConsent';
+
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
 
     public const DAILY_PRODUCT_SYNC_TIME = 'dailySynchronizationTime';
@@ -85,6 +89,10 @@ class NostoConfigService
     public const OLD_JOB_CLEANUP_ENABLED = 'oldJobCleanup';
 
     public const OLD_JOB_CLEANUP_PERIOD = 'oldJobCleanupPeriod';
+
+    public const OLD_NOSTO_DATA_CLEANUP_ENABLED = 'oldNostoDataCleanup';
+
+    public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
 
     private array $configs = [];
 

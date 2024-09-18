@@ -7,6 +7,8 @@ namespace Nosto\NostoIntegration\Subscriber;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
+use Nosto\NostoIntegration\Utils\SearchHelper;
+use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -31,6 +33,7 @@ class FrontendSubscriber implements EventSubscriberInterface
         return [
             HeaderPageletLoadedEvent::class => 'onHeaderLoaded',
             KernelEvents::RESPONSE => 'onKernelResponse',
+            CategoryRouteCacheKeyEvent::class => 'addNostoData',
         ];
     }
 
@@ -59,7 +62,10 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     private function migrateOverdoseCookie(Response $response, Request $request): void
     {
-        if ($request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY)) {
+        if (
+            $request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY) ||
+            $this->configProvider->isEnabledIgnoreCookieConsent()
+        ) {
             $cookie = Cookie::create(NostoCookieProvider::LEGACY_COOKIE_KEY, '1', strtotime('-1 day'))
                 ->withHttpOnly(false);
             $cookie->setSecureDefault($request->isSecure());
@@ -83,5 +89,10 @@ class FrontendSubscriber implements EventSubscriberInterface
             $cookie->setSecureDefault($request->isSecure());
             $response->headers->setCookie($cookie);
         }
+    }
+
+    public function addNostoData(CategoryRouteCacheKeyEvent $event): void
+    {
+        SearchHelper::shouldHandleRequest($event->getContext(), $this->configProvider, true);
     }
 }
