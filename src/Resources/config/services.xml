@@ -30,6 +30,7 @@
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-order-sync" />
 
+            <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$orderRepository" type="service" id="order.repository" />
         </service>
 
