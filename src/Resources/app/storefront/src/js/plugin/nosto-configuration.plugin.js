@@ -103,7 +103,7 @@ export default class NostoConfiguration extends Plugin {
         const allPlugins = window.PluginManager.getPluginList();
         const isPluginRegistered = Object.keys(allPlugins).includes('CookiePermission');
         if (!isPluginRegistered) {
-            PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
+            window.PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
         }
         const instances = window.PluginManager.getPluginInstances('CookiePermission');
         Iterator.iterate(instances, instance => {
