@@ -61,7 +61,9 @@ abstract class AbstractRequestHandler
             return;
         }
 
-        $criteria->setIds($responseParser->getProductIds());
+        if ($responseParser->getProductIds()) {
+            $criteria->setIds($responseParser->getProductIds());
+        }
 
         $this->setPagination(
             $criteria,
