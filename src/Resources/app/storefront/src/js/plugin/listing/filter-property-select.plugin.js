@@ -1,6 +1,6 @@
-import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
+import PluginManager from 'src/plugin-system/plugin.manager';
 
-export default class NostoFilterPropertySelectPlugin extends FilterPropertySelectPlugin {
+export default class NostoFilterPropertySelectPlugin extends PluginManager.getPlugin('FilterPropertySelect').get('class') {
     refreshDisabledState(filter) {
         // Prevent disabling if propertyName is not set correctly
         if (this.options.propertyName === '') {
