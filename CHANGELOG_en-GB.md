@@ -1,7 +1,7 @@
 # 3.3.7
 * Fix: Fixed an Issue where the Cookie-Error was shown in the Console. 
-* Fix: Aligned Filter Styling for Search and Category PLP's
-* Fix: Fixed an issue where Sales has not been tracked correctly in the Nosto Backend
+* Fix: Aligned Filter Styling for Search and Category PLP's. 
+* Fix: Fixed an issue where Sales has not been tracked correctly in the Nosto Backend.
 * Change: Categories without Products show a more accurate message for the User.
 * Fix: Fixed an issue with displaying the number of results from a search
 * Fix:  Fixed an Issue where filter logic didn’t behave correctly
