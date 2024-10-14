@@ -3,6 +3,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
 export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
 
@@ -98,6 +99,11 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     cookieSubscriber() {
+        const allPlugins = window.PluginManager.getPluginList();
+        const isPluginRegistered = Object.keys(allPlugins).includes('CookiePermission');
+        if (!isPluginRegistered) {
+            window.PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
+        }
         const instances = window.PluginManager.getPluginInstances('CookiePermission');
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('onClickDenyButton', () => {
