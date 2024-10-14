@@ -1,3 +1,10 @@
+# 4.2.7
+* Fix: Fixed an Issue where the Cookie-Error was shown in the Console
+* Fix: Aligned Filter Styling for Search and Category PLP's
+* Fix: Fixed an issue where Sales has not been tracked correctly in the Nosto Backend
+* Change: Categories without Products show a more accurate message for the User.
+* Fix: Fixed an issue with displaying the number of results from a search
+
 # 4.2.6
 * Feature: Adding possibility to disable cookie consent requirement
 * Fix: Resolved issue where pagination disappeared when the sort order has been changed

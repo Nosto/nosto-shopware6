@@ -1,3 +1,10 @@
+# 4.2.7
+* Fix: Ein Problem behoben, bei dem ein Cookie-Fehler in der Konsole angezeigt wurde.
+* Fix: Filter-Styling für Suche und Kategorie-PLPs wurden angeglichen.
+* Fix: Ein Problem behoben, bei dem Verkäufe im Nosto-Backend nicht korrekt getracked wurden.
+* Change: Kategorien ohne Produkte zeigen eine genauere Nachricht für den User.
+* Fix: Ein Problem behoben, bei dem die Anzahl der Suchergebnisse nicht korrekt angezeigt wurde.
+
 # 4.2.6
 * Feature: Funktion hinzugefügt um Cookie-Zustimmungsabhängigkeit auszuschalten
 * Fix: Fehler behoben der dafür sorgte, dass nach Änderung der öOrtierung die Seitennummerierung ausgeblendet wurde
