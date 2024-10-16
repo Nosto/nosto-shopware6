@@ -1,0 +1,17 @@
+
+{% extends '@Storefront/storefront/base.html.twig' %}
+{% block base_body %}
+<div class="nosto-wrapper">
+    <div class="nosto-container">
+        <div class="nosto-form-container">
+            <h1 class="nosto-logo">nosto <img src="https://www.nosto.com/wp-content/uploads/2024/02/favcon_Nosto_32x32.png"></h1>
+
+            <form action="{{ path('nosto-monitoring.access-key.validation') }}" method="POST">
+                <label for="password" class="nosto-label">Access Key</label>
+                <input type="password" id="password" name="nostoAccessKey" class="nosto-input" placeholder="Enter Nosto Access Key" required>
+                <button type="submit" class="nosto-button">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -120,6 +120,8 @@
             <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
         </service>
 
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
             <tag name="shopware.scheduled.task" />
         </service>
@@ -226,6 +228,12 @@
 
         <!-- Cart restoration stuff -->
         <service id="Nosto\NostoIntegration\Controller\Storefront\CartController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>

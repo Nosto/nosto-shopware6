@@ -1,0 +1,26 @@
+{% extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_body %}
+    <div class="nosto-layout">
+        <div class="nosto-sidebar">
+            <form id="nosto-clear-form" action="{{ path('nosto-monitoring.clear-jobs') }}" method="POST">
+                <button type="submit" class="nosto-button">Clear Nosto Jobs</button>
+            </form>
+        </div>
+        <div class="nosto-main">
+            <div class="flash-messages">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="nosto-message nosto-{{ type }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <div id="nosto-success-message" class="nosto-message" style="display: none;">
+                Success message! Green color modern
+            </div>
+        </div>
+    </div>
+{% endblock %}
