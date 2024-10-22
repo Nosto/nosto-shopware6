@@ -191,8 +191,11 @@ class ProductHelper
         return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 
-    public function getShopwareProducts(array $productIds, SalesChannelContext $context, bool $isProductTagging = false): SalesChannelProductCollection
-    {
+    public function getShopwareProducts(
+        array $productIds,
+        SalesChannelContext $context,
+        bool $isProductTagging = false,
+    ): SalesChannelProductCollection {
         $criteria = $this->getCommonCriteria();
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
