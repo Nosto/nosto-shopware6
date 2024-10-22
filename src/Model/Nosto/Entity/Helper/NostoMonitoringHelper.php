@@ -77,7 +77,6 @@ class NostoMonitoringHelper
             }
 
             return $ret;
-
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
@@ -85,5 +84,4 @@ class NostoMonitoringHelper
             ];
         }
     }
-
 }
