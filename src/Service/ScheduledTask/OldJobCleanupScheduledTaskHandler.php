@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Throwable;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[AsMessageHandler(handles: OldJobCleanupScheduledTask::class)]
 class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
@@ -29,14 +31,6 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct($scheduledTaskRepository);
-    }
-
-    /**
-     * @return ScheduledTask[]
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [OldJobCleanupScheduledTask::class];
     }
 
     public function run(): void

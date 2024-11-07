@@ -13,7 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Throwable;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[AsMessageHandler(handles: OldNostoDataCleanupScheduledTask::class)]
 class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
@@ -23,14 +25,6 @@ class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct($scheduledTaskRepository);
-    }
-
-    /**
-     * @return ScheduledTask[]
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [OldNostoDataCleanupScheduledTask::class];
     }
 
     public function run(): void
