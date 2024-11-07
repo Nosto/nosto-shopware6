@@ -10,10 +10,9 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use Throwable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Throwable;
 
 #[AsMessageHandler(handles: OldNostoDataCleanupScheduledTask::class)]
 class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
