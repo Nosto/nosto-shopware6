@@ -1,3 +1,6 @@
+# 3.3.8
+* Fix: Fehler bei der Produktkennzeichnung behoben
+
 # 3.3.7
 * Fix: Ein Problem behoben, bei dem ein Cookie-Fehler in der Konsole angezeigt wurde.
 * Fix: Filter-Styling für Suche und Kategorie-PLPs wurden angeglichen.

@@ -1,3 +1,6 @@
+# 3.3.8
+* Fix: Fixed Product Tagging errors
+
 # 3.3.7
 * Fix: Fixed an Issue where the Cookie-Error was shown in the Console. 
 * Fix: Aligned Filter Styling for Search and Category PLP's. 
