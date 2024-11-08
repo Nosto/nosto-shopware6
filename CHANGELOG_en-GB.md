@@ -1,3 +1,7 @@
+# 4.2.8
+* Fix: Fixed Product Tagging errors
+* Fix: Changelog scheduled updates not triggering
+
 # 4.2.7
 * Fix: Fixed an Issue where the Cookie-Error was shown in the Console
 * Fix: Aligned Filter Styling for Search and Category PLP's
