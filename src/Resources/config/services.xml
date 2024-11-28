@@ -200,12 +200,12 @@
 
         <!-- Controllers -->
         <service id="Nosto\NostoIntegration\Api\Controller\NostoController" public="true">
-            <argument key="$cache" type="service" id="cache.object" />
+        <argument key="$cache" type="service" id="cache.object" />
 
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
+        <call method="setContainer">
+            <argument type="service" id="service_container" />
+        </call>
+    </service>
 
         <service id="Nosto\NostoIntegration\Api\Controller\NostoCategoriesController" public="true">
             <argument key="$categoryRepository" type="service" id="category.repository" />
@@ -214,6 +214,14 @@
                 <argument type="service" id="service_container" />
             </call>
         </service>
+
+        <service id="Nosto\NostoIntegration\Api\Controller\TrackProductClickController" public="true" autowire="true">
+            <argument key="$configProvider" type="service" id="Nosto\NostoIntegration\Model\ConfigProvider" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
 
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
