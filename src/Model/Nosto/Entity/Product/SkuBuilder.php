@@ -57,6 +57,8 @@ class SkuBuilder
 
         if ($product->getCover() && $product->getCover()->getMedia()) {
             $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
+        } else {
+            $nostoSku->setImageUrl('https://via.placeholder.com/800');
         }
 
         if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
