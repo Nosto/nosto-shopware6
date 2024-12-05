@@ -149,7 +149,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            $handledProducts = $this->processProductVariants($product, $context, $account, $ids);
+            $handledProducts = $this->processProductVariants($product, $context, $account, $ids, $hideProductsAfterClearance);
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
@@ -203,6 +203,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         SalesChannelContext $context,
         Account $account,
         array $ids,
+        bool $hideProductsAfterClearance,
     ): ProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $configuratorGroups = array_filter(
@@ -216,7 +217,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayParent()) {
-            $mainProducts->add($product);
+            $stock = $this->getProductStock($product, $context);
+
+            if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+                if ($variant = $this->handleFirstVariantInStock($product, $context)) {
+                    $mainProducts->add($variant);
+                }
+            } else {
+                $mainProducts->add($product);
+            }
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
@@ -333,6 +342,31 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
+    private function handleFirstVariantInStock(
+        ProductEntity $product,
+        SalesChannelContext $context,
+    ): ?ProductEntity
+    {
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
+        foreach ($product->getChildren() as $child) {
+            $stock = $this->getProductStock($product, $context);
+
+            if ($child->getActive() && !$mainProduct && ($stock || !$child->getIsCloseout())) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
+            }
+        }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
+        }
+
+        return $mainProduct;
+    }
+
     private function handleProduct(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
@@ -340,12 +374,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         bool $hideProductsAfterClearance,
         array $mapping,
     ): ?NostoProduct {
-        $stock = $this->configProvider->getStockField(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === StockFieldOptions::ACTUAL_STOCK
-            ? $product->getStock()
-            : $product->getAvailableStock();
+        $stock = $this->getProductStock($product, $context);
 
         if ($product->getChildren()?->count()) {
             $this->deleteVariantProducts($product, $context, $account, $mapping);
@@ -457,5 +486,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+    }
+
+    private function getProductStock(
+        ProductEntity|SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): int
+    {
+        return $this->configProvider->getStockField(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === StockFieldOptions::ACTUAL_STOCK
+            ? $product->getStock()
+            : $product->getAvailableStock();
     }
 }
