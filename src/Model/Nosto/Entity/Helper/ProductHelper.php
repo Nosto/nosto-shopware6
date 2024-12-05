@@ -25,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
@@ -37,6 +39,7 @@ class ProductHelper
         private readonly ConfigProvider $configProvider,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -202,5 +205,26 @@ class ProductHelper
             $criteria,
             $context,
         )->getEntities();
+    }
+
+    protected function buildFallbackImage(RequestContext $requestContext): string
+    {
+        $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
+        if ($requestContext->getHttpPort() !== 80) {
+            $schemaAuthority .= ':' . $requestContext->getHttpPort();
+        } elseif ($requestContext->getHttpsPort() !== 443) {
+            $schemaAuthority .= ':' . $requestContext->getHttpsPort();
+        }
+
+        return sprintf(
+            '%s/%s',
+            $schemaAuthority,
+            'bundles/storefront/assets/icon/default/placeholder.svg',
+        );
+    }
+
+    public function getFallbackImageUrl(): string
+    {
+        return $this->buildFallbackImage($this->router->getContext());
     }
 }

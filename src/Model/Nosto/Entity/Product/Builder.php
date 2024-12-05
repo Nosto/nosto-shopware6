@@ -203,8 +203,9 @@ class Builder
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
-            $nostoProduct->setImageUrl('https://via.placeholder.com/800');
-            $nostoProduct->setThumbUrl('https://via.placeholder.com/400');
+            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl();
+            $nostoProduct->setImageUrl($placeholderImageUrl);
+            $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
