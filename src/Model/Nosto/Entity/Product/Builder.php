@@ -104,9 +104,7 @@ class Builder
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-        $stock = $this->configProvider->getStockField($channelId, $languageId) === StockFieldOptions::ACTUAL_STOCK
-            ? $product->getStock()
-            : $product->getAvailableStock();
+        $stock = $this->productHelper->getProductStock($product, $context);
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
 
         if (!$product->getIsCloseout() && $stock < 1) {
@@ -203,6 +201,10 @@ class Builder
         if ($product->getCover()) {
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
+        } else {
+            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl();
+            $nostoProduct->setImageUrl($placeholderImageUrl);
+            $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
