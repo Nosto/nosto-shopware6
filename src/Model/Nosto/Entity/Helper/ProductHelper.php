@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
@@ -226,5 +227,18 @@ class ProductHelper
     public function getFallbackImageUrl(): string
     {
         return $this->buildFallbackImage($this->router->getContext());
+    }
+
+    public function getProductStock(
+        ProductEntity|SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): int
+    {
+        return $this->configProvider->getStockField(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === StockFieldOptions::ACTUAL_STOCK
+            ? $product->getStock()
+            : $product->getAvailableStock();
     }
 }

@@ -228,6 +228,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledSyncFirstAvailableVariant($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_SYNC_FIRST_AVAILABLE_VARIANT,
+            $channelId,
+            $languageId
+        );
+    }
+
     public function isDailyProductSyncEnabled($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::DAILY_PRODUCT_SYNC_ENABLED, $channelId, $languageId);

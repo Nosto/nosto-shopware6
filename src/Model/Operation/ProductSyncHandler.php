@@ -217,9 +217,14 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayParent()) {
-            $stock = $this->getProductStock($product, $context);
+            $stock = $this->productHelper->getProductStock($product, $context);
 
-            if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+            if (
+                $hideProductsAfterClearance
+                && $product->getIsCloseout()
+                && $stock < 1
+                && $this->configProvider->isEnabledSyncFirstAvailableVariant()
+            ) {
                 if ($variant = $this->handleFirstVariantInStock($product, $context)) {
                     $mainProducts->add($variant);
                 }
@@ -351,7 +356,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            $stock = $this->getProductStock($product, $context);
+            $stock = $this->productHelper->getProductStock($child, $context);
 
             if ($child->getActive() && !$mainProduct && ($stock || !$child->getIsCloseout())) {
                 $mainProduct = $child;
@@ -374,7 +379,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         bool $hideProductsAfterClearance,
         array $mapping,
     ): ?NostoProduct {
-        $stock = $this->getProductStock($product, $context);
+        $stock = $this->productHelper->getProductStock($product, $context);
 
         if ($product->getChildren()?->count()) {
             $this->deleteVariantProducts($product, $context, $account, $mapping);
@@ -486,18 +491,5 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
-    }
-
-    private function getProductStock(
-        ProductEntity|SalesChannelProductEntity $product,
-        SalesChannelContext $context,
-    ): int
-    {
-        return $this->configProvider->getStockField(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === StockFieldOptions::ACTUAL_STOCK
-            ? $product->getStock()
-            : $product->getAvailableStock();
     }
 }

@@ -104,9 +104,7 @@ class Builder
         }
 
         $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-        $stock = $this->configProvider->getStockField($channelId, $languageId) === StockFieldOptions::ACTUAL_STOCK
-            ? $product->getStock()
-            : $product->getAvailableStock();
+        $stock = $this->productHelper->getProductStock($product, $context);
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
 
         if (!$product->getIsCloseout() && $stock < 1) {
