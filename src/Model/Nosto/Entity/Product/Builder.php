@@ -12,7 +12,6 @@ use Nosto\NostoException;
 use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\RatingOptions;
-use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;

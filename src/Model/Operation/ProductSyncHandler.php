@@ -154,7 +154,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $context,
                 $account,
                 $ids,
-                $hideProductsAfterClearance
+                $hideProductsAfterClearance,
             );
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
@@ -357,8 +357,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function handleFirstVariantInStock(
         ProductEntity $product,
         SalesChannelContext $context,
-    ): ?ProductEntity
-    {
+    ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 

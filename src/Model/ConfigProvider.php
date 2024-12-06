@@ -232,7 +232,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_SYNC_FIRST_AVAILABLE_VARIANT,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
