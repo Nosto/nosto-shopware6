@@ -9,7 +9,6 @@ use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
-use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
@@ -149,7 +148,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            $handledProducts = $this->processProductVariants($product, $context, $account, $ids, $hideProductsAfterClearance);
+            $handledProducts = $this->processProductVariants(
+                $product,
+                $context,
+                $account,
+                $ids,
+                $hideProductsAfterClearance
+            );
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
@@ -350,8 +355,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function handleFirstVariantInStock(
         ProductEntity $product,
         SalesChannelContext $context,
-    ): ?ProductEntity
-    {
+    ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 

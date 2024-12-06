@@ -232,8 +232,7 @@ class ProductHelper
     public function getProductStock(
         ProductEntity|SalesChannelProductEntity $product,
         SalesChannelContext $context,
-    ): int
-    {
+    ): int {
         return $this->configProvider->getStockField(
             $context->getSalesChannelId(),
             $context->getLanguageId(),
