@@ -17,7 +17,6 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
-use Nosto\Types\Product\ProductInterface;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Http\Exception\AbstractHttpException;
