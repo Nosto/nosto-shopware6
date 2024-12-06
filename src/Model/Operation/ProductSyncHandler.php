@@ -13,9 +13,11 @@ use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\Types\Product\ProductInterface;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Http\Exception\AbstractHttpException;
@@ -49,6 +51,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
+        private readonly Builder $builder,
     ) {
     }
 
@@ -192,7 +195,23 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     continue;
                 }
 
-                $operation->addProduct($preparedProductForSync);
+                if (
+                    $this->checkCategoriesWithDynamicProductGroupsOnBlockList(
+                    $context,
+                    $preparedProductForSync->getCategoryIds(),
+                    $languageId,
+                    $channelId,
+                   )
+                ) {
+                    $this->doDeleteOperation(
+                        $account,
+                        $context,
+                        [$preparedProductForSync->getProductId()],
+                        $ids,
+                    );
+                } else {
+                    $operation->addProduct($preparedProductForSync);
+                }
             }
         }
 
@@ -470,5 +489,22 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
 
         return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
+    }
+
+    private function checkCategoriesWithDynamicProductGroupsOnBlockList(
+        SalesChannelContext $context,
+        array $categoryIds,
+        string $languageId,
+        string $channelId,
+    ): bool {
+        $categoriesWithDynamicProductGroups = $this->builder->getCategoriesWithDynamicProductGroups($context)->getIds();
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($channelId, $languageId);
+
+        $dynamicProductGroupBlockListIds = array_intersect_key(
+            array_flip($categoryBlocklist),
+            $categoriesWithDynamicProductGroups
+        );
+
+        return !empty(array_intersect_key(array_flip($categoryIds), $dynamicProductGroupBlockListIds));
     }
 }

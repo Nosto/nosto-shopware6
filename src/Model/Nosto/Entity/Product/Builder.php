@@ -431,7 +431,7 @@ class Builder
         }
     }
 
-    private function getCategoriesWithDynamicProductGroups(SalesChannelContext $context): CategoryCollection
+    public function getCategoriesWithDynamicProductGroups(SalesChannelContext $context): CategoryCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(
