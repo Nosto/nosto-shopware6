@@ -215,12 +215,13 @@
             </call>
         </service>
 
-        <service id="Nosto\NostoIntegration\Api\Controller\TrackProductClickController" public="true" autowire="true">
+        <service id="Nosto\NostoIntegration\Api\Controller\TrackProductClickController" public="true">
             <argument key="$configProvider" type="service" id="Nosto\NostoIntegration\Model\ConfigProvider" />
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
+        <service id="Nosto\NostoIntegration\Model\ConfigProvider" public="true" />
 
 
         <!-- Routes -->

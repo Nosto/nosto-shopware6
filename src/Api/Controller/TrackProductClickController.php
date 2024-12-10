@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 
 #[Route(
     defaults: [
-        '_routeScope' => ['api'],
+        '_routeScope' => ['storefront'],
     ],
 )]
 class TrackProductClickController extends AbstractController
@@ -30,15 +30,14 @@ class TrackProductClickController extends AbstractController
     }
 
     #[Route(
-        path: "/api/_action/nosto/track-product-click",
-        name: "api.action.nosto.track-product-click",
-        defaults: [
-            'auth_required' => true,
-        ],
+        path: "/nosto/track-product-click",
+        name: "storefront.nosto.track_product_click",
         methods: ["POST"],
     )]
     public function trackProductClick(Request $request, Context $context): JsonResponse
     {
+
+        dd($context);
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['dataSource']) || !isset($data['productNumber'])) {
@@ -48,23 +47,58 @@ class TrackProductClickController extends AbstractController
         $dataSource = $data['dataSource'];
         $productNumber = $data['productNumber'];
 
-        $appToken = $this->configProvider->getAppToken(
-            $request->request->get('salesChannelId'),
-            $request->request->get('languageId')
-        );
-
-        if (!$appToken) {
-            return new JsonResponse(['error' => 'App token missing'], JsonResponse::HTTP_NOT_FOUND);
-        }
+//        $appToken = $this->configProvider->getAppToken(
+//            $request->request->get('salesChannelId'),
+//            $request->request->get('languageId')
+//        );
+//
+//
+//        if (!$appToken) {
+//            return new JsonResponse(['error' => 'App token missing'], JsonResponse::HTTP_NOT_FOUND);
+//        }
 
         $mutation = <<<EOF
-        mutation {
-          trackProductClick(input: {
-            dataSource: "{$dataSource}",
-            productNumber: "{$productNumber}"
-          })
+    mutation TrackProductEvent(\$input: ProductEventInput!) {
+        trackProductEvent(input: \$input) {
+            success
+            message
         }
-        EOF;
+    }
+    EOF;
+        $variables = [
+            "input" => [
+                "dataSource" => $dataSource,
+                "productNumber" => $productNumber,
+                "metadata" => [
+                    "timestamp" => date('c'), // ISO 8601 format
+                ],
+                "properties" => [
+                    'abTestAttribution' => [
+                        'testId1' => 'A',
+                        'testId2' => 'B',
+                    ],
+                ],
+            ],
+        ];
+
+        // Prepare the payload
+        $payload = json_encode([
+            "query" => $mutation,
+            "variables" => $variables,
+        ]);
+
+        $response = $this->client->post(self::APP_URL, [
+            'headers' => [
+                'Content-Type' => 'application/json',
+
+            ],
+            'body' => $payload,
+        ]);
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        echo '<pre>';
+        print_r($responseData);
+        die;
 
         try {
             $this->client->post(self::APP_URL, [

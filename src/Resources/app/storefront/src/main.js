@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('/public/api/_action/nosto/track-product-click', {
+                const response = await fetch('/nosto/track-product-click', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
