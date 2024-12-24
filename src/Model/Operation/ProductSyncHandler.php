@@ -9,7 +9,6 @@ use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
-use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
@@ -149,7 +148,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            $handledProducts = $this->processProductVariants($product, $context, $account, $ids);
+            $handledProducts = $this->processProductVariants(
+                $product,
+                $context,
+                $account,
+                $ids,
+                $hideProductsAfterClearance
+            );
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
@@ -203,6 +208,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         SalesChannelContext $context,
         Account $account,
         array $ids,
+        bool $hideProductsAfterClearance,
     ): ProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $configuratorGroups = array_filter(
@@ -216,7 +222,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayParent()) {
-            $mainProducts->add($product);
+            $stock = $this->productHelper->getProductStock($product, $context);
+
+            if (
+                $hideProductsAfterClearance
+                && $product->getIsCloseout()
+                && $stock < 1
+                && $this->configProvider->isEnabledSyncFirstAvailableVariant()
+            ) {
+                if ($variant = $this->handleFirstVariantInStock($product, $context)) {
+                    $mainProducts->add($variant);
+                }
+            } else {
+                $mainProducts->add($product);
+            }
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
@@ -333,6 +352,30 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
+    private function handleFirstVariantInStock(
+        ProductEntity $product,
+        SalesChannelContext $context,
+    ): ?ProductEntity {
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
+        foreach ($product->getChildren() as $child) {
+            $stock = $this->productHelper->getProductStock($child, $context);
+
+            if ($child->getActive() && !$mainProduct && ($stock || !$child->getIsCloseout())) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
+            }
+        }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
+        }
+
+        return $mainProduct;
+    }
+
     private function handleProduct(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
@@ -340,12 +383,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         bool $hideProductsAfterClearance,
         array $mapping,
     ): ?NostoProduct {
-        $stock = $this->configProvider->getStockField(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === StockFieldOptions::ACTUAL_STOCK
-            ? $product->getStock()
-            : $product->getAvailableStock();
+        $stock = $this->productHelper->getProductStock($product, $context);
 
         if ($product->getChildren()?->count()) {
             $this->deleteVariantProducts($product, $context, $account, $mapping);

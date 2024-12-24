@@ -178,10 +178,15 @@ Component.register('nosto-integration-features-flags', {
                 productPublishedDateTagging: false,
                 reloadRecommendations: false,
                 enableLabelling: false,
+                storeAbandonedCartData: false,
+                ignoreCookieConsent: false,
+                syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
                 domain: null,
                 oldJobCleanup: false,
                 oldJobCleanupPeriod: 5,
+                oldNostoDataCleanup: false,
+                oldNostoDataCleanupPeriod: 7,
             };
 
             /**
