@@ -101,6 +101,8 @@
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
                 "ignoreCookieConsent": "Cookie-Zustimmung ignorieren",
+                "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
+                "enableSyncFirstAvailableVariantHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird die erste verfügbare Variante als Produkt synchronisiert, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",
