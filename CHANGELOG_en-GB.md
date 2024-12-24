@@ -1,3 +1,8 @@
+# 3.3.9
+* Fix: A bug related to incorrect productID in cart tagging and cart events has been resolved.
+* New: Sync first available variant as a product, if product is on clearance and out of stock
+* Fix: Fixed a null reference error in the Nosto Integration plugin by ensuring proper handling of null SalesChannelProductEntity objects.
+
 # 3.3.8
 * Fix: Fixed Product Tagging errors
 
