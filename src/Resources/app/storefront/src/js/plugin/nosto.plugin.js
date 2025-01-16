@@ -24,6 +24,9 @@ export default class NostoPlugin extends window.PluginBaseClass {
     }
 
     _resolveContextSlotId(element) {
+        if (!element || typeof element === "string") {
+            return element;
+        }
         return element &&
         element.closest('.nosto_element') &&
         element.closest('.nosto_element').getAttribute('id') ?
@@ -47,6 +50,7 @@ export default class NostoPlugin extends window.PluginBaseClass {
             };
             this.$emitter.publish('addRecommendationToCart', {
                 productId: item.productId,
+                skuId: item.skuId,
                 elementId: this._resolveContextSlotId(element),
             });
         });
