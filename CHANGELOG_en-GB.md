@@ -1,3 +1,12 @@
+# 4.2.9
+* Fix: A bug related to incorrect productID in cart tagging and cart events has been resolved.
+* New: Sync first available variant as a product, if product is on clearance and out of stock
+* Fix: Fixed a null reference error in the Nosto Integration plugin by ensuring proper handling of null SalesChannelProductEntity objects.
+
+# 4.2.8
+* Fix: Fixed Product Tagging errors
+* Fix: Changelog scheduled updates not triggering
+
 # 4.2.7
 * Fix: Fixed an Issue where the Cookie-Error was shown in the Console
 * Fix: Aligned Filter Styling for Search and Category PLP's

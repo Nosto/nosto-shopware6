@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
@@ -25,7 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
@@ -38,6 +40,7 @@ class ProductHelper
         private readonly ConfigProvider $configProvider,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -61,8 +64,9 @@ class ProductHelper
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
+        $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
 
-        return $this->productRoute->load($productId, new Request(), $context, $criteria)->getProduct();
+        return $shopwareProduct->get($productId) ?? null;
     }
 
     private function getCommonCriteria(): Criteria
@@ -190,15 +194,53 @@ class ProductHelper
         return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 
-    public function getShopwareProducts(array $productIds, SalesChannelContext $context): SalesChannelProductCollection
-    {
+    public function getShopwareProducts(
+        array $productIds,
+        SalesChannelContext $context,
+        bool $isProductTagging = false,
+    ): SalesChannelProductCollection {
         $criteria = $this->getCommonCriteria();
-        $this->getCommonCriteriaChildren($criteria);
+        if (!$isProductTagging) {
+            $this->getCommonCriteriaChildren($criteria);
+        }
         $criteria->setIds($productIds);
 
         return $this->salesChannelProductRepository->search(
             $criteria,
             $context,
         )->getEntities();
+    }
+
+    protected function buildFallbackImage(RequestContext $requestContext): string
+    {
+        $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
+        if ($requestContext->getHttpPort() !== 80) {
+            $schemaAuthority .= ':' . $requestContext->getHttpPort();
+        } elseif ($requestContext->getHttpsPort() !== 443) {
+            $schemaAuthority .= ':' . $requestContext->getHttpsPort();
+        }
+
+        return sprintf(
+            '%s/%s',
+            $schemaAuthority,
+            'bundles/storefront/assets/icon/default/placeholder.svg',
+        );
+    }
+
+    public function getFallbackImageUrl(): string
+    {
+        return $this->buildFallbackImage($this->router->getContext());
+    }
+
+    public function getProductStock(
+        ProductEntity|SalesChannelProductEntity $product,
+        SalesChannelContext $context,
+    ): int {
+        return $this->configProvider->getStockField(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === StockFieldOptions::ACTUAL_STOCK
+            ? $product->getStock()
+            : $product->getAvailableStock();
     }
 }
