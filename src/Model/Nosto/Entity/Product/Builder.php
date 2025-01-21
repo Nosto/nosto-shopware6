@@ -534,7 +534,6 @@ class Builder
         return $skuCollection;
     }
 
-
     /**
      * @return array<string, mixed>
      */
