@@ -534,6 +534,10 @@ class Builder
         return $skuCollection;
     }
 
+
+    /**
+     * @return array<string, mixed>
+     */
     private function preparePropertiesOrOptions(PropertyGroupOptionCollection $array): array
     {
         $properties = [];
