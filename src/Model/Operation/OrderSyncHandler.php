@@ -17,15 +17,19 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository, Search\Filter\EqualsFilter};
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-order-sync';
 
     public function __construct(
+        private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly EntityRepository $orderRepository,
         private readonly Account\Provider $accountProvider,
         private readonly OrderBuilder $nostoOrderbuilder,
@@ -41,7 +45,14 @@ class OrderSyncHandler implements JobHandlerInterface
     {
         $operationResult = new JobResult();
         foreach ($this->accountProvider->all($message->getContext()) as $account) {
-            $accountOperationResult = $this->doOperation($account, $message->getContext(), $message);
+            $channelContext = $this->channelContextFactory->create(
+                Uuid::randomHex(),
+                $account->getChannelId(),
+                [
+                    SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
+                ],
+            );
+            $accountOperationResult = $this->doOperation($account, $channelContext->getContext(), $message);
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
             }
@@ -82,6 +93,7 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
         $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
+        $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
         $this->eventDispatcher->dispatch(new NostoOrderCriteriaEvent($criteria, $context));
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }

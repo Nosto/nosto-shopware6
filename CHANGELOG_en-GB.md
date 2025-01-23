@@ -1,3 +1,19 @@
+# 3.3.9
+* Fix: A bug related to incorrect productID in cart tagging and cart events has been resolved.
+* New: Sync first available variant as a product, if product is on clearance and out of stock
+* Fix: Fixed a null reference error in the Nosto Integration plugin by ensuring proper handling of null SalesChannelProductEntity objects.
+
+# 3.3.8
+* Fix: Fixed Product Tagging errors
+
+# 3.3.7
+* Fix: Fixed an Issue where the Cookie-Error was shown in the Console. 
+* Fix: Aligned Filter Styling for Search and Category PLP's. 
+* Fix: Fixed an issue where Sales has not been tracked correctly in the Nosto Backend.
+* Change: Categories without Products show a more accurate message for the User.
+* Fix: Fixed an issue with displaying the number of results from a search.
+* Fix:  Fixed an Issue where filter logic didn’t behave correctly.
+
 # 3.3.6
 * Feature: Adding possibility to disable cookie consent requirement
 * Fix: Resolved issue where pagination disappeared when the sort order has been changed

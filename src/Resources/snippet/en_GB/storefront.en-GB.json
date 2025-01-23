@@ -4,5 +4,8 @@
             "value": "Nosto Cookies",
             "description": "Allow to identify the user when not logged in!"
         }
+    },
+    "search": {
+        "headlineText": "%count% Search results for \"%searchTerm%\" "
     }
 }

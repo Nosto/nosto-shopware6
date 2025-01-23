@@ -41,9 +41,12 @@ class NostoExtension extends AbstractExtension
     public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
     {
         try {
-            $variationStatus = $this->resolveVariations($product);
             $result = $product === null ? null : $this->productProvider->get($product, $context);
-            $result->variationStatus = $variationStatus;
+
+            if ($product) {
+                $variationStatus = $this->resolveVariations($product);
+                $result->variationStatus = $variationStatus;
+            }
 
             return $result;
         } catch (Throwable $throwable) {

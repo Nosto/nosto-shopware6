@@ -1,3 +1,19 @@
+# 3.3.9
+* Fix: Ein Fehler im Zusammenhang mit einer inkorrekten productID im cart tagging und cart events wurde behoben.
+* Neu:  Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist
+* Fix: Ein Nullreferenzfehler im Nosto-Integrations-Plugin wurde behoben, indem eine ordnungsgemäße Handhabung von null-Werten bei SalesChannelProductEntity-Objekten sichergestellt wurde.
+
+# 3.3.8
+* Fix: Fehler bei der Produktkennzeichnung behoben
+
+# 3.3.7
+* Fix: Ein Problem behoben, bei dem ein Cookie-Fehler in der Konsole angezeigt wurde.
+* Fix: Filter-Styling für Suche und Kategorie-PLPs wurden angeglichen.
+* Fix: Ein Problem behoben, bei dem Verkäufe im Nosto-Backend nicht korrekt getracked wurden.
+* Change: Kategorien ohne Produkte zeigen eine genauere Nachricht für den User.
+* Fix: Die Anzahl der Suchergebnisse wurde nicht korrekt angezeigt.
+* Fix: Ein Problem wurde behoben, bei dem die Filterlogik nicht korrekt funktionierte.
+
 # 3.3.6
 * Feature: Funktion hinzugefügt um Cookie-Zustimmungsabhängigkeit auszuschalten
 * Fix: Fehler behoben der dafür sorgte, dass nach Änderung der öOrtierung die Seitennummerierung ausgeblendet wurde
