@@ -216,7 +216,7 @@ class ProductHelper
         $schemaAuthority = null;
 
         if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = (string)$this->configProvider->getDomainId(
+            $domainId = (string) $this->configProvider->getDomainId(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
