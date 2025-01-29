@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
+use Composer\InstalledVersions;
 
 class SearchService
 {
@@ -87,6 +88,14 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         $criteria->setOffset($this->paginationService->getRequestOffset($request, $criteria->getLimit()));
+
+        // Retrieve the plugin version dynamically from InstalledVersions
+        $pluginVersion = InstalledVersions::getPrettyVersion('nosto/nosto-integration') ?? 'unknown';
+        // Set the header with plugin name and version for all search related requests
+        $request->headers->set(
+            'X-Nosto-Integration',
+            sprintf('Shopware 6 Plugin %s', $pluginVersion)
+        );
 
         $this->fetchFilters($request, $criteria, $context, $requestHandler);
         $requestHandler->fetchProducts($request, $criteria, $context);
