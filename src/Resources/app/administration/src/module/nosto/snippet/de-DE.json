@@ -95,7 +95,7 @@
                 "enableCustomerDataToNosto": "Kundendaten an Nosto senden",
                 "enableCustomerDataToNostoHelpText": "Bei aktivierter Checkbox werden Kundendaten während der Bestellung getaggt.",
                 "enableSyncInactiveProducts": "Inaktive Produkte synchronisieren",
-                "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden auch inaktive Produkte synchronisiert.",
+                "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Varianten eines inaktiven Hauptprodukts synchronisiert, abhängig von der Auswahl in der Storefront-Präsentationskonfiguration.",
                 "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",
                 "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
