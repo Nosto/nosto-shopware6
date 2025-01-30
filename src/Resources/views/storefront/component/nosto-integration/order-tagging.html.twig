@@ -35,6 +35,13 @@
                             <span class="name">{{ lineItem.label }}</span>
                             <span class="unit_price">{{ lineItem.unitPrice }}</span>
                             <span class="price_currency_code">{{ context.currency.isoCode }}</span>
+                            <span class="sku_id">
+                                {% if productIdentifier == 'product-number' %}
+                                    {{ lineItem.payload.productNumber }}
+                                {% else %}
+                                    {{ lineItem.referencedId }}
+                                {% endif %}
+                            </span>
                         </div>
                     {% endif %}
                 {% endfor %}
