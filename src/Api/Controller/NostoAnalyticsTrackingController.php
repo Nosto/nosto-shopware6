@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Api\Controller;
 
+use GuzzleHttp\Client;
+use Nosto\Model\Analytics\AnalyticsTrackingPayload;
+use Nosto\Model\Analytics\DataSource;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
 use Nosto\SDK\NostoClient;
@@ -21,11 +24,11 @@ use Shopware\Core\Framework\Context;
 )]
 class NostoAnalyticsTrackingController extends AbstractController
 {
-    private NostoClient $nostoClient;
+    private readonly Client $client;
 
-    public function __construct(NostoClient $nostoClient)
+    public function __construct()
     {
-        $this->nostoClient = $nostoClient;
+        $this->client = new Client();
     }
 
     #[Route(
@@ -37,39 +40,34 @@ class NostoAnalyticsTrackingController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['dataSource']) || !isset($data['productNumber'])) {
-            return new JsonResponse(['error' => 'Missing dataSource or productNumber'], Response::HTTP_BAD_REQUEST);
+        if (!isset($data['dataSource']) || !isset($data['query'])) {
+            return new JsonResponse(['error' => 'Missing dataSource or query'], Response::HTTP_BAD_REQUEST);
         }
 
-        $dataSource = $data['dataSource'];
-        $payload = [
-            'query' => $data['productNumber'],
-            'resultId' => $data['resultId'] ?? 'DEMODEMODEMO',
-            'isOrganic' => $data['isOrganic'] ?? false,
-            'isAutoCorrect' => $data['isAutoCorrect'] ?? true,
-            'isAutoComplete' => $data['isAutoComplete'] ?? false,
-            'isKeyword' => $data['isKeyword'] ?? false,
-            'isSorted' => $data['isSorted'] ?? true,
-            'hasResults' => $data['hasResults'] ?? true,
-            'isRefined' => $data['isRefined'] ?? false,
-        ];
-
         try {
-            if ($dataSource === 'search') {
-                $tracker = new AnalyticsSearchTracking($this->nostoClient);
-            } elseif ($dataSource === 'category') {
-                $tracker = new AnalyticsCategoryTracking($this->nostoClient);
-            } else {
-                return new JsonResponse(['error' => 'Invalid dataSource'], Response::HTTP_BAD_REQUEST);
-            }
+            $dataSource = DataSource::fromString($data['dataSource']);
+            $payload = new AnalyticsTrackingPayload(
+                $data['query'],
+                $data['productNumber'] ?? null,
+                $data['resultId'] ?? uniqid(),
+                $data['isOrganic'] ?? false,
+                $data['isAutoCorrect'] ?? true,
+                $data['isAutoComplete'] ?? false,
+                $data['isKeyword'] ?? false,
+                $data['isSorted'] ?? true,
+                $data['hasResults'] ?? true,
+                $data['isRefined'] ?? false
+            );
 
-            $success = $tracker->track($dataSource, $payload);
+            $tracker = match ($dataSource->getType()) {
+                DataSource::SEARCH => new AnalyticsSearchTracking($this->client),
+                DataSource::CATEGORY => new AnalyticsCategoryTracking($this->client),
+                default => throw new \InvalidArgumentException('Invalid dataSource'),
+            };
 
-            if ($success) {
-                return new JsonResponse(['status' => 'success']);
-            }
+            $tracker->track($dataSource, $payload);
 
-            return new JsonResponse(['error' => 'Failed to track analytics'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['status' => 'success']);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => 'Error sending data to Nosto',
