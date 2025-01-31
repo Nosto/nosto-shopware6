@@ -8,7 +8,9 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Route(
     defaults: [
@@ -21,9 +23,13 @@ class NostoMonitoringController extends StorefrontController
 
     const DEMO_KEY = 'Soprex';
 
+    private ParameterBagInterface $parameterBag;
+
     public function __construct(
         private readonly NostoMonitoringHelper $nostoMonitoringHelper,
+        ParameterBagInterface $parameterBag,
     ) {
+        $this->parameterBag = $parameterBag;
     }
 
     #[Route(
@@ -98,5 +104,75 @@ class NostoMonitoringController extends StorefrontController
         $request->getSession()->getFlashBag()->add($clearedJobs['status'], $clearedJobs['message']);
 
         return $this->redirectToRoute('nosto-monitoring.manage-operations');
+    }
+
+    #[Route(
+        path: "/nosto-monitoring/logs",
+        name: "nosto-monitoring.logs",
+        options: [
+            "seo" => "false",
+        ],
+        methods: ["GET"],
+    )]
+    public function getLogs(Request $request)
+    {
+        $logDir = $this->parameterBag->get('kernel.logs_dir');
+
+        if (!is_dir($logDir)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Log directory not found.',
+            ], 404);
+        }
+
+        $logFiles = array_diff(scandir($logDir), ['.', '..']);
+        $logs = [];
+
+        foreach ($logFiles as $file) {
+            $logs[] = [
+                'name' => $file,
+                'path' => $logDir . DIRECTORY_SEPARATOR . $file,
+            ];
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
+    #[Route(
+        path: "/nosto-monitoring/log-download",
+        name: "nosto-monitoring.log-download",
+        options: [
+            "seo" => "false",
+        ],
+        methods: ["GET"],
+    )]
+    public function downloadLog(Request $request): Response
+    {
+        $logDir = $this->parameterBag->get('kernel.logs_dir');
+        $fileName = $request->query->get('name');
+
+        if (!$fileName) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Log file name is required.',
+            ], 400);
+        }
+
+        $filePath = $logDir . DIRECTORY_SEPARATOR . $fileName;
+
+        if (!file_exists($filePath)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Log file not found.',
+            ], 404);
+        }
+
+        return new Response(file_get_contents($filePath), 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
 }
