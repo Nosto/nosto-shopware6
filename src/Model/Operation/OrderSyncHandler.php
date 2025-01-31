@@ -111,7 +111,7 @@ class OrderSyncHandler implements JobHandlerInterface
             $order,
             $context->getContext(),
             $this->productRepository,
-            $productIdentifier
+            $productIdentifier,
         );
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;

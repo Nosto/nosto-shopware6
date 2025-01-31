@@ -21,7 +21,7 @@ class Builder
         CurrencyEntity $currency,
         EntityRepository $productRepository,
         Context $context,
-        ProductIdentifierOptions $productIdentifierOptions
+        ProductIdentifierOptions $productIdentifierOptions,
     ): NostoLineItem {
         /** @var ProductEntity|null $product */
         $product = $productRepository->search(new Criteria([$item->getProductId()]), $context)->first();
@@ -55,7 +55,7 @@ class Builder
 
     public function getProductId(
         ProductEntity $productEntity,
-        ProductIdentifierOptions $productIdentifierOptions
+        ProductIdentifierOptions $productIdentifierOptions,
     ): string|null {
         if ($productIdentifierOptions === ProductIdentifierOptions::PRODUCT_NUMBER) {
             return $productEntity->getProductNumber();

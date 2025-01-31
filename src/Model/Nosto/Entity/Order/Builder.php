@@ -33,7 +33,7 @@ class Builder
         OrderEntity $order,
         Context $context,
         EntityRepository $productRepository,
-        ProductIdentifierOptions $productIdentifierOptions
+        ProductIdentifierOptions $productIdentifierOptions,
     ): NostoOrder {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
@@ -66,7 +66,7 @@ class Builder
                     $order->getCurrency(),
                     $productRepository,
                     $context,
-                    $productIdentifierOptions
+                    $productIdentifierOptions,
                 );
                 $nostoOrder->addPurchasedItems($nostoItem);
             }
