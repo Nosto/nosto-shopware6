@@ -16,8 +16,13 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 
 class Builder
 {
-    public function build(OrderLineItemEntity $item, CurrencyEntity $currency, EntityRepository $productRepository, Context $context, ProductIdentifierOptions $productIdentifierOptions): NostoLineItem
-    {
+    public function build(
+        OrderLineItemEntity $item,
+        CurrencyEntity $currency,
+        EntityRepository $productRepository,
+        Context $context,
+        ProductIdentifierOptions $productIdentifierOptions
+    ): NostoLineItem {
         /** @var ProductEntity|null $product */
         $product = $productRepository->search(new Criteria([$item->getProductId()]), $context)->first();
         /** @var ProductEntity|null $parentProduct */
@@ -48,8 +53,10 @@ class Builder
         return $nostoItem;
     }
 
-    public function getProductId(ProductEntity $productEntity, ProductIdentifierOptions $productIdentifierOptions): string|null
-    {
+    public function getProductId(
+        ProductEntity $productEntity,
+        ProductIdentifierOptions $productIdentifierOptions
+    ): string|null {
         if ($productIdentifierOptions === ProductIdentifierOptions::PRODUCT_NUMBER) {
             return $productEntity->getProductNumber();
         } else {

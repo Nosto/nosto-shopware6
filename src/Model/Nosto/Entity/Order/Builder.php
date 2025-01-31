@@ -24,14 +24,17 @@ class Builder
 {
     public function __construct(
         private readonly NostoBuyerBuilderInterface $buyerBuilder,
-        private readonly NostoOrderItemBuilder      $nostoOrderItemBuilder,
-        private readonly EventDispatcherInterface   $eventDispatcher,
-    )
-    {
+        private readonly NostoOrderItemBuilder $nostoOrderItemBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
-    public function build(OrderEntity $order, Context $context, EntityRepository $productRepository, ProductIdentifierOptions $productIdentifierOptions): NostoOrder
-    {
+    public function build(
+        OrderEntity $order,
+        Context $context,
+        EntityRepository $productRepository,
+        ProductIdentifierOptions $productIdentifierOptions
+    ): NostoOrder {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
         $nostoOrder->setExternalOrderRef($order->getId());
@@ -39,7 +42,7 @@ class Builder
         $nostoOrder->setCreatedAt($orderCreated);
         if ($order->getTransactions() instanceof OrderTransactionCollection) {
             $nostoOrder->setPaymentProvider(
-                (string)$order->getTransactions()?->first()?->getPaymentMethod()?->getTranslation('name'),
+                (string) $order->getTransactions()?->first()?->getPaymentMethod()?->getTranslation('name'),
             );
         } else {
             throw new NostoException('Order has no payment associated');
@@ -58,7 +61,13 @@ class Builder
         }
         foreach ($order->getLineItems() as $item) {
             if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                $nostoItem = $this->nostoOrderItemBuilder->build($item, $order->getCurrency(), $productRepository, $context, $productIdentifierOptions);
+                $nostoItem = $this->nostoOrderItemBuilder->build(
+                    $item,
+                    $order->getCurrency(),
+                    $productRepository,
+                    $context,
+                    $productIdentifierOptions
+                );
                 $nostoOrder->addPurchasedItems($nostoItem);
             }
         }

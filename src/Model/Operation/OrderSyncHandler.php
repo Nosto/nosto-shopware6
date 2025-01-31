@@ -16,9 +16,9 @@ use Nosto\Operation\Order\{OrderCreate, OrderStatus};
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository, Search\Filter\EqualsFilter};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository, Search\Filter\EqualsFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -32,15 +32,14 @@ class OrderSyncHandler implements JobHandlerInterface
 
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
-        private readonly EntityRepository                   $orderRepository,
-        private readonly EntityRepository                   $productRepository,
-        private readonly ConfigProvider                     $configProvider,
-        private readonly Account\Provider                   $accountProvider,
-        private readonly OrderBuilder                       $nostoOrderbuilder,
-        private readonly OrderStatusBuilder                 $nostoOrderStatusBuilder,
-        private readonly EventDispatcherInterface           $eventDispatcher,
-    )
-    {
+        private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly ConfigProvider $configProvider,
+        private readonly Account\Provider $accountProvider,
+        private readonly OrderBuilder $nostoOrderbuilder,
+        private readonly OrderStatusBuilder $nostoOrderStatusBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
     /**
@@ -108,7 +107,12 @@ class OrderSyncHandler implements JobHandlerInterface
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
         $productIdentifier = $this->configProvider->getProductIdentifier($channelId, $languageId);
-        $nostoOrder = $this->nostoOrderbuilder->build($order, $context->getContext(), $this->productRepository, $productIdentifier);
+        $nostoOrder = $this->nostoOrderbuilder->build(
+            $order,
+            $context->getContext(),
+            $this->productRepository,
+            $productIdentifier
+        );
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
         $operation = new OrderCreate(
