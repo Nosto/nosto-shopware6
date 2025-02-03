@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     console.error('Tracking failed with status:', response.status);
                 }
-                console.log(response);
             } catch (error) {
                 console.error('Error sending tracking request:', error);
             }
