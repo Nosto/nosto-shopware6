@@ -10,7 +10,7 @@ const PluginManager = window.PluginManager;
 PluginManager.register('NostoPlugin', NostoPlugin, '[data-nosto-cart-plugin]');
 PluginManager.register('NostoConfiguration', NostoConfiguration, '[data-nosto-configuration]');
 PluginManager.register('NostoSearchSessionParams', NostoSearchSessionParams, '[data-nosto-search-session-params]');
-PluginManager.register('NostoAnalytics', NostoSearchSessionParams, '[data-nosto-analytics]');
+PluginManager.register('NostoAnalytics', NostoAnalytics, '[data-nosto-analytics]');
 PluginManager.override('FilterRange', NostoFilterRange, '[data-filter-range]');
 PluginManager.override('FilterPropertySelect', NostoFilterPropertySelectPlugin, '[data-filter-property-select]');
 
