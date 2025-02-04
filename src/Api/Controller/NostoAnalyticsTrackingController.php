@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Api\Controller;
 
-use Nosto\Request\Http\Adapter\Curl;
 use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
+use Nosto\Request\Http\Adapter\Curl;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
