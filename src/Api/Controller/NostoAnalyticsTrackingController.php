@@ -7,15 +7,14 @@ namespace Nosto\NostoIntegration\Api\Controller;
 use GuzzleHttp\Client;
 use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
-use Nosto\Operation\Search\AnalyticsSearchTracking;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
-use Nosto\SDK\NostoClient;
+use Nosto\Operation\Search\AnalyticsSearchTracking;
+use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Context;
 
 #[Route(
     defaults: [
@@ -41,7 +40,9 @@ class NostoAnalyticsTrackingController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['dataSource']) || !isset($data['query'])) {
-            return new JsonResponse(['error' => 'Missing dataSource or query'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse([
+                'error' => 'Missing dataSource or query',
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -56,7 +57,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                 $data['isKeyword'] ?? false,
                 $data['isSorted'] ?? true,
                 $data['hasResults'] ?? true,
-                $data['isRefined'] ?? false
+                $data['isRefined'] ?? false,
             );
 
             $tracker = match ($dataSource->getType()) {
@@ -67,7 +68,9 @@ class NostoAnalyticsTrackingController extends AbstractController
 
             $tracker->track($dataSource, $payload);
 
-            return new JsonResponse(['status' => 'success']);
+            return new JsonResponse([
+                'status' => 'success',
+            ]);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => 'Error sending data to Nosto',
