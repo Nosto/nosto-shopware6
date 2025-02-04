@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const productNumber = product.getAttribute('product-number');
             const productId = product.getAttribute('product-id');
             const searchQuery = new URLSearchParams(window.location.search).get('search');
-            const category = window.location.pathname.split('/').pop();
+            const category = window.location.pathname;
+            const categoryId = null;
 
             if (!dataSource || !productNumber || !productId) {
                 console.error('Missing required attributes: dataSource, productNumber, or productId');
@@ -18,20 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const trackingType = searchQuery ? 'search' : (category ? 'category' : 'unknown');
 
+            const body = {
+                dataSource,
+                productNumber,
+                productId,
+                trackingType,
+            };
+
+            if (trackingType === 'search') {
+                body.query = searchQuery;
+            } else {
+                body.category = category;
+                body.categoryId = categoryId;
+            }
+
             try {
                 const response = await fetch('/nosto/analytics-tracking', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        dataSource,
-                        productNumber,
-                        productId,
-                        trackingType,
-                        searchQuery,
-                        category,
-                    }),
+                    body: JSON.stringify(body),
                 });
 
                 if (!response.ok) {

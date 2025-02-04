@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Api\Controller;
 
-use GuzzleHttp\Client;
+use Nosto\Request\Http\Adapter\Curl;
 use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
@@ -23,11 +23,11 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class NostoAnalyticsTrackingController extends AbstractController
 {
-    private readonly Client $client;
+    private Curl $curl;
 
     public function __construct()
     {
-        $this->client = new Client();
+        $this->curl = new Curl('');
     }
 
     #[Route(
@@ -39,16 +39,17 @@ class NostoAnalyticsTrackingController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['dataSource']) || !isset($data['query'])) {
+        if (!isset($data['dataSource'])) {
             return new JsonResponse([
-                'error' => 'Missing dataSource or query',
+                'error' => 'Missing dataSource',
             ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $dataSource = DataSource::fromString($data['dataSource']);
+
             $payload = new AnalyticsTrackingPayload(
-                $data['query'],
+                $data['query'] ?? null,
                 $data['productNumber'] ?? null,
                 $data['resultId'] ?? uniqid(),
                 $data['isOrganic'] ?? false,
@@ -61,8 +62,8 @@ class NostoAnalyticsTrackingController extends AbstractController
             );
 
             $tracker = match ($dataSource->getType()) {
-                DataSource::SEARCH => new AnalyticsSearchTracking($this->client),
-                DataSource::CATEGORY => new AnalyticsCategoryTracking($this->client),
+                DataSource::SEARCH => new AnalyticsSearchTracking($this->curl),
+                DataSource::CATEGORY => new AnalyticsCategoryTracking($this->curl),
                 default => throw new \InvalidArgumentException('Invalid dataSource'),
             };
 
