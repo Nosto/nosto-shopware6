@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class NostoAnalyticsTrackingController extends AbstractController
 {
     public function __construct(
-        private readonly Account\Provider $accountProvider
+        private readonly Account\Provider $accountProvider,
     ) {
     }
 
