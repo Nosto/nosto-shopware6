@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const productElements = document.querySelectorAll('[role="listitem"]');
 
     productElements.forEach(product => {
-        product.addEventListener('click', async (event) => {
+        product.addEventListener('click', async () => {
             const dataSource = product.getAttribute('data-source');
             const productNumber = product.getAttribute('product-number');
             const productId = product.getAttribute('product-id');
