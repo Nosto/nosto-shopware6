@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,7 +15,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Nosto\NostoIntegration\Model\Nosto\Account;
 
 #[Route(
     defaults: [
@@ -23,8 +23,9 @@ use Nosto\NostoIntegration\Model\Nosto\Account;
 )]
 class NostoAnalyticsTrackingController extends AbstractController
 {
-    public function __construct(private readonly Account\Provider $accountProvider)
-    {
+    public function __construct(
+        private readonly Account\Provider $accountProvider
+    ) {
     }
 
     #[Route(
@@ -37,7 +38,7 @@ class NostoAnalyticsTrackingController extends AbstractController
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        $nostoAccount = $this->accountProvider->get($context->getContext(),$channelId, $languageId);
+        $nostoAccount = $this->accountProvider->get($context->getContext(), $channelId, $languageId);
 
         $data = json_decode($request->getContent(), true);
 
@@ -47,7 +48,7 @@ class NostoAnalyticsTrackingController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        if((!isset($data['trackingType']) || $data['trackingType'] == 'search') && !isset($data['query'])) {
+        if ((!isset($data['trackingType']) || $data['trackingType'] == 'search') && !isset($data['query'])) {
             return new JsonResponse([
                 'error' => 'Missing query',
             ], Response::HTTP_BAD_REQUEST);
