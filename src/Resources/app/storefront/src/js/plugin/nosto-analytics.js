@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     productElements.forEach(product => {
         product.addEventListener('click', async (event) => {
-            event.preventDefault(); // Ensure the default action is prevented on click
+         //  event.preventDefault(); // Ensure the default action is prevented on click
 
             const dataSource = product.getAttribute('data-source');
             const productNumber = product.getAttribute('product-number');
             const productId = product.getAttribute('product-id');
             const searchQuery = new URLSearchParams(window.location.search).get('search');
             const category = window.location.pathname;
-            const categoryId = null;
+            const categoryId = product.getAttribute('category-id');
 
             if (!dataSource || !productNumber || !productId) {
                 console.error('Missing required attributes: dataSource, productNumber, or productId');

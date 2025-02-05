@@ -8,13 +8,13 @@ use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
 use Nosto\Operation\Category\AnalyticsCategoryTracking;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
-use Nosto\Request\Http\Adapter\Curl;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 
 #[Route(
     defaults: [
@@ -23,11 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class NostoAnalyticsTrackingController extends AbstractController
 {
-    private Curl $curl;
-
-    public function __construct()
+    public function __construct(private readonly Account\Provider $accountProvider)
     {
-        $this->curl = new Curl('');
     }
 
     #[Route(
@@ -35,13 +32,24 @@ class NostoAnalyticsTrackingController extends AbstractController
         name: "storefront.nosto.analytics-tracking",
         methods: ["POST"],
     )]
-    public function trackAnalytics(Request $request, Context $context): JsonResponse
+    public function trackAnalytics(Request $request, SalesChannelContext $context): JsonResponse
     {
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+
+        $nostoAccount = $this->accountProvider->get($context->getContext(),$channelId, $languageId);
+
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['dataSource'])) {
             return new JsonResponse([
                 'error' => 'Missing dataSource',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if((!isset($data['trackingType']) || $data['trackingType'] == 'search') && !isset($data['query'])) {
+            return new JsonResponse([
+                'error' => 'Missing query',
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -62,8 +70,8 @@ class NostoAnalyticsTrackingController extends AbstractController
             );
 
             $tracker = match ($dataSource->getType()) {
-                DataSource::SEARCH => new AnalyticsSearchTracking($this->curl),
-                DataSource::CATEGORY => new AnalyticsCategoryTracking($this->curl),
+                DataSource::SEARCH => new AnalyticsSearchTracking($nostoAccount->getNostoAccount()),
+                DataSource::CATEGORY => new AnalyticsCategoryTracking($nostoAccount->getNostoAccount()),
                 default => throw new \InvalidArgumentException('Invalid dataSource'),
             };
 
