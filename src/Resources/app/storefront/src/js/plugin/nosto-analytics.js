@@ -1,17 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
     const productElements = document.querySelectorAll('[role="listitem"]');
 
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            let [key, value] = cookie.split('=');
+            if (key === name) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     productElements.forEach(product => {
         product.addEventListener('click', async () => {
+            const sessionId = getCookie("2c.cId");
             const dataSource = product.getAttribute('data-source');
             const productNumber = product.getAttribute('product-number');
             const productId = product.getAttribute('product-id');
-            const searchQuery = new URLSearchParams(window.location.search).get('search');
-            const category = window.location.pathname;
+            const searchQuery = document.querySelector('.nosto_search_term')?.textContent?.trim() || new URLSearchParams(window.location.search).get('search');
+            const category = document.querySelector('.nosto_category')?.textContent?.trim() || window.location.pathname;
             const categoryId = product.getAttribute('category-id');
 
-            if (!dataSource || !productNumber || !productId) {
-                console.error('Missing required attributes: dataSource, productNumber, or productId');
+            if (!dataSource || !productNumber || !productId || !sessionId) {
+                console.error('Missing required attributes: dataSource, productNumber, 2c.cId or productId');
                 return;
             }
 
@@ -22,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 productNumber,
                 productId,
                 trackingType,
+                sessionId
             };
 
             if (trackingType === 'search') {

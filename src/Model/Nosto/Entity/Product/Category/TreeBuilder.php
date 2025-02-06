@@ -74,8 +74,8 @@ class TreeBuilder
         }
 
         $rootCategoryId = $categoriesRo
-            ->filter(static fn (CategoryEntity $category): bool => $category->getParentId() === null)
-            ->first()->getId();
+            ->filter(static fn (CategoryEntity $category): bool => $category?->getParentId() === null)
+            ->first()?->getId();
 
         return array_filter(array_map(static fn (CategoryEntity $category): array => array_filter(
             $category->getPlainBreadcrumb(),

@@ -227,6 +227,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledSearchImpressions(?string $channelId = null, ?string $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_SEARCH_IMPRESSIONS,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledProductLabellingSync(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
