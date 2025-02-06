@@ -164,6 +164,7 @@ Component.register('nosto-integration-features-flags', {
                 enableLabelling: false,
                 storeAbandonedCartData: false,
                 ignoreCookieConsent: false,
+                enableSearchImpressions: false,
                 syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
                 domain: null,
