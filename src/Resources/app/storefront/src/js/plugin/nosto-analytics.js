@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCookie(name) {
         const cookies = document.cookie.split('; ');
-        for (let cookie of cookies) {
-            let [key, value] = cookie.split('=');
+        for (const cookie of cookies) {
+            const [key, value] = cookie.split('=');
             if (key === name) {
                 return value;
             }
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     productElements.forEach(product => {
         product.addEventListener('click', async () => {
-            const sessionId = getCookie("2c.cId");
+            const sessionId = getCookie('2c.cId');
             const dataSource = product.getAttribute('data-source');
             const productNumber = product.getAttribute('product-number');
             const productId = product.getAttribute('product-id');
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 productNumber,
                 productId,
                 trackingType,
-                sessionId
+                sessionId,
             };
 
             if (trackingType === 'search') {
