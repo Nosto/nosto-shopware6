@@ -1,3 +1,8 @@
+# 4.2.9
+* Fix: Ein Fehler im Zusammenhang mit einer inkorrekten productID im cart tagging und cart events wurde behoben.
+* Neu:  Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist
+* Fix: Ein Nullreferenzfehler im Nosto-Integrations-Plugin wurde behoben, indem eine ordnungsgemäße Handhabung von null-Werten bei SalesChannelProductEntity-Objekten sichergestellt wurde.
+
 # 4.2.8
 * Fix: Fehler bei der Produktkennzeichnung behoben
 * Fix: Geplante Changelog-Updates wurden nicht ausgelöst

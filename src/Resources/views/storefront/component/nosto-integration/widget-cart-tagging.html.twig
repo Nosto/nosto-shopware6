@@ -3,7 +3,7 @@
         {% for lineItem in  page.cart.lineItems %}
             {% if lineItem.type == 'product' %}
                 <div class="line_item">
-                    <span class="product_id">{{ lineItem.referencedId }}</span>
+                    <span class="product_id">{{ lineItem.payload.productNumber }}</span>
                     <span class="quantity">{{ lineItem.quantity }}</span>
                     <span class="name">{{ lineItem.label }}</span>
                     <span class="unit_price">{{ lineItem.price.unitPrice }}</span>

@@ -368,6 +368,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_ignore_cookie_consent %}
+            <sw-inherit-wrapper
+                :value="currentConfig['syncFirstAvailableVariant']"
+                :inheritedValue="configKey === null ? null : configs['null']['syncFirstAvailableVariant']"
+                @update:value="onUpdateValue('syncFirstAvailableVariant', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="syncFirstAvailableVariant"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableSyncFirstAvailableVariant')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableSyncFirstAvailableVariantHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('syncFirstAvailableVariant', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_daily_synchronization_flag %}
             <sw-inherit-wrapper
                 v-if="configKey === null"
