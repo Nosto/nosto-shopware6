@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
 use Nosto\Model\Analytics\AnalyticsSearchMetadata;
-use Nosto\Model\Analytics\AnalyticsTrackingPayload;
 use Nosto\Model\Analytics\DataSource;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -31,7 +30,7 @@ class NostoAnalyticsTrackingController extends AbstractController
 {
     public function __construct(
         private readonly Account\Provider $accountProvider,
-        private readonly ConfigProvider   $configProvider,
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
@@ -73,7 +72,11 @@ class NostoAnalyticsTrackingController extends AbstractController
             if ($productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER) {
                 $productId = $data['productNumber'];
             }
-            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, $dataSource->getType() === DataSource::CATEGORY);
+            $shouldHandleRequest = SearchHelper::shouldHandleRequest(
+                $context,
+                $this->configProvider,
+                $dataSource->getType() === DataSource::CATEGORY,
+            );
             if (!$shouldHandleRequest) {
                 //it's not an issue at all so lets just give 204 no content
                 return new JsonResponse(null, 204);
@@ -82,21 +85,24 @@ class NostoAnalyticsTrackingController extends AbstractController
                 $tracker = new AnalyticsCategoryTracking($merchantId, $data['sessionId']);
                 $metadata = new AnalyticsCategoryMetadata(
                     $data["category"] != null ? rtrim($data["category"], "/") : null,
-                    $data["categoryId"] ?? null
+                    $data["categoryId"] ?? null,
                 );
                 $tracker->click($metadata, $productId);
-            } else if ($dataSource->getType() === DataSource::SEARCH) {
+            } elseif ($dataSource->getType() === DataSource::SEARCH) {
                 $tracker = new AnalyticsSearchTracking($merchantId, $data['sessionId']);
                 $metadata = new AnalyticsSearchMetadata(
                     $data['query'] ?? null,
-                    $data['resultId'] ?? vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2)),
+                    $data['resultId'] ?? vsprintf(
+                        '%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s',
+                        str_split(Uuid::randomHex(), 2),
+                    ),
                     $data['isOrganic'] ?? true,
                     $data['isAutoCorrect'] ?? true,
                     $data['isAutoComplete'] ?? false,
                     $data['isKeyword'] ?? false,
                     $data['isSorted'] ?? true,
                     $data['hasResults'] ?? true,
-                    $data['isRefined'] ?? false
+                    $data['isRefined'] ?? false,
                 );
                 $tracker->click($metadata, $productId);
             } else {

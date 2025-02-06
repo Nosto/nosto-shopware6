@@ -102,14 +102,20 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         ProductListingResult $productListing,
         CategoryEntity $category,
-        Request $request
-    ): void{
+        Request $request,
+    ): void {
         try {
-            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions($context->getSalesChannelId(), $context->getLanguageId());
+            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
             if (!$shouldSendImpression) {
                 return;
             }
-            $merchantId = $this->configProvider->getAccountId($context->getSalesChannelId(), $context->getLanguageId());
+            $merchantId = $this->configProvider->getAccountId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
             $breadcrumb = $category->getTranslated()['breadcrumb'];
             if (is_array($breadcrumb) && count($breadcrumb) > 1) {
                 //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
@@ -118,19 +124,22 @@ class ProductListingRoute extends AbstractProductListingRoute
             } else {
                 $fullCategoryPath = null;
             }
-            $productIdentifier = $this->configProvider->getProductIdentifier($context->getSalesChannelId(), $context->getLanguageId());
+            $productIdentifier = $this->configProvider->getProductIdentifier(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
             $productIds = array_map(
-                fn(ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
-                array_values($productListing->getElements())
+                fn (ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
+                array_values($productListing->getElements()),
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
             $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId);
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
-            //Either category or categoryId are needed
+                //Either category or categoryId are needed
                 $fullCategoryPath,
-                $category->getId() ?? null
+                $category->getId() ?? null,
             );
 
             $tracker->impression($metadata, $productIds, $page);

@@ -111,17 +111,24 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     private function sendImpressionAnalytics(
         SalesChannelContext $context,
         ProductListingResult $productListing,
-        Request $request): void {
+        Request $request,
+    ): void {
         try {
-            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions($context->getSalesChannelId(), $context->getLanguageId());
-            if(!$shouldSendImpression) {
+            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$shouldSendImpression) {
                 return;
             }
             $merchantId = $this->configProvider->getAccountId($context->getSalesChannelId(), $context->getLanguageId());
-            $productIdentifier = $this->configProvider->getProductIdentifier($context->getSalesChannelId(), $context->getLanguageId());
+            $productIdentifier = $this->configProvider->getProductIdentifier(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
             $productIds = array_map(
-                fn(ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
-                array_values($productListing->getElements())
+                fn (ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
+                array_values($productListing->getElements()),
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
@@ -143,7 +150,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //hasResults
                 true,
                 //isRefined
-                false
+                false,
             );
 
             $tracker->impression($metadata, $productIds, $page);
