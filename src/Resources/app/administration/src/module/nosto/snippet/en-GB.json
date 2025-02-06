@@ -121,6 +121,10 @@
                     "label": "Enable cleanup of old jobs",
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
+                "enableSearchImpressions": {
+                    "label": "Send search impressions",
+                    "helpText": "Send search impression analytics via the plugin, this usually isn't needed when using Nosto search template. If unsure please contact Nosto support"
+                },
                 "oldJobCleanupPeriod": {
                     "after": "After",
                     "days": "days"
