@@ -61,6 +61,7 @@ trait SearchResultHelper
         $productCriteria->resetFilters();
         $productCriteria->resetSorting();
         $productCriteria->resetAggregations();
+        $productCriteria->setTerm('');
 
         return $productCriteria;
     }
