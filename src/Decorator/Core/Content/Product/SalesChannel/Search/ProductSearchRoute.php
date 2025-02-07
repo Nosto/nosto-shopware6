@@ -136,9 +136,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $sessionId = $request->cookies->get("2c_cId");
             $tracker = new AnalyticsSearchTracking($merchantId, $sessionId);
             $page = $productListing->getPage();
+            $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
             $metadata = new AnalyticsSearchMetadata(
                 $request->get('search') ?? null,
-                vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2)),
+                $resultId,
                 //isOrganic
                 true,
                 //isAutoCorrect
@@ -156,6 +157,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
 
             $tracker->impression($metadata, $productIds, $page);
+            //we need to know about the resultId that was used in the impression for the click analytic
+            $productListing->setExtensions(["nosto_result_id" => $resultId]);
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed
