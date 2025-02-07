@@ -232,7 +232,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 && $stock < 1
                 && $this->configProvider->isEnabledSyncFirstAvailableVariant()
             ) {
-                if ($variant = $this->handleFirstVariantInStock($product, $context)) {
+                if ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                     $mainProducts->add($variant);
                 }
             } else {
@@ -243,13 +243,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
                 $mainProducts->add($variant);
-            } elseif ($variant = $this->handleFirstActiveVariant($product)) {
+            } elseif ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                 $mainProducts->add($variant);
             }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$product->getActive()) {
-            if ($variant = $this->handleFirstActiveVariant($product)) {
+            if ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                 $mainProducts->add($variant);
             }
         }
@@ -334,27 +334,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
-    {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-
-        foreach ($product->getChildren() as $child) {
-            if ($child->getActive() && !$mainProduct) {
-                $mainProduct = $child;
-            } else {
-                $variants->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleFirstVariantInStock(
+    private function handleFirstAvailableVariant(
         ProductEntity $product,
         SalesChannelContext $context,
     ): ?ProductEntity {
