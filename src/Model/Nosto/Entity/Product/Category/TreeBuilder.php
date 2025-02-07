@@ -66,8 +66,8 @@ class TreeBuilder
         }
 
         $rootCategoryId = $categoriesRo
-            ->filter(fn (CategoryEntity $category) => $category?->getParentId() === null)
-            ->first()?->getId();
+            ->filter(fn (CategoryEntity $category) => $category->getParentId() === null)
+            ->first()->getId();
 
         return array_filter(array_map(function (CategoryEntity $category) use ($rootCategoryId) {
             return array_filter(
