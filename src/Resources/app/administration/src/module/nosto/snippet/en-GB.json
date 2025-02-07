@@ -122,7 +122,7 @@
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
                 "enableSearchImpressions": {
-                    "label": "Send search impressions",
+                    "label": "Send Search & Category analytics",
                     "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
                 },
                 "oldJobCleanupPeriod": {
