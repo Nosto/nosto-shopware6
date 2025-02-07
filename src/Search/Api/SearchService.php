@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Api;
 
+use Composer\InstalledVersions;
 use Monolog\Logger;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
@@ -87,6 +88,14 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         $criteria->setOffset($this->paginationService->getRequestOffset($request, $criteria->getLimit()));
+
+        // Retrieve the plugin version dynamically from InstalledVersions
+        $pluginVersion = InstalledVersions::getPrettyVersion('nosto/nosto-integration') ?? 'unknown';
+        // Set the header with plugin name and version for all search related requests
+        $request->headers->set(
+            'X-Nosto-Integration',
+            sprintf('Shopware 6 Plugin %s', $pluginVersion)
+        );
 
         $this->fetchFilters($request, $criteria, $context, $requestHandler);
         $requestHandler->fetchProducts($request, $criteria, $context);

@@ -194,7 +194,7 @@ class ProductHelper
     public function getShopwareProducts(
         array $productIds,
         SalesChannelContext $context,
-        bool $isProductTagging = false
+        bool $isProductTagging = false,
     ): SalesChannelProductCollection {
         $criteria = $this->getCommonCriteria();
         if (!$isProductTagging) {
@@ -208,13 +208,29 @@ class ProductHelper
         )->getEntities();
     }
 
-    protected function buildFallbackImage(RequestContext $requestContext): string
+    protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
     {
-        $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
-        if ($requestContext->getHttpPort() !== 80) {
-            $schemaAuthority .= ':' . $requestContext->getHttpPort();
-        } elseif ($requestContext->getHttpsPort() !== 443) {
-            $schemaAuthority .= ':' . $requestContext->getHttpsPort();
+        $schemaAuthority = null;
+
+        if ($domains = $context->getSalesChannel()->getDomains()) {
+            $domainId = (string)$this->configProvider->getDomainId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+
+            if ($domainId && $domains->has($domainId)) {
+                $domain = $domains->get($domainId);
+                $schemaAuthority = $domain?->getUrl();
+            }
+        }
+
+        if (!$schemaAuthority) {
+            $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
+            if ($requestContext->getHttpPort() !== 80) {
+                $schemaAuthority .= ':' . $requestContext->getHttpPort();
+            } elseif ($requestContext->getHttpsPort() !== 443) {
+                $schemaAuthority .= ':' . $requestContext->getHttpsPort();
+            }
         }
 
         return sprintf(
@@ -224,9 +240,9 @@ class ProductHelper
         );
     }
 
-    public function getFallbackImageUrl(): string
+    public function getFallbackImageUrl(SalesChannelContext $context): string
     {
-        return $this->buildFallbackImage($this->router->getContext());
+        return $this->buildFallbackImage($context, $this->router->getContext());
     }
 
     public function getProductStock(

@@ -65,7 +65,7 @@ class GraphQLResponseParser
         );
 
         $productIds = [];
-        foreach($productCustomFields as $customFields) {
+        foreach ($productCustomFields as $customFields) {
             if (!$customFields) {
                 continue;
             }

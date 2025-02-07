@@ -1,6 +1,9 @@
 {% sw_extends '@Storefront/storefront/page/search/index.html.twig' %}
 
 {% block page_search_headline_text %}
+    <div class="nosto_result_id" style="display:none">
+        {{ page.listing.extensions["nosto_result_id"] }}
+    </div>
     {% if not context.context.extensions.nostoService.enabled %}
         {{ parent() }}
     {% else %}

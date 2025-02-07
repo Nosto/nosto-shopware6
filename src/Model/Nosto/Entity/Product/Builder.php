@@ -28,6 +28,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -149,8 +150,8 @@ class Builder
 
         if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
-                    $channelId,
-                    $languageId,
+                $channelId,
+                $languageId,
             ) && $product->getChildren()->count()) {
                 $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
                 $nostoProduct->setSkus($skuCollection);
@@ -165,21 +166,19 @@ class Builder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            foreach ($product->getOptions() as $option) {
-                if ($option->getGroup() !== null) {
-                    $nostoProduct->addCustomField(
-                        $option->getGroup()->getTranslation('name'),
-                        $option->getTranslation('name'),
-                    );
-                }
+            $options = $this->preparePropertiesOrOptions($product->getOptions());
+            foreach ($options as $name => $option) {
+                $nostoProduct->addCustomField(
+                    $name,
+                    $option,
+                );
             }
-            foreach ($product->getProperties() as $property) {
-                if ($property->getGroup() !== null) {
-                    $nostoProduct->addCustomField(
-                        $property->getGroup()->getTranslation('name'),
-                        $property->getTranslation('name'),
-                    );
-                }
+            $properties = $this->preparePropertiesOrOptions($product->getProperties());
+            foreach ($properties as $name => $property) {
+                $nostoProduct->addCustomField(
+                    $name,
+                    $property,
+                );
             }
 
             $this->initTags($product, $nostoProduct, $context);
@@ -200,7 +199,7 @@ class Builder
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
-            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl();
+            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoProduct->setImageUrl($placeholderImageUrl);
             $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
@@ -526,5 +525,29 @@ class Builder
         }
 
         return $skuCollection;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function preparePropertiesOrOptions(PropertyGroupOptionCollection $array): array
+    {
+        $properties = [];
+
+        foreach ($array as $property) {
+            $group = $property->getGroup();
+            if (!$group) {
+                continue;
+            }
+
+            $groupName = $group->getTranslation('name');
+            $propertyName = $property->getTranslation('name');
+
+            $properties[$groupName] = isset($properties[$groupName])
+                ? $properties[$groupName] . ', ' . $propertyName
+                : $propertyName;
+        }
+
+        return $properties;
     }
 }

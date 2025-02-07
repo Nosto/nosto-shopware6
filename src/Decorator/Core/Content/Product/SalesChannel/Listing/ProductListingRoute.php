@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing;
 
+use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
+use Nosto\Operation\Category\AnalyticsCategoryTracking;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -36,6 +41,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -50,6 +56,10 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         Criteria $criteria = null,
     ): ProductListingRouteResponse {
+        $originalRequest = clone $request;
+        $originalContext = clone $context;
+        $originalCriteria = clone $criteria;
+
         $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
 
         $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
@@ -79,6 +89,11 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productListing = ProductListingResult::createFrom(
             $this->fetchProductsById($criteria, $context),
         );
+
+        if (!$productListing->getElements()) {
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+        }
+
         $productListing->addCurrentFilter('navigationId', $categoryId);
         $productListing->setStreamId($streamId);
 
@@ -88,7 +103,60 @@ class ProductListingRoute extends AbstractProductListingRoute
             ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
         );
 
+        $this->sendImpressionAnalytics($context, $productListing, $category, $request);
         return new ProductListingRouteResponse($productListing);
+    }
+
+    private function sendImpressionAnalytics(
+        SalesChannelContext $context,
+        ProductListingResult $productListing,
+        CategoryEntity $category,
+        Request $request,
+    ): void {
+        try {
+            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$shouldSendImpression) {
+                return;
+            }
+            $merchantId = $this->configProvider->getAccountId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $breadcrumb = $category->getBreadcrumb();
+            if (is_array($breadcrumb) && count($breadcrumb) > 1) {
+                //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
+                array_shift($breadcrumb);
+                $fullCategoryPath = '/' . implode('/', $breadcrumb);
+            } else {
+                $fullCategoryPath = null;
+            }
+            $productIdentifier = $this->configProvider->getProductIdentifier(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $productIds = array_map(
+                fn (ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
+                array_values($productListing->getElements()),
+            );
+            //php changes the . to _ in the cookie
+            $sessionId = $request->cookies->get("2c_cId");
+            $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId);
+            $page = $productListing->getPage();
+            $metadata = new AnalyticsCategoryMetadata(
+                //Either category or categoryId are needed
+                $fullCategoryPath,
+                $category->getId() ?? null,
+            );
+
+            $tracker->impression($metadata, $productIds, $page);
+        } catch (\Exception $e) {
+            //@ToDo maybe send the the error to the nosto
+            //Just log the error and proceed
+            $this->logger->error('Unable to send category impression analytics due to:' . $e->getMessage());
+        }
     }
 
     private function isRouteSupported(Request $request): bool
