@@ -1,4 +1,4 @@
-# 4.0.0
+# 3.4.0
 * Feature: Search & Category analytics are now available.
 * New: It is now possible to send multiple property values instead of the last value
 * New: Added X-Nosto-Integration header with plugin version in search requests
