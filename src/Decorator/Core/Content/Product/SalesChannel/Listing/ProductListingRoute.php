@@ -116,7 +116,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
-            $breadcrumb = $category->getTranslated()['breadcrumb'];
+            $breadcrumb = $category->getBreadcrumb();
             if (is_array($breadcrumb) && count($breadcrumb) > 1) {
                 //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
                 array_shift($breadcrumb);
