@@ -230,7 +230,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 && $stock < 1
                 && $this->configProvider->isEnabledSyncFirstAvailableVariant()
             ) {
-                if ($variant = $this->handleAvailableFirstVariant($product, $context)) {
+                if ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                     $mainProducts->add($variant);
                 }
             } else {
@@ -241,13 +241,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         } elseif ($variantConfig->getMainVariantId()) {
             if ($variant = $this->handleMainVariant($product, $variantConfig)) {
                 $mainProducts->add($variant);
-            } elseif ($variant = $this->handleAvailableFirstVariant($product, $context)) {
+            } elseif ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                 $mainProducts->add($variant);
             }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$product->getActive()) {
-            if ($variant = $this->handleAvailableFirstVariant($product, $context)) {
+            if ($variant = $this->handleFirstAvailableVariant($product, $context)) {
                 $mainProducts->add($variant);
             }
         }
@@ -332,7 +332,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleAvailableFirstVariant(
+    private function handleFirstAvailableVariant(
         ProductEntity $product,
         SalesChannelContext $context,
     ): ?ProductEntity {
