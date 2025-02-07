@@ -94,7 +94,7 @@ class SearchService
         // Set the header with plugin name and version for all search related requests
         $request->headers->set(
             'X-Nosto-Integration',
-            sprintf('Shopware 6 Plugin %s', $pluginVersion)
+            sprintf('Shopware 6 Plugin %s', $pluginVersion),
         );
 
         $this->fetchFilters($request, $criteria, $context, $requestHandler);
