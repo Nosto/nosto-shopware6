@@ -157,7 +157,12 @@ Component.register('nosto-integration-settings', {
                         !this.getInheritedValue(configKey, 'productToken') ||
                         !this.getInheritedValue(configKey, 'emailToken') ||
                         !this.getInheritedValue(configKey, 'appToken') ||
-                        !this.getInheritedValue(configKey, 'searchToken')
+                        !this.getInheritedValue(configKey, 'searchToken') ||
+                        !this.getInheritedValue(configKey, 'productIdentifier') ||
+                        !this.getInheritedValue(configKey, 'ratingsReviews') ||
+                        !this.getInheritedValue(configKey, 'stockField') ||
+                        !this.getInheritedValue(configKey, 'crossSellingSync') ||
+                        !this.getInheritedValue(configKey, 'categoryNaming')
                     )
                 ) {
                     const [salesChannelId, languageId] = configKey === 'null'
