@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder as OrderBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityReposi
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -31,6 +33,8 @@ class OrderSyncHandler implements JobHandlerInterface
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly ConfigProvider $configProvider,
         private readonly Account\Provider $accountProvider,
         private readonly OrderBuilder $nostoOrderbuilder,
         private readonly OrderStatusBuilder $nostoOrderStatusBuilder,
@@ -52,7 +56,7 @@ class OrderSyncHandler implements JobHandlerInterface
                     SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
                 ],
             );
-            $accountOperationResult = $this->doOperation($account, $channelContext->getContext(), $message);
+            $accountOperationResult = $this->doOperation($account, $channelContext, $message);
             foreach ($accountOperationResult->getErrors() as $error) {
                 $operationResult->addError($error);
             }
@@ -61,17 +65,17 @@ class OrderSyncHandler implements JobHandlerInterface
         return $operationResult;
     }
 
-    private function doOperation(Account $account, Context $context, object $message): JobResult
+    private function doOperation(Account $account, SalesChannelContext $context, object $message): JobResult
     {
         $result = new JobResult();
-        foreach ($this->getOrders($context, $message->getNewOrderIds()) as $order) {
+        foreach ($this->getOrders($context->getContext(), $message->getNewOrderIds()) as $order) {
             try {
                 $this->sendNewOrder($order, $account, $context);
             } catch (Throwable $e) {
                 $result->addError($e);
             }
         }
-        foreach ($this->getOrders($context, $message->getUpdatedOrderIds()) as $order) {
+        foreach ($this->getOrders($context->getContext(), $message->getUpdatedOrderIds()) as $order) {
             try {
                 $this->sendUpdatedOrder($order, $account);
             } catch (Throwable $e) {
@@ -98,9 +102,17 @@ class OrderSyncHandler implements JobHandlerInterface
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendNewOrder(OrderEntity $order, Account $account, Context $context): void
+    private function sendNewOrder(OrderEntity $order, Account $account, SalesChannelContext $context): void
     {
-        $nostoOrder = $this->nostoOrderbuilder->build($order, $context);
+        $channelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
+        $productIdentifier = $this->configProvider->getProductIdentifier($channelId, $languageId);
+        $nostoOrder = $this->nostoOrderbuilder->build(
+            $order,
+            $context->getContext(),
+            $this->productRepository,
+            $productIdentifier,
+        );
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
         $operation = new OrderCreate(
@@ -109,7 +121,7 @@ class OrderSyncHandler implements JobHandlerInterface
             $nostoCustomerIdentifier,
             $nostoCustomerId,
         );
-        $this->eventDispatcher->dispatch(new BeforeOrderCreatedEvent($operation, $context));
+        $this->eventDispatcher->dispatch(new BeforeOrderCreatedEvent($operation, $context->getContext()));
         $operation->execute();
     }
 
