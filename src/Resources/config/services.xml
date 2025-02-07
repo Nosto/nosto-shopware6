@@ -32,6 +32,7 @@
 
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$orderRepository" type="service" id="order.repository" />
+            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
