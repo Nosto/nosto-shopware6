@@ -61,6 +61,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Criteria $criteria,
     ): ProductSearchRouteResponse {
         try {
+            $originalRequest = clone $request;
+            $originalContext = clone $context;
+            $originalCriteria = clone $criteria;
+
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 return $this->decorated->load($request, $context, $criteria);
             }
@@ -88,6 +92,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $query = $request->query->get('search');
             $result = $this->fetchProductsById($criteria, $context, $query);
+
+            if (!$result->getElements()) {
+                return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            }
+
             $productListing = ProductListingResult::createFrom($result);
             $productListing->addCurrentFilter('search', $query);
 

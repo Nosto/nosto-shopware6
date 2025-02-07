@@ -56,6 +56,10 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         Criteria $criteria = null,
     ): ProductListingRouteResponse {
+        $originalRequest = clone $request;
+        $originalContext = clone $context;
+        $originalCriteria = clone $criteria;
+
         $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
 
         $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
@@ -85,6 +89,11 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productListing = ProductListingResult::createFrom(
             $this->fetchProductsById($criteria, $context),
         );
+
+        if (!$productListing->getElements()) {
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+        }
+
         $productListing->addCurrentFilter('navigationId', $categoryId);
         $productListing->setStreamId($streamId);
 
