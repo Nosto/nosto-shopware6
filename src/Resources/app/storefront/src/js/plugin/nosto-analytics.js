@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 productId,
                 trackingType,
                 sessionId,
-                resultId
+                resultId,
             };
 
             if (trackingType === 'search') {
