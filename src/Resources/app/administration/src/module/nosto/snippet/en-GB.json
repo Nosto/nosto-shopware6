@@ -123,7 +123,7 @@
                 },
                 "enableSearchImpressions": {
                     "label": "Send search impressions",
-                    "helpText": "Send search impression analytics via the plugin, this usually isn't needed when using Nosto search template. If unsure please contact Nosto support"
+                    "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
                 },
                 "oldJobCleanupPeriod": {
                     "after": "After",

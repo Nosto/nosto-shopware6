@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchQuery = document.querySelector('.nosto_search_term')?.textContent?.trim() || new URLSearchParams(window.location.search).get('search');
             const category = document.querySelector('.nosto_category')?.textContent?.trim() || window.location.pathname;
             const categoryId = product.getAttribute('category-id');
+            const resultId = document.querySelector('.nosto_result_id')?.textContent?.trim() || null;
 
             if (!dataSource || !productNumber || !productId || !sessionId) {
                 console.error('Missing required attributes: dataSource, productNumber, 2c.cId or productId');
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 productId,
                 trackingType,
                 sessionId,
+                resultId
             };
 
             if (trackingType === 'search') {

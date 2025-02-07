@@ -122,8 +122,8 @@
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
                 "enableSearchImpressions": {
-                    "label": "Sende Suchimpressions-Analysen",
-                    "helpText": "Sende Suchimpressions-Analysen über das Plugin. Dies ist normalerweise nicht erforderlich, wenn die Nosto-Suchvorlage verwendet wird. Falls du unsicher bist, kontaktiere bitte den Nosto-Support"
+                    "label": "Senden von Such-Impressionen",
+                    "helpText": "Aktivieren Sie die Such- und Kategorie-Impressions-Analyse über das Plugin. Passen Sie vorher die Autovervollständigungs-Vorlage an, um doppelte Impressions zu vermeiden. Bei Fragen wenden Sie sich an den Nosto-Support.."
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",

@@ -40,14 +40,15 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     use SearchResultHelper;
 
     public function __construct(
-        private readonly AbstractProductSearchRoute $decorated,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductSearchRoute    $decorated,
+        private readonly EventDispatcherInterface      $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
-        private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly CompositeListingProcessor $listingProcessor,
-        private readonly ConfigProvider $configProvider,
-        private readonly LoggerInterface $logger,
-    ) {
+        private readonly SalesChannelRepository        $salesChannelProductRepository,
+        private readonly CompositeListingProcessor     $listingProcessor,
+        private readonly ConfigProvider                $configProvider,
+        private readonly LoggerInterface               $logger,
+    )
+    {
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -56,10 +57,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     public function load(
-        Request $request,
+        Request             $request,
         SalesChannelContext $context,
-        Criteria $criteria,
-    ): ProductSearchRouteResponse {
+        Criteria            $criteria,
+    ): ProductSearchRouteResponse
+    {
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 return $this->decorated->load($request, $context, $criteria);
@@ -109,10 +111,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     private function sendImpressionAnalytics(
-        SalesChannelContext $context,
+        SalesChannelContext  $context,
         ProductListingResult $productListing,
-        Request $request,
-    ): void {
+        Request              $request,
+    ): void
+    {
         try {
             $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
                 $context->getSalesChannelId(),
@@ -127,16 +130,17 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $context->getLanguageId(),
             );
             $productIds = array_map(
-                fn (ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
+                fn(ProductEntity $product) => $productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER ? $product->getProductNumber() : $product->getId(),
                 array_values($productListing->getElements()),
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
             $tracker = new AnalyticsSearchTracking($merchantId, $sessionId);
             $page = $productListing->getPage();
+            $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
             $metadata = new AnalyticsSearchMetadata(
                 $request->get('search') ?? null,
-                vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2)),
+                $resultId,
                 //isOrganic
                 true,
                 //isAutoCorrect
@@ -152,7 +156,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //isRefined
                 false,
             );
-
+            //we need to know about the resultId that was used in the impression for the click analytic
+            $productListing->setExtensions(["nosto_result_id" => $resultId]);
             $tracker->impression($metadata, $productIds, $page);
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
@@ -162,10 +167,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     private function fetchProductsById(
-        Criteria $criteria,
+        Criteria            $criteria,
         SalesChannelContext $salesChannelContext,
-        ?string $query,
-    ): EntitySearchResult {
+        ?string             $query,
+    ): EntitySearchResult
+    {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
