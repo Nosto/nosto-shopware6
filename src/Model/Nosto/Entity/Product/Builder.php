@@ -201,7 +201,7 @@ class Builder
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
-            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl();
+            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoProduct->setImageUrl($placeholderImageUrl);
             $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
