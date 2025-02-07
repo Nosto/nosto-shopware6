@@ -24,8 +24,12 @@ class GraphQLResponseParser
     {
         $filters = new FiltersExtension();
 
-        foreach ($this->searchResult->getProducts()->getFacets() as $facet) {
-            $filters->addFilter(Filter::getInstance($facet));
+        $facets = $this->searchResult->getProducts()->getFacets();
+
+        if ($facets) {
+            foreach ($facets as $facet) {
+                $filters->addFilter(Filter::getInstance($facet));
+            }
         }
 
         return $filters;
@@ -35,8 +39,12 @@ class GraphQLResponseParser
     {
         $map = new IdToFieldMapping();
 
-        foreach ($this->searchResult->getProducts()->getFacets() as $facet) {
-            $map->addMapping($facet->getId(), $facet->getField());
+        $facets = $this->searchResult->getProducts()->getFacets();
+
+        if ($facets) {
+            foreach ($facets as $facet) {
+                $map->addMapping($facet->getId(), $facet->getField());
+            }
         }
 
         return $map;
