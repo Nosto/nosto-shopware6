@@ -215,7 +215,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -233,7 +233,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -271,7 +271,7 @@ class ConfigProvider
         return $this->configService->getBool(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_ENABLED,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 
@@ -280,7 +280,7 @@ class ConfigProvider
         return $this->configService->getInt(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
             $channelId,
-            $languageId
+            $languageId,
         );
     }
 

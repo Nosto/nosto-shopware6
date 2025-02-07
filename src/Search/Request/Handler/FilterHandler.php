@@ -121,7 +121,6 @@ class FilterHandler
     /**
      * Fetches all available filter names. This is needed to distinguish between standard Shopware query parameters
      * like "q", "sort", etc. and real filters.
-
      * @return string[]
      */
     protected function fetchAvailableFilterIds(Criteria $criteria): array

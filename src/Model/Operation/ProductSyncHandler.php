@@ -153,7 +153,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $context,
                 $account,
                 $ids,
-                $hideProductsAfterClearance
+                $hideProductsAfterClearance,
             );
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
@@ -169,7 +169,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $context,
                         $account,
                         $hideProductsAfterClearance,
-                        $ids)
+                        $ids,
+                    )
                     ) {
                         $nostoProducts[] = $nostoProduct;
                     }
@@ -179,7 +180,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $account,
                         $context,
                         [$handledProduct->getId(), $handledProduct->getParentId()],
-                        $ids
+                        $ids,
                     );
                 }
             }
@@ -258,7 +259,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $account,
                 $context,
                 [$product->getId(), $product->getParentId()],
-                $ids
+                $ids,
             );
         }
 

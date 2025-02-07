@@ -149,8 +149,8 @@ class Builder
 
         if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
-                    $channelId,
-                    $languageId,
+                $channelId,
+                $languageId,
             ) && $product->getChildren()->count()) {
                 $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
                 $nostoProduct->setSkus($skuCollection);
