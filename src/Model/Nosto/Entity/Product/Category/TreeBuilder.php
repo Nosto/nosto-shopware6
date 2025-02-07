@@ -40,7 +40,9 @@ class TreeBuilder
             );
         }, $categorySeoUrlsSets);
 
-        return array_values(array_unique(array_merge(...array_values($nostoCategoryNames), ...array_values($nostoCategorySeoUrls))));
+        return array_values(
+            array_unique(array_merge(...array_values($nostoCategoryNames), ...array_values($nostoCategorySeoUrls))),
+        );
     }
 
     public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
@@ -87,7 +89,7 @@ class TreeBuilder
         $seoUrlPaths = [];
 
         foreach ($categoriesRo->getElements() as $category) {
-            if (null === $category->getSeoUrls()) {
+            if ($category->getSeoUrls() == null) {
                 continue;
             }
 
