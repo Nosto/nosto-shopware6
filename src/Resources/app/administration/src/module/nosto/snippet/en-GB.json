@@ -95,7 +95,7 @@
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
                 "enableCustomerDataToNostoHelpText": "If the checkbox is checked, customer data is tagged during the order.",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
-                "enableSyncInactiveProductsHelpText": "If the checkbox is checked, inactive products will be synchronized as well.",
+                "enableSyncInactiveProductsHelpText": "If the checkbox is checked, variants of an inactive main product will be synchronized depending on what is selected in the storefront presentation configuration.",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
                 "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
                 "enableLabelling": "Enable Product Labelling Sync",
