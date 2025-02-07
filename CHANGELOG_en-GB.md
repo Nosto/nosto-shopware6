@@ -1,3 +1,15 @@
+# 4.0.0
+* Feature: Search & Category analytics are now available.
+* New: It is now possible to send multiple property values instead of the last value
+* New: Added X-Nosto-Integration header with plugin version in search requests
+* New: We added a fallback Mechanism for Search and Category Page in case the service is not available
+* Fix: Fixed to send orders correctly to Nosto and how they are reflecting in the performance metrics
+* Fix: Inactive products where not synced to Nosto
+* Fix: "Call to a member function getId() on null" during product sync has been fixed
+* Fix: Fatal Error when adding and removing Price Rule due to product discontinued
+* Fix: Fixed an issue where StockFieldOptions::tryForm() are called with "null" argument in the product synchronization
+* Fix: An issue with Search Result Page and Autocomplete having different results has been resolved
+
 # 3.3.9
 * Fix: A bug related to incorrect productID in cart tagging and cart events has been resolved.
 * New: Sync first available variant as a product, if product is on clearance and out of stock
