@@ -194,7 +194,7 @@ class ProductHelper
     public function getShopwareProducts(
         array $productIds,
         SalesChannelContext $context,
-        bool $isProductTagging = false
+        bool $isProductTagging = false,
     ): SalesChannelProductCollection {
         $criteria = $this->getCommonCriteria();
         if (!$isProductTagging) {

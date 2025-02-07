@@ -3,12 +3,14 @@ import NostoConfiguration from './js/plugin/nosto-configuration.plugin';
 import NostoSearchSessionParams from './js/plugin/nosto-search-session-params';
 import NostoFilterRange from './js/plugin/listing/filter-range.plugin';
 import NostoFilterPropertySelectPlugin from './js/plugin/listing/filter-property-select.plugin';
+import NostoAnalytics from './js/plugin/nosto-analytics';
 
 // Register plugins via the existing PluginManager
 const PluginManager = window.PluginManager;
 PluginManager.register('NostoPlugin', NostoPlugin, '[data-nosto-cart-plugin]');
 PluginManager.register('NostoConfiguration', NostoConfiguration, '[data-nosto-configuration]');
 PluginManager.register('NostoSearchSessionParams', NostoSearchSessionParams, '[data-nosto-search-session-params]');
+PluginManager.register('NostoAnalytics', NostoAnalytics, '[data-nosto-analytics]');
 PluginManager.override('FilterRange', NostoFilterRange, '[data-filter-range]');
 PluginManager.override('FilterPropertySelect', NostoFilterPropertySelectPlugin, '[data-filter-property-select]');
 
