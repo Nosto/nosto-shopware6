@@ -1,3 +1,6 @@
+# 5.0.1
+*Fix: Wir haben einen Timeout für das Category Merchandising hinzugefügt und einen User-Agent für die Search Analytics hinzugefügt.
+
 # 5.0.0
 * Feature: Such- und Kategorie Analytics sind jetzt verfügbar
 * Neu: Es ist jetzt möglich, mehrere Property Werte zu senden, anstatt nur den letzten Wert.

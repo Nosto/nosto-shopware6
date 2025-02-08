@@ -1,3 +1,6 @@
+# 5.0.1
+* Fix: We added a Timeout for Category Merchandising and a user agent to be passed for search analytics
+
 # 5.0.0
 * Feature: Search & Category analytics are now available.
 * New: It is now possible to send multiple property values instead of the last value
