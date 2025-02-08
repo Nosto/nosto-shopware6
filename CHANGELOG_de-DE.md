@@ -1,3 +1,6 @@
+# 3.4.1
+* We added a Timeout for Category Merchandising and a user agent to be passed for search analytics
+
 # 3.4.0
 * Feature: Such- und Kategorie Analytics sind jetzt verfügbar
 * Neu: Es ist jetzt möglich, mehrere Property Werte zu senden, anstatt nur den letzten Wert.
