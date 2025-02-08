@@ -41,6 +41,8 @@ class NavigationRequestHandler extends AbstractRequestHandler
         if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
+        $searchOperation->setResponseTimeout(3);
+        $searchOperation->setConnectTimeout(3);
 
         return $searchOperation->execute();
     }

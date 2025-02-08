@@ -143,7 +143,8 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
-            $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId);
+            $userAgent = $request->headers->get('User-Agent');
+            $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
                 //Either category or categoryId are needed

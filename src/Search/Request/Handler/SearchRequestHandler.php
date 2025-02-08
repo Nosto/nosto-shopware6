@@ -21,6 +21,7 @@ class SearchRequestHandler extends AbstractRequestHandler
 
         $searchOperation->setQuery((string) $request->query->get('search'));
         $searchOperation->setResponseTimeout(3);
+        $searchOperation->setConnectTimeout(3);
 
         return $searchOperation->execute();
     }

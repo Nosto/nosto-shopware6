@@ -66,6 +66,7 @@ class NostoAnalyticsTrackingController extends AbstractController
 
         try {
             $productId = $data['productId'];
+            $userAgent = $request->headers->get('User-Agent');
             $merchantId = $this->configProvider->getAccountId($channelId, $languageId);
             $productIdentifier = $this->configProvider->getProductIdentifier($channelId, $languageId);
             $dataSource = DataSource::fromString($data['dataSource']);
@@ -82,14 +83,14 @@ class NostoAnalyticsTrackingController extends AbstractController
                 return new JsonResponse(null, 204);
             }
             if ($dataSource->getType() === DataSource::CATEGORY) {
-                $tracker = new AnalyticsCategoryTracking($merchantId, $data['sessionId']);
+                $tracker = new AnalyticsCategoryTracking($merchantId, $data['sessionId'], $userAgent);
                 $metadata = new AnalyticsCategoryMetadata(
                     $data["category"] != null ? rtrim($data["category"], "/") : null,
                     $data["categoryId"] ?? null,
                 );
                 $tracker->click($metadata, $productId);
             } elseif ($dataSource->getType() === DataSource::SEARCH) {
-                $tracker = new AnalyticsSearchTracking($merchantId, $data['sessionId']);
+                $tracker = new AnalyticsSearchTracking($merchantId, $data['sessionId'], $userAgent);
                 $metadata = new AnalyticsSearchMetadata(
                     $data['query'] ?? null,
                     $data['resultId'] ?? vsprintf(
