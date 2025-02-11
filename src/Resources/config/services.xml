@@ -196,6 +196,7 @@
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
             <argument type="service" id="monolog.logger.nosto_integration" />
             <argument type="service" id="sales_channel.product.repository" />
+            <argument type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService" />
         </service>
         <!-- /Extensions -->
 
