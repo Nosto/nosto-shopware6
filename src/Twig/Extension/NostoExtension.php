@@ -129,6 +129,9 @@ class NostoExtension extends AbstractExtension
         return $pageType;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getNostoConfigurationValues(SalesChannelContext $context): array
     {
         $languageId = $context->getSalesChannel()->getLanguageId();
