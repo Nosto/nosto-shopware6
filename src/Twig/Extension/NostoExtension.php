@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
@@ -23,6 +24,7 @@ class NostoExtension extends AbstractExtension
         private readonly ProductProviderInterface $productProvider,
         private readonly LoggerInterface $logger,
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly NostoConfigService $nostoConfigService,
     ) {
     }
 
@@ -35,6 +37,7 @@ class NostoExtension extends AbstractExtension
             new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
             new TwigFunction('nosto_page_type', [$this, 'getPageType']),
             new TwigFunction('nosto_shopware_product_by_id', [$this, 'getShopwareProductByID']),
+            new TwigFunction('nosto_configuration_values', [$this, 'getNostoConfigurationValues']),
         ];
     }
 
@@ -124,5 +127,19 @@ class NostoExtension extends AbstractExtension
         }
 
         return $pageType;
+    }
+
+    public function getNostoConfigurationValues(SalesChannelContext $context): array
+    {
+        $languageId = $context->getSalesChannel()->getLanguageId();
+        $salesChannelId = $context->getSalesChannel()->getId();
+
+        $config = $this->nostoConfigService->getConfig($salesChannelId, $languageId);
+
+        if (!isset($config['productIdentifier'])) {
+            $config = $this->nostoConfigService->getConfig();
+        }
+
+        return $config;
     }
 }
