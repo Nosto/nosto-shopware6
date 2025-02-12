@@ -37,8 +37,10 @@ class NostoAnalyticsTrackingController extends AbstractController
     #[Route(
         path: "/nosto/analytics-tracking",
         name: "storefront.nosto.analytics-tracking",
-        defaults: ['XmlHttpRequest' => true],
-        methods: ["POST"]
+        defaults: [
+            'XmlHttpRequest' => true,
+        ],
+        methods: ["POST"],
     )]
     public function trackAnalytics(Request $request, SalesChannelContext $context): JsonResponse
     {
