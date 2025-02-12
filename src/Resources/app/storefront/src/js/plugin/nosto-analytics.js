@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('/nosto/analytics-tracking', {
+                const apiRoute = window.router['storefront.nosto.analytics-tracking'];
+                const response = await fetch(apiRoute, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
