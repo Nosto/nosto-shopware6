@@ -32,6 +32,7 @@
 
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$orderRepository" type="service" id="order.repository" />
+            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
@@ -221,7 +222,15 @@
             <tag name="controller.service_arguments" />
 
             <call method="setContainer">
-                <argument id="service_container" type="service" />
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoDebugController" autowire="true">
+            <tag name="controller.service_arguments" />
+
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
             </call>
         </service>
 
