@@ -218,7 +218,7 @@
             </call>
         </service>
 
-        <service id="Nosto\NostoIntegration\Api\Controller\NostoDebugController" autowire="true">
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoAnalyticsTrackingController" autowire="true">
             <tag name="controller.service_arguments" />
 
             <call method="setContainer">
