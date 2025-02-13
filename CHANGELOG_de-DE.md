@@ -1,3 +1,6 @@
+# 3.4.2
+* Fix: Fixed product click tracking to use the correct route and attributes for accurate search analytics
+
 # 3.4.1
 * We added a Timeout for Category Merchandising and a user agent to be passed for search analytics
 

@@ -1,3 +1,6 @@
+# 3.4.2
+* Fix: Ein Bug im Product-Click Tracking wurde behoben, um die richtige Route und erforderlichen Attribute für die Search-Analytics zu verwenden.
+
 # 3.4.1
 * Fix: Wir haben einen Timeout für das Category Merchandising hinzugefügt und einen User-Agent für die Suchanalyse bereitgestellt.
 
