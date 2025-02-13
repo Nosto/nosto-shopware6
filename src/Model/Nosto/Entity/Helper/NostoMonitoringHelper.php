@@ -60,10 +60,10 @@ class NostoMonitoringHelper
                 $this->connection->executeStatement(
                     $deleteMessagesQuery,
                     [
-                        'jobIds' => $jobIds
+                        'jobIds' => $jobIds,
                     ],
                     [
-                        'jobIds' => ArrayParameterType::BINARY
+                        'jobIds' => ArrayParameterType::BINARY,
                     ],
                 );
 
@@ -73,8 +73,12 @@ class NostoMonitoringHelper
                 ';
                 $this->connection->executeStatement(
                     $deleteJobsQuery,
-                    ['jobIds' => $jobIds],
-                    ['jobIds' => ArrayParameterType::BINARY]
+                    [
+                        'jobIds' => $jobIds,
+                    ],
+                    [
+                        'jobIds' => ArrayParameterType::BINARY,
+                    ],
                 );
 
                 $ret['status'] = 'success';

@@ -158,7 +158,7 @@ class NostoMonitoringController extends StorefrontController
         path: "/nosto-monitoring/log-download-all",
         name: "nosto-monitoring.log-download-all",
         options: [
-            "seo" => "false"
+            "seo" => "false",
         ],
         methods: ["GET"],
     )]
