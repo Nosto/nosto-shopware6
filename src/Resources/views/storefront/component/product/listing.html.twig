@@ -26,6 +26,7 @@
                 {% if searchResult.total > 0 %}
                     {% block element_product_listing_col %}
                         {% for product in searchResult %}
+                            <div hidden data-nosto-analytics="true"></div>
                             <div class="cms-listing-col {{ listingColumns }}"
                                  role="listitem"
                                  data-source="{{ isSearchPage ? 'search' : 'category' }}"

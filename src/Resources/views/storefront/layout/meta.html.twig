@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+{% block layout_head_javascript_router %}
+    {{ parent() }}
+    <script>
+        console.log(12312);
+        // Get full path for Analytics by name. Insert JS in the head.
+        window.router['storefront.nosto.analytics-tracking'] = '{{ path('storefront.nosto.analytics-tracking') }}';
+    </script>
+{% endblock %}
