@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Api\Controller;
 
-use Nosto\NostoIntegration\Async\AbstractMessage;
-use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\Scheduler\Model\Job\Message\JobMessage;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,16 +36,18 @@ class NostoDebugController extends AbstractController
         $message = new ProductSyncMessage(
             Uuid::randomHex(),
             Uuid::randomHex(),
-            [$productId => $productId],
+            [
+                $productId => $productId,
+            ],
             $context->getContext(),
-            'Product Debug'
+            'Product Debug',
         );
 
         $result = $this->productSyncHandler->execute($message);
 
         return new JsonResponse([
-            'messages' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getMessages()),
-            'errors' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getErrors()),
+            'messages' => array_map(static fn (JobMessage $message) => $message->getMessage(), $result->getMessages()),
+            'errors' => array_map(static fn (JobMessage $message) => $message->getMessage(), $result->getErrors()),
         ]);
     }
 
@@ -56,17 +58,21 @@ class NostoDebugController extends AbstractController
         $message = new OrderSyncMessage(
             Uuid::randomHex(),
             Uuid::randomHex(),
-            [$orderId => $orderId],
-            [$orderId => $orderId],
+            [
+                $orderId => $orderId,
+            ],
+            [
+                $orderId => $orderId,
+            ],
             $context->getContext(),
-            'Order Debug'
+            'Order Debug',
         );
 
         $result = $this->orderSyncHandler->execute($message);
 
         return new JsonResponse([
-            'messages' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getMessages()),
-            'errors' => array_map(static fn(JobMessage $message) => $message->getMessage(), $result->getErrors()),
+            'messages' => array_map(static fn (JobMessage $message) => $message->getMessage(), $result->getMessages()),
+            'errors' => array_map(static fn (JobMessage $message) => $message->getMessage(), $result->getErrors()),
         ]);
     }
 }

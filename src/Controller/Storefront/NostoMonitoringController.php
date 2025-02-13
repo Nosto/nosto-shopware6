@@ -6,12 +6,13 @@ namespace Nosto\NostoIntegration\Controller\Storefront;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Route(
     defaults: [
@@ -20,9 +21,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 )]
 class NostoMonitoringController extends StorefrontController
 {
-    const SESSION_KEY = 'nostoAccessKey';
+    public const SESSION_KEY = 'nostoAccessKey';
 
-    const DEMO_KEY = 'Soprex';
+    public const DEMO_KEY = 'Soprex';
 
     private ParameterBagInterface $parameterBag;
 
@@ -43,7 +44,10 @@ class NostoMonitoringController extends StorefrontController
     )]
     public function index(): Response
     {
-        return $this->renderStorefront('@NostoMonitoringController/storefront/page/nosto-monitoring/monitoring-access.html.twig', []);
+        return $this->renderStorefront(
+            '@NostoMonitoringController/storefront/page/nosto-monitoring/monitoring-access.html.twig',
+            [],
+        );
     }
 
     #[Route(
@@ -54,7 +58,7 @@ class NostoMonitoringController extends StorefrontController
         ],
         methods: ["POST"],
     )]
-    public function validateAccessKey(Request $request)
+    public function validateAccessKey(Request $request): RedirectResponse
     {
         $accessKey['accessKey'] = $request->get(self::SESSION_KEY);
 
@@ -75,14 +79,16 @@ class NostoMonitoringController extends StorefrontController
         ],
         methods: ["GET"],
     )]
-    public function nostoMangeOperations(Request $request)
+    public function nostoMangeOperations(Request $request): Response
     {
         $accessKey = $request->getSession()->get('nostoAccessKey');
         if (!$accessKey) {
             return $this->redirectToRoute('nosto-monitoring.access-page');
         }
 
-        return $this->renderStorefront('@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig');
+        return $this->renderStorefront(
+            '@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig',
+        );
     }
 
     #[Route(
@@ -93,7 +99,7 @@ class NostoMonitoringController extends StorefrontController
         ],
         methods: ["POST"],
     )]
-    public function clearNostoJobsFromDB(Request $request)
+    public function clearNostoJobsFromDB(Request $request): RedirectResponse
     {
         $accessKey = $request->getSession()->get('nostoAccessKey');
 
@@ -115,7 +121,7 @@ class NostoMonitoringController extends StorefrontController
         ],
         methods: ["GET"],
     )]
-    public function getLogs(Request $request)
+    public function getLogs(Request $request): JsonResponse|RedirectResponse
     {
         $accessKey = $request->getSession()->get('nostoAccessKey');
 
@@ -129,7 +135,7 @@ class NostoMonitoringController extends StorefrontController
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Log directory not found.',
-            ], 404);
+            ], Response::HTTP_NOT_FOUND);
         }
 
         $logFiles = array_diff(scandir($logDir), ['.', '..']);
@@ -151,10 +157,12 @@ class NostoMonitoringController extends StorefrontController
     #[Route(
         path: "/nosto-monitoring/log-download-all",
         name: "nosto-monitoring.log-download-all",
-        options: ["seo" => "false"],
-        methods: ["GET"]
+        options: [
+            "seo" => "false"
+        ],
+        methods: ["GET"],
     )]
-    public function downloadAllLogs(Request $request)
+    public function downloadAllLogs(Request $request): JsonResponse|RedirectResponse|BinaryFileResponse
     {
         $accessKey = $request->getSession()->get('nostoAccessKey');
 
@@ -170,7 +178,7 @@ class NostoMonitoringController extends StorefrontController
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Failed to create ZIP archive.',
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $files = glob($logDir . DIRECTORY_SEPARATOR . '*.log');
@@ -178,7 +186,7 @@ class NostoMonitoringController extends StorefrontController
             return new JsonResponse([
                 'success' => false,
                 'message' => 'No log files found.',
-            ], 404);
+            ], Response::HTTP_NOT_FOUND);
         }
 
         foreach ($files as $file) {
@@ -186,7 +194,7 @@ class NostoMonitoringController extends StorefrontController
         }
         $zip->close();
 
-        return new BinaryFileResponse($zipFile, 200, [
+        return new BinaryFileResponse($zipFile, Response::HTTP_OK, [
             'Content-Type' => 'application/zip',
             'Content-Disposition' => 'attachment; filename="logs_archive.zip"',
         ]);

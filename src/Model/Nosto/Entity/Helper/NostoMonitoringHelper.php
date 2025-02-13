@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
@@ -12,7 +13,7 @@ class NostoMonitoringHelper
     private readonly Connection $connection;
 
     public function __construct(
-        private readonly ContainerInterface $container
+        private readonly ContainerInterface $container,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
@@ -25,13 +26,13 @@ class NostoMonitoringHelper
      * job IDs and deletes them from the database. If successful, it returns
      * a success message, otherwise, it returns an error message.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function clearNostoJobs(): array
     {
         $ret = [
             'status' => 'info',
-            'message' => 'There are currently no jobs available for deletion, all jobs are completed successfully.'
+            'message' => 'There are currently no jobs available for deletion, all jobs are completed successfully.',
         ];
 
         try {
@@ -58,8 +59,12 @@ class NostoMonitoringHelper
                 ';
                 $this->connection->executeStatement(
                     $deleteMessagesQuery,
-                    ['jobIds' => $jobIds],
-                    ['jobIds' => ArrayParameterType::BINARY]
+                    [
+                        'jobIds' => $jobIds
+                    ],
+                    [
+                        'jobIds' => ArrayParameterType::BINARY
+                    ],
                 );
 
                 $deleteJobsQuery = '
@@ -80,7 +85,7 @@ class NostoMonitoringHelper
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage(),
             ];
         }
     }
