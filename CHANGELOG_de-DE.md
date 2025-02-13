@@ -1,3 +1,18 @@
+# 5.0.1
+*Fix: Wir haben einen Timeout für das Category Merchandising hinzugefügt und einen User-Agent für die Search Analytics hinzugefügt.
+
+# 5.0.0
+* Feature: Such- und Kategorie Analytics sind jetzt verfügbar
+* Neu: Es ist jetzt möglich, mehrere Property Werte zu senden, anstatt nur den letzten Wert.
+* Neu: Dem Search-Request wird nun ein X-Nosto-Integration-Header mit der Plugin-Version hinzugefügt.
+* Neu: Wir haben einen Fallback-Mechanismus für Such- und Kategorieseiten implementiert, falls der Service nicht verfügbar ist.
+* Fix: Bestellungen werden nun korrekt an Nosto gesendet und in den Performance-Metriken abgebildet.
+* Fix: Inaktive Produkte wurden nicht an Nosto übertragen.
+* Fix: Der Fehler „Call to a member function getId() on null“ während der Produktsynchronisierung wurde beseitigt.
+* Fix: Ein Fatal Error beim Hinzufügen und Entfernen einer Preisregel aufgrund ausgelaufener Produkte wurde korrigiert.
+* Fix: Ein Problem, bei dem StockFieldOptions::tryForm() mit dem Wert „null“ in der Produktsynchronisierung aufgerufen wurde, ist behoben.
+* Fix: Ein Unterschied zwischen den Ergebnissen in der Suchergebnisseite und der Auto-Complete Funktionalität wurde beseitigt.
+
 # 4.2.9
 * Fix: Ein Fehler im Zusammenhang mit einer inkorrekten productID im cart tagging und cart events wurde behoben.
 * Neu:  Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist

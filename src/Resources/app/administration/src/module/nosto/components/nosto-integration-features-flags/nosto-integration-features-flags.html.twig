@@ -11,6 +11,7 @@
                 :label="$tc('nosto.configuration.featuresFlags.productIdentifier')"
                 :help-text="$tc('nosto.configuration.featuresFlags.productIdentifierHelpText')"
                 @update:value="onUpdateValue('productIdentifier', $event)"
+                required
             >
                 <template #content="props">
                     <sw-single-select
@@ -35,6 +36,7 @@
                 :label="$tc('nosto.configuration.featuresFlags.enableRatingsReviews')"
                 :help-text="$tc('nosto.configuration.featuresFlags.enableRatingsReviewsHelpText')"
                 @update:value="onUpdateValue('ratingsReviews', $event)"
+                required
             >
                 <template #content="props">
                     <sw-single-select
@@ -59,6 +61,7 @@
                 :label="$tc('nosto.configuration.featuresFlags.stockField')"
                 :help-text="$tc('nosto.configuration.featuresFlags.stockFieldHelpText')"
                 @update:value="onUpdateValue('stockField', $event)"
+                required
             >
                 <template #content="props">
                     <sw-single-select
@@ -83,6 +86,7 @@
                 :label="$tc('nosto.configuration.featuresFlags.crossSellingSync')"
                 :help-text="$tc('nosto.configuration.featuresFlags.crossSellingSyncHelpText')"
                 @update:value="onUpdateValue('crossSellingSync', $event)"
+                required
             >
                 <template #content="props">
                     <sw-single-select
@@ -107,6 +111,7 @@
                 :label="$tc('nosto.configuration.featuresFlags.categoryNaming')"
                 :help-text="$tc('nosto.configuration.featuresFlags.categoryNamingHelpText')"
                 @update:value="onUpdateValue('categoryNaming', $event)"
+                required
             >
                 <template #content="props">
                     <sw-single-select
@@ -514,6 +519,26 @@
                         show-clearable-button
                         :value="props.currentValue"
                         @update:value="onUpdateValue('oldNostoDataCleanupPeriod', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_feature_search_impressions %}
+            <sw-inherit-wrapper
+                    :value="currentConfig['enableSearchImpressions']"
+                    :inheritedValue="configKey === null ? null : configs['null']['enableSearchImpressions']"
+                    @update:value="onUpdateValue('enableSearchImpressions', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                            name="enableSearchImpressions"
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.featuresFlags.enableSearchImpressions.label')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.enableSearchImpressions.helpText')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @update:value="onUpdateValue('enableSearchImpressions', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>

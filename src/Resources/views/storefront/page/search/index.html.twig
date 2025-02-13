@@ -1,13 +1,15 @@
 {% sw_extends '@Storefront/storefront/page/search/index.html.twig' %}
 
 {% block page_search_headline_text %}
+    <div class="nosto_result_id" style="display:none">
+        {{ page.listing.extensions["nosto_result_id"] }}
+    </div>
     {% if not context.context.extensions.nostoService.enabled %}
         {{ parent() }}
     {% else %}
         {% set hits = page.searchResult.criteria.extensions.nostoPagination.total
             ? page.searchResult.criteria.extensions.nostoPagination.total
-            : page.listing.criteria.extensions.nostoPagination.total
-        %}
+            : page.listing.criteria.extensions.nostoPagination.total %}
         {% if hits %}
             {{ "search.headlineText"|trans({
                 '%count%': hits,

@@ -20,7 +20,8 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setQuery((string) $request->query->get('search'));
-
+        $searchOperation->setResponseTimeout(3);
+        $searchOperation->setConnectTimeout(3);
         return $searchOperation->execute();
     }
 }
