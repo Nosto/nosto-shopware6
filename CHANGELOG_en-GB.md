@@ -1,3 +1,6 @@
+# 5.0.2
+* Fix: Fixed product click tracking to use the correct route and attributes for accurate analytics
+
 # 5.0.1
 * Fix: We added a Timeout for Category Merchandising and a user agent to be passed for search analytics
 
