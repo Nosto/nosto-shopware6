@@ -41,7 +41,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
 
         try {
             const response = await this._client.post(apiRoute, JSON.stringify(body), {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
             });
 
             if (!response) {
