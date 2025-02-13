@@ -7,10 +7,11 @@
                 <button type="submit" class="nosto-button">Clear Nosto Jobs</button>
             </form>
             <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET">
-                <button type="submit" class="nosto-button-logs">Logs</button>
+                <button type="submit" class="nosto-button">Logs</button>
             </form>
-
-            <button onclick="handleLogDownload('dev.log')">Preuzmi log fajl</button>
+            <form id="nosto-download-logs">
+                <button onclick="handleLogsDownload()" class="nosto-button">Download log files</button>
+            </form>
         </div>
         <div class="nosto-main">
             <div class="flash-messages">
@@ -29,6 +30,7 @@
     </div>
 
     <script>
+        window.router['nosto-monitoring.log-download-all'] = '{{ path('nosto-monitoring.log-download-all') }}';
         async function detectIncognito() {
             return new Promise(function (resolve, reject) {
                 let browserName = 'Unknown';
@@ -221,26 +223,23 @@
             window.detectIncognito = detectIncognito;
         }
 
-        async function handleLogDownload(fileName) {
+        async function handleLogsDownload() {
             const result = await window.detectIncognito();
 
-            console.log(result, fileName)
-
             if (result.isPrivate) {
-                alert('Preuzimanje log fajlova nije dozvoljeno u incognito režimu.');
+                alert('Downloading log files is not allowed in incognito mode.');
                 return;
             }
 
-            const downloadUrl = `https://nostosw6v3.soprexdev.com/public/nosto-monitoring/log-download?name=${encodeURIComponent(fileName)}`;
-            console.log(`Download URL: ${downloadUrl}`);
+            const apiRoute = window.router['nosto-monitoring.log-download-all'];
+
+            const downloadUrl = window.location.origin + apiRoute;
 
             const a = document.createElement('a');
             a.href = downloadUrl;
-            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            console.log(a)
         }
     </script>
 {% endblock %}

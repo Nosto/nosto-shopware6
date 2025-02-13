@@ -9,6 +9,7 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -116,6 +117,12 @@ class NostoMonitoringController extends StorefrontController
     )]
     public function getLogs(Request $request)
     {
+        $accessKey = $request->getSession()->get('nostoAccessKey');
+
+        if (!$accessKey) {
+            return $this->redirectToRoute('nosto-monitoring.access-page');
+        }
+
         $logDir = $this->parameterBag->get('kernel.logs_dir');
 
         if (!is_dir($logDir)) {
@@ -142,37 +149,46 @@ class NostoMonitoringController extends StorefrontController
     }
 
     #[Route(
-        path: "/nosto-monitoring/log-download",
-        name: "nosto-monitoring.log-download",
-        options: [
-            "seo" => "false",
-        ],
-        methods: ["GET"],
+        path: "/nosto-monitoring/log-download-all",
+        name: "nosto-monitoring.log-download-all",
+        options: ["seo" => "false"],
+        methods: ["GET"]
     )]
-    public function downloadLog(Request $request): Response
+    public function downloadAllLogs(Request $request)
     {
-        $logDir = $this->parameterBag->get('kernel.logs_dir');
-        $fileName = $request->query->get('name');
+        $accessKey = $request->getSession()->get('nostoAccessKey');
 
-        if (!$fileName) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Log file name is required.',
-            ], 400);
+        if (!$accessKey) {
+            return $this->redirectToRoute('nosto-monitoring.access-page');
         }
 
-        $filePath = $logDir . DIRECTORY_SEPARATOR . $fileName;
+        $logDir = $this->parameterBag->get('kernel.logs_dir');
+        $zipFile = $logDir . DIRECTORY_SEPARATOR . 'logs_archive.zip';
 
-        if (!file_exists($filePath)) {
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Log file not found.',
+                'message' => 'Failed to create ZIP archive.',
+            ], 500);
+        }
+
+        $files = glob($logDir . DIRECTORY_SEPARATOR . '*.log');
+        if (!$files) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No log files found.',
             ], 404);
         }
 
-        return new Response(file_get_contents($filePath), 200, [
-            'Content-Type' => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        foreach ($files as $file) {
+            $zip->addFile($file, basename($file));
+        }
+        $zip->close();
+
+        return new BinaryFileResponse($zipFile, 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="logs_archive.zip"',
         ]);
     }
 }
