@@ -93,15 +93,9 @@ class SkuBuilder
         }
 
         if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
-            $nostoSku->addCustomField(
-                'product-labels',
-                json_encode(
-                    [
-                        'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        'mfg-part-number' => $product->getManufacturerNumber(),
-                    ],
-                ),
-            );
+            $nostoSku->addCustomField('product-labels_release-date', $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            $nostoSku->addCustomField('product-labels_mfg-part-number', $product->getManufacturerNumber());
+            $nostoSku->addCustomField('product-labels_gtin-ean', $product->getEan());
         }
 
         if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
