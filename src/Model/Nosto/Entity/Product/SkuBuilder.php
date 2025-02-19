@@ -74,10 +74,6 @@ class SkuBuilder
             $nostoSku->setInventoryLevel($stock);
         }
 
-        if ($ean = $product->getEan()) {
-            $nostoSku->setGtin($ean);
-        }
-
         if (
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
@@ -93,7 +89,10 @@ class SkuBuilder
         }
 
         if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
-            $nostoSku->addCustomField('product-labels_release-date', $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            $nostoSku->addCustomField(
+                'product-labels_release-date',
+                $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            );
             $nostoSku->addCustomField('product-labels_mfg-part-number', $product->getManufacturerNumber());
             $nostoSku->addCustomField('product-labels_gtin-ean', $product->getEan());
         }
