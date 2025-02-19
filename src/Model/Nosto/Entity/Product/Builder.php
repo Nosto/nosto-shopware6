@@ -241,10 +241,6 @@ class Builder
             $nostoProduct->setDatePublished($product->getCreatedAt()->format('Y-m-d'));
         }
 
-        if ($ean = $product->getEan()) {
-            $nostoProduct->setGtin($ean);
-        }
-
         $this->setPrices($nostoProduct, $product, $context);
 
         $crossSellings = $this->crossSellingBuilder->build($product->getId(), $context);
@@ -255,14 +251,11 @@ class Builder
 
         if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
             $nostoProduct->addCustomField(
-                'product-labels',
-                json_encode(
-                    [
-                        'release-date' => $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        'mfg-part-number' => $product->getManufacturerNumber(),
-                    ],
-                ),
+                'product-labels_release-date',
+                $product->getReleaseDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             );
+            $nostoProduct->addCustomField('product-labels_mfg-part-number', $product->getManufacturerNumber());
+            $nostoProduct->addCustomField('product-labels_gtin-ean', $product->getEan());
         }
 
         if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
