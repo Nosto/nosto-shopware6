@@ -1,8 +1,5 @@
-import HttpClient from 'src/service/http-client.service';
-
 export default class NostoAnalytics extends window.PluginBaseClass {
     init() {
-        this._client = new HttpClient();
         this.attachClickEvent();
     }
 
@@ -39,12 +36,22 @@ export default class NostoAnalytics extends window.PluginBaseClass {
 
         const apiRoute = window.router['storefront.nosto.analytics-tracking'];
 
+        if (!apiRoute) {
+            console.error('API Route is undefined.');
+            return;
+        }
+
         try {
-            const response = await this._client.post(apiRoute, JSON.stringify(body), {
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch(apiRoute, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(body)
             });
 
-            if (!response) {
+            if (!response.ok) {
                 console.error('Tracking failed, no response received.');
             }
         } catch (error) {
@@ -53,7 +60,8 @@ export default class NostoAnalytics extends window.PluginBaseClass {
     }
 
     attachClickEvent() {
-        document.querySelectorAll('[role="listitem"]').forEach(product => {
+        // Get only product form listing.
+        document.querySelectorAll('[nosto-analytics="true"]').forEach(product => {
             if (!product.hasEventListenerAttached) {
                 product.addEventListener('click', this.trackProductClick.bind(this));
                 product.hasEventListenerAttached = true;
