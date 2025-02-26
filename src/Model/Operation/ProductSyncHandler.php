@@ -241,15 +241,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
-            if ($variant = $this->handleMainVariant($product, $variantConfig)) {
-                $mainProducts->add($variant);
-            } elseif ($variant = $this->handleFirstAvailableVariant($product, $context)) {
-                $mainProducts->add($variant);
-            }
+            $mainProducts->add($this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance));
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$product->getActive()) {
-            if ($variant = $this->handleFirstAvailableVariant($product, $context)) {
+            if ($variant = $this->handleFirstActiveVariant($product)) {
                 $mainProducts->add($variant);
             }
         }
@@ -295,13 +291,36 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     private function handleMainVariant(
         ProductEntity $product,
         VariantListingConfig $variantConfig,
+        SalesChannelContext $context,
+        bool $hideProductsAfterClearance,
     ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            if ($child->getId() === $variantConfig->getMainVariantId() && $child->getActive()) {
-                $mainProduct = $child;
+            if ($child->getId() === $variantConfig->getMainVariantId()) {
+                $stock = $this->productHelper->getProductStock($child, $context);
+                if ($child->getActive()) {
+                    if ($hideProductsAfterClearance
+                        && $child->getIsCloseout()
+                        && $stock < 1
+                        && $this->configProvider->isEnabledSyncFirstAvailableVariant()
+                    ) {
+                        $mainProduct = $this->handleFirstAvailableVariant($product, $context);
+                    } else {
+                        $mainProduct = $child;
+                    }
+                } else {
+                    if ($hideProductsAfterClearance
+                        && $child->getIsCloseout()
+                        && $stock < 1
+                        && $this->configProvider->isEnabledSyncFirstAvailableVariant()
+                    ) {
+                        $mainProduct = $this->handleFirstAvailableVariant($product, $context);
+                    } else {
+                        $mainProduct = $this->handleFirstActiveVariant($product);
+                    }
+                }
             } else {
                 $variants->add($child);
             }
@@ -332,6 +351,26 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $mainProducts;
+    }
+
+    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
+    {
+        $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
+        foreach ($product->getChildren() as $child) {
+            if ($child->getActive() && !$mainProduct) {
+                $mainProduct = $child;
+            } else {
+                $variants->add($child);
+            }
+        }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
+        }
+
+        return $mainProduct;
     }
 
     private function handleFirstAvailableVariant(
