@@ -9,18 +9,10 @@
                 <div class="line_item">
                     <span class="product_id">
                         {% if productIdentifier == 'product-number' %}
-                            {% if lineItem.payload.parentId != null %}
-                                {% set nostoProduct = nosto_product_by_id(lineItem.payload.parentId, context) %}
-                                {{ nostoProduct.productNumber }}
-                            {% else %}
-                                {{ lineItem.payload.productNumber }}
-                            {% endif %}
+                            {% set nostoProduct = lineItem.payload.parentId ? nosto_product_by_id(lineItem.payload.parentId, context) %}
+                            {{ nostoProduct.productNumber ?? lineItem.payload.productNumber }}
                         {% else %}
-                            {% if lineItem.payload.parentId != null %}
-                                {{ lineItem.payload.parentId }}
-                            {% else %}
-                                {{ lineItem.referencedId }}
-                            {% endif %}
+                            {{ lineItem.payload.parentId ?: lineItem.referencedId }}
                         {% endif %}
                     </span>
                     <span class="quantity">{{ lineItem.quantity }}</span>
