@@ -26,8 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouterInterface;
+/*use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouterInterface;*/
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
@@ -40,7 +40,7 @@ class ProductHelper
         private readonly ConfigProvider $configProvider,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly RouterInterface $router,
+        /*private readonly RouterInterface $router,*/
     ) {
     }
 
@@ -211,7 +211,7 @@ class ProductHelper
         )->getEntities();
     }
 
-    protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
+    /*protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
     {
         $schemaAuthority = null;
 
@@ -246,7 +246,7 @@ class ProductHelper
     public function getFallbackImageUrl(SalesChannelContext $context): string
     {
         return $this->buildFallbackImage($context, $this->router->getContext());
-    }
+    }*/
 
     public function getProductStock(
         ProductEntity|SalesChannelProductEntity $product,
