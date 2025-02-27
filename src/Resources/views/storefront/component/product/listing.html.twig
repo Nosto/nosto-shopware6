@@ -33,7 +33,7 @@
                                  product-number="{{ product.productNumber }}"
                                  product-id="{{ product.id }}"
                                  category-id="{{ app.request.get('navigationId') }}"
-                                 ]="true"
+                                 nosto-analytics="true"
                             >
                                 {% block element_product_listing_box %}
                                     {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
