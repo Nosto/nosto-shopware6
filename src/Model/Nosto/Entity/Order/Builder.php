@@ -9,15 +9,16 @@ use Nosto\Model\Order\Buyer;
 use Nosto\Model\Order\Order as NostoOrder;
 use Nosto\Model\Order\OrderStatus;
 use Nosto\NostoException;
-use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder
@@ -26,14 +27,15 @@ class Builder
         private readonly NostoBuyerBuilderInterface $buyerBuilder,
         private readonly NostoOrderItemBuilder $nostoOrderItemBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
     public function build(
         OrderEntity $order,
-        Context $context,
-        EntityRepository $productRepository,
-        ProductIdentifierOptions $productIdentifierOptions,
+        SalesChannelContext $context,
+        SalesChannelRepository $productRepository,
     ): NostoOrder {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
@@ -66,7 +68,8 @@ class Builder
                     $order->getCurrency(),
                     $productRepository,
                     $context,
-                    $productIdentifierOptions,
+                    $this->configProvider,
+                    $this->systemConfigService,
                 );
                 $nostoOrder->addPurchasedItems($nostoItem);
             }
@@ -81,7 +84,7 @@ class Builder
             $nostoOrder->addPurchasedItems($nostoItem);
         }
 
-        $this->eventDispatcher->dispatch(new NostoOrderBuiltEvent($order, $nostoOrder, $context));
+        $this->eventDispatcher->dispatch(new NostoOrderBuiltEvent($order, $nostoOrder, $context->getContext()));
         return $nostoOrder;
     }
 }
