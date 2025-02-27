@@ -241,9 +241,9 @@ class ProductHelper
             $schemaAuthority,
             'bundles/storefront/assets/icon/default/placeholder.svg',
         );
-    }
+    }*/
 
-    public function getFallbackImageUrl(SalesChannelContext $context): string
+    /*public function getFallbackImageUrl(SalesChannelContext $context): string
     {
         return $this->buildFallbackImage($context, $this->router->getContext());
     }*/
