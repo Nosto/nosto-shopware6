@@ -18,7 +18,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * If you are changing logic here!
  * make sure you also change/check the logic on here {@see \Nosto\NostoIntegration\Model\Operation\ProductSyncHandler}
  * at function processProductVariants
- *
  */
 class ProductTaggingHelper
 {
