@@ -241,7 +241,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
-            $mainProducts->add($this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance));
+            $mainProducts->add(
+                $this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance),
+            );
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$product->getActive()) {
@@ -298,31 +300,25 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $variants = new ProductCollection([$product]);
 
         foreach ($product->getChildren() as $child) {
-            if ($child->getId() === $variantConfig->getMainVariantId()) {
-                $stock = $this->productHelper->getProductStock($child, $context);
-                if ($child->getActive()) {
-                    if ($hideProductsAfterClearance
-                        && $child->getIsCloseout()
-                        && $stock < 1
-                        && $this->configProvider->isEnabledSyncFirstAvailableVariant()
-                    ) {
-                        $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-                    } else {
-                        $mainProduct = $child;
-                    }
-                } else {
-                    if ($hideProductsAfterClearance
-                        && $child->getIsCloseout()
-                        && $stock < 1
-                        && $this->configProvider->isEnabledSyncFirstAvailableVariant()
-                    ) {
-                        $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-                    } else {
-                        $mainProduct = $this->handleFirstActiveVariant($product);
-                    }
-                }
-            } else {
+            if ($child->getId() !== $variantConfig->getMainVariantId()) {
                 $variants->add($child);
+                continue;
+            }
+
+            $stock = $this->productHelper->getProductStock($child, $context);
+            $shouldHandleFirstAvailable = $hideProductsAfterClearance
+                && $child->getIsCloseout()
+                && $stock < 1
+                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
+            if ($child->getActive()) {
+                $mainProduct = $shouldHandleFirstAvailable
+                    ? $this->handleFirstAvailableVariant($product, $context)
+                    : $child;
+            } else {
+                $mainProduct = $shouldHandleFirstAvailable
+                    ? $this->handleFirstAvailableVariant($product, $context)
+                    : $this->handleFirstActiveVariant($product);
             }
         }
 
