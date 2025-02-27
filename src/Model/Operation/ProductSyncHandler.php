@@ -205,6 +205,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
+    /**
+     * If you are changing logic here please make sure
+     * to update the {@see Nosto\NostoIntegration\Utils\ProductTaggingHelper} logic otherwise
+     * TAGGING AND ORDER SYNC MAY BREAK
+     *
+     */
     private function processProductVariants(
         ProductEntity $product,
         SalesChannelContext $context,
