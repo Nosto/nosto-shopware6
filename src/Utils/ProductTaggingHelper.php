@@ -13,6 +13,13 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * Helper class to find the product id that is used in Nosto for the main product.
+ * If you are changing logic here!
+ * make sure you also change/check the logic on here {@see \Nosto\NostoIntegration\Model\Operation\ProductSyncHandler}
+ * at function processProductVariants
+ *
+ */
 class ProductTaggingHelper
 {
     public function __construct(
