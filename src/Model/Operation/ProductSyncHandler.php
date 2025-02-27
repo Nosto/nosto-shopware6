@@ -241,9 +241,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
             $mainProducts->add($this->handleCheapestVariant($product, $context));
         } elseif ($variantConfig->getMainVariantId()) {
-            $mainProducts->add(
-                $this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance),
-            );
+            if ($variant = $this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance)) {
+                $mainProducts->add($variant);
+            }
         } elseif (count($configuratorGroups)) {
             $mainProducts->merge($this->handleConfiguratorGroups($product));
         } elseif (!$product->getActive()) {
