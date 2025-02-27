@@ -198,11 +198,12 @@ class Builder
         if ($product->getCover()) {
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
-        } else {
-            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
-            $nostoProduct->setImageUrl($placeholderImageUrl);
-            $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
+        //        else {
+        //            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
+        //            $nostoProduct->setImageUrl($placeholderImageUrl);
+        //            $nostoProduct->setThumbUrl($placeholderImageUrl);
+        //        }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
             $alternateMedia = $product->getMedia();

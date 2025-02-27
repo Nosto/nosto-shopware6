@@ -57,10 +57,11 @@ class SkuBuilder
 
         if ($product->getCover() && $product->getCover()->getMedia()) {
             $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
-        } else {
-            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
-            $nostoSku->setImageUrl($placeholderImageUrl);
         }
+        //        else {
+        //            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
+        //            $nostoSku->setImageUrl($placeholderImageUrl);
+        //        }
 
         if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
             $nostoSku->setPrice($price->getGross());
