@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoIntegration\Model\Config\NostoConfigService;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Throwable;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -23,6 +27,9 @@ class NostoExtension extends AbstractExtension
         private readonly ProductProviderInterface $productProvider,
         private readonly LoggerInterface $logger,
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ConfigProvider $configProvider,
+        private readonly NostoConfigService $nostoConfigService,
     ) {
     }
 
@@ -35,6 +42,8 @@ class NostoExtension extends AbstractExtension
             new TwigFunction('nosto_product', [$this, 'getNostoProduct']),
             new TwigFunction('nosto_page_type', [$this, 'getPageType']),
             new TwigFunction('nosto_shopware_product_by_id', [$this, 'getShopwareProductByID']),
+            new TwigFunction('nosto_shopware_main_product_identifier', [$this, 'getShopwareMainProductIdentifier']),
+            new TwigFunction('nosto_configuration_values', [$this, 'getNostoConfigurationValues']),
         ];
     }
 
@@ -84,6 +93,26 @@ class NostoExtension extends AbstractExtension
             ->first();
     }
 
+    public function getShopwareMainProductIdentifier(
+        $id,
+        $variantId,
+        SalesChannelContext $context,
+    ): ?string {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $id));
+        $criteria->addAssociation('children');
+        /** @var SalesChannelProductEntity $mainProduct */
+        $mainProduct = $this->salesChannelProductRepository
+            ->search($criteria, $context)
+            ->first();
+        /** @var SalesChannelProductEntity $mainProduct */
+        $variantFromDb = $this->salesChannelProductRepository
+            ->search(new Criteria([$variantId]), $context)
+            ->first();
+        $productTaggingHelper = new ProductTaggingHelper($this->systemConfigService, $this->configProvider);
+        return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb);
+    }
+
     public function getPageType($activeRoute, $pageCmsType): string
     {
         $pageType = 'notfound';
@@ -124,5 +153,21 @@ class NostoExtension extends AbstractExtension
         }
 
         return $pageType;
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public function getNostoConfigurationValues(SalesChannelContext $context): array
+    {
+        $languageId = $context->getSalesChannel()->getLanguageId();
+        $salesChannelId = $context->getSalesChannel()->getId();
+
+        $config = $this->nostoConfigService->getConfig($salesChannelId, $languageId);
+
+        if (!isset($config['productIdentifier'])) {
+            $config = $this->nostoConfigService->getConfig();
+        }
+
+        return $config;
     }
 }

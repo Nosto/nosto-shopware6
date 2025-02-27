@@ -32,7 +32,7 @@
 
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$orderRepository" type="service" id="order.repository" />
-            <argument key="$productRepository" type="service" id="product.repository" />
+            <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
 
         </service>
 
@@ -197,6 +197,7 @@
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider" />
             <argument type="service" id="monolog.logger.nosto_integration" />
             <argument type="service" id="sales_channel.product.repository" />
+            <argument key="$nostoConfigService" type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
         </service>
         <!-- /Extensions -->
 

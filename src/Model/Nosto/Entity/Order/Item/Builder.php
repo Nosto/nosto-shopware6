@@ -7,35 +7,45 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item;
 use Exception;
 use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
+use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class Builder
 {
     public function build(
         OrderLineItemEntity $item,
         CurrencyEntity $currency,
-        EntityRepository $productRepository,
-        Context $context,
-        ProductIdentifierOptions $productIdentifierOptions,
+        SalesChannelRepository $productRepository,
+        SalesChannelContext $context,
+        ConfigProvider $configProvider,
+        SystemConfigService $systemConfigService,
     ): NostoLineItem {
-        /** @var ProductEntity|null $product */
-        $product = $productRepository->search(new Criteria([$item->getProductId()]), $context)->first();
-        /** @var ProductEntity|null $parentProduct */
-        $parentProduct = $productRepository->search(new Criteria([$product->getParentId()]), $context)->first();
+        $criteria = new Criteria([$item->getProductId()]);
+        $criteria->addAssociation('children');
+        /** @var SalesChannelProductEntity|null $product */
+        $product = $productRepository->search($criteria, $context)->first();
+        $criteria = new Criteria([$product->getParentId()]);
+        $criteria->addAssociation('children');
+        /** @var SalesChannelProductEntity|null $parentProduct */
+        $parentProduct = $productRepository->search($criteria, $context)->first();
         $skuId = $item->getPayload()['productNumber'];
-        if ($productIdentifierOptions === ProductIdentifierOptions::PRODUCT_ID) {
+        if ($configProvider->getProductIdentifier(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === ProductIdentifierOptions::PRODUCT_ID) {
             $skuId = $item->getProductId();
         }
-        if ($parentProduct !== null) {
-            $productId = $this->getProductId($parentProduct, $productIdentifierOptions);
-        } else {
-            $productId = $this->getProductId($product, $productIdentifierOptions);
-        }
+        $productTaggingHelper = new ProductTaggingHelper($systemConfigService, $configProvider);
+        $productId = $productTaggingHelper->findProductId($context, $parentProduct, $product);
+
         $nostoItem = new NostoLineItem();
         $nostoItem->setPriceCurrencyCode($currency->getIsoCode());
         $nostoItem->setProductId($productId);
