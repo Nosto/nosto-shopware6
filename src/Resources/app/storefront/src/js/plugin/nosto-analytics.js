@@ -3,10 +3,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         this.attachClickEvent();
     }
 
-    async trackProductClick(event) {
-        const product = event.currentTarget;
-        if (!product) return;
-
+    async trackProductClick(product) {
         const sessionId = this.getCookie('2c.cId');
         const productData = {
             dataSource: product.getAttribute('data-source'),
@@ -60,11 +57,10 @@ export default class NostoAnalytics extends window.PluginBaseClass {
     }
 
     attachClickEvent() {
-        // Get only product form listing.
-        document.querySelectorAll('[nosto-analytics="true"]').forEach(product => {
-            if (!product.hasEventListenerAttached) {
-                product.addEventListener('click', this.trackProductClick.bind(this));
-                product.hasEventListenerAttached = true;
+        document.addEventListener('click', (event) => {
+            const product = event.target.closest('[nosto-analytics="true"]');
+            if (product) {
+                this.trackProductClick(product);
             }
         });
     }
