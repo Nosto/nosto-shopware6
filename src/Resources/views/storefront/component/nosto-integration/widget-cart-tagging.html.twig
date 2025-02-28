@@ -10,9 +10,9 @@
                             {% set productId = nosto_shopware_main_product_identifier(lineItem.payload.parentId, lineItem.referencedId, context) %}
                             {{ productId }}
                         {% else %}
-                            {% if productIdentifier == 'product-number' %}#}
+                            {% if productIdentifier == 'product-number' %}
                                 {{ lineItem.payload.productNumber }}
-                            {% else %}#}
+                            {% else %}
                                 {{ lineItem.referencedId }}
                             {% endif %}
                         {% endif %}
