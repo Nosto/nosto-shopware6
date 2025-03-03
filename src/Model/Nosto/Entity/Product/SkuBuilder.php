@@ -58,6 +58,9 @@ class SkuBuilder
         if ($product->getCover() && $product->getCover()->getMedia()) {
             $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
         }
+        /*
+         * TODO: The code related to the commented-out methods from the ProductHelper class.
+         */
         //        else {
         //            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
         //            $nostoSku->setImageUrl($placeholderImageUrl);

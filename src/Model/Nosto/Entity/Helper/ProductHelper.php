@@ -208,6 +208,9 @@ class ProductHelper
         )->getEntities();
     }
 
+    /*
+     * TODO: The code is commented out because it might be used again in the future.
+     */
     //    protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
     //    {
     //        $schemaAuthority = null;
