@@ -376,7 +376,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         foreach ($product->getChildren() as $child) {
             $stock = $this->productHelper->getProductStock($child, $context);
 
-            if (!$mainProduct && $child->getActive() && ($stock || !$child->getIsCloseout())) {
+            if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                 $mainProduct = $child;
             } else {
                 $variants->add($child);
