@@ -201,8 +201,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        dd($operation);
-
         $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
         $operation->upsert();
     }
