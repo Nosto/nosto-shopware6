@@ -322,7 +322,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if ($mainProduct) {
+        if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
             $mainProduct->setChildren($variants);
         }
 
