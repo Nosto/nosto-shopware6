@@ -148,7 +148,21 @@ class ProductTaggingHelper
 
         foreach ($product->getChildren() as $child) {
             if ($child->getId() === $variantConfig->getMainVariantId()) {
-                $mainProduct = $this->handleMainProduct($child, $context, $hideProductsAfterClearance);
+                $stock = $this->getProductStock($child, $context);
+                $shouldHandleFirstAvailable = $hideProductsAfterClearance
+                    && $child->getIsCloseout()
+                    && $stock < 1
+                    && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
+                if ($child->getActive()) {
+                    $mainProduct = $shouldHandleFirstAvailable
+                        ? $this->handleFirstAvailableVariant($product, $context)
+                        : $child;
+                } else {
+                    $mainProduct = $shouldHandleFirstAvailable
+                        ? $this->handleFirstAvailableVariant($product, $context)
+                        : $this->handleFirstActiveVariant($product);
+                }
             }
         }
         return $mainProduct;
