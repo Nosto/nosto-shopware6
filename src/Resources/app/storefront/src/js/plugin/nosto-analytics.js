@@ -36,21 +36,17 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             throw new Error('API Route is undefined.');
         }
 
-        try {
-            const response = await fetch(apiRoute, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(body),
-            });
+        const response = await fetch(apiRoute, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify(body),
+        });
 
-            if (!response.ok) {
-                throw new Error('Tracking failed, no response received.');
-            }
-        } catch (error) {
-            throw new Error(`Error sending tracking request: ${error.message}`);
+        if (!response.ok) {
+            throw new Error('Tracking failed, no response received.');
         }
     }
 
