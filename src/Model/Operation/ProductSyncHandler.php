@@ -224,7 +224,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $mainProducts = new ProductCollection();
         if ($variantConfig->getDisplayParent()) {
-            if ($parentProduct = $this->handleParentProduct($product, $context, $hideProductsAfterClearance)) {
+            if ($parentProduct = $this->handleMainProduct($product, $context, $hideProductsAfterClearance)) {
                 $mainProducts->add($parentProduct);
             }
         } elseif ($variantConfig->getDisplayCheapestVariant()) {
@@ -256,7 +256,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleParentProduct(
+    private function handleMainProduct(
         ProductEntity $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
