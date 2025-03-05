@@ -35,7 +35,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
 
         if (!apiRoute) {
             console.error('API Route is undefined.');
-            return;
+            return false;
         }
 
         try {
@@ -51,17 +51,27 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             if (!response.ok) {
                 console.error('Tracking failed, no response received.');
             }
+            return true;
         } catch (error) {
             console.error('Error sending tracking request:', error);
+            return false;
         }
     }
 
     attachClickEvent() {
-        document.addEventListener('click', (event) => {
+        document.addEventListener('click', async (event) => {
             const product = event.target.closest('[nosto-analytics="true"]');
-            if (product) {
-                this.trackProductClick(product);
+
+            if (!product) return;
+            if (product.hasAttribute('data-tracking-in-progress')) return;
+
+            product.setAttribute('data-tracking-in-progress', 'true');
+            try {
+                await this.trackProductClick(product);
+            } catch (error) {
+                console.error('Error tracking product:', error);
             }
+            product.removeAttribute('data-tracking-in-progress');
         });
     }
 
