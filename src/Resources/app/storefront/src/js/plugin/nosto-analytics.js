@@ -1,15 +1,9 @@
-import HttpClient from 'src/service/http-client.service';
-
 export default class NostoAnalytics extends window.PluginBaseClass {
     init() {
-        this._client = new HttpClient();
         this.attachClickEvent();
     }
 
-    async trackProductClick(event) {
-        const product = event.currentTarget;
-        if (!product) return;
-
+    async trackProductClick(product) {
         const sessionId = this.getCookie('2c.cId');
         const productData = {
             dataSource: product.getAttribute('data-source'),
@@ -39,12 +33,22 @@ export default class NostoAnalytics extends window.PluginBaseClass {
 
         const apiRoute = window.router['storefront.nosto.analytics-tracking'];
 
+        if (!apiRoute) {
+            console.error('API Route is undefined.');
+            return;
+        }
+
         try {
-            const response = await this._client.post(apiRoute, JSON.stringify(body), {
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch(apiRoute, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify(body),
             });
 
-            if (!response) {
+            if (!response.ok) {
                 console.error('Tracking failed, no response received.');
             }
         } catch (error) {
@@ -53,10 +57,10 @@ export default class NostoAnalytics extends window.PluginBaseClass {
     }
 
     attachClickEvent() {
-        document.querySelectorAll('[role="listitem"]').forEach(product => {
-            if (!product.hasEventListenerAttached) {
-                product.addEventListener('click', this.trackProductClick.bind(this));
-                product.hasEventListenerAttached = true;
+        document.addEventListener('click', (event) => {
+            const product = event.target.closest('[nosto-analytics="true"]');
+            if (product) {
+                this.trackProductClick(product);
             }
         });
     }
