@@ -272,15 +272,21 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
-        $stock = $this->productHelper->getProductStock($product, $context);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $product->getIsCloseout()
-            && $stock < 1
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+        $mainProduct = null;
 
-        return $shouldHandleFirstAvailable
-            ? $this->handleFirstAvailableVariant($product, $context)
-            : $this->handleFirstActiveVariant($product);
+        foreach ($product->getChildren() as $child) {
+            $stock = $this->productHelper->getProductStock($child, $context);
+            $shouldHandleFirstAvailable = $hideProductsAfterClearance
+                && $child->getIsCloseout()
+                && $stock < 1
+                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
+            $mainProduct = $shouldHandleFirstAvailable
+                ? $this->handleFirstAvailableVariant($product, $context)
+                : $this->handleFirstActiveVariant($product);
+        }
+
+        return $mainProduct;
     }
 
     private function handleCheapestVariant(
