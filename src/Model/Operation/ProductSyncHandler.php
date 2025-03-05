@@ -317,7 +317,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $cheapestVariant->setChildren(
             $product->getChildren()->filter(
-                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
+                static fn (ProductEntity $child) => $child->getId() !== $cheapestVariant->getId(),
             ),
         );
 
