@@ -19,8 +19,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';
 
         if (!sessionId || !productData.dataSource || !productData.productNumber || !productData.productId) {
-            console.error('Missing required attributes: dataSource, productNumber, 2c.cId or productId');
-            return;
+            throw new Error('Missing required attributes: dataSource, productNumber, 2c.cId, or productId');
         }
 
         const body = {
@@ -34,8 +33,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const apiRoute = window.router['storefront.nosto.analytics-tracking'];
 
         if (!apiRoute) {
-            console.error('API Route is undefined.');
-            return false;
+            throw new Error('API Route is undefined.');
         }
 
         try {
@@ -49,12 +47,10 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             });
 
             if (!response.ok) {
-                console.error('Tracking failed, no response received.');
+                throw new Error('Tracking failed, no response received.');
             }
-            return true;
         } catch (error) {
-            console.error('Error sending tracking request:', error);
-            return false;
+            throw new Error(`Error sending tracking request: ${error.message}`);
         }
     }
 
