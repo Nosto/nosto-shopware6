@@ -61,7 +61,8 @@ class ProductTaggingHelper
                 $productToReturn = $variant;
             }
         }
-        return $this->getIdOrProductNumber($context, $productToReturn);
+        //if for whatever reason we don't find the correct product return just main product id
+        return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
     }
 
     private function handleVariant(
@@ -69,15 +70,15 @@ class ProductTaggingHelper
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
-        $stock = $this->getProductStock($product, $context);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $product->getIsCloseout()
-            && $stock < 1
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+        $mainProduct = null;
+        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
+            $mainProduct = $this->handleFirstAvailableVariant($product, $context);
+        }
 
-        return $shouldHandleFirstAvailable
-            ? $this->handleFirstAvailableVariant($product, $context)
-            : $this->handleFirstActiveVariant($product);
+        if (!$mainProduct) {
+            $mainProduct = $this->handleFirstActiveVariant($product);
+        }
+        return $mainProduct;
     }
 
     private function handleMainProduct(
@@ -187,13 +188,14 @@ class ProductTaggingHelper
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): ?ProductEntity {
+        $mainProduct = null;
         foreach ($product->getChildren() as $child) {
             $stock = $this->getProductStock($child, $context);
             if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
-                return $child;
+                $mainProduct = $child;
             }
         }
-        return $product;
+        return $mainProduct;
     }
 
     private function handleCheapestVariant(
