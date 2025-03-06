@@ -19,8 +19,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';
 
         if (!sessionId || !productData.dataSource || !productData.productNumber || !productData.productId) {
-            console.error('Missing required attributes: dataSource, productNumber, 2c.cId or productId');
-            return;
+            throw new Error('Missing required attributes: dataSource, productNumber, 2c.cId, or productId');
         }
 
         const body = {
@@ -34,34 +33,37 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const apiRoute = window.router['storefront.nosto.analytics-tracking'];
 
         if (!apiRoute) {
-            console.error('API Route is undefined.');
-            return;
+            throw new Error('API Route is undefined.');
         }
 
-        try {
-            const response = await fetch(apiRoute, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(body),
-            });
+        const response = await fetch(apiRoute, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify(body),
+        });
 
-            if (!response.ok) {
-                console.error('Tracking failed, no response received.');
-            }
-        } catch (error) {
-            console.error('Error sending tracking request:', error);
+        if (!response.ok) {
+            throw new Error('Tracking failed, no response received.');
         }
     }
 
     attachClickEvent() {
-        document.addEventListener('click', (event) => {
+        document.addEventListener('click', async (event) => {
             const product = event.target.closest('[nosto-analytics="true"]');
-            if (product) {
-                this.trackProductClick(product);
+
+            if (!product) return;
+            if (product.hasAttribute('data-tracking-in-progress')) return;
+
+            product.setAttribute('data-tracking-in-progress', 'true');
+            try {
+                await this.trackProductClick(product);
+            } catch (error) {
+                console.error('Error tracking product:', error);
             }
+            product.removeAttribute('data-tracking-in-progress');
         });
     }
 
