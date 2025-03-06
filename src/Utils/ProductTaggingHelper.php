@@ -55,7 +55,12 @@ class ProductTaggingHelper
                 $productToReturn = $variant;
             }
         } elseif (count($configuratorGroups)) {
-            $productToReturn = $this->handleConfiguratorGroups($product, $variant, $context, $hideProductsAfterClearance);
+            $productToReturn = $this->handleConfiguratorGroups(
+                $product,
+                $variant,
+                $context,
+                $hideProductsAfterClearance,
+            );
         } else {
             if ($variant = $this->handleVariant($product, $context, $hideProductsAfterClearance)) {
                 $productToReturn = $variant;
@@ -130,14 +135,18 @@ class ProductTaggingHelper
         ProductEntity $product,
         ProductEntity $variantFromDb,
         SalesChannelContext $context,
-        bool $hideProductsAfterClearance
+        bool $hideProductsAfterClearance,
     ): ?ProductEntity {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
         if ($variantFromDb->getDisplayGroup() !== null) {
-            return $this->handleVariantByProperty($groupedVariants[$variantFromDb->getDisplayGroup()], $context, $hideProductsAfterClearance);
+            return $this->handleVariantByProperty(
+                $groupedVariants[$variantFromDb->getDisplayGroup()],
+                $context,
+                $hideProductsAfterClearance,
+            );
         }
 
         return null;
