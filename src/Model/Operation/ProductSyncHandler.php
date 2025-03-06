@@ -283,14 +283,14 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     ): ?ProductEntity {
         $stock = $this->productHelper->getProductStock($product, $context);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $product->getIsCloseout()
-            && $stock < 1
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
         if ($product->getActive()) {
-            $mainProduct = $shouldHandleFirstAvailable
-                ? $this->handleFirstAvailableVariant($product, $context)
-                : $product;
+            if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
+                $mainProduct = $this->handleFirstAvailableVariant($product, $context);
+            } else {
+                $mainProduct = $product;
+            }
         } else {
             $mainProduct = $shouldHandleFirstAvailable
                 ? $this->handleFirstAvailableVariant($product, $context)
