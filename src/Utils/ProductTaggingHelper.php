@@ -190,6 +190,9 @@ class ProductTaggingHelper
     ): ?ProductEntity {
         $mainProduct = null;
         foreach ($product->getChildren() as $child) {
+            if ($mainProduct) {
+                break;
+            }
             $stock = $this->getProductStock($child, $context);
             if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                 $mainProduct = $child;
