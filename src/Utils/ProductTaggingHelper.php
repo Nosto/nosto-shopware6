@@ -55,7 +55,7 @@ class ProductTaggingHelper
                 $productToReturn = $variant;
             }
         } elseif (count($configuratorGroups)) {
-            $productToReturn = $this->handleConfiguratorGroups($product, $variant);
+            $productToReturn = $this->handleConfiguratorGroups($product, $variant, $context, $hideProductsAfterClearance);
         } else {
             if ($variant = $this->handleVariant($product, $context, $hideProductsAfterClearance)) {
                 $productToReturn = $variant;
@@ -88,13 +88,13 @@ class ProductTaggingHelper
     ): ?ProductEntity {
         $stock = $this->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $product->getIsCloseout()
-            && $stock < 1
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
         if ($product->getActive()) {
-            $mainProduct = $shouldHandleFirstAvailable
-                ? $this->handleFirstAvailableVariant($product, $salesChannelContext)
-                : $product;
+            if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
+                $mainProduct = $this->handleFirstAvailableVariant($product, $salesChannelContext);
+            } else {
+                $mainProduct = $product;
+            }
         } else {
             $mainProduct = $shouldHandleFirstAvailable
                 ? $this->handleFirstAvailableVariant($product, $salesChannelContext)
@@ -126,17 +126,47 @@ class ProductTaggingHelper
         return $mainProduct;
     }
 
-    private function handleConfiguratorGroups(ProductEntity $product, ProductEntity $variantFromDb): ProductEntity
-    {
+    private function handleConfiguratorGroups(
+        ProductEntity $product,
+        ProductEntity $variantFromDb,
+        SalesChannelContext $context,
+        bool $hideProductsAfterClearance
+    ): ?ProductEntity {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
         if ($variantFromDb->getDisplayGroup() !== null) {
-            return reset($groupedVariants[$variantFromDb->getDisplayGroup()]);
+            return $this->handleVariantByProperty($groupedVariants[$variantFromDb->getDisplayGroup()], $context, $hideProductsAfterClearance);
         }
 
-        return $product;
+        return null;
+    }
+
+    private function handleVariantByProperty(
+        array $variants,
+        SalesChannelContext $context,
+        bool $hideProductsAfterClearance,
+    ): ?ProductEntity {
+        $mainProduct = null;
+
+        foreach ($variants as $child) {
+            if ($mainProduct) {
+                break;
+            }
+            $stock = $this->getProductStock($child, $context);
+            $shouldHandleFirstAvailable = $hideProductsAfterClearance
+                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
+            if ($shouldHandleFirstAvailable) {
+                if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
+                    $mainProduct = $child;
+                }
+            } elseif ($child->getActive()) {
+                $mainProduct = $child;
+            }
+        }
+        return $mainProduct;
     }
 
     private function handleMainVariant(
