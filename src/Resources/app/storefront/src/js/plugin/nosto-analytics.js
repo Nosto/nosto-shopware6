@@ -1,15 +1,9 @@
-import HttpClient from 'src/service/http-client.service';
-
 export default class NostoAnalytics extends window.PluginBaseClass {
     init() {
-        this._client = new HttpClient();
         this.attachClickEvent();
     }
 
-    async trackProductClick(event) {
-        const product = event.currentTarget;
-        if (!product) return;
-
+    async trackProductClick(product) {
         const sessionId = this.getCookie('2c.cId');
         const productData = {
             dataSource: product.getAttribute('data-source'),
@@ -25,8 +19,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';
 
         if (!sessionId || !productData.dataSource || !productData.productNumber || !productData.productId) {
-            console.error('Missing required attributes: dataSource, productNumber, 2c.cId or productId');
-            return;
+            throw new Error('Missing required attributes: dataSource, productNumber, 2c.cId, or productId');
         }
 
         const body = {
@@ -39,25 +32,38 @@ export default class NostoAnalytics extends window.PluginBaseClass {
 
         const apiRoute = window.router['storefront.nosto.analytics-tracking'];
 
-        try {
-            const response = await this._client.post(apiRoute, JSON.stringify(body), {
-                headers: { 'Content-Type': 'application/json' },
-            });
+        if (!apiRoute) {
+            throw new Error('API Route is undefined.');
+        }
 
-            if (!response) {
-                console.error('Tracking failed, no response received.');
-            }
-        } catch (error) {
-            console.error('Error sending tracking request:', error);
+        const response = await fetch(apiRoute, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+            throw new Error('Tracking failed, no response received.');
         }
     }
 
     attachClickEvent() {
-        document.querySelectorAll('[role="listitem"]').forEach(product => {
-            if (!product.hasEventListenerAttached) {
-                product.addEventListener('click', this.trackProductClick.bind(this));
-                product.hasEventListenerAttached = true;
+        document.addEventListener('click', async (event) => {
+            const product = event.target.closest('[nosto-analytics="true"]');
+
+            if (!product) return;
+            if (product.hasAttribute('data-tracking-in-progress')) return;
+
+            product.setAttribute('data-tracking-in-progress', 'true');
+            try {
+                await this.trackProductClick(product);
+            } catch (error) {
+                console.error('Error tracking product:', error);
             }
+            product.removeAttribute('data-tracking-in-progress');
         });
     }
 
