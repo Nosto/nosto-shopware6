@@ -406,7 +406,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 } else {
                     $children->add($child);
                 }
-            } else if (!$mainProduct && $child->getActive()) {
+            } elseif (!$mainProduct && $child->getActive()) {
                 $mainProduct = $child;
             } else {
                 $children->add($child);
