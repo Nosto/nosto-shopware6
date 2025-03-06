@@ -287,11 +287,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
         if ($product->getActive()) {
-            if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
-                $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-            } else {
-                $mainProduct = $product;
-            }
+            $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $product->getIsCloseout()
+                ? $this->handleFirstAvailableVariant($product, $context)
+                : $product;
         } else {
             $mainProduct = $shouldHandleFirstAvailable
                 ? $this->handleFirstAvailableVariant($product, $context)
@@ -346,11 +344,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
             if ($child->getActive()) {
-                if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
-                    $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-                } else {
-                    $mainProduct = $child;
-                }
+                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $product->getIsCloseout()
+                    ? $this->handleFirstAvailableVariant($product, $context)
+                    : $child;
             } else {
                 $mainProduct = $shouldHandleFirstAvailable
                     ? $this->handleFirstAvailableVariant($product, $context)
