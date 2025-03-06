@@ -332,6 +332,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     ): ?ProductEntity {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
+        $shouldHandleFirstAvailable = $hideProductsAfterClearance
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
         foreach ($product->getChildren() as $child) {
             if ($child->getId() !== $variantConfig->getMainVariantId()) {
@@ -339,12 +341,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 continue;
             }
 
-            $stock = $this->productHelper->getProductStock($child, $context);
-            $shouldHandleFirstAvailable = $hideProductsAfterClearance
-                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
             if ($child->getActive()) {
-                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $product->getIsCloseout()
+                $stock = $this->productHelper->getProductStock($child, $context);
+                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $child->getIsCloseout()
                     ? $this->handleFirstAvailableVariant($product, $context)
                     : $child;
             } else {
@@ -390,13 +389,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     ): ?ProductEntity {
         $mainProduct = null;
         $children = new ProductCollection();
+        $shouldHandleFirstAvailable = $hideProductsAfterClearance
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
         foreach ($variants as $child) {
-            $stock = $this->productHelper->getProductStock($child, $context);
-            $shouldHandleFirstAvailable = $hideProductsAfterClearance
-                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
             if ($shouldHandleFirstAvailable) {
+                $stock = $this->productHelper->getProductStock($child, $context);
                 if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                     $mainProduct = $child;
                 } else {
