@@ -25,20 +25,16 @@
                     {% if lineItem.type == 'product' %}
                         <div class="line_item">
                             <span class="product_id">
-                                {% if productIdentifier == 'product-number' %}
                                     {% if lineItem.payload.parentId != null %}
-                                        {% set nostoProduct = nosto_shopware_product_by_id(lineItem.payload.parentId, context) %}
-                                        {{ nostoProduct.productNumber }}
+                                        {% set productId = nosto_shopware_main_product_identifier(lineItem.payload.parentId, lineItem.referencedId, context) %}
+                                        {{ productId }}
                                     {% else %}
-                                        {{ lineItem.payload.productNumber }}
+                                        {% if productIdentifier == 'product-number' %}
+                                            {{ lineItem.payload.productNumber }}
+                                        {% else %}
+                                            {{ lineItem.referencedId }}
+                                        {% endif %}
                                     {% endif %}
-                                {% else %}
-                                    {% if lineItem.payload.parentId != null %}
-                                        {{ lineItem.payload.parentId }}
-                                    {% else %}
-                                        {{ lineItem.referencedId }}
-                                    {% endif %}
-                                {% endif %}
                             </span>
                             <span class="quantity">{{ lineItem.quantity }}</span>
                             <span class="name">{{ lineItem.label }}</span>
