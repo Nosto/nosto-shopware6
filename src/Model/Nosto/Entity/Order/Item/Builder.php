@@ -11,10 +11,9 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -23,19 +22,19 @@ class Builder
     public function build(
         OrderLineItemEntity $item,
         CurrencyEntity $currency,
-        SalesChannelRepository $productRepository,
+        EntityRepository $productRepository,
         SalesChannelContext $context,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
     ): NostoLineItem {
         $criteria = new Criteria([$item->getProductId()]);
         $criteria->addAssociation('children');
-        /** @var SalesChannelProductEntity|null $product */
-        $product = $productRepository->search($criteria, $context)->first();
+        /** @var ProductEntity|null $product */
+        $product = $productRepository->search($criteria, $context->getContext())->first();
         $criteria = new Criteria([$product->getParentId()]);
         $criteria->addAssociation('children');
-        /** @var SalesChannelProductEntity|null $parentProduct */
-        $parentProduct = $productRepository->search($criteria, $context)->first();
+        /** @var ProductEntity|null $parentProduct */
+        $parentProduct = $productRepository->search($criteria, $context->getContext())->first();
         $skuId = $item->getPayload()['productNumber'];
         if ($configProvider->getProductIdentifier(
             $context->getSalesChannelId(),

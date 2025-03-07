@@ -9,7 +9,6 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -29,8 +28,8 @@ class ProductTaggingHelper
 
     public function findProductId(
         SalesChannelContext $context,
-        SalesChannelProductEntity $product,
-        SalesChannelProductEntity $variant,
+        ProductEntity $product,
+        ProductEntity $variant,
     ): string {
         $variantConfig = $product->getVariantListingConfig();
         $productToReturn = $product;
@@ -71,7 +70,7 @@ class ProductTaggingHelper
     }
 
     private function handleVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
@@ -87,7 +86,7 @@ class ProductTaggingHelper
     }
 
     private function handleMainProduct(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
@@ -108,7 +107,7 @@ class ProductTaggingHelper
         return $mainProduct;
     }
 
-    private function getProductStock(SalesChannelProductEntity $product, SalesChannelContext $context): int
+    private function getProductStock(ProductEntity $product, SalesChannelContext $context): int
     {
         if ($this->configProvider->getStockField(
             $context->getSalesChannelId(),
@@ -180,7 +179,7 @@ class ProductTaggingHelper
     }
 
     private function handleMainVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         VariantListingConfig $variantConfig,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
@@ -224,7 +223,7 @@ class ProductTaggingHelper
     }
 
     private function handleFirstAvailableVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $context,
     ): ?ProductEntity {
         $mainProduct = null;
@@ -241,7 +240,7 @@ class ProductTaggingHelper
     }
 
     private function handleCheapestVariant(
-        SalesChannelProductEntity $product,
+        ProductEntity $product,
         SalesChannelContext $context,
     ): ProductEntity {
         $cheapestVariant = $product;
