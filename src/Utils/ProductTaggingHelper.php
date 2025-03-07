@@ -159,15 +159,16 @@ class ProductTaggingHelper
     ): ?ProductEntity {
         $mainProduct = null;
 
+        $shouldHandleFirstAvailable = $hideProductsAfterClearance
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
         foreach ($variants as $child) {
             if ($mainProduct) {
                 break;
             }
-            $stock = $this->getProductStock($child, $context);
-            $shouldHandleFirstAvailable = $hideProductsAfterClearance
-                && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
             if ($shouldHandleFirstAvailable) {
+                $stock = $this->getProductStock($child, $context);
+
                 if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                     $mainProduct = $child;
                 }
@@ -186,13 +187,12 @@ class ProductTaggingHelper
     ): ?ProductEntity {
         $mainProduct = null;
 
+        $shouldHandleFirstAvailable = $hideProductsAfterClearance
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
         foreach ($product->getChildren() as $child) {
             if ($child->getId() === $variantConfig->getMainVariantId()) {
-                $stock = $this->getProductStock($child, $context);
-                $shouldHandleFirstAvailable = $hideProductsAfterClearance
-                    && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
                 if ($child->getActive()) {
+                    $stock = $this->getProductStock($child, $context);
                     if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
                         $mainProduct = $this->handleFirstAvailableVariant($product, $context);
                     } else {
