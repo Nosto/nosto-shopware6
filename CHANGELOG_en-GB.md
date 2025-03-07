@@ -1,3 +1,16 @@
+# 5.1.0
+* New: Synchronization for new custom fields in Nosto is now supported (release-date, mfg-part-number, gtin-ean)
+* Bug: Search Analytics - we fixed a bug where the click event got not triggered on product links
+* Bug: A bug has been fixed which introduced redundant sort options
+* New: Introduced support for Shopware’s default search sorting
+* Fix: Resolved an issue affecting filter styles on category pages caused from the plugin
+* Fix: Resolved an issue where error messages in logs were unclear, improving log readability and debugging.
+* Fix: Resolved incorrect product mapping in Shopware orders by ensuring main product IDs are correctly assigned while preserving variant relationships
+* Change: Refined tagging and order tracking logic, aligning with product creation behavior, and adjustments for storefront presentation
+* Change: Updated the handling of selected variants in storefront presentation to ensure stock status, activity, and clearance sale settings are correctly synchronized with the Nosto product catalog.
+* Change: Adjusted the Nosto synchronization logic to align with Shopware storefront behavior for the "Display single product (Main product)" option
+* Change: Adjusted the Nosto synchronization logic to align with Shopware storefront behavior for the "Expand property values in product listings (No property selected)" option
+
 # 5.0.2
 * Fix: Fixed product click tracking to use the correct route and attributes for accurate analytics
 
