@@ -193,7 +193,7 @@ class ProductTaggingHelper
             if ($child->getId() === $variantConfig->getMainVariantId()) {
                 if ($child->getActive()) {
                     $stock = $this->getProductStock($child, $context);
-                    if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
+                    if ($shouldHandleFirstAvailable && ($stock < 1 && $child->getIsCloseout())) {
                         $mainProduct = $this->handleFirstAvailableVariant($product, $context);
                     } else {
                         $mainProduct = $child;
