@@ -32,7 +32,6 @@
 
             <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument key="$orderRepository" type="service" id="order.repository" />
-            <argument key="$productRepository" type="service" id="sales_channel.product.repository" />
 
         </service>
 
@@ -136,6 +135,7 @@
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder">
             <argument key="$buyerBuilder" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder" />
+            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder" />
@@ -198,6 +198,7 @@
             <argument type="service" id="monolog.logger.nosto_integration" />
             <argument type="service" id="sales_channel.product.repository" />
             <argument key="$nostoConfigService" type="service" id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
+            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
         <!-- /Extensions -->
 

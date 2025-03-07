@@ -16,7 +16,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBu
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -29,13 +29,13 @@ class Builder
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
+        private readonly EntityRepository $productRepository,
     ) {
     }
 
     public function build(
         OrderEntity $order,
         SalesChannelContext $context,
-        SalesChannelRepository $productRepository,
     ): NostoOrder {
         $nostoOrder = new NostoOrder();
         $nostoOrder->setOrderNumber($order->getOrderNumber());
@@ -66,7 +66,7 @@ class Builder
                 $nostoItem = $this->nostoOrderItemBuilder->build(
                     $item,
                     $order->getCurrency(),
-                    $productRepository,
+                    $this->productRepository,
                     $context,
                     $this->configProvider,
                     $this->systemConfigService,
