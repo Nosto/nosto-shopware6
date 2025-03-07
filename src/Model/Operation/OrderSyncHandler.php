@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityReposi
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
@@ -33,7 +32,6 @@ class OrderSyncHandler implements JobHandlerInterface
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly EntityRepository $orderRepository,
-        private readonly SalesChannelRepository $productRepository,
         private readonly Account\Provider $accountProvider,
         private readonly OrderBuilder $nostoOrderbuilder,
         private readonly OrderStatusBuilder $nostoOrderStatusBuilder,
@@ -106,7 +104,6 @@ class OrderSyncHandler implements JobHandlerInterface
         $nostoOrder = $this->nostoOrderbuilder->build(
             $order,
             $context,
-            $this->productRepository,
         );
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;

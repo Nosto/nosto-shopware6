@@ -11,7 +11,9 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -30,6 +32,7 @@ class NostoExtension extends AbstractExtension
         private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
         private readonly NostoConfigService $nostoConfigService,
+        private readonly EntityRepository $productRepository,
     ) {
     }
 
@@ -101,13 +104,13 @@ class NostoExtension extends AbstractExtension
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addAssociation('children');
-        /** @var SalesChannelProductEntity $mainProduct */
-        $mainProduct = $this->salesChannelProductRepository
-            ->search($criteria, $context)
+        /** @var ProductEntity $mainProduct */
+        $mainProduct = $this->productRepository
+            ->search($criteria, $context->getContext())
             ->first();
-        /** @var SalesChannelProductEntity $mainProduct */
-        $variantFromDb = $this->salesChannelProductRepository
-            ->search(new Criteria([$variantId]), $context)
+        /** @var ProductEntity $mainProduct */
+        $variantFromDb = $this->productRepository
+            ->search(new Criteria([$variantId]), $context->getContext())
             ->first();
         $productTaggingHelper = new ProductTaggingHelper($this->systemConfigService, $this->configProvider);
         return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb);
