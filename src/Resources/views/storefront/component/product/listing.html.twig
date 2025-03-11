@@ -25,25 +25,29 @@
 
                 {% if searchResult.total > 0 %}
                     {% block element_product_listing_col %}
-                        {% for product in searchResult %}
+                        {% if not context.context.extensions.nostoService.enabled %}
+                            {{ parent() }}
+                        {% else %}
+                            {% for product in searchResult %}
 
-                            <div hidden data-nosto-analytics="true"></div>
-                            <div class="cms-listing-col {{ listingColumns }}"
-                                 role="listitem"
-                                 data-source="{{ isSearchPage ? 'search' : 'category' }}"
-                                 product-number="{{ product.productNumber }}"
-                                 product-id="{{ product.id }}"
-                                 category-id="{{ app.request.get('navigationId') }}"
-                                 nosto-analytics="true"
-                            >
-                                {% block element_product_listing_box %}
-                                    {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                        layout: boxLayout,
-                                        displayMode: displayMode
-                                    } %}
-                                {% endblock %}
-                            </div>
-                        {% endfor %}
+                                <div hidden data-nosto-analytics="true"></div>
+                                <div class="cms-listing-col {{ listingColumns }}"
+                                     role="listitem"
+                                     data-source="{{ isSearchPage ? 'search' : 'category' }}"
+                                     product-number="{{ product.productNumber }}"
+                                     product-id="{{ product.id }}"
+                                     category-id="{{ app.request.get('navigationId') }}"
+                                     nosto-analytics="true"
+                                >
+                                    {% block element_product_listing_box %}
+                                        {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                            layout: boxLayout,
+                                            displayMode: displayMode
+                                        } %}
+                                    {% endblock %}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     {% endblock %}
                 {% else %}
                     {% block element_product_listing_col_empty %}
