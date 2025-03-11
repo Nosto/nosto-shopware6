@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Psr\Log\LoggerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,6 +15,7 @@ class NostoMonitoringHelper
 
     public function __construct(
         private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
@@ -87,6 +89,8 @@ class NostoMonitoringHelper
 
             return $ret;
         } catch (\Exception $e) {
+            $this->logger->error('Unable to clear Nosto jobs due to:' . $e->getMessage());
+
             return [
                 'status' => 'error',
                 'message' => 'Error: ' . $e->getMessage(),
