@@ -136,7 +136,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
-            if (!$sessionId){
+            if (!$sessionId) {
                 return;
             }
             $userAgent = $request->headers->get('User-Agent');
