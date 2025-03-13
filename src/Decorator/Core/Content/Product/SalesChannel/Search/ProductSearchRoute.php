@@ -136,6 +136,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
+            if (!$sessionId){
+                return;
+            }
             $userAgent = $request->headers->get('User-Agent');
             $tracker = new AnalyticsSearchTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();
