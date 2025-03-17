@@ -100,7 +100,7 @@ class Lifecycle
                 'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             [
-                'configuration_key' => $configurationKey
+                'configuration_key' => $configurationKey,
             ],
         );
     }
