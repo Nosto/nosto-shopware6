@@ -86,7 +86,7 @@ class NostoExtension extends AbstractExtension
         return 'nothing';
     }
 
-    public function getNostoProductByID($id, SalesChannelContext $context)
+    public function getShopwareProductByID($id, SalesChannelContext $context)
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
