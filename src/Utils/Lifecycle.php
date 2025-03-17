@@ -7,12 +7,14 @@ namespace Nosto\NostoIntegration\Utils;
 use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -28,6 +30,8 @@ class Lifecycle
 
     private EntityRepository $salesChannelRepository;
 
+    private readonly EntityRepository $systemConfigRepository;
+
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly bool $hasOtherSchedulerDependency,
@@ -38,6 +42,7 @@ class Lifecycle
         $this->sortingRepository = $container->get('product_sorting.repository');
         $this->connection = $connection;
         $this->salesChannelRepository = $this->container->get('sales_channel.repository');
+        $this->systemConfigRepository = $this->container->get('system_config.repository');
     }
 
     public function install(InstallContext $installContext): void
@@ -71,9 +76,56 @@ class Lifecycle
         if ($sorting == null) {
             return;
         }
+        $this->updateDefaultSorting($context, $sorting->getKey());
         $this->sortingRepository->delete([[
             'id' => $sorting->getId(),
         ]], $context);
+    }
+
+    private function updateDefaultSorting(Context $context, string $sortingKey): void
+    {
+        $defaultSortingKey = $this->getDefaultSortingKey($context, 'core.listing.defaultSorting');
+        if ($sortingKey === $defaultSortingKey) {
+            $this->setNewDefaultSorting($context, 'core.listing.defaultSorting');
+        }
+    }
+
+    private function setNewDefaultSorting(Context $context, string $configurationKey): void
+    {
+        $defaultSortingKey = $this->getHighPrioritySortingKey($context);
+        $this->connection->update(
+            'system_config',
+            [
+                'configuration_value' => '{"_value": "' . $defaultSortingKey . '"}',
+                'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'configuration_key' => $configurationKey
+            ],
+        );
+    }
+
+    public function getDefaultSortingKey(Context $context, string $key = null): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('configurationKey', $key));
+        $sorting = $this->systemConfigRepository->search($criteria, $context)->first();
+
+        return $sorting?->getConfigurationValue();
+    }
+
+    public function getHighPrioritySortingKey(Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('priority', 0));
+        $criteria->addFilter(new EqualsFilter('active', 1));
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+            new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY),
+            new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT),
+        ]));
+        $sorting = $this->sortingRepository->search($criteria, $context)->first();
+
+        return $sorting?->getKey();
     }
 
     public function importSorting(Context $context): void
