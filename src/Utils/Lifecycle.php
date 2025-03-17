@@ -95,8 +95,11 @@ class Lifecycle
         }
     }
 
-    private function setNewDefaultSorting(Context $context, string $configurationKey, bool $isDefaultSorting = false): void
-    {
+    private function setNewDefaultSorting(
+        Context $context,
+        string $configurationKey,
+        bool $isDefaultSorting = false,
+    ): void {
         $defaultSortingId = $this->getHighPrioritySortingId($context, $isDefaultSorting);
         $this->connection->update(
             'system_config',
@@ -104,7 +107,9 @@ class Lifecycle
                 'configuration_value' => '{"_value": "' . $defaultSortingId . '"}',
                 'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
-            ['configuration_key' => $configurationKey],
+            [
+                'configuration_key' => $configurationKey,
+            ],
         );
     }
 
