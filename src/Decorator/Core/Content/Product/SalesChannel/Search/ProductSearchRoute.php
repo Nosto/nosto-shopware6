@@ -66,12 +66,14 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $request->cookies->all(),
             $request->files->all(),
             $request->server->all(),
-            $request->getContent()
+            $request->getContent(),
         );
         $originalContext = unserialize(serialize($context));
         $originalCriteria = unserialize(serialize($criteria));
+        $query = $request->query->get('search');
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+                $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
 
@@ -92,10 +94,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $query = $request->query->get('search');
             $result = $this->fetchProductsById($criteria, $context, $query);
 
             if (!$result->getElements()) {
+                $originalCriteria->setTerm($query);
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
 
