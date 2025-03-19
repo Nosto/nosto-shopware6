@@ -1,28 +1,23 @@
-/** @private */
-export default (() => {
-    const context = require.context('./svg', false, /svg$/);
+const icons = import.meta.glob('./svg/*.svg', {eager: true});
 
-    return context.keys().reduce((accumulator, item) => {
-        const componentName = item.split('.')[1].split('/')[1];
-        const component = {
-            name: componentName,
-            functional: true,
-            render(createElement, elementContext) {
-                const data = elementContext.data;
+export default Object.keys(icons).map((path) => {
+    const componentName = path.replace(/^\.\/svg\/|\.svg$/g, '');
 
-                return createElement('span', {
-                    class: [data.staticClass, data.class],
-                    style: data.style,
-                    attrs: data.attrs,
-                    on: data.on,
-                    domProps: {
-                        innerHTML: context(item),
-                    },
-                });
-            },
-        };
+    return {
+        name: componentName,
+        functional: true,
+        render(createElement, elementContext) {
+            const data = elementContext.data;
 
-        accumulator.push(component);
-        return accumulator;
-    }, []);
-})();
+            return createElement('span', {
+                class: [data.staticClass, data.class],
+                style: data.style,
+                attrs: data.attrs,
+                on: data.on,
+                domProps: {
+                    innerHTML: icons[path].default, // Use the default export for the SVG file
+                },
+            });
+        },
+    };
+});
