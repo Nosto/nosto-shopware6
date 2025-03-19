@@ -117,10 +117,10 @@ class ProductListingRoute extends AbstractProductListingRoute
             return new ProductListingRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         }
     }
 
