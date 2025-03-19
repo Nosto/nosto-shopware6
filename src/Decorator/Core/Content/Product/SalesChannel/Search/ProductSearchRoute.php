@@ -59,12 +59,21 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria,
     ): ProductSearchRouteResponse {
+        $originalRequest = Request::create(
+            $request->getUri(),
+            $request->getMethod(),
+            $request->request->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $request->server->all(),
+            $request->getContent(),
+        );
+        $originalContext = unserialize(serialize($context));
+        $originalCriteria = unserialize(serialize($criteria));
+        $query = $request->query->get('search');
         try {
-            $originalRequest = clone $request;
-            $originalContext = clone $context;
-            $originalCriteria = clone $criteria;
-
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+                $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
 
@@ -85,10 +94,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $query = $request->query->get('search');
             $result = $this->fetchProductsById($criteria, $context, $query);
 
             if (!$result->getElements()) {
+                $originalCriteria->setTerm($query);
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
 
@@ -105,10 +114,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         }
     }
 
@@ -158,12 +167,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //isRefined
                 false,
             );
-
-            $tracker->impression($metadata, $productIds, $page);
             //we need to know about the resultId that was used in the impression for the click analytic
             $productListing->setExtensions([
                 "nosto_result_id" => $resultId,
             ]);
+            $tracker->impression($metadata, $productIds, $page);
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed
