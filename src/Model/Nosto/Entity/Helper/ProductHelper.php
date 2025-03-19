@@ -26,8 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouterInterface;
+//use Symfony\Component\Routing\RequestContext;
+//use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
@@ -40,7 +40,7 @@ class ProductHelper
         private readonly ConfigProvider $configProvider,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly RouterInterface $router,
+        //        private readonly RouterInterface $router,
     ) {
     }
 
@@ -211,42 +211,45 @@ class ProductHelper
         )->getEntities();
     }
 
-    protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
-    {
-        $schemaAuthority = null;
-
-        if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = (string) $this->configProvider->getDomainId(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-
-            if ($domainId && $domains->has($domainId)) {
-                $domain = $domains->get($domainId);
-                $schemaAuthority = $domain?->getUrl();
-            }
-        }
-
-        if (!$schemaAuthority) {
-            $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
-            if ($requestContext->getHttpPort() !== 80) {
-                $schemaAuthority .= ':' . $requestContext->getHttpPort();
-            } elseif ($requestContext->getHttpsPort() !== 443) {
-                $schemaAuthority .= ':' . $requestContext->getHttpsPort();
-            }
-        }
-
-        return sprintf(
-            '%s/%s',
-            $schemaAuthority,
-            'bundles/storefront/assets/icon/default/placeholder.svg',
-        );
-    }
-
-    public function getFallbackImageUrl(SalesChannelContext $context): string
-    {
-        return $this->buildFallbackImage($context, $this->router->getContext());
-    }
+    /*
+     * TODO: The code is commented out because it might be used again in the future.
+     */
+    //    protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
+    //    {
+    //        $schemaAuthority = null;
+    //
+    //        if ($domains = $context->getSalesChannel()->getDomains()) {
+    //            $domainId = (string) $this->configProvider->getDomainId(
+    //                $context->getSalesChannelId(),
+    //                $context->getLanguageId(),
+    //            );
+    //
+    //            if ($domainId && $domains->has($domainId)) {
+    //                $domain = $domains->get($domainId);
+    //                $schemaAuthority = $domain?->getUrl();
+    //            }
+    //        }
+    //
+    //        if (!$schemaAuthority) {
+    //            $schemaAuthority = $requestContext->getScheme() . '://' . $requestContext->getHost();
+    //            if ($requestContext->getHttpPort() !== 80) {
+    //                $schemaAuthority .= ':' . $requestContext->getHttpPort();
+    //            } elseif ($requestContext->getHttpsPort() !== 443) {
+    //                $schemaAuthority .= ':' . $requestContext->getHttpsPort();
+    //            }
+    //        }
+    //
+    //        return sprintf(
+    //            '%s/%s',
+    //            $schemaAuthority,
+    //            'bundles/storefront/assets/icon/default/placeholder.svg',
+    //        );
+    //    }
+    //
+    //    public function getFallbackImageUrl(SalesChannelContext $context): string
+    //    {
+    //        return $this->buildFallbackImage($context, $this->router->getContext());
+    //    }
 
     public function getProductStock(
         ProductEntity|SalesChannelProductEntity $product,

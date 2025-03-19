@@ -200,10 +200,16 @@ class Builder
             $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
             $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
-            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
-            $nostoProduct->setImageUrl($placeholderImageUrl);
-            $nostoProduct->setThumbUrl($placeholderImageUrl);
+            $nostoProduct->setImageUrl("");
         }
+        /*
+         * TODO: The code related to the commented-out methods from the ProductHelper class.
+         */
+        //        else {
+        //            $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
+        //            $nostoProduct->setImageUrl($placeholderImageUrl);
+        //            $nostoProduct->setThumbUrl($placeholderImageUrl);
+        //        }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
             $alternateMedia = $product->getMedia();

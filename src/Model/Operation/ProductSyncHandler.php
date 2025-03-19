@@ -502,10 +502,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $message = '';
 
-        if (!$product->getImageUrl()) {
-            $message .= 'Product image url is empty, ';
-        }
-
         if (!$product->getUrl()) {
             $message .= 'Product url is empty, ';
         }
