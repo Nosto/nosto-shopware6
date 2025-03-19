@@ -71,6 +71,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $originalContext = unserialize(serialize($context));
         $originalCriteria = unserialize(serialize($criteria));
         $query = $request->query->get('search');
+        $originalCriteria->setTerm($query);
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
                 $criteria->setTerm($query);
@@ -97,7 +98,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $result = $this->fetchProductsById($criteria, $context, $query);
 
             if (!$result->getElements()) {
-                $originalCriteria->setTerm($query);
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
 
