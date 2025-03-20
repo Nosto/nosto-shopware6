@@ -96,17 +96,15 @@ class Lifecycle
         return $this->sortingRepository->search($criteria, $context)->first();
     }
 
-    public function updateSorting(Context $context, $sorting, bool $isActivate = true): void
+    public function updateSorting(Context $context, ProductSortingEntity $sorting, bool $isActivate = true): void
     {
-        if ($sorting) {
-            $data = [
-                'id' => $sorting->getId(),
-                'active' => $isActivate,
-                'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
+        $data = [
+            'id' => $sorting->getId(),
+            'active' => $isActivate,
+            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
-            $this->sortingRepository->update([$data], $context);
-        }
+        $this->sortingRepository->update([$data], $context);
     }
 
     private function updateDefaultSorting(Context $context, string $sortingId): void
