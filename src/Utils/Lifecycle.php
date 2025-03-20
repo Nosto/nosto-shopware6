@@ -182,9 +182,9 @@ class Lifecycle
     {
         $sorting = $this->getNostoSorting($context);
 
-        if ($sorting->count() > 0) {
+        if ($sorting) {
             $data = [
-                'id' => $sorting->first()->getId(),
+                'id' => $sorting->getId(),
                 'active' => true,
                 'fields' => [],
             ];
