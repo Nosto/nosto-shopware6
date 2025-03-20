@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -60,26 +61,51 @@ class Lifecycle
 
     public function deactivate(DeactivateContext $deactivateContext): void
     {
-        $this->removeSorting($deactivateContext->getContext());
+        if (!$sorting = $this->getNostoSorting($deactivateContext->getContext())) {
+            return;
+        }
+        $this->updateSorting($deactivateContext->getContext(), $sorting, false);
+        $this->updateDefaultSorting($deactivateContext->getContext(), $sorting->getId());
     }
 
     public function activate(ActivateContext $activateContext): void
     {
-        $this->importSorting($activateContext->getContext());
+        if (!$sorting = $this->getNostoSorting($activateContext->getContext())) {
+            return;
+        }
+        $this->updateSorting($activateContext->getContext(), $sorting);
+        $this->updateDefaultSorting($activateContext->getContext(), $sorting->getId());
     }
 
     public function removeSorting(Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
-        $sorting = $this->sortingRepository->search($criteria, $context)->first();
-        if ($sorting == null) {
+        if (!$sorting = $this->getNostoSorting($context)) {
             return;
         }
-        $this->updateDefaultSorting($context, $sorting->getId());
         $this->sortingRepository->delete([[
             'id' => $sorting->getId(),
         ]], $context);
+    }
+
+    public function getNostoSorting(Context $context)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
+
+        return $this->sortingRepository->search($criteria, $context)->first();
+    }
+
+    public function updateSorting(Context $context, $sorting, bool $isActivate = true): void
+    {
+        if ($sorting) {
+            $data = [
+                'id' => $sorting->getId(),
+                'active' => $isActivate,
+                'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ];
+
+            $this->sortingRepository->update([$data], $context);
+        }
     }
 
     private function updateDefaultSorting(Context $context, string $sortingId): void
@@ -98,9 +124,14 @@ class Lifecycle
     private function setNewDefaultSorting(
         Context $context,
         string $configurationKey,
-        bool $isDefaultSorting = false,
+        bool $isCategorySorting = false,
     ): void {
-        $defaultSortingId = $this->getHighPrioritySortingId($context, $isDefaultSorting);
+        $topResultSortingId = $this->getTopResultsSortingId($context);
+        if ($isCategorySorting || !$topResultSortingId) {
+            $defaultSortingId = $this->getHighPrioritySortingId($context);
+        } else {
+            $defaultSortingId = $topResultSortingId;
+        }
         $this->connection->update(
             'system_config',
             [
@@ -122,19 +153,25 @@ class Lifecycle
         return $sorting?->getConfigurationValue();
     }
 
-    public function getHighPrioritySortingId(Context $context, bool $isDefaultSorting = false): ?string
+    public function getHighPrioritySortingId(Context $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('priority', 0));
-        $criteria->addFilter(new EqualsFilter('active', 1));
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY),
+            new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT),
         ]));
-        if ($isDefaultSorting) {
-            $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-                new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT),
-            ]));
-        }
+        $criteria->addFilter(new EqualsFilter('active', 1));
+        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+        $sorting = $this->sortingRepository->search($criteria, $context)->first();
+
+        return $sorting?->getId();
+    }
+
+    public function getTopResultsSortingId(Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
 
         return $sorting?->getId();
@@ -142,13 +179,12 @@ class Lifecycle
 
     public function importSorting(Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
-        $sorting = $this->sortingRepository->search($criteria, $context);
+        $sorting = $this->getNostoSorting($context);
 
         if ($sorting->count() > 0) {
             $data = [
                 'id' => $sorting->first()->getId(),
+                'active' => true,
                 'fields' => [],
             ];
         } else {
@@ -167,6 +203,7 @@ class Lifecycle
 
     public function uninstall(UninstallContext $context): void
     {
+        $this->removeSorting($context->getContext());
         if ($this->hasOtherSchedulerDependency) {
             $this->removePendingJobs();
         } else {
