@@ -53,6 +53,11 @@ class NostoMulticurrencyController extends AbstractController
         $productIdsArray = explode(',', $productIds);
         $productIdsArray = array_map('trim', $productIdsArray);
         $productIdsArray = array_filter($productIdsArray);
+        if (count($productIdsArray) > 50) {
+            return new JsonResponse([
+                'error' => 'Too many product Ids provided limit is 50',
+            ], Response::HTTP_BAD_REQUEST);
+        }
         $criteria = new Criteria();
         if ($productIdentifier == ProductIdentifierOptions::PRODUCT_NUMBER) {
             $criteria->addFilter(new EqualsAnyFilter('productNumber', $productIdsArray));
