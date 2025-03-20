@@ -1,6 +1,9 @@
 const icons = import.meta.glob('./svg/*.svg', { eager: true });
 
-const iconComponents = Object.keys(icons).map((path) => {
+/**
+ * @deprecated Use the new icon export approach.
+ */
+export const iconComponents = Object.keys(icons).map((path) => {
     const componentName = path.replace(/^\.\/svg\/|\.svg$/g, '');
 
     return {
@@ -21,5 +24,3 @@ const iconComponents = Object.keys(icons).map((path) => {
         },
     };
 });
-
-export { iconComponents };
