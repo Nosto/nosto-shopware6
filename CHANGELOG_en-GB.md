@@ -1,10 +1,10 @@
-# 5.1.2
+# 5.1.1
 * Fix: Fixed an issue where Nosto has been loaded on the PLP, although the configuration was disabled
 * New: We added a cookie check for the Search Analytics
 * New: A new API on the plugin is available to support Multi Currency from Shopware
 * Fix: Fixed an issue with our fallback mechanism for the plugin versions >= 5.0.0.
 
-# 5.1.1
+# 5.1.2
 * Fix Release Build
 
 # 5.1.0
