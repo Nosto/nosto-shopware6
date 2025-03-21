@@ -59,12 +59,22 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria,
     ): ProductSearchRouteResponse {
+        $originalRequest = Request::create(
+            $request->getUri(),
+            $request->getMethod(),
+            $request->request->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $request->server->all(),
+            $request->getContent(),
+        );
+        $originalContext = unserialize(serialize($context));
+        $originalCriteria = unserialize(serialize($criteria));
+        $query = $request->query->get('search');
+        $originalCriteria->setTerm($query);
         try {
-            $originalRequest = clone $request;
-            $originalContext = clone $context;
-            $originalCriteria = clone $criteria;
-
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+                $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
 
@@ -85,7 +95,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $query = $request->query->get('search');
             $result = $this->fetchProductsById($criteria, $context, $query);
 
             if (!$result->getElements()) {
@@ -105,10 +114,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         }
     }
 
