@@ -4,9 +4,6 @@
 * New: A new API on the plugin is available to support Multi Currency from Shopware
 * Fix: Fixed an issue with our fallback mechanism for the plugin versions >= 5.0.0.
 
-# 5.1.2
-* Fix Release Build
-
 # 5.1.0
 * New: Synchronization for new custom fields in Nosto is now supported (release-date, mfg-part-number, gtin-ean)
 * Bug: Search Analytics - we fixed a bug where the click event got not triggered on product links

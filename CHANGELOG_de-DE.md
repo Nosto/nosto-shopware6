@@ -1,11 +1,8 @@
-# 5.1.2
+# 5.1.1
 * Fix: Behebt ein Problem, bei dem Nosto auf der Produkt Listing Page geladen wurde, obwohl die Konfiguration deaktiviert war.
 * Neu: Wir haben einen Cookie Check für die Search Analytics hinzugefügt.
 * Neu: Eine neue API im Plugin ist verfügbar, um Multi Currency von Shopware zu unterstützen.
 * Fix: Behebt ein Problem mit unserem Fallback Mechanismus für Plugin Versionen >= 5.0.0.
-
-# 5.1.1
-* Fix Release Build
 
 # 5.1.0
 * Neu: Die Synchronisierung für neue custom fields in Nosto wird jetzt unterstützt (release-date, mfg-part-number, gtin-ean).
