@@ -66,7 +66,7 @@ class Lifecycle
             return;
         }
         $this->updateSorting($deactivateContext->getContext(), $sorting, false);
-        $this->updateDefaultSorting($deactivateContext->getContext(), $sorting->getId());
+        $this->updateDefaultSorting($deactivateContext->getContext(), $sorting->getKey());
     }
 
     public function activate(ActivateContext $activateContext): void
@@ -173,7 +173,7 @@ class Lifecycle
         $criteria->addFilter(new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
 
-        return $sorting?->getConfigurationValue();
+        return $sorting?->getKey();
     }
 
     public function importSorting(Context $context): void
