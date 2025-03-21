@@ -3,7 +3,7 @@
 * New: We added a cookie check for the Search Analytics
 * New: A new API on the plugin is available to support Multi Currency from Shopware
 * Fix: Fixed an error occurring when the Plugin is active on PDP’s
-* Fix: Fixed an issue with our fallback mechanism for the plugin versions >= 5.0.0.
+* Fix: Fixed an issue with our fallback mechanism for the plugin versions >= 5.0.0. 
 
 # 3.5.0
 * New: Synchronization for new custom fields in Nosto is now supported (release-date, mfg-part-number, gtin-ean)
