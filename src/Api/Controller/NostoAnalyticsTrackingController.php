@@ -36,7 +36,7 @@ class NostoAnalyticsTrackingController extends AbstractController
 
     #[Route(
         path: "/nosto/analytics-tracking",
-        name: "storefront.nosto.analytics-tracking",
+        name: "frontend.nosto.analytics-tracking",
         defaults: [
             'XmlHttpRequest' => true,
         ],
