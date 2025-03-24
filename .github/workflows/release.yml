@@ -32,6 +32,12 @@ jobs:
         working-directory: nosto-shopware6
         run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
 
+      - name: Remove .gitignore files from vendor
+        run: find nosto-shopware6/vendor -type f -name ".gitignore" -delete
+
+      - name: Remove .gitignore files from plugin
+        run: find nosto-shopware6 -type f -name ".gitignore" ! -path "./.gitignore" -delete
+
       - name: Validate plugin files
         working-directory: nosto-shopware6
         run: shopware-cli extension validate .
