@@ -1,5 +1,5 @@
 # 5.1.2
-* Fix: Fixed an issue where the Nosto analytics tracking route name was incorrect, causing failed requests
+* Fix: Fixed an issue where the Nosto analytics tracking route name was incorrect, causing failed requests.
 
 # 5.1.1
 * Fix: Fixed an issue where Nosto has been loaded on the PLP, although the configuration was disabled
