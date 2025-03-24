@@ -1,5 +1,5 @@
 # 3.5.2
-* Es wurde ein Fehler behoben, bei dem der Routenname für das Nosto Analytics Tracking inkorrekt war und Requests fehlgeschlagen sind
+* Fix: Es wurde ein Fehler behoben, bei dem der Routenname für das Nosto Analytics Tracking inkorrekt war und Requests fehlgeschlagen sind.
 
 # 3.5.1
 * Fix: Behebt ein Problem, bei dem Nosto auf der Produkt Listing Page geladen wurde, obwohl die Konfiguration deaktiviert war.
