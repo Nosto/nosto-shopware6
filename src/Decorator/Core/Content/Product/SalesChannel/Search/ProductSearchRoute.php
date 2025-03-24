@@ -8,6 +8,7 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsSearchMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
@@ -21,13 +22,17 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -43,7 +48,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly EntityRepository $sortingRepository,
         private readonly CompositeListingProcessor $listingProcessor,
+        private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
     ) {
@@ -96,6 +103,22 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $productListing->addCurrentFilter('search', $query);
 
             $this->listingProcessor->process($request, $productListing, $context);
+
+            $sort = $this->getDefaultSortingKey('core.listing.defaultSearchResultSorting', $context)
+                ?: $this->getDefaultSortingKey('core.listing.defaultSorting', $context);
+
+            if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
+                || (!is_null($this->getNostoSortingPriority($context))
+                && $this->getNostoSortingPriority($context) >= 0)
+            ) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } else {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            }
 
             $this->eventDispatcher->dispatch(
                 new ProductSearchResultEvent($request, $productListing, $context),
@@ -180,5 +203,28 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         }
 
         return $this->fetchProducts($criteria, $salesChannelContext, $query);
+    }
+
+    private function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string
+    {
+        $id = $this->systemConfigService->getString($key, $context->getSalesChannelId());
+
+        if (!Uuid::isValid($id)) {
+            return $id;
+        }
+
+        $criteria = new Criteria([$id]);
+
+        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
+    }
+
+    private function getNostoSortingPriority(SalesChannelContext $context): ?int
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
+        $criteria->setLimit(1);
+        $sorting = $this->sortingRepository->search($criteria, $context->getContext())->first();
+
+        return $sorting?->getPriority();
     }
 }

@@ -60,6 +60,7 @@
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
+            <argument type="service" key="$sortingRepository" id="product_sorting.repository" />
         </service>
 
         <service
