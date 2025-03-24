@@ -27,16 +27,16 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             sessionId,
             trackingType,
             resultId,
-            ...(trackingType === 'search' ? { query: searchQuery } : { category }),
+            ...(trackingType === 'search' ? {query: searchQuery} : {category}),
         };
 
-        const apiRoute = window.router['storefront.nosto.analytics-tracking'];
+        const apiRoute = window.router['frontend.nosto.analytics-tracking'];
 
         if (!apiRoute) {
             throw new Error('API Route is undefined.');
         }
 
-        const response = await fetch(apiRoute, {
+        let response = await fetch(apiRoute, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,6 +44,27 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             },
             body: JSON.stringify(body),
         });
+
+        if (response.status === 301 || response.status === 405) {
+            let newUrl = response.headers.get('Location');
+
+            if (!newUrl) {
+                newUrl = response.url;
+            }
+
+            if (newUrl) {
+                response = await fetch(newUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify(body),
+                });
+            } else {
+                throw new Error('`Location` header!');
+            }
+        }
 
         if (!response.ok) {
             throw new Error('Tracking failed, no response received.');
@@ -64,7 +85,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
                 console.error('Error tracking product:', error);
             }
             product.removeAttribute('data-tracking-in-progress');
-        });
+        }, true);
     }
 
     getCookie(name) {
