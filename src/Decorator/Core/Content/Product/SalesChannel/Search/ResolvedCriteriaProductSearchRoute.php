@@ -83,4 +83,5 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
         return $response;
     }
+
 }

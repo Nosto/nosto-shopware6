@@ -50,7 +50,7 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         string $categoryId,
         Request $request,
         SalesChannelContext $context,
-        Criteria $criteria
+        Criteria $criteria,
     ): ProductListingRouteResponse {
         $criteria->addState(self::STATE);
 
@@ -80,4 +80,5 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 
         return $response;
     }
+
 }
