@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing;
 
@@ -16,7 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [
+    '_routeScope' => ['store-api']],
+)]
 #[Package('inventory')]
 class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 {
@@ -28,7 +32,7 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly AbstractProductListingRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CompositeListingProcessor $processor
+        private readonly CompositeListingProcessor $processor,
     ) {
     }
 
@@ -37,15 +41,23 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
-    public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
-    {
+    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: [
+        'POST',
+    ], defaults: [
+        '_entity' => 'product',
+    ])]
+    public function load(
+        string $categoryId,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ): ProductListingRouteResponse {
         $criteria->addState(self::STATE);
 
         $this->processor->prepare($request, $criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            new ProductListingCriteriaEvent($request, $criteria, $context)
+            new ProductListingCriteriaEvent($request, $criteria, $context),
         );
 
         $response = $this->getDecorated()->load($categoryId, $request, $context, $criteria);
@@ -55,15 +67,15 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         $this->processor->process($request, $response->getResult(), $context);
 
         $this->eventDispatcher->dispatch(
-            new ProductListingResultEvent($request, $response->getResult(), $context)
+            new ProductListingResultEvent($request, $response->getResult(), $context),
         );
 
         $response->getResult()->getAvailableSortings()->removeByKey(
-            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT
+            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
         );
 
         $response->getResult()->getAvailableSortings()->removeByKey(
-            RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
+            RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
         );
 
         return $response;

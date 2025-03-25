@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
@@ -20,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
     final public const DEFAULT_SEARCH_SORT = 'score';
+
     final public const STATE = 'search-route-context';
 
     /**
@@ -30,7 +33,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
-        private readonly CompositeListingProcessor $processor
+        private readonly CompositeListingProcessor $processor,
     ) {
     }
 
@@ -39,7 +42,9 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: [
+        '_entity' => 'product',
+    ])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria->addState(self::STATE);
@@ -48,7 +53,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $request,
             $criteria,
             $this->registry->getByEntityName('product'),
-            $context->getContext()
+            $context->getContext(),
         );
 
         // will be handled via processor in next line
@@ -58,7 +63,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
         $this->eventDispatcher->dispatch(
             new ProductSearchCriteriaEvent($request, $criteria, $context),
-            ProductEvents::PRODUCT_SEARCH_CRITERIA
+            ProductEvents::PRODUCT_SEARCH_CRITERIA,
         );
 
         $response = $this->getDecorated()->load($request, $context, $criteria);
@@ -67,11 +72,11 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
         $this->eventDispatcher->dispatch(
             new ProductSearchResultEvent($request, $response->getListingResult(), $context),
-            ProductEvents::PRODUCT_SEARCH_RESULT
+            ProductEvents::PRODUCT_SEARCH_RESULT,
         );
 
         $response->getListingResult()->getAvailableSortings()->removeByKey(
-            RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
+            RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
         );
 
         $response->getListingResult()->addCurrentFilter('search', $request->get('search'));
