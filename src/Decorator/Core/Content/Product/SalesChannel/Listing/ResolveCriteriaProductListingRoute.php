@@ -18,9 +18,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [
-    '_routeScope' => ['store-api']],
-)]
+#[Route(
+    defaults: [
+        '_routeScope' => ['store-api'],
+    ],
+ )]
 #[Package('inventory')]
 class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 {
@@ -80,5 +82,4 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 
         return $response;
     }
-
 }
