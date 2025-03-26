@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing;
 
+use Exception;
 use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,55 +58,70 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         Criteria $criteria = null,
     ): ProductListingRouteResponse {
-        $originalRequest = clone $request;
-        $originalContext = clone $context;
-        $originalCriteria = clone $criteria;
-
-        $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
-
-        $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
-        if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {
-            SearchHelper::disableNostoWhenEnabled($context);
-
-            return $this->decorated->load($categoryId, $request, $context, $criteria);
-        }
-
-        $criteria->addFilter(
-            new ProductAvailableFilter(
-                $context->getSalesChannel()->getId(),
-                ProductVisibilityDefinition::VISIBILITY_ALL,
-            ),
+        $originalRequest = Request::create(
+            $request->getUri(),
+            $request->getMethod(),
+            $request->request->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $request->server->all(),
+            $request->getContent(),
         );
+        $originalContext = unserialize(serialize($context));
+        $originalCriteria = unserialize(serialize($criteria));
+        try {
+            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
 
-        /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->search(
-            new Criteria([$categoryId]),
-            $context->getContext(),
-        )->first();
+            $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
+            if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {
+                SearchHelper::disableNostoWhenEnabled($context);
 
-        $streamId = $this->extendCriteria($context, $criteria, $category);
+                return $this->decorated->load($categoryId, $request, $context, $criteria);
+            }
 
-        $this->listingProcessor->prepare($request, $criteria, $context);
+            $criteria->addFilter(
+                new ProductAvailableFilter(
+                    $context->getSalesChannel()->getId(),
+                    ProductVisibilityDefinition::VISIBILITY_ALL,
+                ),
+            );
 
-        $productListing = ProductListingResult::createFrom(
-            $this->fetchProductsById($criteria, $context),
-        );
+            /** @var CategoryEntity $category */
+            $category = $this->categoryRepository->search(
+                new Criteria([$categoryId]),
+                $context->getContext(),
+            )->first();
 
-        if (!$productListing->getElements()) {
+            $streamId = $this->extendCriteria($context, $criteria, $category);
+
+            $this->listingProcessor->prepare($request, $criteria, $context);
+
+            $productListing = ProductListingResult::createFrom(
+                $this->fetchProductsById($criteria, $context),
+            );
+
+            if (!$productListing->getElements()) {
+                return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+            }
+
+            $productListing->addCurrentFilter('navigationId', $categoryId);
+            $productListing->setStreamId($streamId);
+
+            $this->listingProcessor->process($request, $productListing, $context);
+
+            $productListing->getAvailableSortings()->removeByKey(
+                ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+            );
+
+            $this->sendImpressionAnalytics($context, $productListing, $category, $request);
+            return new ProductListingRouteResponse($productListing);
+        } catch (RoutingException $e) {
+            $this->logger->error('Routing exception occurred: ' . $e->getMessage());
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+        } catch (Exception $e) {
+            $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
             return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         }
-
-        $productListing->addCurrentFilter('navigationId', $categoryId);
-        $productListing->setStreamId($streamId);
-
-        $this->listingProcessor->process($request, $productListing, $context);
-
-        $productListing->getAvailableSortings()->removeByKey(
-            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
-        );
-
-        $this->sendImpressionAnalytics($context, $productListing, $category, $request);
-        return new ProductListingRouteResponse($productListing);
     }
 
     private function sendImpressionAnalytics(
@@ -143,6 +160,9 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
+            if (!$sessionId) {
+                return;
+            }
             $userAgent = $request->headers->get('User-Agent');
             $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();

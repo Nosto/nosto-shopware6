@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
-use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder as OrderBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
@@ -33,8 +32,6 @@ class OrderSyncHandler implements JobHandlerInterface
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly EntityRepository $orderRepository,
-        private readonly EntityRepository $productRepository,
-        private readonly ConfigProvider $configProvider,
         private readonly Account\Provider $accountProvider,
         private readonly OrderBuilder $nostoOrderbuilder,
         private readonly OrderStatusBuilder $nostoOrderStatusBuilder,
@@ -104,14 +101,9 @@ class OrderSyncHandler implements JobHandlerInterface
 
     private function sendNewOrder(OrderEntity $order, Account $account, SalesChannelContext $context): void
     {
-        $channelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
-        $productIdentifier = $this->configProvider->getProductIdentifier($channelId, $languageId);
         $nostoOrder = $this->nostoOrderbuilder->build(
             $order,
-            $context->getContext(),
-            $this->productRepository,
-            $productIdentifier,
+            $context,
         );
         $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
         $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;

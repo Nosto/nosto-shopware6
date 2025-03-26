@@ -2,7 +2,7 @@
     "name": "nosto/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "version": "5.0.1",
+    "version": "5.1.1",
     "license": "OSL-3.0",
     "authors": [
         {
@@ -42,7 +42,7 @@
     },
     "extra": {
         "shopware-plugin-class": "Nosto\\NostoIntegration\\NostoIntegration",
-        "plugin-icon": "src/Resources/config/plugin.png",
+        "plugin-icon": "src/Resources/config/nosto_plugin_icon.png",
         "label": {
             "de-DE": "Nosto-Integration",
             "en-GB": "Nosto Integration"

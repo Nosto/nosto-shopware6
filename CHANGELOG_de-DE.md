@@ -1,5 +1,27 @@
+# 5.1.1
+* Fix: Behebt ein Problem, bei dem Nosto auf der Produkt Listing Page geladen wurde, obwohl die Konfiguration deaktiviert war.
+* Neu: Wir haben einen Cookie Check für die Search Analytics hinzugefügt.
+* Neu: Eine neue API im Plugin ist verfügbar, um Multi Currency von Shopware zu unterstützen.
+* Fix: Behebt ein Problem mit unserem Fallback Mechanismus für Plugin Versionen >= 5.0.0.
+
+# 5.1.0
+* Neu: Die Synchronisierung für neue custom fields in Nosto wird jetzt unterstützt (release-date, mfg-part-number, gtin-ean).
+* Bug: Search Analytics – Ein Fehler wurde behoben, bei dem das click event auf product links nicht ausgelöst wurde.
+* Bug: Ein Fehler wurde behoben, der zu redundanten Sortierungsoptionen führte.
+* Neu: Unterstützung für Shopware’s default search sorting wurde eingeführt.
+* Fix: Ein Problem wurde behoben, das filter styles auf Kategorieseiten durch das Plugin beeinflusst hat.
+* Fix: Fehlerhafte error messages in den logs wurden korrigiert, um die Lesbarkeit und Fehlersuche zu verbessern.
+* Fix: Fehlerhaftes Produkt Mapping in Shopware orders wurde behoben, sodass Haupt Produkt ID’s nun korrekt zugewiesen und Varianten Beziehungen erhalten bleiben.
+* Change: Tagging und order Tracking Logik wurden optimiert, um das Verhalten bei der Produkt Erstellung anzugleichen, inklusive Anpassungen für die Storefront Präsentation.
+* Change: Die Verarbeitung von ausgewählte Varianten in der Storefront Präsentation wurde aktualisiert, sodass Verfügbarkeitsstatus, Aktivität und Ausverkaufseinstellungen korrekt mit dem Nosto Produkt Katalog synchronisiert werden.
+* Change: Die Nosto Synchronisations-Logik wurde angepasst, um das Verhalten des Shopware Storefronts für die Option "Einzelnes Produkt anzeigen (Hauptprodukt)" korrekt abzubilden.
+* Change: Die Nosto Synchronisations-Logik wurde angepasst, um das Verhalten des Shopware Storefronts für die Option "Expand property values in product listings (No property selected)" zu unterstützen.
+
+# 5.0.2
+* Fix: Ein Bug im Product-Click Tracking wurde behoben, um die richtige Route und erforderlichen Attribute für die Search-Analytics zu verwenden.
+
 # 5.0.1
-*Fix: Wir haben einen Timeout für das Category Merchandising hinzugefügt und einen User-Agent für die Search Analytics hinzugefügt.
+* Fix: Wir haben einen Timeout für das Category Merchandising hinzugefügt und einen User-Agent für die Search Analytics hinzugefügt.
 
 # 5.0.0
 * Feature: Such- und Kategorie Analytics sind jetzt verfügbar
