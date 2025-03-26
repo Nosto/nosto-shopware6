@@ -36,9 +36,6 @@
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument key="$orderRepository" type="service" id="order.repository"/>
 
-            <argument key="$channelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
-            <argument key="$orderRepository" type="service" id="order.repository" />
-            <argument key="$productRepository" type="service" id="product.repository" />
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
@@ -129,8 +126,6 @@
                       id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument key="$productRepository" type="service" id="sales_channel.product.repository"/>
         </service>
-
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
 
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\EntityChangelogScheduledTask">
             <tag name="shopware.scheduled.task"/>
@@ -241,6 +236,15 @@
             </call>
         </service>
 
+
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoMulticurrencyController" autowire="true" public="true">
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+            <argument key="$productRepository" type="service" id="sales_channel.product.repository"/>
+        </service>
+
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
             <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository"/>
@@ -254,12 +258,6 @@
         <service id="Nosto\NostoIntegration\Controller\Storefront\CartController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringController" public="true">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
             </call>
         </service>
 
@@ -288,5 +286,11 @@
                 id="Symfony\Component\HttpFoundation\RequestStack"
                 alias="request_stack"
         />
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
     </services>
 </container>
