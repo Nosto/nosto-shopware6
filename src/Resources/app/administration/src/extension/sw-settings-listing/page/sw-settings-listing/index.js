@@ -11,7 +11,7 @@ Shopware.Component.override('sw-settings-listing', {
             const oldParts = compareVersion.split('.');
             const newParts = currentVersion.split('.');
 
-            for (let i = 0; i < newParts.length; i++) {
+            for (let i = 0; i < newParts.length; i += 1) {
                 const a = parseInt(newParts[i], 10);
                 const b = parseInt(oldParts[i], 10);
 
