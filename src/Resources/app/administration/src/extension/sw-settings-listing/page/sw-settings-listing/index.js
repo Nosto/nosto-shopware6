@@ -23,6 +23,6 @@ Shopware.Component.override('sw-settings-listing', {
                 }
             }
             return false;
-        }
-    }
+        },
+    },
 });
