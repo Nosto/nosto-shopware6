@@ -160,6 +160,7 @@ class Lifecycle
             new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT),
         ]));
         $criteria->addFilter(new EqualsFilter('active', 1));
+        $criteria->addFilter(new EqualsFilter('locked', 0));
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
         $criteria->setLimit(1);
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
