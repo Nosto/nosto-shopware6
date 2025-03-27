@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -34,6 +35,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly CompositeListingProcessor $processor,
+        private readonly SortingHandlerService $sortingHandlerService,
     ) {
     }
 
@@ -47,6 +49,12 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     ])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
+        $sort = $this->sortingHandlerService->getDefaultSortingKey('core.listing.defaultSearchResultSorting', $context);
+
+        if (!$sort && !$request->get('order')) {
+            $request->request->set('order', self::DEFAULT_SEARCH_SORT);
+        }
+
         $criteria->addState(self::STATE);
 
         $criteria = $this->criteriaBuilder->handleRequest(

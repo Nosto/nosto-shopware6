@@ -17,9 +17,20 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\StockSortingHandl
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
 use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class SortingHandlerService
 {
+    public function __construct(
+        private readonly EntityRepository $sortingRepository,
+        private readonly SystemConfigService $systemConfigService,
+    ) {
+    }
+
     public function handle(SearchOperation $searchOperation, Criteria $criteria): void
     {
         foreach ($this->getSortingHandlers() as $handler) {
@@ -55,5 +66,28 @@ class SortingHandlerService
         [$delimiter, $fieldKey] = explode('.', $field);
 
         return $delimiter . '.' . mb_strtolower($fieldKey);
+    }
+
+    public function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string
+    {
+        $id = $this->systemConfigService->getString($key, $context->getSalesChannelId());
+
+        if (!Uuid::isValid($id)) {
+            return $id;
+        }
+
+        $criteria = new Criteria([$id]);
+
+        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
+    }
+
+    public function getNostoSortingPriority(SalesChannelContext $context): ?int
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
+        $criteria->setLimit(1);
+        $sorting = $this->sortingRepository->search($criteria, $context->getContext())->first();
+
+        return $sorting?->getPriority();
     }
 }
