@@ -9,6 +9,7 @@ use Nosto\Model\Analytics\AnalyticsSearchMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
@@ -48,11 +49,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly EntityRepository $sortingRepository,
         private readonly CompositeListingProcessor $listingProcessor,
-        private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly SortingHandlerService $sortingHandlerService,
     ) {
     }
 
@@ -104,12 +104,15 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->process($request, $productListing, $context);
 
-            $sort = $this->getDefaultSortingKey('core.listing.defaultSearchResultSorting', $context)
-                ?: $this->getDefaultSortingKey('core.listing.defaultSorting', $context);
+            $sort = $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSearchResultSorting',
+                $context,
+            )
+                ?: $this->sortingHandlerService->getDefaultSortingKey('core.listing.defaultSorting', $context);
 
             if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
-                || (!is_null($this->getNostoSortingPriority($context))
-                    && $this->getNostoSortingPriority($context) >= 0)
+                || (!is_null($this->sortingHandlerService->getNostoSortingPriority($context))
+                    && $this->sortingHandlerService->getNostoSortingPriority($context) >= 0)
             ) {
                 $productListing->getAvailableSortings()->removeByKey(
                     ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
@@ -204,28 +207,5 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         }
 
         return $this->fetchProducts($criteria, $salesChannelContext, $query);
-    }
-
-    private function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string
-    {
-        $id = $this->systemConfigService->getString($key, $context->getSalesChannelId());
-
-        if (!Uuid::isValid($id)) {
-            return $id;
-        }
-
-        $criteria = new Criteria([$id]);
-
-        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
-    }
-
-    private function getNostoSortingPriority(SalesChannelContext $context): ?int
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
-        $criteria->setLimit(1);
-        $sorting = $this->sortingRepository->search($criteria, $context->getContext())->first();
-
-        return $sorting?->getPriority();
     }
 }
