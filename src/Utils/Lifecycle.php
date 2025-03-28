@@ -203,7 +203,10 @@ class Lifecycle
 
     public function uninstall(UninstallContext $context): void
     {
-        $this->removeSorting($context->getContext());
+        if ($sorting = $this->getNostoSorting($context->getContext())) {
+            $this->removeSorting($context->getContext());
+            $this->updateDefaultSorting($context->getContext(), $sorting->getId());
+        }
         if ($this->hasOtherSchedulerDependency) {
             $this->removePendingJobs();
         } else {
