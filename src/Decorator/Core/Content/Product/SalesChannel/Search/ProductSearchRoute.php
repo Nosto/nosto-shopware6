@@ -104,12 +104,14 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $sort = $this->sortingHandlerService->getDefaultSortingKey(
                 'core.listing.defaultSearchResultSorting',
                 $context,
-            )
-                ?: $this->sortingHandlerService->getDefaultSortingKey('core.listing.defaultSorting', $context);
+            ) ?: $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSorting',
+                $context,
+            );
 
+            $sortingPriority = $this->sortingHandlerService->getNostoSortingPriority($context);
             if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
-                || (!is_null($this->sortingHandlerService->getNostoSortingPriority($context))
-                    && $this->sortingHandlerService->getNostoSortingPriority($context) >= 0)
+                || (!is_null($sortingPriority) && $sortingPriority >= 0)
             ) {
                 $productListing->getAvailableSortings()->removeByKey(
                     ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
