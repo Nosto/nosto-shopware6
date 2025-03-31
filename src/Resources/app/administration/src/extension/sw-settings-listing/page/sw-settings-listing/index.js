@@ -4,22 +4,16 @@ Shopware.Component.override('sw-settings-listing', {
     template,
 
     computed: {
-        version() {
+        versionHavingSearchDefaultSorting() {
             const currentVersion = Shopware.Context.app.config.version;
             const compareVersion = '6.6.9';
 
-            const oldParts = compareVersion.split('.');
-            const newParts = currentVersion.split('.');
+            const oldParts = compareVersion.split('.').map(Number);
+            const newParts = currentVersion.split('.').map(Number);
 
-            for (let i = 0; i < newParts.length; i += 1) {
-                const a = parseInt(newParts[i], 10);
-                const b = parseInt(oldParts[i], 10);
-
-                if (a > b) {
-                    return true;
-                }
-                if (a < b) {
-                    return false;
+            for (let i = 0; i < newParts.length; i++) {
+                if (newParts[i] !== oldParts[i]) {
+                    return newParts[i] > oldParts[i];
                 }
             }
             return false;

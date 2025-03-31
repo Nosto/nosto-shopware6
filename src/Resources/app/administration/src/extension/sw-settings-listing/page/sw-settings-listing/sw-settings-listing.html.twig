@@ -4,7 +4,7 @@
         v-model:value="config['core.listing.defaultSorting']"
         :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
         :has-parent="isNotDefaultSalesChannel"
-        :help-text="version ? '' : $tc('sw-settings-listing.general.helpText.defaultSorting')"
+        :help-text="versionHavingSearchDefaultSorting ? '' : $tc('sw-settings-listing.general.helpText.defaultSorting')"
         :inherited-value="inheritance['core.listing.defaultSorting']"
         required
     >
@@ -30,7 +30,7 @@
         v-model:value="config['core.listing.defaultSearchResultSorting']"
         :label="$tc('sw-settings-listing.general.labelDefaultSearchResultSorting')"
         :has-parent="isNotDefaultSalesChannel"
-        :help-text="version ? $tc('sw-settings-listing.general.helpText.defaultSorting') : ''"
+        :help-text="versionHavingSearchDefaultSorting ? $tc('sw-settings-listing.general.helpText.defaultSorting') : ''"
         :inherited-value="inheritance['core.listing.defaultSearchResultSorting']"
         required
     >
