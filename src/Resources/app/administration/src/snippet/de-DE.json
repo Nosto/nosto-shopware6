@@ -10,6 +10,17 @@
             }
         }
     },
+    "apps": {
+        "sw-cms": {
+            "detail": {
+                "label": {
+                    "blockCategory": {
+                        "nosto-integration": "Nosto Komponenten"
+                    }
+                }
+            }
+        }
+    },
     "sw-product": {
         "variations": {
             "deliveryModal": {
