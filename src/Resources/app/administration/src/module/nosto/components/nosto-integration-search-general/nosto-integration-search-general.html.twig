@@ -1,5 +1,6 @@
 {% block nosto_integration_content_card_channel_config_features_flags_card %}
-    <sw-card
+    <!-- TODO Codemod: Converted from sw-card - please check if everything works correctly -->
+    <mt-card
         class="sw-card--grid"
         :title="$tc('nosto.configuration.search-navigation.cardTitle')"
         positionIdentifier="nosto-integratoion-search-general"
@@ -11,13 +12,14 @@
                 @update:value="onUpdateValue('enableSearch', $event)"
             >
                 <template #content="props">
-                    <sw-switch-field
+                    <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+                    <mt-switch
                         name="enableSearch"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.search-navigation.enableSearch.label')"
                         :help-text="$tc('nosto.configuration.search-navigation.enableSearch.helpText')"
                         :disabled="props.isInherited"
-                        :value="props.currentValue"
+                        :modelValue="props.currentValue"
                         @update:value="onUpdateValue('enableSearch', $event)"
                     />
                 </template>
@@ -31,17 +33,18 @@
                 @update:value="onUpdateValue('enableNavigation', $event)"
             >
                 <template #content="props">
-                    <sw-switch-field
+                    <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+                    <mt-switch
                         name="enableNavigation"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.search-navigation.enableNavigation.label')"
                         :help-text="$tc('nosto.configuration.search-navigation.enableNavigation.helpText')"
                         :disabled="props.isInherited"
-                        :value="props.currentValue"
+                        :modelValue="props.currentValue"
                         @update:value="onUpdateValue('enableNavigation', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
-    </sw-card>
+    </mt-card>
 {% endblock %}
