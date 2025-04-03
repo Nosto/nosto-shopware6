@@ -21,7 +21,7 @@
     "sw-settings-listing": {
         "general": {
             "helpText": {
-                "defaultSorting": "Why am I only seeing either \"Top Results\" or \"Recommendation\"?\nTo prevent redundancy, customers are shown only one of these relevance-based sorting options at a time. The displayed option is determined by:Default sorting settings, Active Nosto services, Sorting priority\nIf \"Recommendation\" has equal or higher priority than \"Top Results\", it will automatically replace it."
+                "defaultSorting": "Warum sehe ich nur entweder „Beste Ergebnisse“ oder „Empfehlung“?\nUm Dopplungen zu vermeiden, wird immer nur eine dieser relevanzbasierten Sortieroptionen angezeigt. Welche angezeigt wird, hängt ab von:\n• den Standard-Sortierungseinstellungen\n• den aktiven Nosto-Services\n• der Sortier-Priorität\nWenn „Empfehlung“ die gleiche oder eine höhere Priorität als „Beste Ergebnisse“ hat, ersetzt sie diese automatisch."
             }
         }
     }
