@@ -21,7 +21,7 @@
     "sw-settings-listing": {
         "general": {
             "helpText": {
-                "defaultSorting": "Why can't I see both \"Top Results\" and \"Recommendation\"?\nTo avoid redundancy, only one of the two relevance-based sorting options is shown to customers. The visible one depends on default settings, service activation, and priority. \"Recommendation\" will replace \"Top Results\" when it has a higher or equal priority. \nFor more details, please read our official Nosto Shopware sorting documentation."
+                "defaultSorting": "Why am I only seeing either \"Top Results\" or \"Recommendation\"?\nTo prevent redundancy, customers are shown only one of these relevance-based sorting options at a time. The displayed option is determined by:Default sorting settings, Active Nosto services, Sorting priority\nIf \"Recommendation\" has equal or higher priority than \"Top Results\", it will automatically replace it."
             }
         }
     }
