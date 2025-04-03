@@ -123,11 +123,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $productListing->getAvailableSortings()->removeByKey(
                     ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
                 );
-            } else if ($sort === ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT) {
+            } elseif ($sort === ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT) {
                 $productListing->getAvailableSortings()->removeByKey(
                     RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
                 );
-            } else if (!is_null($sortingPriority) && $sortingPriority >= 0) {
+            } elseif (!is_null($sortingPriority) && $sortingPriority >= 0) {
                 $productListing->getAvailableSortings()->removeByKey(
                     ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
                 );
