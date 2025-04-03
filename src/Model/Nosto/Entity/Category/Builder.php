@@ -31,13 +31,30 @@ class Builder
         $nostoCategory->setTitle($category->getName());
         $nostoCategory->setAvailable($category->getActive());
         $nostoCategory->setParentId($category->getParentId());
-        $nostoCategory->setPath($category->getPath() ?? '');
 
-        if ($category->getSeoUrls()->getElements()) {
+        $domain = null;
+        if ($domains = $context->getSalesChannel()->getDomains()) {
+            $domainId = (string) $this->configProvider->getDomainId(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+
+            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
+        }
+
+        $url = '';
+        if ($category->getSeoUrls()->getElements() && $domain) {
             $lastSeoUrl = array_key_last($category->getSeoUrls()->getElements());
             $url = $category->getSeoUrls()->getElements()[$lastSeoUrl]->getSeoPathInfo();
-            $nostoCategory->setUrl('/' . $url);
+            $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
+        }
+
+        if ($url !== '') {
+            $nostoCategory->setPath('/' . $url);
             $nostoCategory->setCategoryString('/' . $url);
+        } else {
+            $nostoCategory->setPath('');
+            $nostoCategory->setCategoryString('');
         }
 
         $this->eventDispatcher->dispatch(new NostoCategoryBuiltEvent($category, $nostoCategory, $context->getContext()));
