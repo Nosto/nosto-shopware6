@@ -135,7 +135,7 @@ abstract class AbstractRequestHandler
     {
         if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
             $sessionParams = json_decode($sessionParamsString, true);
-            $searchOperation->setSessionParams($sessionParams);
+            $searchOperation->setSessionParams(empty($sessionParams) ? null : $sessionParams);
         }
     }
 }
