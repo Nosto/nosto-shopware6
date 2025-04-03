@@ -119,9 +119,15 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
 
             $sortingPriority = $this->sortingHandlerService->getNostoSortingPriority($context);
-            if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY
-                || (!is_null($sortingPriority) && $sortingPriority >= 0)
-            ) {
+            if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } else if ($sort === ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            } else if (!is_null($sortingPriority) && $sortingPriority >= 0) {
                 $productListing->getAvailableSortings()->removeByKey(
                     ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
                 );
