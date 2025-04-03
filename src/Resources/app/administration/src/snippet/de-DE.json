@@ -17,5 +17,12 @@
                 "listingLabelModeDisplayCheapestVariantHelpText": "Hinzugefügt vom Nosto Plugin"
             }
         }
+    },
+    "sw-settings-listing": {
+        "general": {
+            "helpText": {
+                "defaultSorting": "Warum sehe ich nur entweder „Beste Ergebnisse“ oder „Empfehlung“?\nUm Dopplungen zu vermeiden, wird immer nur eine dieser relevanzbasierten Sortieroptionen angezeigt. Welche angezeigt wird, hängt ab von:\n• den Standard-Sortierungseinstellungen\n• den aktiven Nosto-Services\n• der Sortier-Priorität\nWenn „Empfehlung“ die gleiche oder eine höhere Priorität als „Beste Ergebnisse“ hat, ersetzt sie diese automatisch."
+            }
+        }
     }
 }

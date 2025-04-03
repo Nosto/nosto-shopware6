@@ -3,6 +3,7 @@ import './init/nosto-api-keys-validator-service-init';
 import './init/nosto-config-api';
 import './module/nosto';
 import './extension/sw-cms/component/sw-cms-sidebar';
+import './extension/sw-settings-listing/page/sw-settings-listing';
 import
 './extension/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing';
 import './module/sw-cms/blocks/nosto-integration/nosto-integration-block';
