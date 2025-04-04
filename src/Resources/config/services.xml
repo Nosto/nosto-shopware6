@@ -194,7 +194,7 @@
         <!-- /Entity Definitions -->
 
         <!-- Event Listeners -->
-        <service id="Nosto\NostoIntegration\EventListener\CategoryWrittenDeletedEvent">
+        <service id="Nosto\NostoIntegration\EventListener\CategoryWrittenEvent">
             <tag name="kernel.event_subscriber"/>
         </service>
 
