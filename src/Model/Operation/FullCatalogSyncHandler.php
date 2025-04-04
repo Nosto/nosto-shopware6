@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
@@ -62,6 +63,9 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         }
 
         $criteriaCategory = new Criteria();
+        $criteriaCategory->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+            new EqualsFilter('parentId', null),
+        ]));
         $criteriaCategory->setLimit(self::BATCH_SIZE);
         $categoryRepositoryIterator = new RepositoryIterator(
             $this->categoryRepository,
