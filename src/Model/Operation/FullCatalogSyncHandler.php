@@ -39,7 +39,11 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $result = new JobResult();
         $criteriaProduct = new Criteria();
         $criteriaProduct->setLimit(self::BATCH_SIZE);
-        $productRepositoryIterator = new RepositoryIterator($this->productRepository, $message->getContext(), $criteriaProduct);
+        $productRepositoryIterator = new RepositoryIterator(
+            $this->productRepository,
+            $message->getContext(),
+            $criteriaProduct,
+        );
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
         while (($products = $productRepositoryIterator->fetch()) !== null) {
@@ -59,7 +63,11 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 
         $criteriaCategory = new Criteria();
         $criteriaCategory->setLimit(self::BATCH_SIZE);
-        $categoryRepositoryIterator = new RepositoryIterator($this->categoryRepository, $message->getContext(), $criteriaCategory);
+        $categoryRepositoryIterator = new RepositoryIterator(
+            $this->categoryRepository,
+            $message->getContext(),
+            $criteriaCategory,
+        );
         while (($categories = $categoryRepositoryIterator->fetch()) !== null) {
             $ids = $this->getCategoryIdsForMessage($categories->getEntities());
             $this->jobScheduler->schedule(
@@ -90,6 +98,9 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         return $data;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getCategoryIdsForMessage(EntityCollection $categories): array
     {
         $data = [];

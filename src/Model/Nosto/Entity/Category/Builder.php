@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Category;
 
 use Nosto\Model\Category\Category as NostoCategory;
-use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Event\NostoCategoryBuiltEvent;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -57,7 +56,9 @@ class Builder
             $nostoCategory->setCategoryString('');
         }
 
-        $this->eventDispatcher->dispatch(new NostoCategoryBuiltEvent($category, $nostoCategory, $context->getContext()));
+        $this->eventDispatcher->dispatch(
+            new NostoCategoryBuiltEvent($category, $nostoCategory, $context->getContext()),
+        );
         return $nostoCategory;
     }
 }
