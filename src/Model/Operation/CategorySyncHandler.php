@@ -51,8 +51,8 @@ class CategorySyncHandler implements JobHandlerInterface
                 ],
             );
             $accountOperationResult = $this->doOperation($account, $channelContext, $message);
-            foreach ($accountOperationResult->getErrors() as $error) {
-                $operationResult->addError($error);
+            foreach ($accountOperationResult->getMessages() as $error) {
+                $operationResult->addMessage($error);
             }
         }
 
@@ -70,7 +70,7 @@ class CategorySyncHandler implements JobHandlerInterface
             }
         }
 
-        return new JobResult();
+        return $result;
     }
 
     private function getCategories(Context $context, array $categoryIds): EntityCollection
