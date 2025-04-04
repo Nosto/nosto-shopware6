@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\NostoIntegration\Async\EventsWriter;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
@@ -43,6 +44,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $this->processNewOrderEvents($message->getContext(), $result, $message->getJobId());
         $this->processUpdatedOrderEvents($message->getContext(), $result, $message->getJobId());
         $this->processProductEvents($message->getContext(), $result, $message->getJobId());
+        $this->processCategoryEvents($message->getContext(), $result, $message->getJobId());
 
         return $result;
     }
@@ -139,6 +141,22 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
                 sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
+            ));
+        });
+    }
+
+    private function processCategoryEvents(Context $context, JobResult $result, string $parentJobId): void
+    {
+        $type = EventsWriter::CATEGORY_ENTITY_NAME;
+        $this->processEventBatches($context, $type, function (array $categoryIds) use (
+            $parentJobId,
+            $result,
+            $context
+        ): void {
+            $jobMessage = new CategorySyncMessage(Uuid::randomHex(), $parentJobId, $categoryIds, $context);
+            $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                sprintf('Job with payload of %s updated categories has been scheduled.', count($categoryIds)),
             ));
         });
     }
