@@ -1,5 +1,4 @@
 {% block nosto_integration_content_card_channel_config_features_flags_card %}
-    <!-- TODO Codemod: Converted from sw-card - please check if everything works correctly -->
     <mt-card
         class="sw-card--grid"
         :title="$tc('nosto.configuration.search-navigation.cardTitle')"
@@ -12,7 +11,6 @@
                 @update:value="onUpdateValue('enableSearch', $event)"
             >
                 <template #content="props">
-                    <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                     <mt-switch
                         name="enableSearch"
                         :map-inheritance="props"
@@ -33,7 +31,6 @@
                 @update:value="onUpdateValue('enableNavigation', $event)"
             >
                 <template #content="props">
-                    <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                     <mt-switch
                         name="enableNavigation"
                         :map-inheritance="props"

@@ -1,5 +1,4 @@
 {% block nosto_integration_account_component_general %}
-    <!-- TODO Codemod: Converted from sw-card - please check if everything works correctly -->
     <mt-card
         :title="$tc('nosto.configuration.account.title')"
         class="nosto-integration-account-card"
@@ -7,7 +6,6 @@
     >
         <template v-if="configKey">
             {% block nosto_integration_account_enabled %}
-                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch
                     :modelValue="currentConfig['isEnabled']"
                     :label="$tc('nosto.configuration.account.enabledTitle')"
@@ -29,7 +27,6 @@
             {% endblock %}
 
             {% block nosto_integration_account_id %}
-                <!-- TODO Codemod: Converted from sw-text-field - please check if everything works correctly -->
                 <mt-text-field
                     :modelValue="currentConfig['accountID']"
                     :label="$tc('nosto.configuration.account.idTitle')"
@@ -41,7 +38,6 @@
                 />
             {% endblock %}
             {% block nosto_integration_account_name %}
-                <!-- TODO Codemod: Converted from sw-text-field - please check if everything works correctly -->
                 <mt-text-field
                     :modelValue="currentConfig['accountName']"
                     :label="$tc('nosto.configuration.account.nameTitle')"
@@ -53,7 +49,6 @@
                 />
             {% endblock %}
             {% block nosto_integration_account_token %}
-                <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
                 <mt-password-field
                     :modelValue="currentConfig['productToken']"
                     :label="$tc('nosto.configuration.account.productTokenTitle')"
@@ -63,7 +58,6 @@
                     name="productToken"
                     @update:modelValue="onUpdateValue('productToken', $event)"
                 />
-                <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
                 <mt-password-field
                     :modelValue="currentConfig['emailToken']"
                     :label="$tc('nosto.configuration.account.emailTokenTitle')"
@@ -73,7 +67,6 @@
                     name="emailToken"
                     @update:modelValue="onUpdateValue('emailToken', $event)"
                 />
-                <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
                 <mt-password-field
                     :modelValue="currentConfig['appToken']"
                     :label="$tc('nosto.configuration.account.appTokenTitle')"
@@ -83,7 +76,6 @@
                     name="appToken"
                     @update:modelValue="onUpdateValue('appToken', $event)"
                 />
-                <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
                 <mt-password-field
                     :modelValue="currentConfig['searchToken']"
                     :label="$tc('nosto.configuration.account.searchTokenTitle')"
