@@ -42,7 +42,7 @@ class Builder
         }
 
         $url = '';
-        if ($category->getSeoUrls()->getElements() && $domain) {
+        if ($category->getSeoUrls()?->getElements()) {
             $lastSeoUrl = array_key_last($category->getSeoUrls()->getElements());
             $url = $category->getSeoUrls()->getElements()[$lastSeoUrl]->getSeoPathInfo();
             $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
