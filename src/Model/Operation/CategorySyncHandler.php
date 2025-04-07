@@ -76,8 +76,6 @@ class CategorySyncHandler implements JobHandlerInterface
     private function getCategories(Context $context, array $categoryIds): EntityCollection
     {
         $criteria = new Criteria();
-        $criteria->addAssociation('children');
-        $criteria->getAssociation('parent');
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', $categoryIds));
         $this->eventDispatcher->dispatch(new NostoCategoryCriteriaEvent($criteria, $context));
