@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Twig\Extension;
 
-use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\Model\Category\Category as NostoCategory;
+use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
