@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/nostointegration/administration/",
+  "entryPoints": {
+    "nosto-integration": {
+      "css": [
+        "/bundles/nostointegration/administration/assets/nosto-integration-D2iBiLQu.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/nostointegration/administration/assets/nosto-integration-10Sy7NoD.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}
