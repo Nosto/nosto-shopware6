@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Twig\Extension;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\Model\Category\Category as NostoCategory;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,6 +36,8 @@ class NostoExtension extends AbstractExtension
         private readonly ConfigProvider $configProvider,
         private readonly NostoConfigService $nostoConfigService,
         private readonly EntityRepository $productRepository,
+        private readonly EntityRepository $categoryRepository,
+        private readonly CategoryBuilder $nostoCategoryBuilder,
     ) {
     }
 
@@ -47,6 +52,7 @@ class NostoExtension extends AbstractExtension
             new TwigFunction('nosto_shopware_product_by_id', [$this, 'getShopwareProductByID']),
             new TwigFunction('nosto_shopware_main_product_identifier', [$this, 'getShopwareMainProductIdentifier']),
             new TwigFunction('nosto_configuration_values', [$this, 'getNostoConfigurationValues']),
+            new TwigFunction('nosto_category', [$this, 'getNostoCategory']),
         ];
     }
 
@@ -173,5 +179,28 @@ class NostoExtension extends AbstractExtension
         }
 
         return $config;
+    }
+
+    public function getNostoCategory(?CategoryEntity $category, SalesChannelContext $context): ?NostoCategory
+    {
+        try {
+            $categoryId = $category->getId();
+
+            $criteria = new Criteria([$categoryId]);
+            $criteria->addAssociation('seoUrls');
+
+            $categoryWithSeo = $this->categoryRepository
+                ->search($criteria, $context->getContext())
+                ->get($categoryId);
+
+            return $this->nostoCategoryBuilder->build($categoryWithSeo, $context);
+        } catch (Throwable $throwable) {
+            $this->logger->error(
+                $throwable->getMessage(),
+                ContextHelper::createContextFromException($throwable),
+            );
+
+            return null;
+        }
     }
 }
