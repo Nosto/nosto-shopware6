@@ -213,8 +213,8 @@ class Builder
 
             $alternateMediaUrls = array_values(
                 array_filter(
-                    $alternateMedia->map(static fn (ProductMediaEntity $media) => $media->getMedia()?->getUrl())
-                )
+                    $alternateMedia->map(static fn (ProductMediaEntity $media) => $media->getMedia()?->getUrl()),
+                ),
             );
 
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
