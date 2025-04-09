@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-plugin-settings-icon.html.twig';
 
 const { Component } = Shopware;

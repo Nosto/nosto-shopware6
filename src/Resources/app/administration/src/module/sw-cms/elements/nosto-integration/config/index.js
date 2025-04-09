@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './sw-cms-el-config-nosto-integration.html.twig';
 
 const { Component, Mixin } = Shopware;

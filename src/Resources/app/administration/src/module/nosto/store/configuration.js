@@ -1,6 +1,4 @@
-/**
- * @private
- */
+/* eslint-disable sw-core-rules/require-package-annotation */
 export default {
     namespaced: true,
 

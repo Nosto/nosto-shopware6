@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import './init/svg-icons.init';
 import './init/nosto-api-keys-validator-service-init';
 import './init/nosto-config-api';

@@ -1,4 +1,5 @@
-/** @private */
+/* eslint-disable sw-core-rules/require-package-annotation */
+/* eslint-disable sw-core-rules/private-feature-declarations */
 const icons = import.meta.glob('./svg/*.svg', { eager: true });
 
 export default Object.keys(icons).map((path) => {

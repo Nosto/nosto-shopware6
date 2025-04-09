@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './sw-cms-el-nosto-integration.html.twig';
 import './sw-cms-el-nosto-integration.scss';
 
