@@ -1,3 +1,17 @@
+# 5.1.3
+* Fix: Fixed an issue where two redundant options were shown Recommendation and Top Results for search/category sort
+* Fix: Fixed an issue with Search errors when cookie consent is not accepted
+* Fix: Enhanced error handling for product synchronisation
+
+# 5.1.2
+* Fix: Fixed an issue where the Nosto analytics tracking route name was incorrect, causing failed requests.
+
+# 5.1.1
+* Fix: Fixed an issue where Nosto has been loaded on the PLP, although the configuration was disabled
+* New: We added a cookie check for the Search Analytics
+* New: A new API on the plugin is available to support Multi Currency from Shopware
+* Fix: Fixed an issue with our fallback mechanism for the plugin versions >= 5.0.0.
+
 # 5.1.0
 * New: Synchronization for new custom fields in Nosto is now supported (release-date, mfg-part-number, gtin-ean)
 * Bug: Search Analytics - we fixed a bug where the click event got not triggered on product links

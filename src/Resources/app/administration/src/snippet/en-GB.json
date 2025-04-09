@@ -28,5 +28,12 @@
                 "listingLabelModeDisplayCheapestVariantHelpText": "Added by the Nosto plugin"
             }
         }
+    },
+    "sw-settings-listing": {
+        "general": {
+            "helpText": {
+                "defaultSorting": "Why am I only seeing either \"Top Results\" or \"Recommendation\"?\nTo prevent redundancy, customers are shown only one of these relevance-based sorting options at a time. The displayed option is determined by:Default sorting settings, Active Nosto services, Sorting priority\nIf \"Recommendation\" has equal or higher priority than \"Top Results\", it will automatically replace it."
+            }
+        }
     }
 }

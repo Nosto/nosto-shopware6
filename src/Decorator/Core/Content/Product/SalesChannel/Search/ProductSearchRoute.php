@@ -8,6 +8,8 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsSearchMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
@@ -21,6 +23,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -46,6 +49,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly SortingHandlerService $sortingHandlerService,
     ) {
     }
 
@@ -59,12 +63,22 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         SalesChannelContext $context,
         Criteria $criteria,
     ): ProductSearchRouteResponse {
+        $originalRequest = Request::create(
+            $request->getUri(),
+            $request->getMethod(),
+            $request->request->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $request->server->all(),
+            $request->getContent(),
+        );
+        $originalContext = unserialize(serialize($context));
+        $originalCriteria = unserialize(serialize($criteria));
+        $query = $request->query->get('search');
+        $originalCriteria->setTerm($query);
         try {
-            $originalRequest = clone $request;
-            $originalContext = clone $context;
-            $originalCriteria = clone $criteria;
-
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+                $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
 
@@ -85,7 +99,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $query = $request->query->get('search');
             $result = $this->fetchProductsById($criteria, $context, $query);
 
             if (!$result->getElements()) {
@@ -97,6 +110,33 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->process($request, $productListing, $context);
 
+            $sort = $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSearchResultSorting',
+                $context,
+            ) ?: $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSorting',
+                $context,
+            );
+
+            $sortingPriority = $this->sortingHandlerService->getNostoSortingPriority($context);
+            if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } elseif ($sort === ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            } elseif (!is_null($sortingPriority) && $sortingPriority >= 0) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } else {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            }
+
             $this->eventDispatcher->dispatch(
                 new ProductSearchResultEvent($request, $productListing, $context),
                 ProductEvents::PRODUCT_SEARCH_RESULT,
@@ -105,10 +145,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($request, $context, $criteria);
+            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
         }
     }
 
@@ -136,6 +176,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
             //php changes the . to _ in the cookie
             $sessionId = $request->cookies->get("2c_cId");
+            if (!$sessionId) {
+                return;
+            }
             $userAgent = $request->headers->get('User-Agent');
             $tracker = new AnalyticsSearchTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();
