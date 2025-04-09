@@ -19,7 +19,7 @@ export default class NostoSearchSessionParams extends window.PluginBaseClass {
                                 'nosto-search-session-params',
                                 encodeURIComponent(JSON.stringify(response)),
                                 30
-                            )
+                            );
                         });
                     });
                 }
