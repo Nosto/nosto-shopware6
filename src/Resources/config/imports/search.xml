@@ -11,9 +11,6 @@
             public="true"
             autowire="true"
         >
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
@@ -26,9 +23,6 @@
             autowire="true"
         >
             <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Controller\CmsController.inner"/>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
@@ -50,6 +44,11 @@
                 key="$productSearchRoute"
                 id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
                 on-invalid="null"
+            />
+            <argument
+                type="service"
+                key="$translator"
+                id="translator"
             />
         </service>
 

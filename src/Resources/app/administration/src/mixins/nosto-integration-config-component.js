@@ -1,8 +1,9 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 const { Mixin } = Shopware;
 
 const {
-    mapState,
-    mapMutations,
+    mapVuexState,
+    mapVuexMutations,
 } = Shopware.Component.getComponentHelper();
 
 Mixin.register('nosto-integration-config-component', {
@@ -19,7 +20,7 @@ Mixin.register('nosto-integration-config-component', {
     ],
 
     computed: {
-        ...mapState('nostoIntegrationConfig', [
+        ...mapVuexState('nostoIntegrationConfig', [
             'configs',
         ]),
         currentConfig() {
@@ -28,7 +29,7 @@ Mixin.register('nosto-integration-config-component', {
     },
 
     methods: {
-        ...mapMutations('nostoIntegrationConfig', [
+        ...mapVuexMutations('nostoIntegrationConfig', [
             'setDefaultConfigs',
             'setConfigValue',
         ]),

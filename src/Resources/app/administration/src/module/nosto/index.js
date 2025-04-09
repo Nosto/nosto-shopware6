@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import './pages/nosto-integration-settings';
 import './components/nosto-integration-settings-general';
 import './components/nosto-integration-account-general';

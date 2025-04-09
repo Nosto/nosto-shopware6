@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './sw-cms-preview-nosto-integration.html.twig';
 import './sw-cms-preview-nosto-integration.scss';
 

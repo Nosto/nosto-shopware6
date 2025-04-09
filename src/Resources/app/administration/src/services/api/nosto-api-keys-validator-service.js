@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 const { ApiService } = Shopware.Classes;
 
 class NostoApiKeyValidatorService extends ApiService {

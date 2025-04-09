@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import NostoApiKeyValidatorService from '../services/api/nosto-api-keys-validator-service';
 
 /** @private */

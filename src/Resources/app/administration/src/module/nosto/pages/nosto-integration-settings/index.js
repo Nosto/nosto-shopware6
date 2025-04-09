@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 
@@ -5,8 +6,8 @@ const { Component, Defaults, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const {
-    mapState,
-    mapMutations,
+    mapVuexState,
+    mapVuexMutations,
 } = Component.getComponentHelper();
 
 /** @private */
@@ -42,7 +43,7 @@ Component.register('nosto-integration-settings', {
     },
 
     computed: {
-        ...mapState('nostoIntegrationConfig', [
+        ...mapVuexState('nostoIntegrationConfig', [
             'configs',
             'loading',
         ]),
@@ -85,7 +86,7 @@ Component.register('nosto-integration-settings', {
     },
 
     methods: {
-        ...mapMutations('nostoIntegrationConfig', [
+        ...mapVuexMutations('nostoIntegrationConfig', [
             'setConfig',
             'setLoading',
         ]),

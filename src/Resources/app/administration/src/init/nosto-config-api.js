@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import NostoConfigApiService from '../api/nosto-config.api.service';
 
 const { Application } = Shopware;
