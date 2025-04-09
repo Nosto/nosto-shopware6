@@ -1,3 +1,4 @@
+/* eslint-disable sw-deprecation-rules/require-sw-package */
 const ApiService = Shopware.Classes.ApiService;
 
 class NostoConfigApiService extends ApiService {
