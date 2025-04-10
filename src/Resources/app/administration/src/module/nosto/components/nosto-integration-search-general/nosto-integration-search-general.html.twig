@@ -18,7 +18,7 @@
                         :help-text="$tc('nosto.configuration.search-navigation.enableSearch.helpText')"
                         :disabled="props.isInherited"
                         :modelValue="props.currentValue"
-                        @update:value="onUpdateValue('enableSearch', $event)"
+                        @update:modelValue="onUpdateValue('enableSearch', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -38,7 +38,7 @@
                         :help-text="$tc('nosto.configuration.search-navigation.enableNavigation.helpText')"
                         :disabled="props.isInherited"
                         :modelValue="props.currentValue"
-                        @update:value="onUpdateValue('enableNavigation', $event)"
+                        @update:modelValue="onUpdateValue('enableNavigation', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>

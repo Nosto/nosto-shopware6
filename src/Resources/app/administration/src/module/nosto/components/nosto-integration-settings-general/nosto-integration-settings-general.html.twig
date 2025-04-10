@@ -19,7 +19,7 @@
                             :disabled="props.isInherited"
                             :modelValue="props.currentValue"
                             :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
-                            @update:value="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
+                            @update:modelValue="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
@@ -63,7 +63,7 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @update:value="onUpdateValue('selectedCustomFields', $event)"
+                            @update:modelValue="onUpdateValue('selectedCustomFields', $event)"
                         />
                     </template>
                 </sw-inherit-wrapper>
