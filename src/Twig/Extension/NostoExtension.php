@@ -180,6 +180,7 @@ class NostoExtension extends AbstractExtension
 
         return $config;
     }
+
     public function getNostoCategory(?CategoryEntity $category, SalesChannelContext $context): ?NostoCategory
     {
         try {
