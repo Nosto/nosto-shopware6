@@ -104,6 +104,8 @@
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder"/>
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true"/>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider">
@@ -210,6 +212,7 @@
             <argument key="$nostoConfigService" type="service"
                       id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
         <!-- /Extensions -->
 
