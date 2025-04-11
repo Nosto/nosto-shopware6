@@ -474,7 +474,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:modelValue="onUpdateValue('oldJobCleanupPeriod', $event)"
+                        @update:value="onUpdateValue('oldJobCleanupPeriod', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
@@ -518,7 +518,7 @@
                         :disabled="props.isInherited"
                         show-clearable-button
                         :value="props.currentValue"
-                        @update:modelValue="onUpdateValue('oldNostoDataCleanupPeriod', $event)"
+                        @update:value="onUpdateValue('oldNostoDataCleanupPeriod', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
