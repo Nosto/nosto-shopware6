@@ -225,6 +225,7 @@
             <argument key="$nostoConfigService" type="service"
                       id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
         <!-- /Extensions -->
 
