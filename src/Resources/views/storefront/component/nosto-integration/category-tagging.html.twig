@@ -1,10 +1,20 @@
 {% block nosto_integration_category_tagging %}
 
-    {% set category = page.header.navigation.active %}
+    {% set category = page.category %}
 
     {% if category %}
-        <div class="nosto_category"
-             style="display:none">{% for item in sw_breadcrumb_full(category, context.context) %}{% if loop.first %}/{% endif %}{{ item.translated.name }}{% if loop.last is not true %}/{% endif %}{% endfor %}</div>
+
+        {% set nostoCategory = nosto_category(category, context) %}
+
+        <span class="nosto_category" style="display:none">
+            <span class="id">{{ nostoCategory.id }}</span>
+            <span class="parent_id">{{ nostoCategory.parentId }}</span>
+            <span class="title">{{ nostoCategory.title }}</span>
+            <span class="url">{{ nostoCategory.url }}</span>
+            <span class="path">{{ nostoCategory.path }}</span>
+            <span class="available">{{ nostoCategory.available }}</span>
+            <span class="category_string">{{ nostoCategory.categoryString }}</span>
+        </span>
     {% endif %}
 
 {% endblock %}
