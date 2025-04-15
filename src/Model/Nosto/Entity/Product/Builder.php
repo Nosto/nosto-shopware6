@@ -51,6 +51,8 @@ class Builder
 
     public const PRODUCT_NUMBER_KEY = 'productnumber';
 
+    public const VISIBILITY = 'visibility';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -256,6 +258,11 @@ class Builder
 
         if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
+        }
+
+        $visibilities = $product->getVisibilities();
+        foreach ($visibilities as $visibility) {
+            $nostoProduct->addCustomField(self::VISIBILITY, $visibility->getVisibility());
         }
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
