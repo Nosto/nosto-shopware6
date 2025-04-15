@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
@@ -25,6 +27,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 
     public function __construct(
         private readonly EntityRepository $productRepository,
+        private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
     ) {
     }
@@ -35,13 +38,17 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     public function execute(object $message): JobResult
     {
         $result = new JobResult();
-        $criteria = new Criteria();
-        $criteria->setLimit(self::BATCH_SIZE);
-        $repositoryIterator = new RepositoryIterator($this->productRepository, $message->getContext(), $criteria);
+        $criteriaProduct = new Criteria();
+        $criteriaProduct->setLimit(self::BATCH_SIZE);
+        $productRepositoryIterator = new RepositoryIterator(
+            $this->productRepository,
+            $message->getContext(),
+            $criteriaProduct,
+        );
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
-        while (($products = $repositoryIterator->fetch()) !== null) {
-            $ids = $this->getIdsForMessage($products->getEntities());
+        while (($products = $productRepositoryIterator->fetch()) !== null) {
+            $ids = $this->getProductIdsForMessage($products->getEntities());
             $this->jobScheduler->schedule(
                 new ProductSyncMessage(
                     Uuid::randomHex(),
@@ -55,17 +62,54 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
+        $criteriaCategory = new Criteria();
+        $criteriaCategory->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+            new EqualsFilter('parentId', null),
+        ]));
+        $criteriaCategory->setLimit(self::BATCH_SIZE);
+        $categoryRepositoryIterator = new RepositoryIterator(
+            $this->categoryRepository,
+            $message->getContext(),
+            $criteriaCategory,
+        );
+        while (($categories = $categoryRepositoryIterator->fetch()) !== null) {
+            $ids = $this->getCategoryIdsForMessage($categories->getEntities());
+            $this->jobScheduler->schedule(
+                new CategorySyncMessage(
+                    Uuid::randomHex(),
+                    $message->getJobId(),
+                    $ids,
+                    $message->getContext(),
+                ),
+            );
+            $result->addMessage(
+                new InfoMessage('Job with payload of: ' . count($ids) . ' categories has been scheduled.'),
+            );
+        }
+
         return $result;
     }
 
     /**
      * @return array<string, string>
      */
-    private function getIdsForMessage(EntityCollection $products): array
+    private function getProductIdsForMessage(EntityCollection $products): array
     {
         $data = [];
         foreach ($products as $product) {
             $data[$product->getId()] = $product->getProductNumber();
+        }
+        return $data;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getCategoryIdsForMessage(EntityCollection $categories): array
+    {
+        $data = [];
+        foreach ($categories as $category) {
+            $data[$category->getId()] = $category->getId();
         }
         return $data;
     }
