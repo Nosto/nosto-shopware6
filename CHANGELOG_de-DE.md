@@ -1,3 +1,6 @@
+# 5.1.4
+* Neu: Synchronisation für Kategorie URL's und Verbesserung des Kategorie Taggings.
+* 
 # 5.1.3
 * Fix: Ein Problem wurde behoben, bei dem zwei redundante Optionen – "Empfehlung" und "Top-Ergebnisse" – bei der Sortierung für Suche/Kategorie angezeigt wurden.
 * Fix: Ein Problem mit Suchfehlern wurde behoben, das auftrat, wenn keine Cookie-Einwilligung erteilt wurde.

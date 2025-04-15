@@ -1,3 +1,6 @@
+# 5.1.4
+* New: Synchronization for category urls, and improved category tagging
+
 # 5.1.3
 * Fix: Fixed an issue where two redundant options were shown Recommendation and Top Results for search/category sort
 * Fix: Fixed an issue with Search errors when cookie consent is not accepted
