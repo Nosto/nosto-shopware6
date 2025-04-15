@@ -1,3 +1,6 @@
+# 3.5.4
+* Neu: Synchronisation für Kategorie URL's und Verbesserung des Kategorie Taggings.
+
 # 3.5.3
 * Fix: Fixed an issue where two redundant options were shown Recommendation and Top Results for search/category sort
 * Fix: Fixed an issue with Search errors when cookie consent is not accepted
