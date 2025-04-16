@@ -79,6 +79,7 @@ class ProductHelper
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
 
         return $criteria;
     }
