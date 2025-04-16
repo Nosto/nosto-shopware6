@@ -504,6 +504,7 @@ class Builder
             $criteria->addAssociation('properties.group');
             $criteria->addAssociation('manufacturer');
             $criteria->addAssociation('categoriesRo');
+            $criteria->addAssociation('visibilities');
             $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
 
             if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
