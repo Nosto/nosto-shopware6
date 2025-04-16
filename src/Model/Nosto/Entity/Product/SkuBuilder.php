@@ -101,6 +101,11 @@ class SkuBuilder
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
+        $visibilities = $product->getVisibilities();
+        foreach ($visibilities as $visibility) {
+            $nostoSku->addCustomField(Builder::VISIBILITY, $visibility->getVisibility());
+        }
+
         return $nostoSku;
     }
 }
