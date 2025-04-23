@@ -81,6 +81,30 @@ class ProductListingRoute extends AbstractProductListingRoute
                 return $this->decorated->load($categoryId, $request, $context, $criteria);
             }
 
+            $isEnabledCache = $this->configProvider->isEnabledCache(
+                $context->getSalesChannelId(),
+                $context->getLanguageId()
+            );
+
+            if ($isEnabledCache) {
+                $cacheTime = $this->configProvider->getCacheTime(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId()
+                );
+
+                $session = $request->getSession();
+                $cacheTimestamp = $session->get('cache_timestamp_' . $categoryId, 0);
+
+                if (time() - $cacheTimestamp > ($cacheTime * 60)) {
+                    $session->set('cache_timestamp_' . $categoryId, time());
+                    $request->headers->set('Cache-Control', 'no-store, private');
+                } else {
+                    $request->headers->set('Cache-Control', 'public, max-age=' . ($cacheTime * 60));
+                }
+            } else {
+                $request->headers->set('Cache-Control', 'no-store, private');
+            }
+
             $criteria->addFilter(
                 new ProductAvailableFilter(
                     $context->getSalesChannel()->getId(),
@@ -103,32 +127,9 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $context->getLanguageId(),
             );
 
-            if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCacheTime(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-
-                $session = $request->getSession();
-                $cacheKey = 'nosto_cache_time_' . $categoryId;
-
-                $now = (new \DateTimeImmutable())->getTimestamp();
-                $lastCached = $session->get($cacheKey);
-
-                if (!$lastCached || ($now - $lastCached) > ($cacheTime * 60)) {
-                    $productListingResponse = $this->loadWithCache($categoryId, $request, $context, $criteria);
-                    $session->set($cacheKey, $now);
-                } else {
-                    $productListingResponse = $this->getPreviouslyCachedResponse($categoryId, $request, $context, $criteria);
-                }
-
-                $productListing = $productListingResponse->getResult();
-            }
-            else {
-                $productListing = ProductListingResult::createFrom(
-                    $this->fetchProductsById($criteria, $context),
-                );
-            }
+            $productListing = ProductListingResult::createFrom(
+                $this->fetchProductsById($criteria, $context),
+            );
 
             if (!$productListing->getElements()) {
                 return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
@@ -153,38 +154,6 @@ class ProductListingRoute extends AbstractProductListingRoute
             return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         }
     }
-
-    private function loadWithCache(
-        string $categoryId,
-        Request $request,
-        SalesChannelContext $context,
-        Criteria $criteria,
-    ): ProductListingRouteResponse {
-        return $this->cachedProductListingRoute->load($categoryId, $request, $context, $criteria);
-    }
-
-    private function getPreviouslyCachedResponse(
-        string $categoryId,
-        Request $request,
-        SalesChannelContext $context,
-        Criteria $criteria
-    ): ProductListingRouteResponse {
-        $session = $request->getSession();
-        $responseKey = 'nosto_cache_response_' . $categoryId;
-
-        $cached = $session->get($responseKey);
-
-        if ($cached instanceof ProductListingRouteResponse) {
-            return $cached;
-        }
-
-        // Fallback to fresh load
-        $response = $this->loadWithCache($categoryId, $request, $context, $criteria);
-        $session->set($responseKey, $response);
-
-        return $response;
-    }
-
 
     private function sendImpressionAnalytics(
         SalesChannelContext $context,
