@@ -104,13 +104,24 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             if ($isEnabledCache) {
-                //TODO make use of $cacheTime
                 $cacheTime = $this->configProvider->getCacheTime(
                     $context->getSalesChannelId(),
                     $context->getLanguageId(),
                 );
 
-                $productListingResponse = $this->loadWithCache($categoryId, $request, $context, $criteria);
+                $session = $request->getSession();
+                $cacheKey = 'nosto_cache_time_' . $categoryId;
+
+                $now = (new \DateTimeImmutable())->getTimestamp();
+                $lastCached = $session->get($cacheKey);
+
+                if (!$lastCached || ($now - $lastCached) > ($cacheTime * 60)) {
+                    $productListingResponse = $this->loadWithCache($categoryId, $request, $context, $criteria);
+                    $session->set($cacheKey, $now);
+                } else {
+                    $productListingResponse = $this->getPreviouslyCachedResponse($categoryId, $request, $context, $criteria);
+                }
+
                 $productListing = $productListingResponse->getResult();
             }
             else {
@@ -151,6 +162,29 @@ class ProductListingRoute extends AbstractProductListingRoute
     ): ProductListingRouteResponse {
         return $this->cachedProductListingRoute->load($categoryId, $request, $context, $criteria);
     }
+
+    private function getPreviouslyCachedResponse(
+        string $categoryId,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ): ProductListingRouteResponse {
+        $session = $request->getSession();
+        $responseKey = 'nosto_cache_response_' . $categoryId;
+
+        $cached = $session->get($responseKey);
+
+        if ($cached instanceof ProductListingRouteResponse) {
+            return $cached;
+        }
+
+        // Fallback to fresh load
+        $response = $this->loadWithCache($categoryId, $request, $context, $criteria);
+        $session->set($responseKey, $response);
+
+        return $response;
+    }
+
 
     private function sendImpressionAnalytics(
         SalesChannelContext $context,
@@ -195,7 +229,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
-                //Either category or categoryId are needed
+            //Either category or categoryId are needed
                 $fullCategoryPath,
                 $category->getId() ?? null,
             );
