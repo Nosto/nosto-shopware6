@@ -60,6 +60,10 @@ class NostoConfigService
 
     public const CATEGORY_BLOCKLIST = 'categoryBlocklist';
 
+    public const ENABLE_CACHE = 'enableCache';
+
+    public const ENABLE_CACHE_TIME= 'enableCacheTime';
+
     public const ENABLE_VARIATIONS = 'variations';
 
     public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';

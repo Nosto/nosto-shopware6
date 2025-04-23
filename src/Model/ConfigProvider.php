@@ -160,6 +160,20 @@ class ConfigProvider
         return is_array($value) ? $value : [];
     }
 
+    public function isEnabledCache(?string $channelId = null, ?string $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_CACHE,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function getCacheTime(?string $channelId = null, ?string $languageId = null): ?string
+    {
+        return $this->configService->get(NostoConfigService::ENABLE_CACHE_TIME, $channelId, $languageId);
+    }
+
     public function isEnabledVariations(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_VARIATIONS, $channelId, $languageId);

@@ -101,6 +101,8 @@
                 "enableLabelling": "Enable Product Labelling Sync",
                 "storeAbandonedCartData": "Store data for abandoned carts",
                 "ignoreCookieConsent": "Ignore cookie consent",
+                "timeEnableCache" : "Set cache time (in minutes)",
+                "enableCacheTimeHelp" : "Set the cached time in which the produts will be loaded from cache instead direclty from Nosto API, after the time set the cached products will be renewed",
                 "enableSyncFirstAvailableVariant": "Sync first available variant as a product, if product is on clearance and out of stock",
                 "enableDailySynchronization": "Enable Daily Product Synchronization",
                 "enableDailySynchronizationHelp": "If the field is enabled products will be synchronized at the mentioned time each day",
@@ -120,6 +122,10 @@
                 "oldJobCleanup": {
                     "label": "Enable cleanup of old jobs",
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
+                },
+                "enableCache": {
+                    "label": "Enable Cache",
+                    "helpText": "Enable Cache"
                 },
                 "enableSearchImpressions": {
                     "label": "Send Search & Category analytics",

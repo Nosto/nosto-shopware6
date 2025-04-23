@@ -543,5 +543,47 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_cache %}
+            <sw-inherit-wrapper
+                    :value="currentConfig['enableCache']"
+                    :inheritedValue="configKey === null ? null : configs['null']['enableCache']"
+                    @update:value="onUpdateValue('enableCache', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                            name="enableCache"
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.featuresFlags.enableCache.label')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.enableCache.helpText')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @update:value="onUpdateValue('enableCache', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_cache_time %}
+            <sw-inherit-wrapper
+                    v-if="configKey === null && currentConfig['enableCache']"
+                    :value="currentConfig['enableCacheTime']"
+                    :inheritedValue="configs['null']?.['enableCacheTime'] ?? null"
+                    @update:value="onUpdateValue('enableCacheTime', $event)"
+            >
+                <template #content="props">
+                    <sw-text-field
+                            name="enableCacheTime"
+                            :map-inheritance="props"
+                            :value="props.currentValue"
+                            :disabled="props.isInherited"
+                            date-type="time"
+                            :label="$tc('nosto.configuration.featuresFlags.timeEnableCache')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.enableCacheTimeHelp')"
+                            @update:value="onUpdateValue('enableCacheTime', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}

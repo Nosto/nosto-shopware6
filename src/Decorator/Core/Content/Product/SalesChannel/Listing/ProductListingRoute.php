@@ -17,6 +17,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
@@ -44,6 +45,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly CachedProductListingRoute $cachedProductListingRoute,
     ) {
     }
 
@@ -96,9 +98,26 @@ class ProductListingRoute extends AbstractProductListingRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $productListing = ProductListingResult::createFrom(
-                $this->fetchProductsById($criteria, $context),
+            $isEnabledCache = $this->configProvider->isEnabledCache(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
             );
+
+            if ($isEnabledCache) {
+                //TODO make use of $cacheTime
+                $cacheTime = $this->configProvider->getCacheTime(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                );
+
+                $productListingResponse = $this->loadWithCache($categoryId, $request, $context, $criteria);
+                $productListing = $productListingResponse->getResult();
+            }
+            else {
+                $productListing = ProductListingResult::createFrom(
+                    $this->fetchProductsById($criteria, $context),
+                );
+            }
 
             if (!$productListing->getElements()) {
                 return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
@@ -122,6 +141,15 @@ class ProductListingRoute extends AbstractProductListingRoute
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
             return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         }
+    }
+
+    private function loadWithCache(
+        string $categoryId,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria,
+    ): ProductListingRouteResponse {
+        return $this->cachedProductListingRoute->load($categoryId, $request, $context, $criteria);
     }
 
     private function sendImpressionAnalytics(
