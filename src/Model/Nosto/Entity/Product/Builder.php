@@ -27,6 +27,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Defaults;
@@ -51,7 +52,9 @@ class Builder
 
     public const PRODUCT_NUMBER_KEY = 'productnumber';
 
-    public const VISIBILITY = 'visibility';
+    public const SHOW_CATEGORY = 'showCategory';
+
+    public const SHOW_SEARCH = 'showSearch';
 
     public function __construct(
         private readonly ConfigProvider $configProvider,
@@ -260,9 +263,25 @@ class Builder
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
-        $visibilities = $product->getVisibilities();
-        foreach ($visibilities as $visibility) {
-            $nostoProduct->addCustomField(self::VISIBILITY, $visibility->getVisibility());
+        foreach ($product->getVisibilities() as $visibility) {
+            if ($channelId === $visibility->getSalesChannelId()) {
+                switch ($visibility->getVisibility()) {
+                    case ProductVisibilityDefinition::VISIBILITY_ALL:
+                        $showSearch = 'true';
+                        $showCategory = 'true';
+                        break;
+                    case ProductVisibilityDefinition::VISIBILITY_SEARCH:
+                        $showSearch = 'true';
+                        $showCategory = 'false';
+                        break;
+                    default:
+                        $showSearch = 'false';
+                        $showCategory = 'false';
+                }
+                $nostoProduct->addCustomField(self::SHOW_CATEGORY, $showSearch);
+                $nostoProduct->addCustomField(self::SHOW_SEARCH, $showCategory);
+                break;
+            }
         }
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
