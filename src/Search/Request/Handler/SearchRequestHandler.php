@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\Result\Graphql\Search\SearchResult;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
