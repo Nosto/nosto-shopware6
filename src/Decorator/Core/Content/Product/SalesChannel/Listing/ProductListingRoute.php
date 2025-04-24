@@ -131,13 +131,6 @@ class ProductListingRoute extends AbstractProductListingRoute
         Request $request,
     ): void {
         try {
-            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-            if (!$shouldSendImpression) {
-                return;
-            }
             $merchantId = $this->configProvider->getAccountId(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
@@ -169,7 +162,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             $metadata = new AnalyticsCategoryMetadata(
                 //Either category or categoryId are needed
                 $fullCategoryPath,
-                $category->getId() ?? null,
+                $category->getId() ?? null,''
             );
 
             $tracker->impression($metadata, $productIds, $page);
