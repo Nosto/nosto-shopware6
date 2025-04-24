@@ -43,9 +43,9 @@ class NavigationRequestHandler extends AbstractRequestHandler
         if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
-        $searchOperation->addRangeFilter(
-            'customFields.' . Builder::VISIBILITY,
-            (string) ProductVisibilityDefinition::VISIBILITY_ALL,
+        $searchOperation->addValueFilter(
+            'customFields.' . Builder::SHOW_CATEGORY,
+            'true',
         );
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
