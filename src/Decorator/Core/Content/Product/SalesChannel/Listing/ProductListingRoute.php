@@ -162,7 +162,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             $metadata = new AnalyticsCategoryMetadata(
                 //Either category or categoryId are needed
                 $fullCategoryPath,
-                $category->getId() ?? null,''
+                $category->getId() ?? null,
             );
 
             $tracker->impression($metadata, $productIds, $page);
