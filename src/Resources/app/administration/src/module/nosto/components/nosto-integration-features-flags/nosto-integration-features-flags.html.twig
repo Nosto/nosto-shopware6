@@ -523,25 +523,5 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
-
-        {% block nosto_integration_feature_search_impressions %}
-            <sw-inherit-wrapper
-                    :value="currentConfig['enableSearchImpressions']"
-                    :inheritedValue="configKey === null ? null : configs['null']['enableSearchImpressions']"
-                    @update:value="onUpdateValue('enableSearchImpressions', $event)"
-            >
-                <template #content="props">
-                    <mt-switch
-                            name="enableSearchImpressions"
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableSearchImpressions.label')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableSearchImpressions.helpText')"
-                            :disabled="props.isInherited"
-                            :modelValue="props.currentValue"
-                            @update:value="onUpdateValue('enableSearchImpressions', $event)"
-                    />
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
     </mt-card>
 {% endblock %}

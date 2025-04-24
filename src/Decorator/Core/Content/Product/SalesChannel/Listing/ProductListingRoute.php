@@ -131,13 +131,6 @@ class ProductListingRoute extends AbstractProductListingRoute
         Request $request,
     ): void {
         try {
-            $shouldSendImpression = $this->configProvider->isEnabledSearchImpressions(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-            if (!$shouldSendImpression) {
-                return;
-            }
             $merchantId = $this->configProvider->getAccountId(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
