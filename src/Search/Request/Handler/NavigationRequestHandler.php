@@ -11,7 +11,6 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -43,9 +42,9 @@ class NavigationRequestHandler extends AbstractRequestHandler
         if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
-        $searchOperation->addRangeFilter(
-            'customFields.' . Builder::VISIBILITY,
-            (string) ProductVisibilityDefinition::VISIBILITY_ALL,
+        $searchOperation->addValueFilter(
+            'customFields.' . Builder::SHOW_CATEGORY,
+            'true',
         );
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);

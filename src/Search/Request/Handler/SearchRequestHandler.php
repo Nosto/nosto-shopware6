@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\Result\Graphql\Search\SearchResult;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,9 +21,9 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setQuery((string) $request->query->get('search'));
-        $searchOperation->addRangeFilter(
-            'customFields.' . Builder::VISIBILITY,
-            (string) ProductVisibilityDefinition::VISIBILITY_SEARCH,
+        $searchOperation->addValueFilter(
+            'customFields.' . Builder::SHOW_SEARCH,
+            'true',
         );
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
