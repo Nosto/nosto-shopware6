@@ -82,8 +82,6 @@ class NostoConfigService
 
     public const ENABLE_IGNORE_COOKIE_CONSENT = 'ignoreCookieConsent';
 
-    public const ENABLE_SEARCH_IMPRESSIONS = 'enableSearchImpressions';
-
     public const ENABLE_SYNC_FIRST_AVAILABLE_VARIANT = 'syncFirstAvailableVariant';
 
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
