@@ -283,7 +283,6 @@ class Builder
                 break;
             }
         }
-        dd($nostoProduct);
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
