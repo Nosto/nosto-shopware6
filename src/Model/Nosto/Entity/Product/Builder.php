@@ -278,11 +278,12 @@ class Builder
                         $showSearch = 'false';
                         $showCategory = 'false';
                 }
-                $nostoProduct->addCustomField(self::SHOW_CATEGORY, $showSearch);
-                $nostoProduct->addCustomField(self::SHOW_SEARCH, $showCategory);
+                $nostoProduct->addCustomField(self::SHOW_CATEGORY, $showCategory);
+                $nostoProduct->addCustomField(self::SHOW_SEARCH, $showSearch);
                 break;
             }
         }
+        dd($nostoProduct);
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
