@@ -117,8 +117,8 @@ class SkuBuilder
                         $showSearch = 'false';
                         $showCategory = 'false';
                 }
-                $nostoSku->addCustomField(Builder::SHOW_CATEGORY, $showSearch);
-                $nostoSku->addCustomField(Builder::SHOW_SEARCH, $showCategory);
+                $nostoSku->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
+                $nostoSku->addCustomField(Builder::SHOW_SEARCH, $showSearch);
                 break;
             }
         }
