@@ -15,11 +15,14 @@
                         <mt-switch
                             name="isInitializeNostoAfterInteraction"
                             :label="$tc('nosto.configuration.general.deferredInit.label')"
-                            :map-inheritance="props"
+                            :is-inheritance-field="props.isInheritField"
+                            :is-inherited="props.isInherited"
                             :disabled="props.isInherited"
                             :modelValue="props.currentValue"
                             :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
                             @update:modelValue="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
                         />
                     </template>
                 </sw-inherit-wrapper>
