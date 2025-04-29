@@ -83,13 +83,13 @@ class ProductListingRoute extends AbstractProductListingRoute
 
             $isEnabledCache = $this->configProvider->isEnabledCache(
                 $context->getSalesChannelId(),
-                $context->getLanguageId()
+                $context->getLanguageId(),
             );
 
             if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCacheTime(
+                $cacheTime = $this->configProvider->getCachePeriod(
                     $context->getSalesChannelId(),
-                    $context->getLanguageId()
+                    $context->getLanguageId(),
                 );
 
                 $session = $request->getSession();
@@ -198,7 +198,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
-            //Either category or categoryId are needed
+                //Either category or categoryId are needed
                 $fullCategoryPath,
                 $category->getId() ?? null,
             );

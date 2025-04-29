@@ -62,7 +62,7 @@ class NostoConfigService
 
     public const ENABLE_CACHE = 'enableCache';
 
-    public const ENABLE_CACHE_TIME= 'enableCacheTime';
+    public const CACHE_PERIOD = 'cachePeriod';
 
     public const ENABLE_VARIATIONS = 'variations';
 

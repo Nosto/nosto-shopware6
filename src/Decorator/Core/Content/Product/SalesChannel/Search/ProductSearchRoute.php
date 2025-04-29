@@ -88,13 +88,13 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $isEnabledCache = $this->configProvider->isEnabledCache(
                 $context->getSalesChannelId(),
-                $context->getLanguageId()
+                $context->getLanguageId(),
             );
 
             if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCacheTime(
+                $cacheTime = $this->configProvider->getCachePeriod(
                     $context->getSalesChannelId(),
-                    $context->getLanguageId()
+                    $context->getLanguageId(),
                 );
 
                 $session = $request->getSession();

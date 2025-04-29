@@ -169,9 +169,9 @@ class ConfigProvider
         );
     }
 
-    public function getCacheTime(?string $channelId = null, ?string $languageId = null): ?string
+    public function getCachePeriod(?string $channelId = null, ?string $languageId = null): ?string
     {
-        return $this->configService->get(NostoConfigService::ENABLE_CACHE_TIME, $channelId, $languageId);
+        return $this->configService->get(NostoConfigService::CACHE_PERIOD, $channelId, $languageId);
     }
 
     public function isEnabledVariations(?string $channelId = null, ?string $languageId = null): bool
