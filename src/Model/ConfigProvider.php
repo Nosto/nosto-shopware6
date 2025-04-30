@@ -169,7 +169,7 @@ class ConfigProvider
         );
     }
 
-    public function getCachePeriod(?string $channelId = null, ?string $languageId = null): ?string
+    public function getCachePeriod(?string $channelId = null, ?string $languageId = null): ?int
     {
         return $this->configService->get(NostoConfigService::CACHE_PERIOD, $channelId, $languageId);
     }
