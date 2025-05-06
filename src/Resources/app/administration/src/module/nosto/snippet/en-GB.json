@@ -121,6 +121,10 @@
                     "label": "Enable cleanup of old jobs",
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
+                "enableProductVisibility": {
+                    "label": "Enable product visibility",
+                    "helpText": "Please perform a full product sync and index the fields \"showCategory\" and \"showSearch\" on the Nosto account before enabling this"
+                },
                 "enableSearchImpressions": {
                     "label": "Send Search & Category analytics",
                     "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
