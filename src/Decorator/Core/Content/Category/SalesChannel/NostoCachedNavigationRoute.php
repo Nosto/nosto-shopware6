@@ -180,8 +180,7 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
         StoreApiResponse $response,
         SalesChannelContext $context,
         Criteria $criteria,
-    ): array
-    {
+    ): array {
         $tags = array_merge(
             $tags,
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
