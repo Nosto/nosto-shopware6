@@ -86,31 +86,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 throw RoutingException::missingRequestParameter('search');
             }
 
-            $isEnabledCache = $this->configProvider->isEnabledCache(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-
-            if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCachePeriod(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-
-                $session = $request->getSession();
-                $cacheTimestamp = $session->get('cache_timestamp_' . $query, 0);
-
-                if (time() - $cacheTimestamp > ($cacheTime * 60)) {
-                    $session->set('cache_timestamp_' . $query, time());
-                    $request->headers->set('Cache-Control', 'no-store, private');
-                } else {
-                    $request->headers->set('Cache-Control', 'public, max-age=' . ($cacheTime * 60));
-                }
-            } else {
-                $request->headers->set('Cache-Control', 'no-store, private');
-            }
-
-
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addFilter(

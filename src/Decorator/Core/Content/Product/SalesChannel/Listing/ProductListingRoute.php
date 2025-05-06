@@ -81,30 +81,6 @@ class ProductListingRoute extends AbstractProductListingRoute
                 return $this->decorated->load($categoryId, $request, $context, $criteria);
             }
 
-            $isEnabledCache = $this->configProvider->isEnabledCache(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-
-            if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCachePeriod(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-
-                $session = $request->getSession();
-                $cacheTimestamp = $session->get('cache_timestamp_' . $categoryId, 0);
-
-                if (time() - $cacheTimestamp > ($cacheTime * 60)) {
-                    $session->set('cache_timestamp_' . $categoryId, time());
-                    $request->headers->set('Cache-Control', 'no-store, private');
-                } else {
-                    $request->headers->set('Cache-Control', 'public, max-age=' . ($cacheTime * 60));
-                }
-            } else {
-                $request->headers->set('Cache-Control', 'no-store, private');
-            }
-
             $criteria->addFilter(
                 new ProductAvailableFilter(
                     $context->getSalesChannel()->getId(),
@@ -121,11 +97,6 @@ class ProductListingRoute extends AbstractProductListingRoute
             $streamId = $this->extendCriteria($context, $criteria, $category);
 
             $this->listingProcessor->prepare($request, $criteria, $context);
-
-            $isEnabledCache = $this->configProvider->isEnabledCache(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
 
             $productListing = ProductListingResult::createFrom(
                 $this->fetchProductsById($criteria, $context),

@@ -84,6 +84,20 @@
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
         </service>
 
+        <service id="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NostoCachedNavigationRoute"
+             decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute"
+             decoration-priority="-5000"
+             public="true"
+        >
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.navigation_route%</argument>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute.inner"/>
             <argument type="service" id="event_dispatcher"/>
