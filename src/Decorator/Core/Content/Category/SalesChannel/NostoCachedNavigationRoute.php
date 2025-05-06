@@ -69,6 +69,15 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
 
     private function loadNavigation(Request $request, string $active, string $rootId, int $depth, SalesChannelContext $context, Criteria $criteria, array $tags = []): NavigationRouteResponse
     {
+        $isEnabledCache = $this->configProvider->isEnabledCache(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+
+        if (!$isEnabledCache) {
+            return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
+        }
+
         $key = $this->generateKey($active, $rootId, $depth, $request, $context, $criteria);
 
         if ($key === null) {
@@ -78,19 +87,12 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($active, $depth, $rootId, $request, $context, $criteria, $tags) {
             $request->query->set('depth', (string) $depth);
 
-            $isEnabledCache = $this->configProvider->isEnabledCache(
+            $cacheTime = $this->configProvider->getCachePeriod(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
 
-            if ($isEnabledCache) {
-                $cacheTime = $this->configProvider->getCachePeriod(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-
-                $item->expiresAfter($cacheTime * 60);
-            }
+            $item->expiresAfter($cacheTime * 60);
 
             $name = self::buildName($active);
 
