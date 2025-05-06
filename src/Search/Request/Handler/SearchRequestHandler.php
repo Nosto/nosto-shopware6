@@ -21,10 +21,17 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setQuery((string) $request->query->get('search'));
-        $searchOperation->addValueFilter(
-            'customFields.' . Builder::SHOW_SEARCH,
-            'true',
-        );
+
+        if ($this->configProvider->isEnabledProductVisibility(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $searchOperation->addValueFilter(
+                'customFields.' . Builder::SHOW_SEARCH,
+                'true',
+            );
+        }
+
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 

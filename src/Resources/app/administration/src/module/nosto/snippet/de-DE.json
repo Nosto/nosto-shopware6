@@ -121,6 +121,10 @@
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
+                "enableProductVisibility": {
+                    "label": "Produkt-Sichtbarkeit aktivieren",
+                    "helpText": "Bitte führen Sie eine vollständige Produktsynchronisierung durch und indexieren Sie die Felder \"showCategory\" und \"showSearch\" im Nosto-Konto, bevor Sie dies aktivieren"
+                },
                 "enableSearchImpressions": {
                     "label": "Sende Such- und Kategorieanalyse",
                     "helpText": "Aktivieren Sie die Such- und Kategorie-Impressions-Analyse über das Plugin. Passen Sie vorher die Autovervollständigungs-Vorlage an, um doppelte Impressions zu vermeiden. Bei Fragen wenden Sie sich an den Nosto-Support.."
