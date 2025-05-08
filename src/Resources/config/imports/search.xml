@@ -96,6 +96,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.navigation_route%</argument>
             <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">

@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 class NostoCachedNavigationRoute extends CachedNavigationRoute
 {
@@ -36,6 +37,7 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
         private readonly EventDispatcherInterface $dispatcher,
         private readonly array $states,
         private readonly ConfigProvider $configProvider,
+        private readonly EntityRepository $categoryRepository,
     ) {
     }
 
@@ -58,33 +60,44 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
 
             $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
-            $response = $this->loadNavigation(
-                $request,
-                $rootId,
-                $rootId,
-                $depth,
-                $context,
-                $criteria,
-                [CachedNavigationRoute::ALL_TAG, CachedNavigationRoute::BASE_NAVIGATION_TAG],
+            $isEnabledCache = $this->configProvider->isEnabledCache(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
             );
 
-            if ($this->isActiveLoaded($rootId, $response->getCategories(), $activeId)) {
+            if (!$isEnabledCache) {
+                $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
+
+                return new NavigationRouteResponse($categories);
+            } else {
+                $response = $this->loadNavigation(
+                    $request,
+                    $rootId,
+                    $rootId,
+                    $depth,
+                    $context,
+                    $criteria,
+                    [CachedNavigationRoute::ALL_TAG, CachedNavigationRoute::BASE_NAVIGATION_TAG],
+                );
+
+                if ($this->isActiveLoaded($rootId, $response->getCategories(), $activeId)) {
+                    return $response;
+                }
+
+                $active = $this->loadNavigation(
+                    $request,
+                    $activeId,
+                    $rootId,
+                    0,
+                    $context,
+                    $criteria,
+                    [CachedNavigationRoute::ALL_TAG],
+                );
+
+                $response->getCategories()->merge($active->getCategories());
+
                 return $response;
             }
-
-            $active = $this->loadNavigation(
-                $request,
-                $activeId,
-                $rootId,
-                0,
-                $context,
-                $criteria,
-                [CachedNavigationRoute::ALL_TAG],
-            );
-
-            $response->getCategories()->merge($active->getCategories());
-
-            return $response;
         });
     }
 
@@ -97,15 +110,6 @@ class NostoCachedNavigationRoute extends CachedNavigationRoute
         Criteria $criteria,
         array $tags = [],
     ): NavigationRouteResponse {
-        $isEnabledCache = $this->configProvider->isEnabledCache(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        );
-
-        if (!$isEnabledCache) {
-            return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
-        }
-
         $key = $this->generateKey($active, $rootId, $depth, $request, $context, $criteria);
 
         if ($key === null) {
