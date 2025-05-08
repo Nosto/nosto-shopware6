@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
 use Nosto\Model\Product\Product as NostoProduct;
-use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -36,7 +36,7 @@ class CachedProvider implements ProductProviderInterface
 
         $nostoProduct = $this->innerProvider->get($product, $context);
         $cachedItem->expiresAfter(3600);
-        $cachedItem->tag(CachedProductDetailRoute::buildName($product->getParentId() ?? $product->getId()));
+        $cachedItem->tag(ProductDetailRoute::buildName($product->getParentId() ?? $product->getId()));
         $this->cache->save($cachedItem->set($nostoProduct));
 
         return $nostoProduct;

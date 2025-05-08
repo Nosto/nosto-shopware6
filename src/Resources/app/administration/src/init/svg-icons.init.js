@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import iconComponents from '../app/assets/icons/icons';
 
 const { Component } = Shopware;

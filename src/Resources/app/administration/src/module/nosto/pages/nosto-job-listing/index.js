@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
 

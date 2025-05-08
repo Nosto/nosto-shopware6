@@ -9,7 +9,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,13 +30,13 @@ class FrontendSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            HeaderPageletLoadedEvent::class => 'onHeaderLoaded',
+            StorefrontRenderEvent::class => 'onStorefrontRender',
             KernelEvents::RESPONSE => 'onKernelResponse',
             CategoryRouteCacheKeyEvent::class => 'addNostoData',
         ];
     }
 
-    public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
+    public function onStorefrontRender(StorefrontRenderEvent $event): void
     {
         $config = $this->configProvider->toArray(
             $event->getSalesChannelContext()->getSalesChannelId(),

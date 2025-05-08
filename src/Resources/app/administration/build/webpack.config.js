@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-package-annotation */
 const path = require('path');
 
 function resolve(dir) {

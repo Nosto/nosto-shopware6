@@ -20,4 +20,9 @@ class NostoLanguageExtension extends EntityExtension
     {
         return LanguageDefinition::class;
     }
+
+    public function getEntityName(): string
+    {
+        return LanguageDefinition::ENTITY_NAME;
+    }
 }

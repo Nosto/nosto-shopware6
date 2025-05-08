@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "863ee7d4a4f8deef52e75f336e60a298",
+    "content-hash": "5ac081d118bed327b3d40709c14578e4",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.6.6",
+            "version": "7.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "dae7ede4b09f1dd2ac6b9316f9f0f8c52647af8f"
+                "reference": "a16433aa413d1bcebc02702bec80f4d6aa29d5e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/dae7ede4b09f1dd2ac6b9316f9f0f8c52647af8f",
-                "reference": "dae7ede4b09f1dd2ac6b9316f9f0f8c52647af8f",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/a16433aa413d1bcebc02702bec80f4d6aa29d5e7",
+                "reference": "a16433aa413d1bcebc02702bec80f4d6aa29d5e7",
                 "shasum": ""
             },
             "require": {
@@ -58,22 +58,22 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.6"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.2"
             },
-            "time": "2025-04-04T11:59:42+00:00"
+            "time": "2025-02-08T17:30:36+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "3.0.0",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "61565ff4aa3272c2bd5e870706d2181089e7da19"
+                "reference": "fdb51de8c748d901bc6fdd3bf278bfa22ccb379b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/61565ff4aa3272c2bd5e870706d2181089e7da19",
-                "reference": "61565ff4aa3272c2bd5e870706d2181089e7da19",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/fdb51de8c748d901bc6fdd3bf278bfa22ccb379b",
+                "reference": "fdb51de8c748d901bc6fdd3bf278bfa22ccb379b",
                 "shasum": ""
             },
             "require": {
@@ -97,9 +97,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.0"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.0"
             },
-            "time": "2024-05-08T10:39:56+00:00"
+            "time": "2025-04-08T07:06:18+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

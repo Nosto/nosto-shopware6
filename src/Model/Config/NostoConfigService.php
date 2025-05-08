@@ -297,7 +297,7 @@ class NostoConfigService
         ?string $key = null,
     ): QueryBuilder {
         $queryBuilder = $this->connection->createQueryBuilder()
-            ->select(['configuration_key', 'configuration_value'])
+            ->select('configuration_key', 'configuration_value')
             ->from('nosto_integration_config');
 
         if ($salesChannelId) {

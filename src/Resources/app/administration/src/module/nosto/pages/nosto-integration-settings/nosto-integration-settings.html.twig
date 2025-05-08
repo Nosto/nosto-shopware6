@@ -4,7 +4,7 @@
             <template #smart-bar-header>
                 <h2>
                     {{ $tc('sw-settings.index.title') }}
-                    <sw-icon name="regular-chevron-right-xs" small></sw-icon>
+                    <mt-icon name="regular-chevron-right-xs" size="16px"></mt-icon>
                     {{ $tc('nosto.configuration.title') }}
                 </h2>
             </template>
@@ -32,7 +32,7 @@
                     {% block nosto_integration_content_card_channel_config %}
                         <sw-card-view>
                             {% block nosto_integration_content_card_channel_config_sales_channel %}
-                                <sw-card
+                                <mt-card
                                     :title="$tc('global.entities.sales_channel', 2)"
                                     positionIdentifier="nosto_settings"
                                 >
@@ -56,7 +56,7 @@
                                             :disabled="!selectedSalesChannelId"
                                         />
                                     {% endblock %}
-                                </sw-card>
+                                </mt-card>
                             {% endblock %}
 
                             {% block nosto_integration_content_card_configs_old %}

@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/nosto-integration-BkRNBYrl.js",
+    "name": "nosto-integration",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/nosto-integration-D2iBiLQu.css"
+    ]
+  }
+}

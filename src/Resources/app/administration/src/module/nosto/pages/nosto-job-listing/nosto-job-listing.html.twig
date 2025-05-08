@@ -1,14 +1,14 @@
 {% block nosto_job_listing_page %}
     <sw-page class="nosto-job-list">
         <template #smart-bar-actions>
-            <sw-button
+            <mt-button
                 @click="onScheduleProductSync"
                 :isLoading="isLoading"
                 class="nosto-integration-detail__smart-bar-edit-button"
                 variant="primary"
             >
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
-            </sw-button>
+            </mt-button>
         </template>
         <template #content>
             <nosto-job-listing-index
