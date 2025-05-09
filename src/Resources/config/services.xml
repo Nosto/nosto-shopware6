@@ -17,6 +17,7 @@
             <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync"/>
 
             <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler">
@@ -27,6 +28,14 @@
             <argument key="$productProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Model\Operation\CategorySyncHandler">
+            <tag name="nosto.job_handler" code="nosto-integration-category-sync"/>
+
+            <argument key="$channelContextFactory" type="service"
+                      id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\OrderSyncHandler">
@@ -104,6 +113,8 @@
             <argument key="$tagRepository" type="service" id="tag.repository"/>
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
         </service>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder"/>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true"/>
 
@@ -184,6 +195,10 @@
         <!-- /Entity Definitions -->
 
         <!-- Event Listeners -->
+        <service id="Nosto\NostoIntegration\EventListener\CategoryWrittenEvent">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -211,6 +226,7 @@
             <argument key="$nostoConfigService" type="service"
                       id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
         <!-- /Extensions -->
 
