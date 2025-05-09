@@ -201,7 +201,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //isSorted
                 $request->get('order') != null,
                 //hasResults
-                true,
+                $productListing->count() > 0,
                 //isRefined
                 false,
             );
