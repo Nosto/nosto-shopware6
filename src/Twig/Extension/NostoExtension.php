@@ -121,7 +121,12 @@ class NostoExtension extends AbstractExtension
         $variantFromDb = $this->productRepository
             ->search(new Criteria([$variantId]), $context->getContext())
             ->first();
-        $productTaggingHelper = new ProductTaggingHelper($this->systemConfigService, $this->configProvider, $this->productProvider, $this->productHelper);
+        $productTaggingHelper = new ProductTaggingHelper(
+            $this->systemConfigService,
+            $this->configProvider,
+            $this->productProvider,
+            $this->productHelper,
+        );
         return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
     }
 

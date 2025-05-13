@@ -76,7 +76,10 @@ class ProductTaggingHelper
         if (!$isProductTagging) {
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
-            $shopwareProduct = $this->productHelper->getShopwareProducts([$productToReturn->getId()], $context)->first();
+            $shopwareProduct = $this->productHelper->getShopwareProducts(
+                [$productToReturn->getId()],
+                $context,
+            )->first();
             $shopwareProduct->setChildren($productToReturn->getChildren());
             return $this->productProvider->get($shopwareProduct, $context);
         }
@@ -103,7 +106,7 @@ class ProductTaggingHelper
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
-        $stock = $this->getProductStock($product, $salesChannelContext);
+        $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
         if ($product->getActive()) {
@@ -118,17 +121,6 @@ class ProductTaggingHelper
                 : $this->handleFirstActiveVariant($product);
         }
         return $mainProduct;
-    }
-
-    private function getProductStock(ProductEntity $product, SalesChannelContext $context): int
-    {
-        if ($this->configProvider->getStockField(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === StockFieldOptions::ACTUAL_STOCK) {
-            return $product->getAvailableStock();
-        }
-        return $product->getStock();
     }
 
     private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
@@ -222,7 +214,7 @@ class ProductTaggingHelper
             }
 
             if ($child->getActive()) {
-                $stock = $this->getProductStock($child, $context);
+                $stock = $this->productHelper->getProductStock($child, $context);
                 $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $child->getIsCloseout()
                     ? $this->handleFirstAvailableVariant($product, $context)
                     : $child;
