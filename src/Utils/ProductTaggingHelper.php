@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Utils;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
-use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
