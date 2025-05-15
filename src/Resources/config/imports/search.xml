@@ -57,7 +57,6 @@
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-on-invalid="ignore"
-            decoration-priority="-5000"
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />

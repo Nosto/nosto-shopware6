@@ -5,11 +5,11 @@
         {{ parent() }}
     {% else %}
         {% if not (searchResult.criteria.extensions.nostoPagination) %}
-            {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-            {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
+            {% set currentPage = criteria.limit > 0 ? ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') : 1 %}
+            {% set totalPages = criteria.limit > 0 ? (entities.total / criteria.limit)|round(0, 'ceil') : 1 %}
         {% else %}
-            {% set currentPage = ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') %}
-            {% set totalPages = (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') %}
+            {% set currentPage = searchResult.criteria.extensions.nostoPagination.limit > 0 ? ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') : 1 %}
+            {% set totalPages = searchResult.criteria.extensions.nostoPagination.limit > 0 ? (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') : 1 %}
         {% endif %}
 
         {% set paginationSuffix = '' %}

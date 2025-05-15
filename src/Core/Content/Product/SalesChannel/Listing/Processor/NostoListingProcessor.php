@@ -28,6 +28,8 @@ class NostoListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        // TODO: Remove
+        echo 'ProcessNosto' . '<br>';
         if (SearchHelper::shouldHandleRequest(
             $context,
             $this->configProvider,
