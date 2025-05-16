@@ -17,6 +17,8 @@ class EventsWriter
 
     public const PRODUCT_ENTITY_NAME = 'product';
 
+    public const CATEGORY_ENTITY_NAME = 'category';
+
     public function __construct(
         private readonly EntityRepository $changelogRepository,
     ) {

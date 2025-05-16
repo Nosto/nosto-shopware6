@@ -38,6 +38,9 @@ jobs:
       - name: Remove .gitignore files from plugin
         run: find nosto-shopware6 -type f -name ".gitignore" ! -path "./.gitignore" -delete
 
+      - name: Remove node_modules from plugin
+        run: rm -rf nosto-shopware6/node_modules
+
       - name: Validate plugin files
         working-directory: nosto-shopware6
         run: shopware-cli extension validate .

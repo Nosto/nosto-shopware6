@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "91c727e75f71bc742701f8af1317a13c",
+    "content-hash": "748e2416c617f06d1216f3db405d00eb",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.6.2",
+            "version": "7.6.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "a16433aa413d1bcebc02702bec80f4d6aa29d5e7"
+                "reference": "e6926d030654294b114c9b2444cfd4ba0e381ad8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/a16433aa413d1bcebc02702bec80f4d6aa29d5e7",
-                "reference": "a16433aa413d1bcebc02702bec80f4d6aa29d5e7",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/e6926d030654294b114c9b2444cfd4ba0e381ad8",
+                "reference": "e6926d030654294b114c9b2444cfd4ba0e381ad8",
                 "shasum": ""
             },
             "require": {
@@ -58,9 +58,9 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.2"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.7"
             },
-            "time": "2025-02-08T17:30:36+00:00"
+            "time": "2025-04-15T05:51:02+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
@@ -1148,13 +1148,13 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2"
     },

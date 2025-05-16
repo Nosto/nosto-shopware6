@@ -8,6 +8,8 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsSearchMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTracking;
@@ -21,6 +23,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -46,6 +49,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly SortingHandlerService $sortingHandlerService,
     ) {
     }
 
@@ -105,6 +109,33 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $productListing->addCurrentFilter('search', $query);
 
             $this->listingProcessor->process($request, $productListing, $context);
+
+            $sort = $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSearchResultSorting',
+                $context,
+            ) ?: $this->sortingHandlerService->getDefaultSortingKey(
+                'core.listing.defaultSorting',
+                $context,
+            );
+
+            $sortingPriority = $this->sortingHandlerService->getNostoSortingPriority($context);
+            if ($sort === RecommendationSortingHandler::MERCHANDISING_SORTING_KEY) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } elseif ($sort === ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            } elseif (!is_null($sortingPriority) && $sortingPriority >= 0) {
+                $productListing->getAvailableSortings()->removeByKey(
+                    ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                );
+            } else {
+                $productListing->getAvailableSortings()->removeByKey(
+                    RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
+                );
+            }
 
             $this->eventDispatcher->dispatch(
                 new ProductSearchResultEvent($request, $productListing, $context),

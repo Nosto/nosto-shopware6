@@ -1,3 +1,14 @@
+# 5.1.4
+* New: Synchronization for category urls, and improved category tagging
+
+# 5.1.3
+* Fix: Fixed an issue where two redundant options were shown Recommendation and Top Results for search/category sort
+* Fix: Fixed an issue with Search errors when cookie consent is not accepted
+* Fix: Enhanced error handling for product synchronisation
+
+# 5.1.2
+* Fix: Fixed an issue where the Nosto analytics tracking route name was incorrect, causing failed requests.
+
 # 5.1.1
 * Fix: Fixed an issue where Nosto has been loaded on the PLP, although the configuration was disabled
 * New: We added a cookie check for the Search Analytics

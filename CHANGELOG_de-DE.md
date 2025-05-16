@@ -1,3 +1,14 @@
+# 5.1.4
+* Neu: Synchronisation für Kategorie URL's und Verbesserung des Kategorie Taggings.
+* 
+# 5.1.3
+* Fix: Ein Problem wurde behoben, bei dem zwei redundante Optionen – "Empfehlung" und "Top-Ergebnisse" – bei der Sortierung für Suche/Kategorie angezeigt wurden.
+* Fix: Ein Problem mit Suchfehlern wurde behoben, das auftrat, wenn keine Cookie-Einwilligung erteilt wurde.
+* Fix: Das Error Handling bei der Produktsynchronisation wurde verbessert.
+
+# 5.1.2
+* Fix: Es wurde ein Fehler behoben, bei dem der Routenname für das Nosto Analytics Tracking inkorrekt war und Requests fehlgeschlagen sind.
+
 # 5.1.1
 * Fix: Behebt ein Problem, bei dem Nosto auf der Produkt Listing Page geladen wurde, obwohl die Konfiguration deaktiviert war.
 * Neu: Wir haben einen Cookie Check für die Search Analytics hinzugefügt.
