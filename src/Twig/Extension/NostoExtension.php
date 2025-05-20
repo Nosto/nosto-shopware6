@@ -127,6 +127,7 @@ class NostoExtension extends AbstractExtension
             $this->productProvider,
             $this->productHelper,
         );
+
         return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
     }
 
