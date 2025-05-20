@@ -1,9 +1,7 @@
 {% block nosto_integration_page_tagging %}
     {% set product = page.product %}
 
-    {% if product.parentId and
-        (product.variantListingConfig.displayParent == true or product.variantListingConfig.mainVariantId == true
-        or product.variantListingConfig.displayCheapestVariant == true) %}
+    {% if product.parentId %}
         {% set parentId = product.parentId %}
         {% set nostoProduct = nosto_shopware_main_product_identifier(product.parentId, product.id, context, true) %}
         {% set isNostoParentProduct = true %}
