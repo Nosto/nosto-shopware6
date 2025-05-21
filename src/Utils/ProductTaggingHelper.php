@@ -44,7 +44,16 @@ class ProductTaggingHelper
             static fn (array $config) => $config['expressionForListings'],
         );
         if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
-            return $this->getIdOrProductNumber($context, $product);
+            if (!$isProductTagging) {
+                return $this->getIdOrProductNumber($context, $product);
+            } else {
+                $shopwareProduct = $this->productHelper->getShopwareProducts(
+                    [$product->getId()],
+                    $context,
+                )->first();
+                $shopwareProduct->setChildren($productToReturn->getChildren());
+                return $this->productProvider->get($shopwareProduct, $context);
+            }
         }
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
