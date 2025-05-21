@@ -36,7 +36,7 @@ class ProductTaggingHelper
         ProductEntity $product,
         ProductEntity $variant,
         bool $isProductTagging = false,
-    ): null|string|NostoProduct {
+    ): string|NostoProduct {
         $variantConfig = $product->getVariantListingConfig();
         $productToReturn = $product;
         $configuratorGroups = array_filter(
@@ -72,13 +72,12 @@ class ProductTaggingHelper
             }
         }
         //if for whatever reason we don't find the correct product return just main product id
-        if (!$productToReturn) {
-            return null;
-        } elseif (!$isProductTagging) {
-            return $this->getIdOrProductNumber($context, $productToReturn);
+        if (!$isProductTagging) {
+            return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
+            $productId = $productToReturn->getId() ?? $product->getId();
             $shopwareProduct = $this->productHelper->getShopwareProducts(
-                [$productToReturn->getId()],
+                [$productId],
                 $context,
             )->first();
             $shopwareProduct->setChildren($productToReturn->getChildren());

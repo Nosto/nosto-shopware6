@@ -109,7 +109,7 @@ class NostoExtension extends AbstractExtension
         $variantId,
         SalesChannelContext $context,
         bool $isProductTagging = false,
-    ): null|string|NostoProduct {
+    ): string|NostoProduct {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addAssociation('children');
