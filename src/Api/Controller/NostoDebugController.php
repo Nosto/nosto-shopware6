@@ -28,7 +28,7 @@ class NostoDebugController extends AbstractController
     public function __construct(
         private readonly ProductSyncHandler $productSyncHandler,
         private readonly OrderSyncHandler $orderSyncHandler,
-        private readonly CategorySyncHandler $categorySyncHandler
+        private readonly CategorySyncHandler $categorySyncHandler,
     ) {
     }
 
