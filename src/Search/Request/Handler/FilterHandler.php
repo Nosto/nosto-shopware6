@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use JsonException;
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
@@ -23,6 +25,7 @@ class FilterHandler
 
     /**
      * Sets all requested filters to the Nosto API request.
+     * @throws JsonException
      */
     public function handleFilters(
         Request $request,
@@ -30,11 +33,17 @@ class FilterHandler
         SearchOperation $searchOperation,
     ): void {
         $selectedFilters = $request->query->all();
-        $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
-        /** @var IdToFieldMapping $filterMapping */
-        $filterMapping = $criteria->getExtension('nostoFilterMapping');
+        // Get Nosto filters from cookie.
+        $cookieValue = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
 
-        if ($selectedFilters) {
+        if ($selectedFilters && !is_null($cookieValue)) {
+            $nostoFilters = json_decode(
+                $cookieValue,
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+
             foreach ($selectedFilters as $filterId => $filterValues) {
                 if (!is_string($filterValues)) {
                     continue;
@@ -45,8 +54,7 @@ class FilterHandler
                         $filterId,
                         $filterValue,
                         $searchOperation,
-                        $availableFilterIds,
-                        $filterMapping,
+                        $nostoFilters
                     );
                 }
             }
@@ -57,28 +65,27 @@ class FilterHandler
         string $filterId,
         string $filterValue,
         SearchOperation $searchOperation,
-        array $availableFilterIds,
-        IdToFieldMapping $filterMapping,
+        $nostoFilters
     ): void {
         // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
         // the appropriate parameters to our API.
         if ($this->isRangeSliderFilter($filterId)) {
-            $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $filterMapping);
+            $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $nostoFilters);
 
             return;
         }
 
-        if (!$filterField = $filterMapping->getMapping($filterId)) {
+        if (!array_key_exists($filterId, $nostoFilters)) {
             return;
         }
 
+        $filterField = $nostoFilters[$filterId];
         if ($this->isRatingFilter($filterField)) {
             $this->handleRatingFilter($filterField, $filterValue, $searchOperation);
-
             return;
         }
 
-        if (in_array($filterId, $availableFilterIds, true)) {
+        if (in_array($filterId, $nostoFilters, true)) {
             $this->handlePropertyFilter($filterField, $filterValue, $searchOperation);
         }
     }
@@ -87,16 +94,17 @@ class FilterHandler
         string $filterId,
         mixed $filterValue,
         SearchOperation $searchOperation,
-        IdToFieldMapping $fieldMapping,
+        $nostoFilters,
+
     ): void {
         if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
             $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
-            $filterField = $fieldMapping->getMapping($filterId);
-            $searchOperation->addRangeFilter($filterField, $filterValue);
+            $nostoFilterValue = $nostoFilters[$filterId];
+            $searchOperation->addRangeFilter($nostoFilterValue, $filterValue);
         } else {
             $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
-            $filterField = $fieldMapping->getMapping($filterId);
-            $searchOperation->addRangeFilter($filterField, null, $filterValue);
+            $nostoFilterValue = $nostoFilters[$filterId];
+            $searchOperation->addRangeFilter($nostoFilterValue, null, $filterValue);
         }
     }
 

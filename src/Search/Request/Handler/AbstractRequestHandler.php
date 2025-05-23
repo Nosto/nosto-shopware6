@@ -6,8 +6,16 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 
 use Monolog\Logger;
 use Nosto\Model\Signup\Account;
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\TranslatedName;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
+use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Redirect;
 use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
@@ -29,6 +37,8 @@ abstract class AbstractRequestHandler
         $this->filterHandler = new FilterHandler();
     }
 
+
+
     /**
      * Sends a request to the Nosto service based on the given event and the responsible request handler.
      *
@@ -46,8 +56,42 @@ abstract class AbstractRequestHandler
         $originalCriteria = clone $criteria;
 
         try {
+            // TODO: Adjust the code.
             $response = $this->sendRequest($request, $criteria, $context);
             $responseParser = new GraphQLResponseParser($response);
+
+            // Parse filters from response.
+            $filters = $this->parseFiltersFromResponse($response);
+            $filterMapping = $this->parseFilterMappingFromResponse($response);
+            $criteria->addExtension('nostoFilters', $filters);
+            $criteria->addExtension('nostoFilterMapping', $filterMapping);
+
+            $filterCookie = $request->cookies->get('nostoCookieFilter');
+            $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+            if ($filterCookie && $filterMappingCookie && $responseParser->getProductIds()) {
+                $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
+                $dataFilterMapping = ProductHelper::convertJsonToFilterMapping($filterMappingCookie);
+
+                // Show filters on storefront.
+                $criteria->addExtension('nostoFilters', $dataFilter);
+                $criteria->addExtension('nostoFilterMapping', $dataFilterMapping);
+            }
+
+            // Get request query.
+            $searchParams = $request->query->all();
+            // Get Nosto Filters.
+            $mapping = $filterMapping->getMap();
+            // Prepare for cookie.
+            $valueForCookie = json_encode($mapping);
+
+            // Check if the search request is triggered for the first time with only a search term.
+            // If additional filters are selected, we skip updating the cookie values.
+
+            if (count($searchParams) === 1 && $responseParser->getProductIds()) {
+
+
+                $request->attributes->set('setNostoCookie', $valueForCookie);
+            }
         } catch (Throwable $e) {
             $this->logger->error(
                 sprintf('Error while fetching the products: %s', $e->getMessage()),
@@ -95,9 +139,7 @@ abstract class AbstractRequestHandler
         $this->setPaginationParams($criteria, $searchOperation, $limit);
         $this->setSessionParamsFromCookies($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
-        if ($criteria->hasExtension('nostoFilters')) {
-            $this->filterHandler->handleFilters($request, $criteria, $searchOperation);
-        }
+        $this->filterHandler->handleFilters($request, $criteria, $searchOperation);
 
         return $searchOperation;
     }
@@ -137,5 +179,15 @@ abstract class AbstractRequestHandler
             $sessionParams = json_decode($sessionParamsString, true);
             $searchOperation->setSessionParams(empty($sessionParams) ? null : $sessionParams);
         }
+    }
+
+    public function parseFiltersFromResponse(SearchResult $response): FiltersExtension
+    {
+        return (new GraphQLResponseParser($response))->getFiltersExtension();
+    }
+
+    public function parseFilterMappingFromResponse(SearchResult $response): IdToFieldMapping
+    {
+        return (new GraphQLResponseParser($response))->getFilterMapping();
     }
 }

@@ -6,17 +6,15 @@ namespace Nosto\NostoIntegration\Search\Api;
 
 use Composer\InstalledVersions;
 use Monolog\Logger;
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
-use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
-use Nosto\NostoIntegration\Struct\FiltersExtension;
-use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -108,12 +106,15 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         try {
-            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $filters = $this->parseFiltersFromResponse($response);
-            $filterMapping = $this->parseFilterMappingFromResponse($response);
+            //$response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
+            $filterCookie = $request->cookies->get('nostoCookieFilter');
+            $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
 
-            $criteria->addExtension('nostoFilters', $filters);
-            $criteria->addExtension('nostoFilterMapping', $filterMapping);
+            $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
+            $dataFilterMapping = ProductHelper::convertJsonToFilterMapping($filterMappingCookie);
+
+            $criteria->addExtension('nostoFilters', $dataFilter);
+            $criteria->addExtension('nostoFilterMapping', $dataFilterMapping);
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
@@ -132,10 +133,15 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         try {
-            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $response = $this->parseFiltersFromResponse($response);
+//            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
+//            $response = $requestHandler->parseFiltersFromResponse($response);
 
-            $criteria->addExtension('nostoAvailableFilters', $response);
+            $filterCookie = $request->cookies->get('nostoCookieFilter');
+
+            $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
+
+
+            $criteria->addExtension('nostoAvailableFilters', $dataFilter);
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
@@ -164,18 +170,6 @@ class SearchService
             $this->logger,
             $this->categoryRepository,
         );
-    }
-
-    protected function parseFiltersFromResponse(SearchResult $response): FiltersExtension
-    {
-        $responseParser = new GraphQLResponseParser($response);
-        return $responseParser->getFiltersExtension();
-    }
-
-    protected function parseFilterMappingFromResponse(SearchResult $response): IdToFieldMapping
-    {
-        $responseParser = new GraphQLResponseParser($response);
-        return $responseParser->getFilterMapping();
     }
 
     protected function disableNostoService(Context $context): void

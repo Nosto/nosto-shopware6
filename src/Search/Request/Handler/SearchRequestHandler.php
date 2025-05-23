@@ -18,10 +18,13 @@ class SearchRequestHandler extends AbstractRequestHandler
         ?int $limit = null,
     ): SearchResult {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
-
+        // TODO: Adjust the code.
         $searchOperation->setQuery((string) $request->query->get('search'));
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
-        return $searchOperation->execute();
+        $d =  $searchOperation->executeSw();
+        $request->attributes->set('setNostoCookieDemo', $d[0]);
+
+        return $d[1];
     }
 }

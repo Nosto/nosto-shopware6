@@ -56,6 +56,7 @@
         <service
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+            decoration-priority="-5000"
             decoration-on-invalid="ignore"
             autowire="true"
         >
