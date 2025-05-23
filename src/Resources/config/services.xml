@@ -308,5 +308,10 @@
                 <argument type="service" id="service_container" />
             </call>
         </service>
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoDebugController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>
