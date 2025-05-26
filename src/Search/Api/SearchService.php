@@ -95,7 +95,7 @@ class SearchService
             sprintf('Shopware 6 Plugin %s', $pluginVersion),
         );
 
-        $this->fetchFilters($request, $criteria, $context, $requestHandler);
+        //$this->fetchFilters($request, $criteria, $context, $requestHandler);
         $requestHandler->fetchProducts($request, $criteria, $context);
     }
 
