@@ -23,7 +23,10 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
         $d =  $searchOperation->executeSw();
-        $request->attributes->set('setNostoCookieDemo', $d[0]);
+
+        if((empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) == 1) || $limit === 0) {
+            $request->attributes->set('setNostoCookieDemo', $d[0]);
+        }
 
         return $d[1];
     }

@@ -31,47 +31,131 @@ class FilterHandler
         Request $request,
         Criteria $criteria,
         SearchOperation $searchOperation,
+        bool $newRequest = true
     ): void {
         $selectedFilters = $request->query->all();
-        // Get Nosto filters from cookie.
+
+        if (empty($selectedFilters)) {
+            return;
+        }
+
+        if ($newRequest) {
+            $this->handleNewRequest($selectedFilters, $criteria, $searchOperation);
+        } else {
+            $this->handleExistingRequest($selectedFilters, $request, $searchOperation);
+        }
+    }
+
+    private function handleNewRequest(
+        array $selectedFilters,
+        Criteria $criteria,
+        SearchOperation $searchOperation
+    ): void {
+        $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
+        /** @var IdToFieldMapping $filterMapping */
+        $filterMapping = $criteria->getExtension('nostoFilterMapping');
+
+        foreach ($selectedFilters as $filterId => $filterValues) {
+            if (!is_string($filterValues)) {
+                continue;
+            }
+
+            $this->processFilterValues($filterId, $filterValues, $searchOperation, $availableFilterIds, $filterMapping);
+        }
+    }
+
+    private function handleExistingRequest(
+        array $selectedFilters,
+        Request $request,
+        SearchOperation $searchOperation
+    ): void {
         $cookieValue = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        if (is_null($cookieValue)) {
+            return;
+        }
 
-        if ($selectedFilters && !is_null($cookieValue)) {
-            $nostoFilters = json_decode(
-                $cookieValue,
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
-
+        try {
+            $nostoFilters = json_decode($cookieValue, true, 512, JSON_THROW_ON_ERROR);
             foreach ($selectedFilters as $filterId => $filterValues) {
                 if (!is_string($filterValues)) {
                     continue;
                 }
 
-                foreach ($this->getFilterValues($filterValues) as $filterValue) {
-                    $this->handleFilter(
-                        $filterId,
-                        $filterValue,
-                        $searchOperation,
-                        $nostoFilters
-                    );
-                }
+                $this->processFilterValues($filterId, $filterValues, $searchOperation, [], null, $nostoFilters);
+            }
+        } catch (JsonException) {
+            // Invalid cookie value, ignore
+            return;
+        }
+    }
+
+    private function processFilterValues(
+        string $filterId,
+        string $filterValues,
+        SearchOperation $searchOperation,
+        array $availableFilterIds = [],
+        ?IdToFieldMapping $filterMapping = null,
+        ?array $nostoFilters = null
+    ): void {
+        foreach ($this->getFilterValues($filterValues) as $filterValue) {
+            if ($filterMapping !== null) {
+                $this->handleFilterWithMapping(
+                    $filterId,
+                    $filterValue,
+                    $searchOperation,
+                    $availableFilterIds,
+                    $filterMapping
+                );
+            } else {
+                $this->handleFilterWithNostoFilters(
+                    $filterId,
+                    $filterValue,
+                    $searchOperation,
+                    $nostoFilters
+                );
             }
         }
     }
 
-    protected function handleFilter(
+    private function handleFilterWithMapping(
         string $filterId,
         string $filterValue,
         SearchOperation $searchOperation,
-        $nostoFilters
+        array $availableFilterIds,
+        IdToFieldMapping $filterMapping
     ): void {
-        // Range Slider filters in Shopware are prefixed with min-/max-. We manually need to remove this and send
-        // the appropriate parameters to our API.
+        if ($this->isRangeSliderFilter($filterId)) {
+            $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $filterMapping);
+            return;
+        }
+
+        $filterField = $filterMapping->getMapping($filterId);
+        if (!$filterField) {
+            return;
+        }
+
+        if ($this->isRatingFilter($filterField)) {
+            $this->handleRatingFilter($filterField, $filterValue, $searchOperation);
+            return;
+        }
+
+        if (in_array($filterId, $availableFilterIds, true)) {
+            $this->handlePropertyFilter($filterField, $filterValue, $searchOperation);
+        }
+    }
+
+    private function handleFilterWithNostoFilters(
+        string $filterId,
+        string $filterValue,
+        SearchOperation $searchOperation,
+        ?array $nostoFilters
+    ): void {
+        if ($nostoFilters === null) {
+            return;
+        }
+
         if ($this->isRangeSliderFilter($filterId)) {
             $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $nostoFilters);
-
             return;
         }
 
@@ -90,21 +174,26 @@ class FilterHandler
         }
     }
 
-    protected function handleRangeSliderFilter(
+    private function handleRangeSliderFilter(
         string $filterId,
         mixed $filterValue,
         SearchOperation $searchOperation,
-        $nostoFilters,
-
+        IdToFieldMapping|array $filterSource
     ): void {
-        if (mb_strpos($filterId, self::MIN_PREFIX) === 0) {
-            $filterId = mb_substr($filterId, mb_strlen(self::MIN_PREFIX));
-            $nostoFilterValue = $nostoFilters[$filterId];
-            $searchOperation->addRangeFilter($nostoFilterValue, $filterValue);
+        $isMin = mb_strpos($filterId, self::MIN_PREFIX) === 0;
+        $baseFilterId = mb_substr(
+            $filterId,
+            mb_strlen($isMin ? self::MIN_PREFIX : self::MAX_PREFIX)
+        );
+
+        $filterField = $filterSource instanceof IdToFieldMapping
+            ? $filterSource->getMapping($baseFilterId)
+            : $filterSource[$baseFilterId];
+
+        if ($isMin) {
+            $searchOperation->addRangeFilter($filterField, $filterValue);
         } else {
-            $filterId = mb_substr($filterId, mb_strlen(self::MAX_PREFIX));
-            $nostoFilterValue = $nostoFilters[$filterId];
-            $searchOperation->addRangeFilter($nostoFilterValue, null, $filterValue);
+            $searchOperation->addRangeFilter($filterField, null, $filterValue);
         }
     }
 

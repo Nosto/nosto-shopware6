@@ -15,6 +15,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
+use Nosto\Request\Graphql\SearchRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -64,9 +65,7 @@ class SearchService
                 $this->disableNostoService($context->getContext());
                 return;
             }
-
-            $this->fetchFilters($request, $criteria, $context, $handler);
-            $this->fetchSelectableFilters($request, $criteria, $context, $handler);
+            $handler->fetchResults($request, $criteria, $context);
         }
     }
 
@@ -95,8 +94,14 @@ class SearchService
             sprintf('Shopware 6 Plugin %s', $pluginVersion),
         );
 
-        //$this->fetchFilters($request, $criteria, $context, $requestHandler);
-        $requestHandler->fetchProducts($request, $criteria, $context);
+        $fetchedFilters = false;
+        if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
+            $fetchedFilters = true;
+            $this->fetchFilters($request, $criteria, $context, $requestHandler);
+
+        }
+
+        $requestHandler->fetchResults($request, $criteria, $context, $fetchedFilters);
     }
 
     protected function fetchFilters(
@@ -106,15 +111,17 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         try {
-            //$response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $filterCookie = $request->cookies->get('nostoCookieFilter');
-            $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
+            $filters = $requestHandler->parseFiltersFromResponse($response);
+            $filterMapping = $requestHandler->parseFilterMappingFromResponse($response);
 
-            $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
-            $dataFilterMapping = ProductHelper::convertJsonToFilterMapping($filterMappingCookie);
+            $criteria->addExtension('nostoFilters', $filters);
+            $criteria->addExtension('nostoFilterMapping', $filterMapping);
 
-            $criteria->addExtension('nostoFilters', $dataFilter);
-            $criteria->addExtension('nostoFilterMapping', $dataFilterMapping);
+            $request->attributes->set(
+                'setNostoCookie',
+                json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR)
+            );
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
@@ -133,15 +140,10 @@ class SearchService
         AbstractRequestHandler $requestHandler,
     ): void {
         try {
-//            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-//            $response = $requestHandler->parseFiltersFromResponse($response);
+            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
+            $response = $requestHandler->parseFiltersFromResponse($response);
 
-            $filterCookie = $request->cookies->get('nostoCookieFilter');
-
-            $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
-
-
-            $criteria->addExtension('nostoAvailableFilters', $dataFilter);
+            $criteria->addExtension('nostoAvailableFilters', $response);
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');

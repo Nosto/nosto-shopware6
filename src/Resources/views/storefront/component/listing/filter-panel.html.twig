@@ -10,6 +10,7 @@
     {% endif %}
 
     {% if filters %}
+
         {% for filter in filters %}
             {% if filter is instanceof("\\Nosto\\NostoIntegration\\Search\\Response\\GraphQL\\Filter\\LabelTextFilter") %}
                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-property-select.html.twig' with {

@@ -25,16 +25,11 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         $response = $event->getResponse();
 
         // TODO: Adjust the code.
-        if (!$request->attributes->has('setNostoCookie')) {
-            return;
-        }
-
         if (!$request->attributes->has('setNostoCookieDemo')) {
             return;
         }
 
         $cookieValue1 = $request->attributes->get('setNostoCookieDemo');
-        $cookieValue2 = $request->attributes->get('setNostoCookie');
 
         $cookie = new Cookie(
             'nostoCookieFilter',
@@ -50,6 +45,11 @@ class NostoCookieSubscriber implements EventSubscriberInterface
 
         $response->headers->setCookie($cookie);
 
+        if (!$request->attributes->has('setNostoCookie')) {
+            return;
+        }
+
+        $cookieValue2 = $request->attributes->get('setNostoCookie');
 
         $cookie2 = new Cookie(
             'nostoCookieFilterMapping',

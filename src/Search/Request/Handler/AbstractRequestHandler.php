@@ -51,70 +51,78 @@ abstract class AbstractRequestHandler
         ?int $limit = null,
     ): SearchResult;
 
-    public function fetchProducts(Request $request, Criteria $criteria, SalesChannelContext $context): void
+    public function fetchResults(Request $request, Criteria $criteria, SalesChannelContext $context, $fetchedFilters = false): void
     {
         $originalCriteria = clone $criteria;
 
         try {
-            // TODO: Adjust the code.
             $response = $this->sendRequest($request, $criteria, $context);
-            $responseParser = new GraphQLResponseParser($response);
+            $criteria->addExtension('nostoAvailableFilters', $this->parseFiltersFromResponse($response));
+            $responseParser = $this->createResponseParser($response);
 
-            // Parse filters from response.
+            if (!$fetchedFilters) {
+                $this->handleFiltersAndMapping($request, $criteria, $response, $responseParser);
+            }
+
+            $this->filterHandler->handleAvailableFilters($criteria);
+
+            if ($redirect = $responseParser->getRedirectExtension()) {
+                $this->handleRedirect($context, $redirect);
+                return;
+            }
+
+            $this->updateCriteriaWithProductIds($criteria, $responseParser);
+            $this->setPagination(
+                $criteria,
+                $responseParser,
+                $originalCriteria->getLimit(),
+                $originalCriteria->getOffset()
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Error while fetching products: {message}',
+                [
+                    'message' => $e->getMessage(),
+                    'exception' => $e,
+                    'trace' => $e->getTraceAsString()
+                ]
+            );
+        }
+    }
+
+    private function handleFiltersAndMapping(
+        Request $request,
+        Criteria $criteria,
+        SearchResult $response,
+        GraphQLResponseParser $responseParser
+    ): void {
+        $filterCookie = $request->cookies->get('nostoCookieFilter');
+        $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+
+        // USE NOSTO RESPONSE FILTERS
+        if (!$filterCookie || !$filterMappingCookie) {
             $filters = $this->parseFiltersFromResponse($response);
             $filterMapping = $this->parseFilterMappingFromResponse($response);
-            $criteria->addExtension('nostoFilters', $filters);
-            $criteria->addExtension('nostoFilterMapping', $filterMapping);
-
-            $filterCookie = $request->cookies->get('nostoCookieFilter');
-            $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
-            if ($filterCookie && $filterMappingCookie && $responseParser->getProductIds()) {
-                $dataFilter = ProductHelper::convertJsonToFilter($filterCookie);
-                $dataFilterMapping = ProductHelper::convertJsonToFilterMapping($filterMappingCookie);
-
-                // Show filters on storefront.
-                $criteria->addExtension('nostoFilters', $dataFilter);
-                $criteria->addExtension('nostoFilterMapping', $dataFilterMapping);
-            }
-
-            // Get request query.
-            $searchParams = $request->query->all();
-            // Get Nosto Filters.
-            $mapping = $filterMapping->getMap();
-            // Prepare for cookie.
-            $valueForCookie = json_encode($mapping);
-
-            // Check if the search request is triggered for the first time with only a search term.
-            // If additional filters are selected, we skip updating the cookie values.
-
-            if (count($searchParams) === 1 && $responseParser->getProductIds()) {
-
-
-                $request->attributes->set('setNostoCookie', $valueForCookie);
-            }
-        } catch (Throwable $e) {
-            $this->logger->error(
-                sprintf('Error while fetching the products: %s', $e->getMessage()),
-            );
-            return;
+        } else {
+            // USE COOKIE FILTERS
+            $filters = ProductHelper::convertJsonToFilter($filterCookie);
+            $filterMapping = ProductHelper::convertJsonToFilterMapping($filterMappingCookie);
         }
 
-        if ($redirect = $responseParser->getRedirectExtension()) {
-            $this->handleRedirect($context, $redirect);
+        $criteria->addExtension('nostoFilters', $filters);
+        $criteria->addExtension('nostoFilterMapping', $filterMapping);
 
-            return;
-        }
-
-        if ($responseParser->getProductIds()) {
-            $criteria->setIds($responseParser->getProductIds());
-        }
-
-        $this->setPagination(
-            $criteria,
-            $responseParser,
-            $originalCriteria->getLimit(),
-            $originalCriteria->getOffset(),
+        $request->attributes->set(
+            'setNostoCookie',
+            json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR)
         );
+    }
+
+    private function updateCriteriaWithProductIds(Criteria $criteria, GraphQLResponseParser $responseParser): void
+    {
+        if ($productIds = $responseParser->getProductIds()) {
+            $criteria->setIds($productIds);
+        }
     }
 
     protected function handleRedirect(SalesChannelContext $context, Redirect $redirectExtension): void
@@ -129,19 +137,54 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        ?int $limit = null,
+        ?int $limit = null
     ): SearchOperation {
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
-        $searchOperation = new SearchOperation($this->getAccount($channelId, $languageId));
 
+        $account = $this->getAccount($channelId, $languageId);
+        $searchOperation = $this->initializeSearchOperation($account, $channelId, $languageId);
+
+        $this->configureSearchOperation(
+            $searchOperation,
+            $request,
+            $criteria,
+            $limit
+        );
+
+        return $searchOperation;
+    }
+
+    private function initializeSearchOperation(
+        Account $account,
+        string $channelId,
+        string $languageId
+    ): SearchOperation {
+        $searchOperation = new SearchOperation($account);
         $searchOperation->setAccountId($this->configProvider->getAccountId($channelId, $languageId));
+
+        return $searchOperation;
+    }
+
+    private function configureSearchOperation(
+        SearchOperation $searchOperation,
+        Request $request,
+        Criteria $criteria,
+        ?int $limit
+    ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
         $this->setSessionParamsFromCookies($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
-        $this->filterHandler->handleFilters($request, $criteria, $searchOperation);
 
-        return $searchOperation;
+        $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
+        $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);
+    }
+
+    private function shouldHandleAsNewRequest(Request $request, Criteria $criteria): bool
+    {
+        $filterCookie = $request->cookies->get('nostoCookieFilter');
+
+        return empty($filterCookie) && $criteria->hasExtension('nostoFilters');
     }
 
     protected function getAccount(string $salesChannelId, string $languageId): Account
@@ -189,5 +232,10 @@ abstract class AbstractRequestHandler
     public function parseFilterMappingFromResponse(SearchResult $response): IdToFieldMapping
     {
         return (new GraphQLResponseParser($response))->getFilterMapping();
+    }
+
+    private function createResponseParser(SearchResult $response): GraphQLResponseParser
+    {
+        return new GraphQLResponseParser($response);
     }
 }
