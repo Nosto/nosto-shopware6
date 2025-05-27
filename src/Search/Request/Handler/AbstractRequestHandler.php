@@ -60,7 +60,7 @@ abstract class AbstractRequestHandler
             $criteria->addExtension('nostoAvailableFilters', $this->parseFiltersFromResponse($response));
             $responseParser = $this->createResponseParser($response);
 
-            if (!$fetchedFilters) {
+            if (!$fetchedFilters && $responseParser->getProductIds()) {
                 $this->handleFiltersAndMapping($request, $criteria, $response, $responseParser);
             }
 
