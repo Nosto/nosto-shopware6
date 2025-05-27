@@ -1,7 +1,9 @@
 {% block nosto_integration_page_tagging %}
     {% set product = page.product %}
 
-    {% if product.parentId %}
+    {% set enableTaggingForAllSkus = context.context.extensions.nostoConfig.enableTaggingForAllSkus %}
+
+    {% if product.parentId and enableTaggingForAllSkus %}
         {% set parentId = product.parentId %}
         {% set nostoProduct = nosto_shopware_main_product_identifier(product.parentId, product.id, context, true) %}
         {% set isNostoParentProduct = true %}
@@ -21,7 +23,7 @@
             <span class="price">{{ nostoProduct.price }}</span>
             <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
 
-            {% if isNostoParentProduct == true and nostoProduct.skus %}
+            {% if isNostoParentProduct and nostoProduct.skus %}
                 {% for key, variantData in nostoProduct.skus %}
                     <span class="nosto_sku">
                       <span class="id">{{ variantData.id }}</span>
@@ -41,6 +43,24 @@
                         {% endif %}
                 </span>
                 {% endfor %}
+            {% else %}
+                <span class="nosto_sku">
+                  <span class="id">{{ nostoProduct.productId }}</span>
+                  <span class="name">{{ nostoProduct.name }}</span>
+                  <span class="price">{{ nostoProduct.price }}</span>
+                  <span class="list_price">{{ nostoProduct.listPrice }}</span>
+                  <span class="inventory_level">{{ nostoProduct.inventoryLevel }}</span>
+                  <span class="url">{{ nostoProduct.url }}</span>
+                  <span class="image_url">{{ nostoProduct.imageUrl }}</span>
+                  <span class="availability">{{ nostoProduct.availability }}</span>
+                    {% if nostoProduct.customFields %}
+                        <span class="custom_fields">
+                        {% for key, value in nostoProduct.customFields %}
+                            <span class="{{ key }}">{{ value }}</span>
+                        {% endfor %}
+                        </span>
+                    {% endif %}
+                </span>
             {% endif %}
 
             {% if nostoProduct.categories %}
