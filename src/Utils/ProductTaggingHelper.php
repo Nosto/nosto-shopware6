@@ -246,9 +246,9 @@ class ProductTaggingHelper
         ProductEntity $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            ) === ProductIdentifierOptions::PRODUCT_NUMBER;
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === ProductIdentifierOptions::PRODUCT_NUMBER;
         if ($useProductNumber) {
             return $product->getProductNumber();
         } else {
