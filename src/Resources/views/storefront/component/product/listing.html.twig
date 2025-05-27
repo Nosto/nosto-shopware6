@@ -62,21 +62,19 @@
                     {% endblock %}
                 {% endif %}
 
-                {% if searchResult is defined %}
-                    {% if not (searchResult.criteria.extensions.nostoPagination) %}
-                        {% set paginationTotal = searchResult.total|default(0) %}
-                        {% set paginationLimit = searchResult.limit|default(24) %}
-                    {% else %}
-                        {% set paginationTotal = searchResult.criteria.extensions.nostoPagination.total|default(0) %}
-                        {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit|default(24) %}
-                    {% endif %}
+                {% if not (searchResult.criteria.extensions.nostoPagination) %}
+                    {% set paginationTotal = searchResult.total %}
+                    {% set paginationLimit = searchResult.limit %}
+                {% else %}
+                    {% set paginationTotal = searchResult.criteria.extensions.nostoPagination.total %}
+                    {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
+                {% endif %}
 
-                    {% set totalPages = paginationLimit > 0 ? (paginationTotal / paginationLimit)|round(0, 'ceil') : 1 %}
-                    {% if totalPages > 1 %}
-                        {% block element_product_listing_pagination_nav_bottom %}
-                            {{ parent() }}
-                        {% endblock %}
-                    {% endif %}
+                {% set totalPages = (paginationTotal / paginationLimit)|round(0, 'ceil') %}
+                {% if totalPages > 1 %}
+                    {% block element_product_listing_pagination_nav_bottom %}
+                        {{ parent() }}
+                    {% endblock %}
                 {% endif %}
             </div>
         {% endblock %}
