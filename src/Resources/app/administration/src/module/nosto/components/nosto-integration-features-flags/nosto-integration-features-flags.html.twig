@@ -502,5 +502,23 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_tagging_skus %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['enableTaggingForAllSkus']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['enableTaggingForAllSkus']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}

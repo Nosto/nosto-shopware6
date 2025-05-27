@@ -84,12 +84,12 @@ class ProductTaggingHelper
         if (!$isProductTagging) {
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
-            $productId = $productToReturn->getId() ?? $product->getId();
+            $productId = $productToReturn?->getId() ?? $product->getId();
             $shopwareProduct = $this->productHelper->getShopwareProducts(
                 [$productId],
                 $context,
             )->first();
-            $shopwareProduct->setChildren($productToReturn->getChildren());
+            $shopwareProduct->setChildren($productToReturn?->getChildren() ?? $product->getChildren());
             return $this->productProvider->get($shopwareProduct, $context);
         }
     }
@@ -246,9 +246,9 @@ class ProductTaggingHelper
         ProductEntity $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === ProductIdentifierOptions::PRODUCT_NUMBER;
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            ) === ProductIdentifierOptions::PRODUCT_NUMBER;
         if ($useProductNumber) {
             return $product->getProductNumber();
         } else {

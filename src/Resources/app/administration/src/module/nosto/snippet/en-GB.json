@@ -125,6 +125,10 @@
                     "label": "Send Search & Category analytics",
                     "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
                 },
+                "enableTaggingForAllSkus": {
+                    "label": "Enable tagging for all SKUs",
+                    "helpText": "Product and SKU tagging helps Nosto determine which product is viewed, it’s also used for a crawler to keep your product date up to date on Nosto. If you can notice a slow performance of your Product pages, please disable this feature and make sure crawler is disabled on Nosto Admin."
+                },
                 "oldJobCleanupPeriod": {
                     "after": "After",
                     "days": "days"
