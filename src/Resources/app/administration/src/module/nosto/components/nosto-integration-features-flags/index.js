@@ -172,6 +172,7 @@ Component.register('nosto-integration-features-flags', {
                 oldJobCleanupPeriod: 5,
                 oldNostoDataCleanup: false,
                 oldNostoDataCleanupPeriod: 7,
+                enableTaggingForAllSkus: true,
             });
 
             this.createCategoryCollection();
