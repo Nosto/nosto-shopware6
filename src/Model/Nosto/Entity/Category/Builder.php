@@ -27,9 +27,19 @@ class Builder
     ): NostoCategory {
         $nostoCategory = new NostoCategory();
         $nostoCategory->setId($category->getId());
-        $nostoCategory->setTitle($category->getName());
         $nostoCategory->setAvailable($category->getActive());
         $nostoCategory->setParentId($category->getParentId());
+
+        if (is_null($category->getName()) && $category->getTranslations()->getElements()) {
+            foreach ($category->getTranslations()->getElements() as $translation) {
+                if (!is_null($translation->getName())) {
+                    $nostoCategory->setTitle($translation->getName());
+                    break;
+                }
+            }
+        } else {
+            $nostoCategory->setTitle($category->getName());
+        }
 
         $domain = null;
         if ($domains = $context->getSalesChannel()->getDomains()) {

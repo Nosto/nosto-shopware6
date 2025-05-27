@@ -188,6 +188,7 @@ class NostoExtension extends AbstractExtension
 
             $criteria = new Criteria([$categoryId]);
             $criteria->addAssociation('seoUrls');
+            $criteria->getAssociation('translations');
 
             $categoryWithSeo = $this->categoryRepository
                 ->search($criteria, $context->getContext())
