@@ -11,8 +11,8 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilde
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Event\NostoCategoryCriteriaEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeCategoryUpdateEvent;
 use Nosto\Operation\Category\CategoryUpdate;
-use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
+use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -90,8 +90,7 @@ class CategorySyncHandler implements JobHandlerInterface
         Account $account,
         SalesChannelContext $context,
         JobResult $result,
-    ): void
-    {
+    ): void {
         $nostoCategory = $this->nostoCategoryBuilder->build(
             $category,
             $context,
