@@ -125,6 +125,10 @@
                     "label": "Send Search & Category analytics",
                     "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
                 },
+                "enableTranslationTool": {
+                    "label": "Enable translation tool, for not translated categories",
+                    "helpText": "If the category name translation for a specific language is not defined, enabling this option will use the category name from the first language that contains a translation. This will be used during category tagging and category synchronization."
+                },
                 "oldJobCleanupPeriod": {
                     "after": "After",
                     "days": "days"

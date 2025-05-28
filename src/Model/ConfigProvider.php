@@ -236,6 +236,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledTranslationTool($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_TRANSLATION_TOOL,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledSearchImpressions(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
