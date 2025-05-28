@@ -61,8 +61,6 @@ abstract class AbstractRequestHandler
                 $this->handleFiltersAndMapping($request, $criteria, $response, $responseParser);
             }
 
-            $this->filterHandler->handleAvailableFilters($criteria);
-
             if ($redirect = $responseParser->getRedirectExtension()) {
                 $this->handleRedirect($context, $redirect);
                 return;
