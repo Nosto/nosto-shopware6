@@ -61,7 +61,10 @@ class SearchController extends StorefrontController
             $page = $this->searchPageLoader->load($request, $context);
             if ($page->getListing()->getTotal() === 1) {
                 $product = $page->getListing()->first();
-                if ($this->configProvider->isEnabledRedirectToThePDP($context->getSalesChannelId(), $context->getLanguageId())) {
+                if ($this->configProvider->isEnabledRedirectToThePDP(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId()
+                )) {
                     $productId = $product->getId();
 
                     return $this->forwardToRoute('frontend.detail.page', [], [
