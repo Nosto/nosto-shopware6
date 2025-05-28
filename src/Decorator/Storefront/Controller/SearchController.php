@@ -63,7 +63,7 @@ class SearchController extends StorefrontController
                 $product = $page->getListing()->first();
                 $redirectToPDP = $this->configProvider->isEnabledRedirectToThePDP(
                     $context->getSalesChannelId(),
-                    $context->getLanguageId()
+                    $context->getLanguageId(),
                 );
                 if ($redirectToPDP) {
                     $productId = $product->getId();
