@@ -14,6 +14,8 @@ class NostoCookieProvider implements CookieProviderInterface
 
     public const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
 
+    public const NOSTO_FILTERS_KEY = 'nostoCookieFilterMapping';
+
     public function __construct(
         private readonly CookieProviderInterface $originalService,
     ) {
