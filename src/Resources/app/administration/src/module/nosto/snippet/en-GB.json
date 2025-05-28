@@ -97,6 +97,8 @@
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableSyncInactiveProductsHelpText": "If the checkbox is checked, variants of an inactive main product will be synchronized depending on what is selected in the storefront presentation configuration.",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
+                "redirectToProductDetailIfSingleSearchResult": "Auto-redirect to product detail page if search returns only one result",
+                "redirectToProductDetailIfSingleSearchResultHelpText": "When enabled, customers will be automatically redirected to the product detail page if a search query returns only one matching product.",
                 "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
                 "enableLabelling": "Enable Product Labelling Sync",
                 "storeAbandonedCartData": "Store data for abandoned carts",

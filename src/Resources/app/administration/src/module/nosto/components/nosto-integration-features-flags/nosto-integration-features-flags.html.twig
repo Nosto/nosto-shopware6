@@ -313,6 +313,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_redirect_to_pdp %}
+            <sw-inherit-wrapper
+                    :value="currentConfig['redirectToThePDP']"
+                    :inheritedValue="configKey === null ? null : configs['null']['redirectToThePDP']"
+                    @update:value="onUpdateValue('redirectToThePDP', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                            name="redirectToThePDP"
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResult')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResultHelpText')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @update:value="onUpdateValue('redirectToThePDP', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_labelling %}
             <sw-inherit-wrapper
                 :value="currentConfig['enableLabelling']"
