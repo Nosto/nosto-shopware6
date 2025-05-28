@@ -6,16 +6,13 @@ namespace Nosto\NostoIntegration\Search\Api;
 
 use Composer\InstalledVersions;
 use Monolog\Logger;
-use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Request\Graphql\SearchRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -129,28 +126,6 @@ class SearchService
 
             $this->logger->error(
                 sprintf('Error while fetching all filters: %s', $e->getMessage()),
-            );
-        }
-    }
-
-    protected function fetchSelectableFilters(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context,
-        AbstractRequestHandler $requestHandler,
-    ): void {
-        try {
-            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $response = $requestHandler->parseFiltersFromResponse($response);
-
-            $criteria->addExtension('nostoAvailableFilters', $response);
-        } catch (Throwable $e) {
-            /** @var NostoService $nostoService */
-            $nostoService = $context->getContext()->getExtension('nostoService');
-            $nostoService->disable();
-
-            $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage()),
             );
         }
     }

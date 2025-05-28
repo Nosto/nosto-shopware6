@@ -24,16 +24,14 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $response = $event->getResponse();
 
-        // TODO: Adjust the code.
-        if (!$request->attributes->has('setNostoCookieDemo')) {
+        if (!$request->attributes->has('nostoAPIResult')) {
             return;
         }
 
-        $cookieValue1 = $request->attributes->get('setNostoCookieDemo');
-
-        $cookie = new Cookie(
+        $nostoApiResultValue = $request->attributes->get('nostoAPIResult');
+        $nostoCookieFilter = new Cookie(
             'nostoCookieFilter',
-            $cookieValue1,
+            $nostoApiResultValue,
             strtotime('+1 day'),
             '/',
             $request->getHost(),
@@ -43,17 +41,15 @@ class NostoCookieSubscriber implements EventSubscriberInterface
             Cookie::SAMESITE_LAX
         );
 
-        $response->headers->setCookie($cookie);
+        $response->headers->setCookie($nostoCookieFilter);
 
         if (!$request->attributes->has('setNostoCookie')) {
             return;
         }
-
-        $cookieValue2 = $request->attributes->get('setNostoCookie');
-
-        $cookie2 = new Cookie(
+        $nostoCookieValue = $request->attributes->get('setNostoCookie');
+        $nostoCookieFilterMapping = new Cookie(
             'nostoCookieFilterMapping',
-            $cookieValue2,
+            $nostoCookieValue,
             strtotime('+1 day'),
             '/',
             $request->getHost(),
@@ -63,6 +59,6 @@ class NostoCookieSubscriber implements EventSubscriberInterface
             Cookie::SAMESITE_LAX
         );
 
-        $response->headers->setCookie($cookie2);
+        $response->headers->setCookie($nostoCookieFilterMapping);
     }
 }

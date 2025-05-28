@@ -9,10 +9,6 @@ use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\TranslatedName;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
@@ -23,7 +19,6 @@ use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Throwable;
 
 abstract class AbstractRequestHandler
 {
@@ -36,8 +31,6 @@ abstract class AbstractRequestHandler
     ) {
         $this->filterHandler = new FilterHandler();
     }
-
-
 
     /**
      * Sends a request to the Nosto service based on the given event and the responsible request handler.
