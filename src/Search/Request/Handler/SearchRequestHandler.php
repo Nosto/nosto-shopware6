@@ -25,7 +25,7 @@ class SearchRequestHandler extends AbstractRequestHandler
         $nostoResponse = $searchOperation->executeSw();
 
         if ((empty(
-                $request->cookies->get('nostoCookieFilter')) && count($request->query->all()) === 1)
+            $request->cookies->get('nostoCookieFilter')) && count($request->query->all()) === 1)
             || $limit === 0
         ) {
             $request->attributes->set('nostoAPIResult', $nostoResponse[0]);

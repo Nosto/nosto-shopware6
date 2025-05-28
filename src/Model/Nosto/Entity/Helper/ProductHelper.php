@@ -9,6 +9,11 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
+use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -29,11 +34,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
-use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
-use Nosto\NostoIntegration\Struct\FiltersExtension;
-use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 
 class ProductHelper
 {
