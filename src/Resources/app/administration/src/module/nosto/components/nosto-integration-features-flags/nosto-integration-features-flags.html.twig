@@ -322,12 +322,15 @@
                 <template #content="props">
                     <mt-switch
                             name="redirectToThePDP"
-                            :map-inheritance="props"
+                            :is-inheritance-field="props.isInheritField"
+                            :is-inherited="props.isInherited"
                             :label="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResult')"
                             :help-text="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResultHelpText')"
                             :disabled="props.isInherited"
                             :modelValue="props.currentValue"
-                            @update:value="onUpdateValue('redirectToThePDP', $event)"
+                            @update:modelValue="onUpdateValue('redirectToThePDP', $event)"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
                     />
                 </template>
             </sw-inherit-wrapper>
