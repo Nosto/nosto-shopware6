@@ -320,13 +320,13 @@
                     @update:value="onUpdateValue('redirectToThePDP', $event)"
             >
                 <template #content="props">
-                    <sw-switch-field
+                    <mt-switch
                             name="redirectToThePDP"
                             :map-inheritance="props"
                             :label="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResult')"
                             :help-text="$tc('nosto.configuration.featuresFlags.redirectToProductDetailIfSingleSearchResultHelpText')"
                             :disabled="props.isInherited"
-                            :value="props.currentValue"
+                            :modelValue="props.currentValue"
                             @update:value="onUpdateValue('redirectToThePDP', $event)"
                     />
                 </template>
