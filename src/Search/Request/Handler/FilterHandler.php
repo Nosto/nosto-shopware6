@@ -31,7 +31,7 @@ class FilterHandler
         Request $request,
         Criteria $criteria,
         SearchOperation $searchOperation,
-        bool $newRequest = true
+        bool $newRequest = true,
     ): void {
         $selectedFilters = $request->query->all();
 
@@ -49,7 +49,7 @@ class FilterHandler
     private function handleNewRequest(
         array $selectedFilters,
         Criteria $criteria,
-        SearchOperation $searchOperation
+        SearchOperation $searchOperation,
     ): void {
         $availableFilterIds = $this->fetchAvailableFilterIds($criteria);
         /** @var IdToFieldMapping $filterMapping */
@@ -67,7 +67,7 @@ class FilterHandler
     private function handleExistingRequest(
         array $selectedFilters,
         Request $request,
-        SearchOperation $searchOperation
+        SearchOperation $searchOperation,
     ): void {
         $cookieValue = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
         if (is_null($cookieValue)) {
@@ -95,7 +95,7 @@ class FilterHandler
         SearchOperation $searchOperation,
         array $availableFilterIds = [],
         ?IdToFieldMapping $filterMapping = null,
-        ?array $nostoFilters = null
+        ?array $nostoFilters = null,
     ): void {
         foreach ($this->getFilterValues($filterValues) as $filterValue) {
             if ($filterMapping !== null) {
@@ -104,14 +104,14 @@ class FilterHandler
                     $filterValue,
                     $searchOperation,
                     $availableFilterIds,
-                    $filterMapping
+                    $filterMapping,
                 );
             } else {
                 $this->handleFilterWithNostoFilters(
                     $filterId,
                     $filterValue,
                     $searchOperation,
-                    $nostoFilters
+                    $nostoFilters,
                 );
             }
         }
@@ -122,7 +122,7 @@ class FilterHandler
         string $filterValue,
         SearchOperation $searchOperation,
         array $availableFilterIds,
-        IdToFieldMapping $filterMapping
+        IdToFieldMapping $filterMapping,
     ): void {
         if ($this->isRangeSliderFilter($filterId)) {
             $this->handleRangeSliderFilter($filterId, $filterValue, $searchOperation, $filterMapping);
@@ -148,7 +148,7 @@ class FilterHandler
         string $filterId,
         string $filterValue,
         SearchOperation $searchOperation,
-        ?array $nostoFilters
+        ?array $nostoFilters,
     ): void {
         if ($nostoFilters === null) {
             return;
@@ -178,12 +178,12 @@ class FilterHandler
         string $filterId,
         mixed $filterValue,
         SearchOperation $searchOperation,
-        IdToFieldMapping|array $filterSource
+        IdToFieldMapping|array $filterSource,
     ): void {
         $isMin = mb_strpos($filterId, self::MIN_PREFIX) === 0;
         $baseFilterId = mb_substr(
             $filterId,
-            mb_strlen($isMin ? self::MIN_PREFIX : self::MAX_PREFIX)
+            mb_strlen($isMin ? self::MIN_PREFIX : self::MAX_PREFIX),
         );
 
         $filterField = $filterSource instanceof IdToFieldMapping

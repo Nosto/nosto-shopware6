@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Subscriber;
 
-use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -41,7 +40,7 @@ class NostoCookieSubscriber implements EventSubscriberInterface
             $request->isSecure(),
             false,
             false,
-            Cookie::SAMESITE_LAX
+            Cookie::SAMESITE_LAX,
         );
 
         $response->headers->setCookie($nostoCookieFilter);
@@ -59,7 +58,7 @@ class NostoCookieSubscriber implements EventSubscriberInterface
             $request->isSecure(),
             false,
             false,
-            Cookie::SAMESITE_LAX
+            Cookie::SAMESITE_LAX,
         );
 
         $response->headers->setCookie($nostoCookieFilterMapping);

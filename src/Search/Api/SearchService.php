@@ -95,7 +95,6 @@ class SearchService
         if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
             $fetchedFilters = true;
             $this->fetchFilters($request, $criteria, $context, $requestHandler);
-
         }
 
         $requestHandler->fetchResults($request, $criteria, $context, $fetchedFilters);
@@ -117,7 +116,7 @@ class SearchService
 
             $request->attributes->set(
                 'setNostoCookie',
-                json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR)
+                json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR),
             );
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */

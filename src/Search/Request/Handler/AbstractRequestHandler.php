@@ -44,8 +44,12 @@ abstract class AbstractRequestHandler
         ?int $limit = null,
     ): SearchResult;
 
-    public function fetchResults(Request $request, Criteria $criteria, SalesChannelContext $context, $fetchedFilters = false): void
-    {
+    public function fetchResults(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context,
+        $fetchedFilters = false,
+    ): void {
         $originalCriteria = clone $criteria;
 
         try {
@@ -69,7 +73,7 @@ abstract class AbstractRequestHandler
                 $criteria,
                 $responseParser,
                 $originalCriteria->getLimit(),
-                $originalCriteria->getOffset()
+                $originalCriteria->getOffset(),
             );
         } catch (\Throwable $e) {
             $this->logger->error(
@@ -77,8 +81,8 @@ abstract class AbstractRequestHandler
                 [
                     'message' => $e->getMessage(),
                     'exception' => $e,
-                    'trace' => $e->getTraceAsString()
-                ]
+                    'trace' => $e->getTraceAsString(),
+                ],
             );
         }
     }
@@ -87,7 +91,7 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SearchResult $response,
-        GraphQLResponseParser $responseParser
+        GraphQLResponseParser $responseParser,
     ): void {
         $filterCookie = $request->cookies->get('nostoCookieFilter');
         $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
@@ -107,7 +111,7 @@ abstract class AbstractRequestHandler
 
         $request->attributes->set(
             'setNostoCookie',
-            json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR)
+            json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR),
         );
     }
 
@@ -130,7 +134,7 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,
-        ?int $limit = null
+        ?int $limit = null,
     ): SearchOperation {
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
@@ -142,7 +146,7 @@ abstract class AbstractRequestHandler
             $searchOperation,
             $request,
             $criteria,
-            $limit
+            $limit,
         );
 
         return $searchOperation;
@@ -151,7 +155,7 @@ abstract class AbstractRequestHandler
     private function initializeSearchOperation(
         Account $account,
         string $channelId,
-        string $languageId
+        string $languageId,
     ): SearchOperation {
         $searchOperation = new SearchOperation($account);
         $searchOperation->setAccountId($this->configProvider->getAccountId($channelId, $languageId));
@@ -163,7 +167,7 @@ abstract class AbstractRequestHandler
         SearchOperation $searchOperation,
         Request $request,
         Criteria $criteria,
-        ?int $limit
+        ?int $limit,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
         $this->setSessionParamsFromCookies($request, $searchOperation);

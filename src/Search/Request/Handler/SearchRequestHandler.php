@@ -22,9 +22,9 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation->setQuery((string) $request->query->get('search'));
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
-        $nostoResponse =  $searchOperation->executeSw();
+        $nostoResponse = $searchOperation->executeSw();
 
-        if((empty(
+        if ((empty(
             $request->cookies->get('nostoCookieFilter')) && count($request->query->all()) === 1)
             || $limit === 0
         ) {
