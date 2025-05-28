@@ -25,27 +25,11 @@ class Builder
         CategoryEntity $category,
         SalesChannelContext $context,
     ): NostoCategory {
-        $salesChannelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
-
         $nostoCategory = new NostoCategory();
         $nostoCategory->setId($category->getId());
+        $nostoCategory->setTitle($category->getTranslated()['name']);
         $nostoCategory->setAvailable($category->getActive());
         $nostoCategory->setParentId($category->getParentId());
-
-        if (is_null($category->getName())
-            && $category->getTranslations()->getElements()
-            && $this->configProvider->isEnabledTranslationTool($salesChannelId, $languageId)
-        ) {
-            foreach ($category->getTranslations()->getElements() as $translation) {
-                if (!is_null($translation->getName())) {
-                    $nostoCategory->setTitle($translation->getName());
-                    break;
-                }
-            }
-        } else {
-            $nostoCategory->setTitle($category->getName());
-        }
 
         $domain = null;
         if ($domains = $context->getSalesChannel()->getDomains()) {

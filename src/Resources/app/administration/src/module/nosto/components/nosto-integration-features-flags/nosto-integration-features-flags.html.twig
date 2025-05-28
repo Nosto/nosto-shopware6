@@ -543,25 +543,5 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
-
-        {% block nosto_integration_feature_translation_tool %}
-            <sw-inherit-wrapper
-                :value="currentConfig['enableTranslationTool']"
-                :inheritedValue="configKey === null ? null : configs['null']['enableTranslationTool']"
-                @update:value="onUpdateValue('enableTranslationTool', $event)"
-            >
-                <template #content="props">
-                    <sw-switch-field
-                        name="enableTranslationTool"
-                        :map-inheritance="props"
-                        :label="$tc('nosto.configuration.featuresFlags.enableTranslationTool.label')"
-                        :help-text="$tc('nosto.configuration.featuresFlags.enableTranslationTool.helpText')"
-                        :disabled="props.isInherited"
-                        :value="props.currentValue"
-                        @update:value="onUpdateValue('enableTranslationTool', $event)"
-                    />
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
     </sw-card>
 {% endblock %}
