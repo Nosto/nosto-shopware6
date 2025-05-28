@@ -553,12 +553,15 @@
                 <template #content="props">
                     <mt-switch
                         name="enableTaggingForAllSkus"
-                        :map-inheritance="props"
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
                         :label="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.label')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.helpText')"
                         :disabled="props.isInherited"
                         :modelValue="props.currentValue"
                         @update:value="onUpdateValue('enableTaggingForAllSkus', $event)"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
                     />
                 </template>
             </sw-inherit-wrapper>
