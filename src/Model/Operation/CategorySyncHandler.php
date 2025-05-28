@@ -79,7 +79,6 @@ class CategorySyncHandler implements JobHandlerInterface
     {
         $criteria = new Criteria();
         $criteria->getAssociation('seoUrls');
-        $criteria->getAssociation('translations');
         $criteria->addFilter(new EqualsAnyFilter('id', $categoryIds));
         $this->eventDispatcher->dispatch(new NostoCategoryCriteriaEvent($criteria, $context));
         return $this->categoryRepository->search($criteria, $context)->getEntities();

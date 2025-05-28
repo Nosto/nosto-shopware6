@@ -98,8 +98,6 @@ class NostoConfigService
 
     public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
 
-    public const ENABLE_TRANSLATION_TOOL = 'enableTranslationTool';
-
     private array $configs = [];
 
     public function __construct(
