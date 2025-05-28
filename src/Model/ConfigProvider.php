@@ -228,6 +228,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledTranslationTool($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_TRANSLATION_TOOL,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(
