@@ -121,10 +121,6 @@
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
-                "enableTranslationTool": {
-                    "label": "Übersetzungswerkzeug für nicht übersetzte Kategorien aktivieren",
-                    "helpText": "Wenn die Übersetzung des Kategorienamens für eine bestimmte Sprache nicht definiert ist, wird bei Aktivierung dieser Option der Kategoriename aus der ersten Sprache übernommen, in der eine Übersetzung vorhanden ist. Dies wird beim Category Tagging und der Kategoriesynchronisierung verwendet."
-                },
                 "enableSearchImpressions": {
                     "label": "Sende Such- und Kategorieanalyse",
                     "helpText": "Aktivieren Sie die Such- und Kategorie-Impressions-Analyse über das Plugin. Passen Sie vorher die Autovervollständigungs-Vorlage an, um doppelte Impressions zu vermeiden. Bei Fragen wenden Sie sich an den Nosto-Support.."
