@@ -4,23 +4,9 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests;
 
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Kernel;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase;
 
-class TestCase extends KernelTestCase
+class TestCase extends IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Kernel::getConnection()->beginTransaction();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Kernel::getConnection()->rollBack();
-    }
 }
