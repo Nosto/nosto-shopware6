@@ -62,10 +62,10 @@ class TreeBuilder
 
         foreach ($categorySeoUrlsSets as $key => $catNames) {
             $nostoCategorySeoUrls[] = '/' . sprintf(
-                    self::NAME_WITH_ID_TEMPLATE,
-                    $catNames[$key],
-                    $key,
-                );
+                self::NAME_WITH_ID_TEMPLATE,
+                $catNames[$key],
+                $key,
+            );
         }
 
         $merged = array_merge($nostoCategoryNames, $nostoCategorySeoUrls);
