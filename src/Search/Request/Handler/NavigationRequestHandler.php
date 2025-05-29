@@ -43,7 +43,6 @@ class NavigationRequestHandler extends AbstractRequestHandler
         }
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
-        dd($searchOperation);
 
         return $searchOperation->execute();
     }
