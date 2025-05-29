@@ -77,7 +77,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
             }
         }
 
-         return $withId === CategoryNamingOptions::WITH_ID
+        return $withId === CategoryNamingOptions::WITH_ID
             ? sprintf(
                 TreeBuilder::NAME_WITH_ID_TEMPLATE,
                 $categoryPath,
