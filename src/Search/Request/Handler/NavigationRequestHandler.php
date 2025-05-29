@@ -44,6 +44,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         }
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
+        dd($searchOperation);
 
         return $searchOperation->execute();
     }
@@ -68,48 +69,22 @@ class NavigationRequestHandler extends AbstractRequestHandler
             $context->getLanguageId(),
         );
 
-        if ($category->getSeoUrls()->first()) {
-            $categoryPath = '/' . rtrim($category->getSeoUrls()->first()->seoPathInfo, '/');
-
-             return $withId === CategoryNamingOptions::WITH_ID
-                ? sprintf(
-                    TreeBuilder::NAME_WITH_ID_TEMPLATE,
-                    $categoryPath,
-                    $category->getId(),
-                )
-                : $categoryPath;
-        } else {
-            $pathIds = explode('|', trim($category->getPath(), '|'));
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('parentId', null));
-            $criteria->setIds([$pathIds[0]]);
-
-            $rootCategory = $this->categoryRepository
-                ->search($criteria, $context)
-                ->first();
-
-            $rootCategoryNames[] = $rootCategory->getTranslation('name');
-
-            $mapping = $category->getTranslation('breadcrumb');
-            $categoryName = $category->getTranslation('name');
-            $navigationCategoryId = $context->getSalesChannel()->getNavigationCategoryId();
-
-            $categoryNames = array_map(
-                static fn (string $categoryId): string => $mapping[$categoryId],
-                array_filter($pathIds, static fn (string $id): bool => $id !== $navigationCategoryId),
-            );
-
-            $categoryNames = array_diff($categoryNames, $rootCategoryNames);
-
-            $categoryNames[] = $withId === CategoryNamingOptions::WITH_ID
-                ? sprintf(
-                    TreeBuilder::NAME_WITH_ID_TEMPLATE,
-                    $categoryName,
-                    $category->getId(),
-                )
-                : $categoryName;
-
-            return '/' . implode('/', $categoryNames);
+        $categoryPath = '';
+        foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
+            if ($seoUrl->getLanguageId() === $context->getLanguageId()
+                && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+            ) {
+                $categoryPath = '/' . rtrim($category->getSeoUrls()->first()->seoPathInfo, '/');
+                break;
+            }
         }
+
+         return $withId === CategoryNamingOptions::WITH_ID
+            ? sprintf(
+                TreeBuilder::NAME_WITH_ID_TEMPLATE,
+                $categoryPath,
+                $category->getId(),
+            )
+            : $categoryPath;
     }
 }
