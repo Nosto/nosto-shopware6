@@ -10,9 +10,12 @@ use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class NostoIntegrationTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testNostoSchedulerIsAddedOnActivation(): void
     {
         /** @var NostoIntegration $nostoIntegration */
