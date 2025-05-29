@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Nosto\NostoIntegration\Controller\Storefront;
+namespace Nosto\NostoIntegration\Service;
 
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Nosto\Model\Signup\Account as NostoSignupAccount;
 use Nosto\NostoIntegration\Model\MockOperation\MockUpsertProduct;
 use Nosto\Request\Api\Token as NostoToken;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class NostoMonitoringAuthService
 {
     private const SESSION_AUTH_FLAG = 'authenticatedWithNosto';
+
     private const SESSION_AUTH_TIMESTAMP = 'nostoAuthTimestamp';
+
     private const AUTH_TIMEOUT = 3600; // 1 hour
 
     public function validateAccessKey(string $accessKey): bool
@@ -49,10 +51,11 @@ class NostoMonitoringAuthService
 
     private function validateWithNostoApi(string $accessKey): bool
     {
-        $account = new NostoSignupAccount('placeholder'); //todo this works, should it work?
+        // TODO: Replace with actual Nosto API validation when available
+
+        $account = new NostoSignupAccount('placeholder');
         $account->addApiToken(new NostoToken(NostoToken::API_PRODUCTS, $accessKey));
 
-        // TODO: Replace with actual Nosto API validation when available
         return (new MockUpsertProduct($account))->upsert()['success'];
     }
 }

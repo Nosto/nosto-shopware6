@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -16,6 +17,7 @@ class NostoMonitoringHelper
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
+        private readonly ConfigProvider $nostoConfigProvider,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
@@ -96,5 +98,135 @@ class NostoMonitoringHelper
                 'message' => 'Error: ' . $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * Get serialized Nosto configuration as an array
+     *
+     * @return array<string, mixed> Configuration array with all Nosto settings
+     */
+    public function getSerializedNostoConfiguration(?string $salesChannelId, ?string $languageId): array
+    {
+        return [
+            // Account Settings
+            'accountEnabled' => $this->nostoConfigProvider->isAccountEnabled($salesChannelId, $languageId),
+            'accountId' => $this->nostoConfigProvider->getAccountId($salesChannelId, $languageId),
+            'accountName' => $this->nostoConfigProvider->getAccountName($salesChannelId, $languageId),
+
+            // API Tokens
+            'productToken' => $this->nostoConfigProvider->getProductToken($salesChannelId, $languageId),
+            'emailToken' => $this->nostoConfigProvider->getEmailToken($salesChannelId, $languageId),
+            'appToken' => $this->nostoConfigProvider->getAppToken($salesChannelId, $languageId),
+            'searchToken' => $this->nostoConfigProvider->getSearchToken($salesChannelId, $languageId),
+
+            // Personalized Search & Category Merchandising
+            'enablePersonalizedSearch' => $this->nostoConfigProvider->isSearchEnabled($salesChannelId, $languageId),
+            'enableCategoryMerchandising' => $this->nostoConfigProvider->isNavigationEnabled(
+                $salesChannelId,
+                $languageId,
+            ),
+
+            // General Settings
+            'initializeNostoAfterInteraction' => $this->nostoConfigProvider->shouldInitializeNostoAfterInteraction(
+                $salesChannelId,
+                $languageId,
+            ),
+            'domainId' => $this->nostoConfigProvider->getDomainId($salesChannelId, $languageId),
+
+            // Tags Assignment
+            'selectedCustomFields' => $this->nostoConfigProvider->getSelectedCustomFields($salesChannelId, $languageId),
+            'tag1' => $this->nostoConfigProvider->getTagFieldKey(1, $salesChannelId, $languageId),
+            'tag2' => $this->nostoConfigProvider->getTagFieldKey(2, $salesChannelId, $languageId),
+            'tag3' => $this->nostoConfigProvider->getTagFieldKey(3, $salesChannelId, $languageId),
+            'googleCategory' => $this->nostoConfigProvider->getGoogleCategory($salesChannelId, $languageId),
+
+            // Feature Flags (these return enum values)
+            'productIdentifier' => $this->nostoConfigProvider->getProductIdentifier(
+                $salesChannelId,
+                $languageId,
+            )->value,
+            'ratingsReviews' => $this->nostoConfigProvider->getRatingReviews($salesChannelId, $languageId)->value,
+            'stockField' => $this->nostoConfigProvider->getStockField($salesChannelId, $languageId)->value,
+            'crossSellingSync' => $this->nostoConfigProvider->getCrossSellingSyncOption(
+                $salesChannelId,
+                $languageId,
+            )->value,
+            'categoryNaming' => $this->nostoConfigProvider->getCategoryNamingOption(
+                $salesChannelId,
+                $languageId,
+            )->value,
+            'categoryBlocklist' => $this->nostoConfigProvider->getCategoryBlocklist($salesChannelId, $languageId),
+
+            // Toggle Features
+            'enableVariations' => $this->nostoConfigProvider->isEnabledVariations($salesChannelId, $languageId),
+            'enableProductProperties' => $this->nostoConfigProvider->isEnabledProductProperties(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableAlternateImages' => $this->nostoConfigProvider->isEnabledAlternateImages(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableInventoryLevels' => $this->nostoConfigProvider->isEnabledInventoryLevels(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableCustomerDataToNosto' => $this->nostoConfigProvider->isEnabledCustomerDataToNosto(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableSyncInactiveProducts' => $this->nostoConfigProvider->isEnabledSyncInactiveProducts(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableProductPublishedDateTagging' => $this->nostoConfigProvider->isEnabledProductPublishedDateTagging(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableReloadRecommendations' => $this->nostoConfigProvider->isEnabledReloadRecommendationsAfterAdding(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableProductLabellingSync' => $this->nostoConfigProvider->isEnabledProductLabellingSync(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableStoreAbandonedCartData' => $this->nostoConfigProvider->isEnabledStoreAbandonedCartData(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableIgnoreCookieConsent' => $this->nostoConfigProvider->isEnabledIgnoreCookieConsent(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableSyncFirstAvailableVariant' => $this->nostoConfigProvider->isEnabledSyncFirstAvailableVariant(
+                $salesChannelId,
+                $languageId,
+            ),
+            'enableSearchImpressions' => $this->nostoConfigProvider->isEnabledSearchImpressions(
+                $salesChannelId,
+                $languageId,
+            ),
+
+            // daily Sync & Cleanup Settings
+            'dailyProductSyncEnabled' => $this->nostoConfigProvider->isDailyProductSyncEnabled(
+                $salesChannelId,
+                $languageId,
+            ),
+            //            'dailyProductSyncTime' => $this->nostoConfigProvider->getDailyProductSyncTime($salesChannelId, $languageId),
+            'oldJobCleanupEnabled' => $this->nostoConfigProvider->isOldJobCleanupEnabled($salesChannelId, $languageId),
+            'oldJobCleanupPeriod' => $this->nostoConfigProvider->getOldJobCleanupPeriod($salesChannelId, $languageId),
+            'oldNostoDataCleanupEnabled' => $this->nostoConfigProvider->isOldNostoDataCleanupEnabled(
+                $salesChannelId,
+                $languageId,
+            ),
+            'oldNostoDataCleanupPeriod' => $this->nostoConfigProvider->getOldNostoDataCleanupPeriod(
+                $salesChannelId,
+                $languageId,
+            ),
+
+            // Full config array for debugging/additional data
+            'fullConfig' => $this->nostoConfigProvider->toArray($salesChannelId, $languageId),
+        ];
     }
 }
