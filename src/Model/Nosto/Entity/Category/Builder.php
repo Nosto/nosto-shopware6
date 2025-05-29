@@ -27,7 +27,7 @@ class Builder
     ): NostoCategory {
         $nostoCategory = new NostoCategory();
         $nostoCategory->setId($category->getId());
-        $nostoCategory->setTitle($category->getTranslation('name'));
+        $nostoCategory->setTitle($category->getTranslated()['name']);
         $nostoCategory->setAvailable($category->getActive());
         $nostoCategory->setParentId($category->getParentId());
 
