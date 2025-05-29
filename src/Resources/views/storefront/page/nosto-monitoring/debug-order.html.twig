@@ -1,0 +1,97 @@
+{% extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_body %}
+    <div class="nosto-layout" style="display: flex; flex-direction: column; padding: 20px;">
+        <div class="nosto-main">
+            <div class="flash-messages">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="nosto-message nosto-{{ type }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <!-- Header -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #6c757d;">
+                        Debug Order ({{ orderId }})
+                    </h2>
+                    <a href="{{ path('nosto-monitoring.manage-operations') }}" class="nosto-button" style="text-decoration: none;">
+                        ← Back to Operations
+                    </a>
+                </div>
+
+                <!-- Sync Order Button -->
+                <div style="margin-bottom: 20px;">
+                    <form action="{{ path('nosto-monitoring.debug-sync-order') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="orderId" value="{{ orderId }}">
+                        <button type="submit" class="nosto-button" style="background: #28a745; border-color: #28a745;">
+                            🔄 Sync Order to Nosto
+                        </button>
+                    </form>
+                    <small style="color: #6c757d; margin-left: 10px;">
+                        (Sync functionality will be implemented later)
+                    </small>
+                </div>
+            </div>
+
+            <!-- Order Data Dump -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px;">
+                <h3 style="margin: 0 0 15px 0; color: #6c757d;">Order Data Dump</h3>
+                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                    {{ dump(order) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .nosto-button {
+            background: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nosto-button:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nosto-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .nosto-success, .nosto-info {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .nosto-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Style for dump output */
+        .sf-dump {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+    </style>
+{% endblock %}

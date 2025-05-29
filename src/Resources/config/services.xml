@@ -303,7 +303,18 @@
                 alias="request_stack"
         />
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringAuthService" />
+
         <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringController" public="true">
+            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper"/>
+            <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringAuthService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="category.repository"/>
+            <tag name="controller.service_arguments"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>

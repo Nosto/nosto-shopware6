@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Api\Controller;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Model\Operation\CategorySyncHandler;
 use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
@@ -15,7 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(
@@ -32,9 +35,13 @@ class NostoDebugController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/nosto-product-debug', name: 'storefront.nosto_integration.product_debug', methods: ['GET'])]
-    public function debug(Request $request, SalesChannelContext $context): JsonResponse
+//    #[Route(path: '/nosto-product-debug-sync', name: 'storefront.nosto_integration.product_debug', methods: ['GET'])]
+    public function debugSyncProduct(Request $request, SalesChannelContext $context): JsonResponse
     {
+        if (!$this->authService->isAuthenticated($request->getSession())) {
+            return $this->redirectToRoute('nosto-monitoring.access-page');
+        }
+
         $productId = $request->get('productId');
         $message = new ProductSyncMessage(
             Uuid::randomHex(),
@@ -54,9 +61,12 @@ class NostoDebugController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/nosto-order-debug', name: 'storefront.nosto_integration.order_debug', methods: ['GET'])]
-    public function debugOrder(Request $request, SalesChannelContext $context): JsonResponse
+//    #[Route(path: '/nosto-order-debug-sync', name: 'storefront.nosto_integration.order_debug', methods: ['GET'])]
+    public function debugSyncOrder(Request $request, SalesChannelContext $context): JsonResponse
     {
+        if (!$this->authService->isAuthenticated($request->getSession())) {
+            return $this->redirectToRoute('nosto-monitoring.access-page');
+        }
         $orderId = $request->get('orderId');
         $message = new OrderSyncMessage(
             Uuid::randomHex(),
@@ -79,9 +89,12 @@ class NostoDebugController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/nosto-category-debug', name: 'storefront.nosto_integration.category_debug', methods: ['GET'])]
-    public function debugCategory(Request $request, SalesChannelContext $context): JsonResponse
+//    #[Route(path: '/nosto-category-debug-sync', name: 'storefront.nosto_integration.category_debug', methods: ['GET'])]
+    public function debugSyncCategory(Request $request, SalesChannelContext $context): JsonResponse
     {
+        if (!$this->authService->isAuthenticated($request->getSession())) {
+            return $this->redirectToRoute('nosto-monitoring.access-page');
+        }
         $categoryId = $request->get('categoryId');
         $message = new CategorySyncMessage(
             Uuid::randomHex(),
