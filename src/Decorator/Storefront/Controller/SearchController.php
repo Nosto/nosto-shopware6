@@ -43,7 +43,6 @@ class SearchController extends StorefrontController
         $this->container = $container;
     }
 
-
     #[Route(
         path: '/search',
         name: 'frontend.search.page',

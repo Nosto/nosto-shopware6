@@ -10,8 +10,8 @@ use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestCase;
 
 class NostoIntegrationTest extends KernelTestCase
