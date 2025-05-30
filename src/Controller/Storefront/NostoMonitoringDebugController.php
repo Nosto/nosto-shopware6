@@ -7,6 +7,9 @@ namespace Nosto\NostoIntegration\Controller\Storefront;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder as OrderBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider;
 use Nosto\NostoIntegration\Model\Operation\CategorySyncHandler;
 use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
@@ -16,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,12 +33,15 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
 {
     public function __construct(
         NostoMonitoringAuthService $authService,
-        private readonly EntityRepository $productRepository,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly EntityRepository $orderRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly ProductSyncHandler $productSyncHandler,
         private readonly OrderSyncHandler $orderSyncHandler,
         private readonly CategorySyncHandler $categorySyncHandler,
+        private readonly Provider $productProvider,
+        private readonly CategoryBuilder $nostoCategoryBuilder,
+        private readonly OrderBuilder $nostoOrderbuilder,
     ) {
         parent::__construct($authService);
     }
@@ -47,7 +54,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         ],
         methods: ["GET", "POST"],
     )]
-    public function showProduct(Request $request, Context $context): Response|RedirectResponse
+    public function showProduct(Request $request, SalesChannelContext $salesChannelContext): Response|RedirectResponse
     {
         if ($redirect = $this->requireAuthentication($request)) {
             return $redirect;
@@ -74,17 +81,19 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 'translations',
             ]);
 
-            $product = $this->productRepository->search($criteria, $context)->first();
+            $product = $this->salesChannelProductRepository->search($criteria, $salesChannelContext)->first();
 
             if (!$product) {
                 $request->getSession()->getFlashBag()->add('error', "Product with ID '{$productId}' not found.");
                 return $this->redirectToRoute('nosto-monitoring.manage-operations');
             }
 
+            $nostoProduct = $this->productProvider->get($product, $salesChannelContext);
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $product,
+                    'product' => $nostoProduct,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],
@@ -103,8 +112,11 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         ],
         methods: ["POST", "GET"],
     )]
-    public function showCategory(Request $request, Context $context): Response|RedirectResponse
-    {
+    public function showCategory(
+        Request $request,
+        Context $context,
+        SalesChannelContext $salesChannelContext,
+    ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
             return $redirect;
         }
@@ -117,14 +129,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
 
         try {
             $criteria = new Criteria([$categoryId]);
-            $criteria->addAssociations([
-                'parent',
-                'children',
-                'media',
-                'products',
-                'translations',
-                'customFields',
-            ]);
+            $criteria->getAssociation('seoUrls');
 
             $category = $this->categoryRepository->search($criteria, $context)->first();
 
@@ -133,10 +138,15 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 return $this->redirectToRoute('nosto-monitoring.manage-operations');
             }
 
+            $nostoCategory = $this->nostoCategoryBuilder->build(
+                $category,
+                $salesChannelContext,
+            );
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-category.html.twig',
                 [
-                    'category' => $category,
+                    'category' => $nostoCategory,
                     'categoryId' => $categoryId,
                     'resourceType' => 'category',
                 ],
@@ -155,8 +165,11 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         ],
         methods: ["POST", "GET"],
     )]
-    public function showOrder(Request $request, Context $context): Response|RedirectResponse
-    {
+    public function showOrder(
+        Request $request,
+        Context $context,
+        SalesChannelContext $salesChannelContext,
+    ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
             return $redirect;
         }
@@ -169,17 +182,13 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
 
         try {
             $criteria = new Criteria([$orderId]);
-            $criteria->addAssociations([
-                'lineItems',
-                'lineItems.product',
-                'addresses',
-                'customer',
-                'orderCustomer',
-                'deliveries',
-                'transactions',
-                'stateMachineState',
-                'currency',
-            ]);
+            $criteria->addAssociation('stateMachineState');
+            $criteria->addAssociation('orderCustomer');
+            $criteria->addAssociation('currency');
+            $criteria->addAssociation('addresses');
+            $criteria->addAssociation('billingAddress');
+            $criteria->addAssociation('transactions.paymentMethod');
+            $criteria->addAssociation('lineItems.orderLineItem.product');
 
             $order = $this->orderRepository->search($criteria, $context)->first();
 
@@ -188,10 +197,15 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 return $this->redirectToRoute('nosto-monitoring.manage-operations');
             }
 
+            $nostoOrder = $this->nostoOrderbuilder->build(
+                $order,
+                $salesChannelContext,
+            );
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-order.html.twig',
                 [
-                    'order' => $order,
+                    'order' => $nostoOrder,
                     'orderId' => $orderId,
                     'resourceType' => 'order',
                 ],

@@ -2,6 +2,79 @@
 
 {% block base_body %}
     <div class="nosto-layout" style="display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #6c757d;">Nosto Monitoring</h2>
+            <form action="{{ path('nosto-monitoring.logout') }}" method="POST" style="margin: 0;">
+                <button type="submit" class="nosto-button" style="background: #dc3545; padding: 8px 16px;">
+                    Logout
+                </button>
+            </form>
+        </div>
+        <div class="nosto-context-selectors" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #6c757d; font-size: 18px;">Context Selection</h3>
+            <form method="GET" action="{{ path('nosto-monitoring.manage-operations') }}">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <!-- Language Dropdown -->
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="languageId" style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Language</label>
+                        <select name="languageId" style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
+                            <option value="">All Languages</option>
+                            {% for language in languages %}
+                                <option value="{{ language.id }}" {% if language.id == currentLanguageId %}selected{% endif %}>
+                                    {{ language.locale.name }} ({{ language.locale.code }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Sales Channel Dropdown -->
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="salesChannelId" style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Sales Channel</label>
+                        <select name="salesChannelId" style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
+                            <option value="">All Sales Channels</option>
+                            {% for salesChannel in salesChannels %}
+                                <option value="{{ salesChannel.id }}" {% if salesChannel.id == currentSalesChannelId %}selected{% endif %}>
+                                    {{ salesChannel.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="display: flex; align-items: end;">
+                        <button type="submit" class="nosto-button" style="padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                            Apply Context
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Current Context Display -->
+            {% if currentLanguageId or currentSalesChannelId %}
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0;">
+                    <div style="display: flex; gap: 20px; font-size: 14px; color: #6c757d; flex-wrap: wrap;">
+                        {% if currentLanguageId %}
+                            <span><strong>Active Language:</strong>
+                                    {% for language in languages %}
+                                        {% if language.id == currentLanguageId %}
+                                            {{ language.locale.name }} ({{ language.locale.code }})
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                        {% endif %}
+                        {% if currentSalesChannelId %}
+                            <span><strong>Active Sales Channel:</strong>
+                                    {% for salesChannel in salesChannels %}
+                                        {% if salesChannel.id == currentSalesChannelId %}
+                                            {{ salesChannel.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
         <div class="nosto-main">
             <div class="flash-messages">
                 {% for type, messages in app.flashes %}

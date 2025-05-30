@@ -6,6 +6,9 @@ namespace Nosto\NostoIntegration\Controller\Storefront;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +22,8 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
     public function __construct(
         NostoMonitoringAuthService $authService,
         private readonly NostoMonitoringHelper $nostoMonitoringHelper,
+        private readonly EntityRepository $languageRepository,
+        private readonly EntityRepository $salesChannelRepository,
     ) {
         parent::__construct($authService);
     }
@@ -31,11 +36,20 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         ],
         methods: ["GET"],
     )]
-    public function nostoMangeOperations(Request $request): Response
+    public function nostoMangeOperations(Request $request, Context $context): Response
     {
         if ($redirect = $this->requireAuthentication($request)) {
             return $redirect;
         }
+
+        $currentLanguageId = $request->get('languageId');
+        $currentSalesChannelId = $request->get('salesChannelId');
+
+        $languageCriteria = new Criteria();
+        $languageCriteria->addAssociation('locale');
+        $languages = $this->languageRepository->search($languageCriteria, $context)->getEntities();
+
+        $salesChannels = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
 
         return $this->renderStorefront(
             '@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig',
@@ -44,6 +58,10 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
                     $request->get('salesChannelId'),
                     $request->get('languageId'),
                 ),
+                'languages' => $languages,
+                'salesChannels' => $salesChannels,
+                'currentLanguageId' => $currentLanguageId,
+                'currentSalesChannelId' => $currentSalesChannelId,
             ],
         );
     }
