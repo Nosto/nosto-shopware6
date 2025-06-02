@@ -51,7 +51,6 @@ class SearchController extends StorefrontController
         ],
         methods: ['GET'],
     )]
-
     public function search(SalesChannelContext $context, Request $request): Response
     {
         if (!$this->configProvider->isSearchEnabled($context->getSalesChannelId(), $context->getLanguageId())) {
@@ -74,7 +73,6 @@ class SearchController extends StorefrontController
             if ($e->getErrorCode() !== RoutingException::MISSING_REQUEST_PARAMETER_CODE) {
                 throw $e;
             }
-
             return $this->forwardToRoute('frontend.home.page');
         }
 
