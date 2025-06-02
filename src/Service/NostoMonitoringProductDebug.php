@@ -4,29 +4,18 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Service;
 
-use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
-use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
-use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
-use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
-use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
-use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,7 +44,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
             $this->ruleLoader,
             $this->productHelper,
             $this->eventDispatcher,
-            $this->systemConfigService
+            $this->systemConfigService,
         );
     }
 
