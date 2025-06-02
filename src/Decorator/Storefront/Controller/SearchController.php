@@ -51,6 +51,7 @@ class SearchController extends StorefrontController
         ],
         methods: ['GET'],
     )]
+
     public function search(SalesChannelContext $context, Request $request): Response
     {
         if (!$this->configProvider->isSearchEnabled($context->getSalesChannelId(), $context->getLanguageId())) {
