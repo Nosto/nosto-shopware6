@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Model\Operation\CategorySyncHandler;
 use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
+use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,6 +33,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class NostoMonitoringDebugController extends AbstractNostoMonitoringController
 {
     public function __construct(
+        private readonly NostoMonitoringProductDebug $nostoMonitoringProductDebug,
         NostoMonitoringAuthService $authService,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly EntityRepository $orderRepository,
@@ -89,11 +91,22 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             }
 
             $nostoProduct = $this->productProvider->get($product, $salesChannelContext);
+            $debug = $this->nostoMonitoringProductDebug->execute(
+                new ProductSyncMessage(
+                    Uuid::randomHex(),
+                    Uuid::randomHex(),
+                    [
+                        $productId => $productId,
+                    ],
+                    $salesChannelContext->getContext(),
+                    'Product Debug',
+                ),
+            );
 
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $nostoProduct,
+                    'product' => [$nostoProduct, $debug],
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],
