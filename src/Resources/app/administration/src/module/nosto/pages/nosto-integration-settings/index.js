@@ -5,11 +5,6 @@ import './nosto-integration-settings.scss';
 const { Component, Defaults, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-const {
-    mapVuexState,
-    mapVuexMutations,
-} = Component.getComponentHelper();
-
 /** @private */
 Component.register('nosto-integration-settings', {
     template,
@@ -43,10 +38,15 @@ Component.register('nosto-integration-settings', {
     },
 
     computed: {
-        ...mapVuexState('nostoIntegrationConfig', [
-            'configs',
-            'loading',
-        ]),
+        nostoStore() {
+            return Shopware.Store.get('nostoIntegrationConfig');
+        },
+        configs() {
+            return this.nostoStore.configs;
+        },
+        loading() {
+            return this.nostoStore.loading;
+        },
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -86,10 +86,12 @@ Component.register('nosto-integration-settings', {
     },
 
     methods: {
-        ...mapVuexMutations('nostoIntegrationConfig', [
-            'setConfig',
-            'setLoading',
-        ]),
+        setConfig({ key, config }) {
+            this.nostoStore.setConfig({ key, config });
+        },
+        setLoading(loading) {
+            this.nostoStore.setLoading(loading);
+        },
 
         createdComponent() {
             this.getAllConfigs();
