@@ -90,8 +90,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 return $this->redirectToRoute('nosto-monitoring.manage-operations');
             }
 
-            $nostoProduct = $this->productProvider->get($product, $salesChannelContext);
-            $debug = $this->nostoMonitoringProductDebug->execute(
+            $nostoProduct = $this->nostoMonitoringProductDebug->execute(
                 new ProductSyncMessage(
                     Uuid::randomHex(),
                     Uuid::randomHex(),
@@ -106,7 +105,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => [$nostoProduct, $debug],
+                    'product' => $nostoProduct->getMessages()[0] ?? null,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],

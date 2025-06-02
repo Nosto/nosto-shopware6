@@ -13,6 +13,9 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
+use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
@@ -28,19 +31,11 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class NostoMonitoringProductDebug
+class NostoMonitoringProductDebug extends ProductSyncHandler
 {
-    private array $debug = [
-        'operations' => [
-            'upsert' => [],
-            'delete' => [],
-        ],
-        'events' => [],
-        'errors' => [],
-        'warnings' => [],
-        'context' => [],
-    ];
+    private array $nostoProducts = [];
 
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
@@ -49,24 +44,23 @@ class NostoMonitoringProductDebug
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly ProductHelper $productHelper,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
     ) {
+        parent::__construct(
+            $this->channelContextFactory,
+            $this->productProvider,
+            $this->accountProvider,
+            $this->configProvider,
+            $this->ruleLoader,
+            $this->productHelper,
+            $this->eventDispatcher,
+            $this->systemConfigService
+        );
     }
 
-    /**
-     * @param ProductSyncMessage $message
-     * @return array<string, mixed>
-     */
-    public function execute(object $message): array
+    public function execute(object $message): Job\JobResult
     {
-        $this->debug['context']['message'] = [
-            'productIds' => $message->getProductIds(),
-            'context' => [
-                'languageId' => $message->getContext()->getLanguageId(),
-                'versionId' => $message->getContext()->getVersionId(),
-            ],
-        ];
-
         foreach ($this->accountProvider->all($message->getContext()) as $account) {
             $channelContext = $this->channelContextFactory->create(
                 Uuid::randomHex(),
@@ -78,90 +72,29 @@ class NostoMonitoringProductDebug
 
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
-            $this->debug['context']['accounts'][] = [
-                'channelId' => $account->getChannelId(),
-                'languageId' => $account->getLanguageId(),
-                'nostoAccountId' => $account->getNostoAccount()->getName(),
-            ];
-
             $this->doOperation($account, $channelContext, $message->getProductIds());
         }
 
-        return $this->debug;
-    }
-
-    /**
-     * @return string[]
-     */
-    private function loadRuleIds(SalesChannelContext $channelContext): array
-    {
-        return $this->ruleLoader->load($channelContext->getContext())->filter(
-            static fn (RuleEntity $rule) => $rule->getPayload()->match(new CheckoutRuleScope($channelContext)),
-        )->getIds();
-    }
-
-    private function doOperation(Account $account, SalesChannelContext $context, array $ids): void
-    {
-        $productIds = array_keys($ids);
-        $existingProductsIterator = $this->productHelper->getProductsIterator($productIds, $context);
-        $existentProducts = [];
-        while (($existingProducts = $existingProductsIterator->fetch()) !== null) {
-            foreach ($existingProducts->getElements() as $key => $product) {
-                $existentProducts[$key] = $product->getParentId() ?: $product->getId();
-            }
-        }
-
-        $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
-
-        $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
-
-        try {
-            while (($products = $parentProductIterator->fetch()) !== null) {
-                $this->doUpsertOperation($account, $context, $products->getEntities(), $ids);
-            }
-
-            if (!empty($deletedProductIds)) {
-                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
-            }
-        } catch (Throwable $e) {
-            $this->debug['errors'][] = [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ];
-        }
+        return new Job\JobResult($this->nostoProducts);
     }
 
     /**
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    private function doUpsertOperation(
+    protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
         ProductCollection $productCollection,
+        Job\JobResult $result,
         array $ids,
     ): void {
         $channelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
-        $domainUrl = $this->getDomainUrl(
-            $context->getSalesChannel()->getDomains(),
-            $channelId,
-            $languageId,
-        );
-        $domain = parse_url($domainUrl, PHP_URL_HOST);
 
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $channelId,
         );
-
-        $upsertDebugData = [
-            'domain' => $domain,
-            'channelId' => $channelId,
-            'languageId' => $languageId,
-            'hideProductsAfterClearance' => $hideProductsAfterClearance,
-            'products' => [],
-        ];
 
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
@@ -211,421 +144,19 @@ class NostoMonitoringProductDebug
                 );
 
                 if ($invalidMessage) {
-                    $this->debug['warnings'][] = $invalidMessage->getMessage();
-                    continue;
+                    $result->addMessage($invalidMessage);
                 }
 
-                $upsertDebugData['products'][] = $preparedProductForSync;
+                $this->nostoProducts[] = $preparedProductForSync;
             }
         }
-
-        $this->debug['events'][] = [
-            'type' => 'BeforeUpsertProductsEvent',
-            'context' => [
-                'channelId' => $context->getSalesChannelId(),
-                'languageId' => $context->getLanguageId(),
-            ],
-        ];
-
-        $this->debug['operations']['upsert'][] = $upsertDebugData;
     }
 
-    /**
-     * If you are changing logic here please make sure
-     * to update the {@see Nosto\NostoIntegration\Utils\ProductTaggingHelper} logic otherwise
-     * TAGGING AND ORDER SYNC MAY BREAK
-     */
-    private function processProductVariants(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        Account $account,
-        array $ids,
-        bool $hideProductsAfterClearance,
-    ): ProductCollection {
-        $variantConfig = $product->getVariantListingConfig();
-        $configuratorGroups = array_filter(
-            $variantConfig?->getConfiguratorGroupConfig() ?? [],
-            static fn (array $config) => $config['expressionForListings'],
-        );
-
-        if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
-            return new ProductCollection([$product]);
-        }
-
-        $mainProducts = new ProductCollection();
-        if ($variantConfig->getDisplayParent()) {
-            if ($mainProduct = $this->handleMainProduct($product, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($mainProduct);
-            }
-        } elseif ($variantConfig->getDisplayCheapestVariant()) {
-            $mainProducts->add($this->handleCheapestVariant($product, $context));
-        } elseif ($variantConfig->getMainVariantId()) {
-            if ($variant = $this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($variant);
-            }
-        } elseif (count($configuratorGroups)) {
-            $mainProducts->merge($this->handleConfiguratorGroups($product, $context, $hideProductsAfterClearance));
-        } else {
-            if ($variant = $this->handleVariant($product, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($variant);
-            }
-        }
-
-        if (!$mainProducts->count()) {
-            $this->deleteVariantProducts($product, $context, $account, $ids);
-            $this->doDeleteOperation(
-                $account,
-                $context,
-                [$product->getId(), $product->getParentId()],
-                $ids,
-            );
-        }
-
-        return $mainProducts;
-    }
-
-    private function handleVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-
-        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
-            $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-        }
-
-        if (!$mainProduct) {
-            $mainProduct = $this->handleFirstActiveVariant($product);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleMainProduct(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $stock = $this->productHelper->getProductStock($product, $context);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        if ($product->getActive()) {
-            $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $product->getIsCloseout()
-                ? $this->handleFirstAvailableVariant($product, $context)
-                : $product;
-        } else {
-            $mainProduct = $shouldHandleFirstAvailable
-                ? $this->handleFirstAvailableVariant($product, $context)
-                : $this->handleFirstActiveVariant($product);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleCheapestVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-    ): ProductEntity {
-        $cheapestVariant = $product;
-        $lowestPrice = null;
-
-        foreach ($product->getChildren() as $child) {
-            $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
-
-            if ((is_null($lowestPrice) || $variantPrice < $lowestPrice) && $child->getActive()) {
-                $lowestPrice = $variantPrice;
-                $cheapestVariant = $child;
-            }
-        }
-
-        $cheapestVariant->setChildren(
-            $product->getChildren()->filter(
-                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
-            ),
-        );
-
-        return $cheapestVariant;
-    }
-
-    private function handleMainVariant(
-        ProductEntity $product,
-        VariantListingConfig $variantConfig,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        foreach ($product->getChildren() as $child) {
-            if ($child->getId() !== $variantConfig->getMainVariantId()) {
-                $variants->add($child);
-                continue;
-            }
-
-            if ($child->getActive()) {
-                $stock = $this->productHelper->getProductStock($child, $context);
-                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $child->getIsCloseout()
-                    ? $this->handleFirstAvailableVariant($product, $context)
-                    : $child;
-            } else {
-                $mainProduct = $shouldHandleFirstAvailable
-                    ? $this->handleFirstAvailableVariant($product, $context)
-                    : $this->handleFirstActiveVariant($product);
-            }
-        }
-
-        if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleConfiguratorGroups(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ProductCollection {
-        $groupedVariants = [];
-        foreach ($product->getChildren() as $child) {
-            $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
-        }
-
-        $mainProducts = new ProductCollection();
-        foreach ($groupedVariants as $variants) {
-            /** @var SalesChannelProductEntity $mainProduct */
-            $mainProduct = $this->handleVariantByProperty($variants, $context, $hideProductsAfterClearance);
-            if ($mainProduct) {
-                $mainProducts->add($mainProduct);
-            }
-        }
-
-        return $mainProducts;
-    }
-
-    private function handleVariantByProperty(
-        array $variants,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $children = new ProductCollection();
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        foreach ($variants as $child) {
-            if ($shouldHandleFirstAvailable) {
-                $stock = $this->productHelper->getProductStock($child, $context);
-                if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
-                    $mainProduct = $child;
-                } else {
-                    $children->add($child);
-                }
-            } elseif (!$mainProduct && $child->getActive()) {
-                $mainProduct = $child;
-            } else {
-                $children->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($children);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
-    {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-
-        foreach ($product->getChildren() as $child) {
-            if ($child->getActive() && !$mainProduct) {
-                $mainProduct = $child;
-            } else {
-                $variants->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleFirstAvailableVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-
-        foreach ($product->getChildren() as $child) {
-            $stock = $this->productHelper->getProductStock($child, $context);
-
-            if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
-                $mainProduct = $child;
-            } else {
-                $variants->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    private function handleProduct(
-        SalesChannelProductEntity $product,
-        SalesChannelContext $context,
-        Account $account,
-        bool $hideProductsAfterClearance,
-        array $mapping,
-    ): ?NostoProduct {
-        $stock = $this->productHelper->getProductStock($product, $context);
-
-        if ($product->getChildren()?->count()) {
-            $this->deleteVariantProducts($product, $context, $account, $mapping);
-        }
-
-        if ($product->getParentId()) {
-            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
-        }
-
-        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
-            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
-            return null;
-        }
-
-        return $this->productProvider->get($product, $context);
-    }
-
-    private function deleteVariantProducts(
-        SalesChannelProductEntity|ProductEntity $product,
-        SalesChannelContext $context,
-        Account $account,
-        array $mapping,
-    ): void {
-        $idsToDelete = [];
-
-        foreach ($product->getChildren() as $prod) {
-            $idsToDelete[] = $prod->getId();
-        }
-
-        $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
-    }
-
-    private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
-    {
-        $message = '';
-
-        if (!$product->getImageUrl()) {
-            $message .= 'Product image url is empty, ';
-        }
-
-        if (!$product->getUrl()) {
-            $message .= 'Product url is empty, ';
-        }
-
-        if (!$product->getName()) {
-            $message .= 'Product name is empty, ';
-        }
-
-        return empty($message) ? null : new WarningMessage(
-            $message . 'ignoring upsert for product with number. ' . $productNumber,
-        );
-    }
-
-    private function doDeleteOperation(
+    protected function doDeleteOperation(
         Account $account,
         SalesChannelContext $context,
         array $productIds,
         array $mapping,
     ): void {
-        $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
-        $domainUrl = $this->getDomainUrl(
-            $context->getSalesChannel()->getDomains(),
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        );
-        $domain = parse_url($domainUrl, PHP_URL_HOST);
-
-        $deleteDebugData = [
-            'domain' => $domain,
-            'channelId' => $context->getSalesChannelId(),
-            'languageId' => $context->getLanguageId(),
-            'productIds' => $productIds,
-            'identifiers' => $identifiers,
-            'mapping' => $mapping,
-        ];
-
-        $this->debug['events'][] = [
-            'type' => 'BeforeDeleteProductsEvent',
-            'context' => [
-                'channelId' => $context->getSalesChannelId(),
-                'languageId' => $context->getLanguageId(),
-            ],
-        ];
-
-        $this->debug['operations']['delete'][] = $deleteDebugData;
-    }
-
-    /**
-     * @param string[] $productIds
-     * @param array<string, string> $mapping
-     *
-     * @return string[]
-     */
-    private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
-    {
-        $identifierType = $this->configProvider->getProductIdentifier(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        );
-        if ($identifierType === ProductIdentifierOptions::PRODUCT_NUMBER) {
-            return $this->getProductNumbers($productIds, $mapping);
-        }
-
-        return $productIds;
-    }
-
-    /**
-     * @param string[] $productIds
-     * @param array<string, string> $mapping
-     * @return string[]
-     */
-    private function getProductNumbers(array $productIds, array $mapping): array
-    {
-        $productNumbers = [];
-
-        foreach ($productIds as $productId) {
-            if (!empty($mapping[$productId])) {
-                $productNumbers[] = $mapping[$productId];
-            }
-        }
-
-        return $productNumbers;
-    }
-
-    private function getDomainUrl(
-        ?SalesChannelDomainCollection $domains,
-        ?string $channelId,
-        ?string $languageId,
-    ): string {
-        if ($domains == null || $domains->count() < 1) {
-            return '';
-        }
-
-        $domainId = (string) $this->configProvider->getDomainId($channelId, $languageId);
-
-        return $domains->has($domainId) ? $domains->get($domainId)->getUrl() : $domains->first()->getUrl();
     }
 }
