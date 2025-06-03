@@ -7,15 +7,12 @@ namespace Nosto\NostoIntegration\Service;
 use Nosto\Model\Signup\Account as NostoSignupAccount;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
-use Nosto\NostoIntegration\Model\MockOperation\MockSearchOperation;
-use Nosto\NostoIntegration\Model\MockOperation\MockUpsertProduct;
 use Nosto\Request\Api\Token as NostoToken;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -31,8 +28,7 @@ class NostoMonitoringAuthService
         private readonly ConfigProvider $nostoConfigProvider,
         private readonly EntityRepository $salesChannelRepository,
         private readonly EntityRepository $languageRepository,
-    )
-    {
+    ) {
     }
 
     public function validateAccessKey(string $accessKey, Context $context): bool
