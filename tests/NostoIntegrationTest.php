@@ -11,9 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Twig\Test\IntegrationTestCase;
 
-class NostoIntegrationTest extends IntegrationTestCase
+class NostoIntegrationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -25,7 +24,6 @@ class NostoIntegrationTest extends IntegrationTestCase
         $migrationHelper = $this->getMockBuilder(MigrationHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
-
         $migrationHelper->expects($this->once())
             ->method('getMigrationCollection')
             ->with($this->isInstanceOf(NostoScheduler::class));
