@@ -25,6 +25,7 @@ class NostoIntegrationTest extends IntegrationTestCase
         $migrationHelper = $this->getMockBuilder(MigrationHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
+
         $migrationHelper->expects($this->once())
             ->method('getMigrationCollection')
             ->with($this->isInstanceOf(NostoScheduler::class));
