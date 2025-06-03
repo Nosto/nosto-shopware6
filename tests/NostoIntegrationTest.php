@@ -11,8 +11,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Twig\Test\IntegrationTestCase;
 
-class NostoIntegrationTest extends TestCase
+class NostoIntegrationTest extends IntegrationTestCase
 {
     use IntegrationTestBehaviour;
 
