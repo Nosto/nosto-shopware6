@@ -23,7 +23,7 @@ class OldNostoDataCleanupScheduledTaskHandler extends ScheduledTaskHandler
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $this->logger);
     }
 
     public function run(): void
