@@ -105,7 +105,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $nostoProduct->getMessages()[0] ?? null,
+                    'product' => $nostoProduct->getMessages() ?? null,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],

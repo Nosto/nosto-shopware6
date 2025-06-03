@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Controller\Storefront;
 
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,14 +41,14 @@ class NostoMonitoringAuthController extends AbstractNostoMonitoringController
         ],
         methods: ["POST"],
     )]
-    public function validateAccessKey(Request $request): RedirectResponse
+    public function validateAccessKey(Request $request, Context $context): RedirectResponse
     {
         $accessKey = $request->request->get(self::ACCESS_KEY_PROPERTY);
         if (!is_string($accessKey) || empty($accessKey)) {
             return $this->redirectToRoute('nosto-monitoring.access-page');
         }
 
-        $isValid = $this->authService->validateAccessKey($accessKey);
+        $isValid = $this->authService->validateAccessKey($accessKey, $context);
 
         if (!$isValid) {
             return $this->redirectToRoute('nosto-monitoring.access-page');

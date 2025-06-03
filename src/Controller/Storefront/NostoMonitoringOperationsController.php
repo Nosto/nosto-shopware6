@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         private readonly NostoMonitoringHelper $nostoMonitoringHelper,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $salesChannelRepository,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($authService);
     }
@@ -51,6 +53,14 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
 
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
 
+        $composerFile = $this->parameterBag->get('kernel.project_dir') . '/custom/plugins/NostoIntegration/composer.json';
+        if (file_exists($composerFile)) {
+            $composerData = json_decode(file_get_contents($composerFile), true);
+            $nostoVersion = $composerData['version'] ?? 'Unknown';
+        } else {
+            $nostoVersion = 'Unknown';
+        }
+
         return $this->renderStorefront(
             '@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig',
             [
@@ -62,6 +72,7 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
                 'salesChannels' => $salesChannels,
                 'currentLanguageId' => $currentLanguageId,
                 'currentSalesChannelId' => $currentSalesChannelId,
+                'nostoVersion' => $nostoVersion,
             ],
         );
     }

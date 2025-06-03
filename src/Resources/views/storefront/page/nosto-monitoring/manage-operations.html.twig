@@ -3,7 +3,7 @@
 {% block base_body %}
     <div class="nosto-layout" style="display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #6c757d;">Nosto Monitoring</h2>
+            <h2 style="margin: 0; color: #6c757d;">Nosto Monitoring (v: {{ nostoVersion }})</h2>
             <form action="{{ path('nosto-monitoring.logout') }}" method="POST" style="margin: 0;">
                 <button type="submit" class="nosto-button" style="background: #dc3545; padding: 8px 16px;">
                     Logout
