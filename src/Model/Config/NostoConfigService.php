@@ -98,11 +98,16 @@ class NostoConfigService
 
     public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
 
+    public const ENABLE_CACHE = 'enableCache';
+
+    public const CACHE_TTL = "cacheTtl";
+
     private array $configs = [];
 
     public function __construct(
         private readonly Connection $connection,
-    ) {
+    )
+    {
     }
 
     public function get(string $key, ?string $salesChannelId = null, ?string $languageId = null): mixed
@@ -118,7 +123,7 @@ class NostoConfigService
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (string) $value;
+            return (string)$value;
         }
 
         throw new InvalidSettingValueException($key, 'string', gettype($value));
@@ -128,7 +133,7 @@ class NostoConfigService
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (int) $value;
+            return (int)$value;
         }
 
         throw new InvalidSettingValueException($key, 'int', gettype($value));
@@ -138,7 +143,7 @@ class NostoConfigService
     {
         $value = $this->get($key, $salesChannelId, $languageId);
         if (!is_array($value)) {
-            return (float) $value;
+            return (float)$value;
         }
 
         throw new InvalidSettingValueException($key, 'float', gettype($value));
@@ -146,7 +151,7 @@ class NostoConfigService
 
     public function getBool(string $key, ?string $salesChannelId = null, ?string $languageId = null): bool
     {
-        return (bool) $this->get($key, $salesChannelId, $languageId);
+        return (bool)$this->get($key, $salesChannelId, $languageId);
     }
 
     /**
@@ -161,10 +166,10 @@ class NostoConfigService
     }
 
     /**
-     * @throws JsonException
+     * @return array<string, mixed>
      * @throws Exception
      *
-     * @return array<string, mixed>
+     * @throws JsonException
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {
@@ -179,7 +184,7 @@ class NostoConfigService
 
         foreach ($databaseConfigs as [$key, $value]) {
             if ($value !== null) {
-                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+                $value = json_decode((string)$value, true, 512, \JSON_THROW_ON_ERROR);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -295,7 +300,8 @@ class NostoConfigService
         ?string $salesChannelId = null,
         ?string $languageId = null,
         ?string $key = null,
-    ): QueryBuilder {
+    ): QueryBuilder
+    {
         $queryBuilder = $this->connection->createQueryBuilder()
             ->select('configuration_key', 'configuration_value')
             ->from('nosto_integration_config');
