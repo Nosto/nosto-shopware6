@@ -12,6 +12,17 @@ class TestCase extends PhpUnitTestCase
 {
     use IntegrationTestBehaviour;
 
+    public function getName(bool $withDataSet = true): string
+    {
+        // PHPUnit 10+: use name()
+        if (method_exists($this, 'name')) {
+            return $this->name();
+        }
+
+        // PHPUnit 9 fallback
+        return parent::getName($withDataSet);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
