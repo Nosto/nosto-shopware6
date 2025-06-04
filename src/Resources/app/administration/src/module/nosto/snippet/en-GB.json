@@ -104,7 +104,7 @@
                 "timeEnableCache" : "Set cache time (in minutes)",
                 "enableCache": {
                     "label": "Enable Cache",
-                    "helpText": "Set the cached time in which the products will be loaded from cache instead directly from Nosto API, after the time set the cached products will be renewed"
+                    "helpText": "Set the cache time to live for Search and Category pages. To get the most of the Nosto personalisation disable the caching"
                 },
                 "enableSyncFirstAvailableVariant": "Sync first available variant as a product, if product is on clearance and out of stock",
                 "enableSyncFirstAvailableVariantHelpText": "If the checkbox is checked, sync first available variant as a product, if product is on clearance and out of stock.",
