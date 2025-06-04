@@ -454,6 +454,8 @@
                     <form action="{{ path('nosto-monitoring.show-category') }}" method="POST">
                         <div style="margin-bottom: 15px;">
                             <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Category ID</label>
+                            <input type="hidden" name="languageId" value="{{ app.request.get('languageId') }}">
+                            <input type="hidden" name="salesChannelId" value="{{ app.request.get('salesChannelId') }}">
                             <input
                                     type="text"
                                     name="categoryId"
