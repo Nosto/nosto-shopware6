@@ -28,8 +28,6 @@ class NostoMonitoringHelper
 
     /**
      * Get the current version of Nosto Plugin
-     *
-     * @return string
      */
     public function getPluginVersion(): string
     {

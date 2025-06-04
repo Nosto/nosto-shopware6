@@ -27,7 +27,6 @@ class NostoMonitoringAuthController extends AbstractNostoMonitoringController
     )]
     public function index(Request $request): Response
     {
-
         if (!$this->authService->isAuthenticated($request->getSession())) {
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/monitoring-access.html.twig',
