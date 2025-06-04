@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Model\Operation;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
