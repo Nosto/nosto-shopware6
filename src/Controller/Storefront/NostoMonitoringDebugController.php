@@ -16,17 +16,16 @@ use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
 use Nosto\Scheduler\Model\Job\JobResult;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 
 #[Route(defaults: [
     '_routeScope' => ['storefront'],
@@ -164,7 +163,9 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             $salesChannelContext = $this->salesChannelContextFactory->create(
                 $token,
                 $salesChannelId,
-                ['languageId' => $languageId]
+                [
+                    'languageId' => $languageId,
+                ],
             );
         }
 
