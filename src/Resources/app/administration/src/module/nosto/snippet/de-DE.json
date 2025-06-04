@@ -101,6 +101,11 @@
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
                 "ignoreCookieConsent": "Cookie-Zustimmung ignorieren",
+                "timeEnableCache" : "Cache-Zeit einstellen (in Minuten)",
+                "enableCache": {
+                    "label": "Zwischenspeicher aktivieren",
+                    "helpText": "Legen Sie die zwischengespeicherte Zeit fest, in der die Produkte aus dem Cache geladen werden, anstatt direkt von der Nosto-API. Nach der festgelegten Zeit werden die zwischengespeicherten Produkte erneuert"
+                },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
                 "enableSyncFirstAvailableVariantHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird die erste verfügbare Variante als Produkt synchronisiert, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
