@@ -25,12 +25,17 @@ class NostoMonitoringAuthController extends AbstractNostoMonitoringController
         ],
         methods: ["GET"],
     )]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return $this->renderStorefront(
-            '@NostoMonitoringController/storefront/page/nosto-monitoring/monitoring-access.html.twig',
-            [],
-        );
+
+        if (!$this->authService->isAuthenticated($request->getSession())) {
+            return $this->renderStorefront(
+                '@NostoMonitoringController/storefront/page/nosto-monitoring/monitoring-access.html.twig',
+                [],
+            );
+        }
+
+        return $this->redirectToRoute('nosto-monitoring.manage-operations');
     }
 
     #[Route(

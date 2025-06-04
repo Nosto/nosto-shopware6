@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\NostoIntegration;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -18,10 +19,27 @@ class NostoMonitoringHelper
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly ConfigProvider $nostoConfigProvider,
+        private readonly NostoIntegration $plugin,
     ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
         $this->connection = $connection;
+    }
+
+    /**
+     * Get the current version of Nosto Plugin
+     *
+     * @return string
+     */
+    public function getPluginVersion(): string
+    {
+        $composerPath = dirname($this->plugin->getPath()) . '/composer.json';
+        if (!file_exists($composerPath)) {
+            return 'composer.json not found';
+        }
+
+        $composer = json_decode(file_get_contents($composerPath), true);
+        return $composer['version'] ?? 'N/A';
     }
 
     /**

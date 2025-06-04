@@ -52,16 +52,7 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         $languages = $this->languageRepository->search($languageCriteria, $context)->getEntities();
 
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
-
-        $composerFile = $this->parameterBag->get(
-            'kernel.project_dir',
-        ) . '/custom/plugins/NostoIntegration/composer.json';
-        if (file_exists($composerFile)) {
-            $composerData = json_decode(file_get_contents($composerFile), true);
-            $nostoVersion = $composerData['version'] ?? 'Unknown';
-        } else {
-            $nostoVersion = 'Unknown';
-        }
+        $nostoVersion = $this->nostoMonitoringHelper->getPluginVersion();
 
         return $this->renderStorefront(
             '@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig',
