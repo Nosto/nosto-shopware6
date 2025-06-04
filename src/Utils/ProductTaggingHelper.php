@@ -26,17 +26,18 @@ class ProductTaggingHelper
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
-        private readonly ProductProviderInterface $productProvider,
-        private readonly ProductHelper $productHelper,
+        private readonly ?ProductProviderInterface $productProvider = null,
+        private readonly ?ProductHelper $productHelper = null,
     ) {
     }
 
     public function findProductId(
         SalesChannelContext $context,
         ProductEntity $product,
-        ProductEntity $variant,
+        ?ProductEntity $variant,
         bool $isProductTagging = false,
-    ): string|NostoProduct {
+        bool $isProductSync = false,
+    ): string|NostoProduct|ProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $productToReturn = $product;
         $configuratorGroups = array_filter(
@@ -46,13 +47,15 @@ class ProductTaggingHelper
         if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
             if (!$isProductTagging) {
                 return $this->getIdOrProductNumber($context, $product);
-            } else {
+            } elseif (!$isProductSync) {
                 $shopwareProduct = $this->productHelper->getShopwareProducts(
                     [$product->getId()],
                     $context,
                 )->first();
                 $shopwareProduct->setChildren($productToReturn->getChildren());
                 return $this->productProvider->get($shopwareProduct, $context);
+            } else {
+                return new ProductCollection([$product]);
             }
         }
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
@@ -81,7 +84,15 @@ class ProductTaggingHelper
             }
         }
         //if for whatever reason we don't find the correct product return just main product id
-        if (!$isProductTagging) {
+        if ($isProductSync) {
+            if ($productToReturn instanceof ProductCollection) {
+                $mainProducts = $productToReturn;
+            } else {
+                $mainProducts = new ProductCollection();
+                $mainProducts->add($productToReturn);
+            }
+            return $mainProducts;
+        } elseif (!$isProductTagging) {
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
             $productId = $productToReturn?->getId() ?? $product->getId();
@@ -154,23 +165,31 @@ class ProductTaggingHelper
 
     private function handleConfiguratorGroups(
         ProductEntity $product,
-        ProductEntity $variantFromDb,
+        ?ProductEntity $variantFromDb,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): null|ProductEntity|ProductCollection {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
-        if ($variantFromDb->getDisplayGroup() !== null) {
+        if ($variantFromDb?->getDisplayGroup() !== null) {
             return $this->handleVariantByProperty(
                 $groupedVariants[$variantFromDb->getDisplayGroup()],
                 $context,
                 $hideProductsAfterClearance,
             );
+        } else {
+            $mainProducts = new ProductCollection();
+            foreach ($groupedVariants as $variants) {
+                /** @var SalesChannelProductEntity $mainProduct */
+                $mainProduct = $this->handleVariantByProperty($variants, $context, $hideProductsAfterClearance);
+                if ($mainProduct) {
+                    $mainProducts->add($mainProduct);
+                }
+            }
+            return $mainProducts;
         }
-
-        return null;
     }
 
     private function handleVariantByProperty(
