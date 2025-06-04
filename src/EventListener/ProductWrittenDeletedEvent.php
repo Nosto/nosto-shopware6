@@ -39,7 +39,9 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (str_starts_with($request->getPathInfo(), '/navigation/') || $request->attributes->get('_route') === 'frontend.navigation.page') {
+        if (str_starts_with($request->getPathInfo(), '/navigation/') || $request->attributes->get(
+            '_route',
+        ) === 'frontend.navigation.page') {
             $response = $event->getResponse();
             $isEnabledCache = false;
             $context = null;
@@ -63,7 +65,6 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
                 $response->setStaleWhileRevalidate($cacheTtlSeconds);
                 $expiryTime = new \DateTimeImmutable(sprintf('+%d seconds', $cacheTtlSeconds));
                 $response->setExpires($expiryTime);
-
             } else {
                 $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
                 $response->headers->set('Pragma', 'no-cache');
