@@ -314,6 +314,7 @@ class ConfigProvider
     {
         return $this->configService->get(NostoConfigService::CACHE_TTL, $channelId, $languageId);
     }
+
     /**
      * @return array<string, mixed>
      */
