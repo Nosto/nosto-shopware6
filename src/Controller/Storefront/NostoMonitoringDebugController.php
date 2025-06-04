@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -44,6 +45,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         private readonly Provider $productProvider,
         private readonly CategoryBuilder $nostoCategoryBuilder,
         private readonly OrderBuilder $nostoOrderbuilder,
+        private readonly CachedSalesChannelContextFactory $salesChannelContextFactory,
     ) {
         parent::__construct($authService);
     }
@@ -126,7 +128,6 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
     )]
     public function showCategory(
         Request $request,
-        Context $context,
         SalesChannelContext $salesChannelContext,
     ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
@@ -139,11 +140,25 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             return $this->redirectToRoute('nosto-monitoring.manage-operations');
         }
 
+        $token = $request->getSession()->get('token') ?? Uuid::randomHex();
+        $languageId = $request->request->get('languageId');
+        $salesChannelId = $request->request->get('salesChannelId');
+
+        if ($languageId && $salesChannelId) {
+            $salesChannelContext = $this->salesChannelContextFactory->create(
+                $token,
+                $salesChannelId,
+                [
+                    'languageId' => $languageId,
+                ],
+            );
+        }
+
         try {
             $criteria = new Criteria([$categoryId]);
             $criteria->getAssociation('seoUrls');
 
-            $category = $this->categoryRepository->search($criteria, $context)->first();
+            $category = $this->categoryRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if (!$category) {
                 $request->getSession()->getFlashBag()->add('error', "Category with ID '{$categoryId}' not found.");
