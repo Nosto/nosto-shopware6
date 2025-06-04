@@ -78,16 +78,17 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $operationResult;
     }
 
-    private function loadRuleIds(SalesChannelContext $channelContext): array
+    /**
+     * @return string[]
+     */
+    protected function loadRuleIds(SalesChannelContext $channelContext): array
     {
         return $this->ruleLoader->load($channelContext->getContext())->filter(
-            function (RuleEntity $rule) use ($channelContext) {
-                return $rule->getPayload()->match(new CheckoutRuleScope($channelContext));
-            },
+            static fn (RuleEntity $rule) => $rule->getPayload()->match(new CheckoutRuleScope($channelContext)),
         )->getIds();
     }
 
-    private function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
+    protected function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
     {
         $productIds = array_keys($ids);
         $result = new Job\JobResult();
@@ -122,7 +123,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    private function doUpsertOperation(
+    protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
         ProductCollection $productCollection,
@@ -209,7 +210,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      * to update the {@see Nosto\NostoIntegration\Utils\ProductTaggingHelper} logic otherwise
      * TAGGING AND ORDER SYNC MAY BREAK
      */
-    private function processProductVariants(
+    protected function processProductVariants(
         ProductEntity $product,
         SalesChannelContext $context,
         Account $account,
@@ -258,7 +259,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleVariant(
+    protected function handleVariant(
         ProductEntity $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
@@ -276,7 +277,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleMainProduct(
+    protected function handleMainProduct(
         ProductEntity $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
@@ -298,7 +299,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleCheapestVariant(
+    protected function handleCheapestVariant(
         ProductEntity $product,
         SalesChannelContext $context,
     ): ProductEntity {
@@ -323,7 +324,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $cheapestVariant;
     }
 
-    private function handleMainVariant(
+    protected function handleMainVariant(
         ProductEntity $product,
         VariantListingConfig $variantConfig,
         SalesChannelContext $context,
@@ -359,7 +360,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleConfiguratorGroups(
+    protected function handleConfiguratorGroups(
         ProductEntity $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
@@ -381,7 +382,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProducts;
     }
 
-    private function handleVariantByProperty(
+    protected function handleVariantByProperty(
         array $variants,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
@@ -413,7 +414,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
+    protected function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
     {
         $mainProduct = null;
         $variants = new ProductCollection([$product]);
@@ -433,7 +434,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleFirstAvailableVariant(
+    protected function handleFirstAvailableVariant(
         ProductEntity $product,
         SalesChannelContext $context,
     ): ?ProductEntity {
@@ -457,7 +458,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $mainProduct;
     }
 
-    private function handleProduct(
+    protected function handleProduct(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
         Account $account,
@@ -482,7 +483,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $this->productProvider->get($product, $context);
     }
 
-    private function deleteVariantProducts(
+    protected function deleteVariantProducts(
         SalesChannelProductEntity|ProductEntity $product,
         SalesChannelContext $context,
         Account $account,
@@ -497,7 +498,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
     }
 
-    private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
+    protected function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
     {
         $message = '';
 
@@ -518,7 +519,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
     }
 
-    private function doDeleteOperation(
+    protected function doDeleteOperation(
         Account $account,
         SalesChannelContext $context,
         array $productIds,
@@ -538,7 +539,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->delete();
     }
 
-    private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
+    protected function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
     {
         $identifierType = $this->configProvider->getProductIdentifier(
             $context->getSalesChannelId(),
@@ -551,7 +552,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productIds;
     }
 
-    private function getProductNumbers(array $productIds, array $mapping): array
+    protected function getProductNumbers(array $productIds, array $mapping): array
     {
         $productNumbers = [];
 
@@ -564,7 +565,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productNumbers;
     }
 
-    private function getDomainUrl(
+    protected function getDomainUrl(
         ?SalesChannelDomainCollection $domains,
         ?string $channelId,
         ?string $languageId,
