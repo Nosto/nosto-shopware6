@@ -104,7 +104,6 @@ class SearchController extends StorefrontController
             $response->setStaleWhileRevalidate($cacheTtlSeconds);
             $expiryTime = new \DateTimeImmutable(sprintf('+%d seconds', $cacheTtlSeconds));
             $response->setExpires($expiryTime);
-
         } else {
             $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
             $response->headers->set('Pragma', 'no-cache');

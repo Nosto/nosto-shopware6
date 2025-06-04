@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
@@ -10,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NoCacheCategoryRoute extends AbstractCategoryRoute
 {
     private readonly AbstractCategoryRoute $decorated;
+
     public function __construct(
         AbstractCategoryRoute $decorated,
     ) {
