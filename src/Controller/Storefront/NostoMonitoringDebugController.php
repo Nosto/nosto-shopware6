@@ -163,7 +163,9 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             $salesChannelContext = $this->salesChannelContextFactory->create(
                 $token,
                 $salesChannelId,
-                ['languageId' => $languageId]
+                [
+                    'languageId' => $languageId
+                ],
             );
         }
 
