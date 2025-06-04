@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ProductWrittenDeletedEvent implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly EventsWriter  $eventsWriter,
+        private readonly EventsWriter $eventsWriter,
         private readonly ProductHelper $productHelper,
         private readonly ConfigProvider $configProvider,
     ) {
