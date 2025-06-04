@@ -102,10 +102,26 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 ),
             );
 
+            $products = $nostoProduct->getMessages();
+
+            $productsArray = array_map(function ($product) {
+                $reflect = new \ReflectionClass($product);
+                $props = $reflect->getProperties();
+
+                $data = [];
+
+                foreach ($props as $prop) {
+                    $prop->setAccessible(true);
+                    $data[$prop->getName()] = $prop->getValue($product);
+                }
+
+                return $data;
+            }, $products);
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $nostoProduct->getMessages() ?? null,
+                    'product' => $productsArray,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],
