@@ -164,7 +164,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $token,
                 $salesChannelId,
                 [
-                    'languageId' => $languageId
+                    'languageId' => $languageId,
                 ],
             );
         }
