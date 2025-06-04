@@ -16,10 +16,10 @@ use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
 use Nosto\Scheduler\Model\Job\JobResult;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -44,6 +44,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         private readonly Provider $productProvider,
         private readonly CategoryBuilder $nostoCategoryBuilder,
         private readonly OrderBuilder $nostoOrderbuilder,
+        private readonly CachedSalesChannelContextFactory $salesChannelContextFactory,
     ) {
         parent::__construct($authService);
     }
@@ -102,10 +103,26 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 ),
             );
 
+            $products = $nostoProduct->getMessages();
+
+            $productsArray = array_map(function ($product) {
+                $reflect = new \ReflectionClass($product);
+                $props = $reflect->getProperties();
+
+                $data = [];
+
+                foreach ($props as $prop) {
+                    $prop->setAccessible(true);
+                    $data[$prop->getName()] = $prop->getValue($product);
+                }
+
+                return $data;
+            }, $products);
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $nostoProduct->getMessages() ?? null,
+                    'product' => $productsArray,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],
@@ -126,7 +143,6 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
     )]
     public function showCategory(
         Request $request,
-        Context $context,
         SalesChannelContext $salesChannelContext,
     ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
@@ -139,11 +155,23 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             return $this->redirectToRoute('nosto-monitoring.manage-operations');
         }
 
+        $token = $request->getSession()->get('token') ?? Uuid::randomHex();
+        $languageId = $request->request->get('languageId');
+        $salesChannelId = $request->request->get('salesChannelId');
+
+        if ($languageId && $salesChannelId) {
+            $salesChannelContext = $this->salesChannelContextFactory->create(
+                $token,
+                $salesChannelId,
+                ['languageId' => $languageId]
+            );
+        }
+
         try {
             $criteria = new Criteria([$categoryId]);
             $criteria->getAssociation('seoUrls');
 
-            $category = $this->categoryRepository->search($criteria, $context)->first();
+            $category = $this->categoryRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if (!$category) {
                 $request->getSession()->getFlashBag()->add('error', "Category with ID '{$categoryId}' not found.");
@@ -155,10 +183,20 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $salesChannelContext,
             );
 
+            $reflect = new \ReflectionClass($nostoCategory);
+            $props = $reflect->getProperties();
+
+            $categoryData = [];
+
+            foreach ($props as $prop) {
+                $prop->setAccessible(true);
+                $categoryData[$prop->getName()] = $prop->getValue($nostoCategory);
+            }
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-category.html.twig',
                 [
-                    'category' => $nostoCategory,
+                    'category' => $categoryData,
                     'categoryId' => $categoryId,
                     'resourceType' => 'category',
                 ],
@@ -179,7 +217,6 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
     )]
     public function showOrder(
         Request $request,
-        Context $context,
         SalesChannelContext $salesChannelContext,
     ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
@@ -202,7 +239,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             $criteria->addAssociation('transactions.paymentMethod');
             $criteria->addAssociation('lineItems.orderLineItem.product');
 
-            $order = $this->orderRepository->search($criteria, $context)->first();
+            $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if (!$order) {
                 $request->getSession()->getFlashBag()->add('error', "Order with ID '{$orderId}' not found.");
