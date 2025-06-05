@@ -41,6 +41,9 @@ jobs:
       - name: Remove node_modules from plugin
         run: rm -rf nosto-shopware6/node_modules
 
+      - name: Clean up disallowed files
+        run: rm -rf .git .github tests phpunit.xml.dist
+
       - name: Validate plugin files
         working-directory: nosto-shopware6
         run: shopware-cli extension validate .
