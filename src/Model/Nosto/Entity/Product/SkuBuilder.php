@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\Types\Product\ProductInterface;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -99,6 +100,27 @@ class SkuBuilder
 
         if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
+        }
+
+        foreach ($product->getVisibilities() as $visibility) {
+            if ($channelId === $visibility->getSalesChannelId()) {
+                switch ($visibility->getVisibility()) {
+                    case ProductVisibilityDefinition::VISIBILITY_ALL:
+                        $showSearch = 'true';
+                        $showCategory = 'true';
+                        break;
+                    case ProductVisibilityDefinition::VISIBILITY_SEARCH:
+                        $showSearch = 'true';
+                        $showCategory = 'false';
+                        break;
+                    default:
+                        $showSearch = 'false';
+                        $showCategory = 'false';
+                }
+                $nostoSku->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
+                $nostoSku->addCustomField(Builder::SHOW_SEARCH, $showSearch);
+                break;
+            }
         }
 
         return $nostoSku;

@@ -128,6 +128,10 @@
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
+                "enableProductVisibility": {
+                    "label": "Produkt-Sichtbarkeit aktivieren",
+                    "helpText": "Bitte führen Sie eine vollständige Produktsynchronisierung durch und indexieren Sie die Felder \"showCategory\" und \"showSearch\" im Nosto-Konto, bevor Sie dies aktivieren"
+                },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",
                     "days": "Tagen"

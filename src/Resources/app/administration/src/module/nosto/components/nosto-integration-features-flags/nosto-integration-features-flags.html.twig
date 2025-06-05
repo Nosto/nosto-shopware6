@@ -588,5 +588,25 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_product_visibility %}
+            <sw-inherit-wrapper
+                :value="currentConfig['enableProductVisibility']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableProductVisibility']"
+                @update:value="onUpdateValue('enableProductVisibility', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="enableProductVisibility"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableProductVisibility.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableProductVisibility.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('enableProductVisibility', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}
