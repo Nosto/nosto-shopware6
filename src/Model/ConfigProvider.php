@@ -315,6 +315,15 @@ class ConfigProvider
         return $this->configService->get(NostoConfigService::CACHE_TTL, $channelId, $languageId);
     }
 
+    public function isEnabledRedirectToThePDP($channelId = null, $languageId = null): ?int
+    {
+        return $this->configService->getInt(
+            NostoConfigService::REDIRECT_TO_THE_PDP,
+            $channelId,
+            $languageId,
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */

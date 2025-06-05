@@ -102,6 +102,8 @@ class NostoConfigService
 
     public const CACHE_TTL = "cacheTtl";
 
+    public const REDIRECT_TO_THE_PDP = 'redirectToThePDP';
+
     private array $configs = [];
 
     public function __construct(
