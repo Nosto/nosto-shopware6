@@ -98,6 +98,10 @@ class NostoConfigService
 
     public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
 
+    public const ENABLE_CACHE = 'enableCache';
+
+    public const CACHE_TTL = "cacheTtl";
+
     public const REDIRECT_TO_THE_PDP = 'redirectToThePDP';
 
     private array $configs = [];
