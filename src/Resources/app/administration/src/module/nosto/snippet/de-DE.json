@@ -97,6 +97,8 @@
                 "enableSyncInactiveProducts": "Inaktive Produkte synchronisieren",
                 "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Varianten eines inaktiven Hauptprodukts synchronisiert, abhängig von der Auswahl in der Storefront-Präsentationskonfiguration.",
                 "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",
+                "redirectToProductDetailIfSingleSearchResult": "Automatische Weiterleitung zur Produktdetailseite bei nur einem Suchergebnis",
+                "redirectToProductDetailIfSingleSearchResultHelpText": "Wenn diese Option aktiviert ist, werden Kunden automatisch zur Produktdetailseite weitergeleitet, wenn eine Suchanfrage nur ein einziges passendes Produkt ergibt.",
                 "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
