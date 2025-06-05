@@ -101,12 +101,15 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $result = $this->fetchProductsById($criteria, $context, $query);
 
+            $productListing = ProductListingResult::createFrom($result);
+            $productListing->addCurrentFilter('search', $query);
+
+            $this->sendImpressionAnalytics($context, $productListing, $request);
+
+            // If result is empty, use fallback.
             if (!$result->getElements()) {
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
-
-            $productListing = ProductListingResult::createFrom($result);
-            $productListing->addCurrentFilter('search', $query);
 
             $this->listingProcessor->process($request, $productListing, $context);
 
@@ -141,7 +144,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 new ProductSearchResultEvent($request, $productListing, $context),
                 ProductEvents::PRODUCT_SEARCH_RESULT,
             );
-            $this->sendImpressionAnalytics($context, $productListing, $request);
+
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
@@ -197,7 +200,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //isSorted
                 $request->get('order') != null,
                 //hasResults
-                true,
+                $productListing->count() > 0,
                 //isRefined
                 false,
             );
