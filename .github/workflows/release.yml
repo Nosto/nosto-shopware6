@@ -53,13 +53,29 @@ jobs:
           # Delete common test files and config
           find . -type f \( -name "*Test.php" -o -name "TestCase.php" -o -name "phpunit.xml.dist" \) -delete
 
+      - name: Prepare clean build directory
+        run: |
+            mkdir clean
+            rsync -a nosto-shopware6/ clean/ \
+            --exclude .git \
+            --exclude .github \
+            --exclude node_modules \
+            --exclude tests \
+            --exclude "*Test.php" \
+            --exclude "TestCase.php" \
+            --exclude "phpunit.xml.dist" \
+            --exclude ".gitignore"
+
       - name: Validate plugin files
-        working-directory: nosto-shopware6
+        working-directory: clean
         run: shopware-cli extension validate .
 
       - name: Build plugin release zip file
-        working-directory: nosto-shopware6
+        working-directory: clean
         run: shopware-cli extension zip . --disable-git
+
+      - name: Move release zip to original folder
+        run: mv clean/NostoIntegration.zip ./nosto-shopware6/
 
       - name: Upload release zip file
         uses: actions/upload-artifact@v4
