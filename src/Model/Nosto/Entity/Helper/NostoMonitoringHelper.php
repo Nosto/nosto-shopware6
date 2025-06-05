@@ -57,13 +57,13 @@ class NostoMonitoringHelper
 
         try {
             $jobQuery = '
-                SELECT id 
-                FROM `nosto_scheduler_job` 
+                SELECT id
+                FROM `nosto_scheduler_job`
                 WHERE (`parent_id` IS NULL AND `status` IN (\'running\', \'pending\'))
                    OR `parent_id` IN (
-                       SELECT id 
-                       FROM `nosto_scheduler_job` 
-                       WHERE `parent_id` IS NULL 
+                       SELECT id
+                       FROM `nosto_scheduler_job`
+                       WHERE `parent_id` IS NULL
                          AND `status` IN (\'running\', \'pending\')
                    )
             ';
@@ -216,10 +216,6 @@ class NostoMonitoringHelper
                 $languageId,
             ),
             'enableSyncFirstAvailableVariant' => $this->nostoConfigProvider->isEnabledSyncFirstAvailableVariant(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableSearchImpressions' => $this->nostoConfigProvider->isEnabledSearchImpressions(
                 $salesChannelId,
                 $languageId,
             ),
