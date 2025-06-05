@@ -1,6 +1,17 @@
+# 5.1.5
+* Neu: Möglichkeit, Caching für Such- und Kategorieseiten zu deaktivieren und anzupassen, wodurch Analytics und die Nosto-Personalisierung verbessert werden.
+* Neu: Das Öffnen der Produktdetailseite ist nun möglich, wenn die Suche genau ein Ergebnis liefert.
+  *Neu: Möglichkeit die Shopware Sichtbarkeit zu verwenden um nach Such-/Category Merchandising Produkten zu filtern (Eine voller Poduktkatalog-Synchronisation is dafür notwendig).
+* Fix: Behoben, dass Nosto-Responses fehlerhafte Kombinationen aus Daten und Fehlern enthielten und somit scheiterten.
+* Fix: Category Merchandising nutzt nun korrekte SEO-Kategorienamen.
+* Fix: Verwendung des Standard-Kategorienamens, falls keine Übersetzung vorliegt.
+* Fix: Suchprobleme bei der default Verwendung von Elasticsearch wurden korrigiert.
+* Fix: Search Analytics wurden versendet wenn es kein Suchergebnis gab.
+* Fix: Entfernen des Feature-Flags zum Versand von Search-Analytics (Analytics werden jetzt immer versendet).
+
 # 5.1.4
 * Neu: Synchronisation für Kategorie URL's und Verbesserung des Kategorie Taggings.
-* 
+
 # 5.1.3
 * Fix: Ein Problem wurde behoben, bei dem zwei redundante Optionen – "Empfehlung" und "Top-Ergebnisse" – bei der Sortierung für Suche/Kategorie angezeigt wurden.
 * Fix: Ein Problem mit Suchfehlern wurde behoben, das auftrat, wenn keine Cookie-Einwilligung erteilt wurde.
