@@ -41,8 +41,16 @@ jobs:
       - name: Remove node_modules from plugin
         run: rm -rf nosto-shopware6/node_modules
 
-      - name: Clean up disallowed files
-        run: rm -rf .git .github tests phpunit.xml.dist
+      - name: Clean up git files
+        run: find nosto-shopware6 -type f -name ".git" ! -path "./.git" -delete
+
+      - name: Clean up test files
+        run: |
+          # Delete folders named 'tests'
+          find . -type d -name "tests" -exec rm -rf {} +
+          
+          # Delete common test files and config
+          find . -type f \( -name "*Test.php" -o -name "TestCase.php" -o -name "phpunit.xml.dist" \) -delete
 
       - name: Validate plugin files
         working-directory: nosto-shopware6
