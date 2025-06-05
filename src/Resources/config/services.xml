@@ -303,5 +303,53 @@
                 id="Symfony\Component\HttpFoundation\RequestStack"
                 alias="request_stack"
         />
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
+
+        <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
+
+        <service id="Nosto\NostoIntegration\Service\NostoMonitoringProductDebug">
+            <argument key="$channelContextFactory" type="service"
+                      id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument key="$productProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+        </service>
+
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringAuthController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringDebugController" public="true">
+            <argument type="service" id="Nosto\NostoIntegration\Service\NostoMonitoringProductDebug"/>
+            <argument type="service" id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="category.repository"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringLogController" public="true">
+            <argument type="service" id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
+            <argument type="service" id="parameter_bag"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Controller\Storefront\NostoMonitoringOperationsController" public="true">
+            <argument type="service" id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
     </services>
 </container>
