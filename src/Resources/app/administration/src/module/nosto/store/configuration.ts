@@ -10,7 +10,6 @@ export interface NostoIntegrationConfigState {
 export default {
     id: 'nostoIntegrationConfig',
 
-
     state: (): NostoIntegrationConfigState => ({
         loading: true,
         configs: {},
@@ -18,7 +17,6 @@ export default {
 
     actions: {
         setLoading(loading: boolean) {
-            console.log(123123123);
             this.loading = loading;
         },
 
