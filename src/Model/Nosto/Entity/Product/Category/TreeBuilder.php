@@ -51,7 +51,9 @@ class TreeBuilder
     public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
     {
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
+        $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
         $nostoCategoryNames = [];
+        $nostoCategorySeoUrls = [];
 
         foreach ($categoryNameSets as $catNames) {
             $nostoCategoryNames[] = '/' . sprintf(
@@ -61,7 +63,27 @@ class TreeBuilder
             );
         }
 
-        return $nostoCategoryNames;
+        foreach ($categorySeoUrlsSets as $key => $catNames) {
+            $nostoCategorySeoUrls[] = '/' . sprintf(
+                self::NAME_WITH_ID_TEMPLATE,
+                $catNames[$key],
+                $key,
+            );
+        }
+
+        $merged = array_merge($nostoCategoryNames, $nostoCategorySeoUrls);
+
+        $uniqueByName = [];
+
+        foreach ($merged as $path) {
+            $name = trim(explode('(ID =', $path)[0]);
+
+            if (!isset($uniqueByName[$name])) {
+                $uniqueByName[$name] = $path;
+            }
+        }
+
+        return array_values($uniqueByName);
     }
 
     /**
