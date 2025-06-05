@@ -48,6 +48,7 @@ class SearchController extends StorefrontController
         name: 'frontend.search.page',
         defaults: [
             '_httpCache' => true,
+            '_routeScope' => ['storefront'],
         ],
         methods: ['GET'],
     )]
@@ -61,6 +62,18 @@ class SearchController extends StorefrontController
             $page = $this->searchPageLoader->load($request, $context);
             if ($page->getListing()->getTotal() === 1) {
                 $product = $page->getListing()->first();
+                $redirectToPDP = $this->configProvider->isEnabledRedirectToThePDP(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                );
+                if ($redirectToPDP) {
+                    $productId = $product->getId();
+
+                    return $this->forwardToRoute('frontend.detail.page', [], [
+                        'productId' => $productId,
+                    ]);
+                }
+
                 if ($request->get('search') === $product->getProductNumber()) {
                     $productId = $product->getId();
 
@@ -84,9 +97,30 @@ class SearchController extends StorefrontController
 
         $this->hook(new SearchPageLoadedHook($page, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', [
+        $response = $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', [
             'page' => $page,
         ]);
+        $isEnabledCache = $this->configProvider->isCacheEnabled(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if ($isEnabledCache) {
+            $cacheTtl = $this->configProvider->getCacheTtl(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $cacheTtlSeconds = $cacheTtl * 60;
+            $response->setPublic();
+            $response->setMaxAge($cacheTtlSeconds);
+            $response->setSharedMaxAge($cacheTtlSeconds);
+            $response->setStaleWhileRevalidate($cacheTtlSeconds);
+            $expiryTime = new \DateTimeImmutable(sprintf('+%d seconds', $cacheTtlSeconds));
+            $response->setExpires($expiryTime);
+        } else {
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            $response->headers->set('Pragma', 'no-cache');
+        }
+        return $response;
     }
 
     #[Route(

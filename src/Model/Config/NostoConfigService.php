@@ -82,8 +82,6 @@ class NostoConfigService
 
     public const ENABLE_IGNORE_COOKIE_CONSENT = 'ignoreCookieConsent';
 
-    public const ENABLE_SEARCH_IMPRESSIONS = 'enableSearchImpressions';
-
     public const ENABLE_SYNC_FIRST_AVAILABLE_VARIANT = 'syncFirstAvailableVariant';
 
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
@@ -97,6 +95,12 @@ class NostoConfigService
     public const OLD_NOSTO_DATA_CLEANUP_ENABLED = 'oldNostoDataCleanup';
 
     public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
+
+    public const ENABLE_CACHE = 'enableCache';
+
+    public const CACHE_TTL = "cacheTtl";
+
+    public const REDIRECT_TO_THE_PDP = 'redirectToThePDP';
 
     public const ENABLE_PRODUCT_VISIBILITY = 'enableProductVisibility';
 
