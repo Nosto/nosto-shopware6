@@ -27,7 +27,7 @@ class Builder
     ): NostoCategory {
         $nostoCategory = new NostoCategory();
         $nostoCategory->setId($category->getId());
-        $nostoCategory->setTitle($category->getName());
+        $nostoCategory->setTitle($category->getTranslation('name'));
         $nostoCategory->setAvailable($category->getActive());
         $nostoCategory->setParentId($category->getParentId());
 
@@ -43,9 +43,14 @@ class Builder
 
         $url = '';
         if ($category->getSeoUrls()->getElements() && $domain) {
-            $lastSeoUrl = array_key_last($category->getSeoUrls()->getElements());
-            $url = $category->getSeoUrls()->getElements()[$lastSeoUrl]->getSeoPathInfo();
-            $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
+            foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
+                if ($seoUrl->getLanguageId() === $context->getLanguageId()
+                    && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                ) {
+                    $url = $seoUrl->getSeoPathInfo();
+                    $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
+                }
+            }
         }
 
         if ($url !== '') {
