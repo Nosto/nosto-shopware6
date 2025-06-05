@@ -165,7 +165,6 @@ Component.register('nosto-integration-features-flags', {
                 enableLabelling: false,
                 storeAbandonedCartData: false,
                 ignoreCookieConsent: false,
-                enableSearchImpressions: false,
                 syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
                 domain: null,
@@ -173,6 +172,9 @@ Component.register('nosto-integration-features-flags', {
                 oldJobCleanupPeriod: 5,
                 oldNostoDataCleanup: false,
                 oldNostoDataCleanupPeriod: 7,
+                enableCache: false,
+                cacheTtl: 15,
+                redirectToThePDP: false,
             });
 
             this.createCategoryCollection();
