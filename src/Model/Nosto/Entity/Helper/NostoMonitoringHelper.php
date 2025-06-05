@@ -219,10 +219,6 @@ class NostoMonitoringHelper
                 $salesChannelId,
                 $languageId,
             ),
-            'enableSearchImpressions' => $this->nostoConfigProvider->isEnabledSearchImpressions(
-                $salesChannelId,
-                $languageId,
-            ),
 
             // daily Sync & Cleanup Settings
             'dailyProductSyncEnabled' => $this->nostoConfigProvider->isDailyProductSyncEnabled(
