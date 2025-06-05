@@ -113,6 +113,8 @@
                 "timeDailySynchronization": "Time for Daily Product Synchronization",
                 "timeDailySynchronizationHelp": "The option specifies at which time to sync daily product synchronization",
                 "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
+                "redirectToProductDetailIfSingleSearchResult": "Auto-redirect to product detail page if search returns only one result",
+                "redirectToProductDetailIfSingleSearchResultHelpText": "When enabled, customers will be automatically redirected to the product detail page if a search query returns only one matching product.",
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "storeAbandonedCartDataHelpText": "This configuration option controls whether data for abandoned carts should be stored in the relevant table. When this option is enabled, the system will fetch and create new rows in the table for each abandoned cart. If disabled, no new rows will be added, potentially preventing performance issues.",

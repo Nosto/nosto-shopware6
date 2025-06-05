@@ -190,6 +190,7 @@ Component.register('nosto-integration-features-flags', {
                 oldNostoDataCleanupPeriod: 7,
                 enableCache: false,
                 cacheTtl: 15,
+                redirectToThePDP: false,
             };
 
             /**
