@@ -315,6 +315,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledProductVisibility($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_PRODUCT_VISIBILITY,
+            $channelId,
+            $languageId,
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */

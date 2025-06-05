@@ -26,6 +26,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -50,6 +51,10 @@ class Builder
     public const PRODUCT_ID_KEY = 'productid';
 
     public const PRODUCT_NUMBER_KEY = 'productnumber';
+
+    public const SHOW_CATEGORY = 'showCategory';
+
+    public const SHOW_SEARCH = 'showSearch';
 
     public function __construct(
         private readonly ConfigProvider $configProvider,
@@ -258,6 +263,27 @@ class Builder
 
         if (method_exists($product, 'getVariantListingConfig') && $product->getVariantListingConfig()) {
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
+        }
+
+        foreach ($product->getVisibilities() as $visibility) {
+            if ($channelId === $visibility->getSalesChannelId()) {
+                switch ($visibility->getVisibility()) {
+                    case ProductVisibilityDefinition::VISIBILITY_ALL:
+                        $showSearch = 'true';
+                        $showCategory = 'true';
+                        break;
+                    case ProductVisibilityDefinition::VISIBILITY_SEARCH:
+                        $showSearch = 'true';
+                        $showCategory = 'false';
+                        break;
+                    default:
+                        $showSearch = 'false';
+                        $showCategory = 'false';
+                }
+                $nostoProduct->addCustomField(self::SHOW_CATEGORY, $showCategory);
+                $nostoProduct->addCustomField(self::SHOW_SEARCH, $showSearch);
+                break;
+            }
         }
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
@@ -499,6 +525,7 @@ class Builder
             $criteria->addAssociation('properties.group');
             $criteria->addAssociation('manufacturer');
             $criteria->addAssociation('categoriesRo');
+            $criteria->addAssociation('visibilities');
             $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
 
             if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
