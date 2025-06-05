@@ -10,7 +10,7 @@
                     :modelValue="currentConfig['isEnabled']"
                     :label="$tc('nosto.configuration.account.enabledTitle')"
                     :help-text="$tc('nosto.configuration.account.enabledHelpText')"
-                    @update:value="onUpdateValue('isEnabled', $event)"
+                    @update:modelValue="onUpdateValue('isEnabled', $event)"
                 />
             {% endblock %}
 

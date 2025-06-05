@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Nosto\Model\Category\Category as NostoCategory;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Event\NostoCategoryCriteriaEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeCategoryUpdateEvent;
 use Nosto\Operation\Category\CategoryUpdate;
+use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -64,7 +66,7 @@ class CategorySyncHandler implements JobHandlerInterface
         $result = new JobResult();
         foreach ($this->getCategories($context->getContext(), $message->getCategoryIds()) as $category) {
             try {
-                $this->sendCategory($category, $account, $context);
+                $this->sendCategory($category, $account, $context, $result);
             } catch (Throwable $e) {
                 $result->addError($e);
             }
@@ -82,17 +84,44 @@ class CategorySyncHandler implements JobHandlerInterface
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendCategory(CategoryEntity $category, Account $account, SalesChannelContext $context): void
-    {
+    private function sendCategory(
+        CategoryEntity $category,
+        Account $account,
+        SalesChannelContext $context,
+        JobResult $result,
+    ): void {
         $nostoCategory = $this->nostoCategoryBuilder->build(
             $category,
             $context,
         );
+        $invalidMessage = $this->validateCategory(
+            $nostoCategory->getId(),
+            $nostoCategory,
+        );
+
+        if ($invalidMessage) {
+            $result->addMessage($invalidMessage);
+            return;
+        }
+
         $operation = new CategoryUpdate(
             $nostoCategory,
             $account->getNostoAccount(),
         );
         $this->eventDispatcher->dispatch(new BeforeCategoryUpdateEvent($operation, $context->getContext()));
         $operation->execute();
+    }
+
+    private function validateCategory(string $categoryId, NostoCategory $category): ?WarningMessage
+    {
+        $message = '';
+
+        if (!$category->getTitle()) {
+            $message .= 'Category name is empty, ';
+        }
+
+        return empty($message) ? null : new WarningMessage(
+            $message . 'ignoring upsert for category with id. ' . $categoryId,
+        );
     }
 }

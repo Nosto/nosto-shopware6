@@ -96,6 +96,12 @@ class NostoConfigService
 
     public const OLD_NOSTO_DATA_CLEANUP_PERIOD = 'oldNostoDataCleanupPeriod';
 
+    public const ENABLE_CACHE = 'enableCache';
+
+    public const CACHE_TTL = "cacheTtl";
+
+    public const REDIRECT_TO_THE_PDP = 'redirectToThePDP';
+
     private array $configs = [];
 
     public function __construct(
@@ -159,10 +165,10 @@ class NostoConfigService
     }
 
     /**
-     * @throws JsonException
+     * @return array<string, mixed>
      * @throws Exception
      *
-     * @return array<string, mixed>
+     * @throws JsonException
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {
