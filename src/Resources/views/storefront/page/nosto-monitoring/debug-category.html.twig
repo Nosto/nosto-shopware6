@@ -1,0 +1,47 @@
+{% extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_body %}
+    <div class="nosto-layout" style="display: flex; flex-direction: column; padding: 20px;">
+        <div class="nosto-main">
+            <div class="flash-messages">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="nosto-message nosto-{{ type }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <!-- Header -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #6c757d;">
+                        Debug Category ({{ categoryId }})
+                    </h2>
+                    <a href="{{ path('nosto-monitoring.manage-operations') }}" class="nosto-button" style="text-decoration: none;">
+                        ← Back to Operations
+                    </a>
+                </div>
+
+                <!-- Sync Category Button -->
+                <div style="margin-bottom: 20px;">
+                    <form action="{{ path('nosto-monitoring.debug-sync-category') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="categoryId" value="{{ categoryId }}">
+                        <button type="submit" class="nosto-button" style="background: #28a745; border-color: #28a745;">
+                            🔄 Sync Category to Nosto
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Category Data Dump -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px;">
+                <h3 style="margin: 0 0 15px 0; color: #6c757d;">Category Data Dump</h3>
+                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                    {{ dump(category) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
