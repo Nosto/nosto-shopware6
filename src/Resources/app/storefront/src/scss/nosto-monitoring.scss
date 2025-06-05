@@ -1,0 +1,127 @@
+:root {
+  --nosto-color: #ff69b4;
+}
+
+.nosto-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.nosto-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.nosto-logo {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.nosto-heading {
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.nosto-label {
+  display: block;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.nosto-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.nosto-button {
+  padding: 10px 20px;
+  background-color: var(--nosto-color);
+  color: white;
+  border: 2px solid var(--nosto-color);
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-block;
+  width: auto;
+}
+
+.nosto-button:hover {
+  border: 2px solid var(--nosto-color);
+  background-color: white;
+  color: #000000;
+}
+
+.nosto-layout {
+  display: flex;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  background-color: #fff;
+  margin: 20px;
+}
+
+.nosto-sidebar {
+  width: 200px;
+  padding: 10px;
+  border-right: 2px solid  var(--nosto-color);
+}
+
+.nosto-main {
+  flex: 1;
+  padding: 10px;
+}
+
+.title-nosto {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.nosto-message {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 10px 0;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  padding-left: 40px;
+}
+
+.nosto-success {
+  background-color: #e6f4ea;
+  border-left: 6px solid #34a853;
+  color: #2e7d32;
+}
+
+.nosto-error {
+  background-color: #fce8e6;
+  border-left: 6px solid #d93025;
+  color: #b71c1c;
+}
+
+.nosto-warning {
+  background-color: #fff4e5;
+  border-left: 6px solid #f9ab00;
+  color: #e65100;
+}
+
+.nosto-info {
+  background-color: #d1e8ff;
+  border-left: 6px solid #2866ac;
+  color: #0a1fa9;
+}
+
