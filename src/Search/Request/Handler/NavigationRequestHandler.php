@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 use Monolog\Logger;
 use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -41,6 +42,17 @@ class NavigationRequestHandler extends AbstractRequestHandler
         if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
+
+        if ($this->configProvider->isEnabledProductVisibility(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $searchOperation->addValueFilter(
+                'customFields.' . Builder::SHOW_CATEGORY,
+                'true',
+            );
+        }
+
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 

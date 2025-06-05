@@ -190,6 +190,7 @@ Component.register('nosto-integration-features-flags', {
                 enableCache: false,
                 cacheTtl: 15,
                 redirectToThePDP: false,
+                enableProductVisibility: false,
             };
 
             /**

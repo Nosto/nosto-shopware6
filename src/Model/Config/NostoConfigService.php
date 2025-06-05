@@ -102,6 +102,8 @@ class NostoConfigService
 
     public const REDIRECT_TO_THE_PDP = 'redirectToThePDP';
 
+    public const ENABLE_PRODUCT_VISIBILITY = 'enableProductVisibility';
+
     private array $configs = [];
 
     public function __construct(
