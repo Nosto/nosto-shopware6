@@ -568,8 +568,8 @@
             <sw-inherit-wrapper
                     v-if="configKey === null && currentConfig['enableCache']"
                     :value="currentConfig['cacheTtl']"
-                    :inheritedValue="configKey === null ? null : configs['null']['cachePeriod']"
-                    @update:value="onUpdateValue('cachePeriod', $event)"
+                    :inheritedValue="configKey === null ? null : configs['null']['cacheTtl']"
+                    @update:value="onUpdateValue('cacheTtl', $event)"
             >
                 <template #content="props">
                     <sw-number-field
