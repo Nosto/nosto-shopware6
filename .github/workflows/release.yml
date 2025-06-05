@@ -43,9 +43,7 @@ jobs:
 
       - name: Clean up git files
         run: |
-          find . -type d -name ".git" -exec rm -rf {} +
-          find . -type d -name ".github" -exec rm -rf {} +
-        
+          find . -type d -name ".git" -exec rm -rf {} +        
 
       - name: Clean up test files
         run: |
