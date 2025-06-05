@@ -173,6 +173,8 @@ Component.register('nosto-integration-features-flags', {
                 oldJobCleanupPeriod: 5,
                 oldNostoDataCleanup: false,
                 oldNostoDataCleanupPeriod: 7,
+                enableCache: false,
+                cacheTtl: 15,
                 redirectToThePDP: false,
             });
 
