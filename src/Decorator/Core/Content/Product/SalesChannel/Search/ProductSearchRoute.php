@@ -86,7 +86,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 throw RoutingException::missingRequestParameter('search');
             }
 
-            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $context->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addFilter(
                 new ProductAvailableFilter(
