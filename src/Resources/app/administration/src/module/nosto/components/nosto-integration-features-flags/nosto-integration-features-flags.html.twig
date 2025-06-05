@@ -543,5 +543,50 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+        {% block nosto_integration_enable_cache_flag %}
+            <sw-inherit-wrapper
+                    v-if="configKey === null"
+                    :value="currentConfig['enableCache']"
+                    :inheritedValue="configKey === null ? null : configs['null']['enableCache']"
+                    @update:value="onUpdateValue('enableCache', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                            name="enableCache"
+                            :map-inheritance="props"
+                            :label="$tc('nosto.configuration.featuresFlags.enableCache.label')"
+                            :help-text="$tc('nosto.configuration.featuresFlags.enableCache.helpText')"
+                            :disabled="props.isInherited"
+                            :value="props.currentValue"
+                            @update:value="onUpdateValue('enableCache', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_cache_period %}
+            <sw-inherit-wrapper
+                    v-if="configKey === null && currentConfig['enableCache']"
+                    :value="currentConfig['cacheTtl']"
+                    :inheritedValue="configKey === null ? null : configs['null']['cacheTtl']"
+                    @update:value="onUpdateValue('cacheTtl', $event)"
+            >
+                <template #content="props">
+                    <sw-number-field
+                            name="cacheTtl"
+                            labelProperty="label"
+                            valueProperty="value"
+                            :isInherited="props.isInherited"
+                            :disabled="props.isInherited"
+                            show-clearable-button
+                            :value="props.currentValue"
+                            @update:value="onUpdateValue('cacheTtl', $event)"
+                            :label="$tc('nosto.configuration.featuresFlags.timeEnableCache')"
+                            number-type="int"
+                            :min="1"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}
