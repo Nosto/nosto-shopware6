@@ -11,8 +11,8 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,7 +22,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         ConfigProvider $configProvider,
         SortingHandlerService $sortingHandlerService,
         Logger $logger,
-        private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $categoryRepository,
     ) {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
@@ -61,14 +61,13 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
+        $criteria = new Criteria([$categoryId]);
         $criteria->addAssociation('seoUrls');
-        $criteria->setIds([$categoryId]);
 
         /** @var ?CategoryEntity $category */
         $category = $this->categoryRepository
-            ->search($criteria, $context)
-            ->first();
+            ->search($criteria, $context->getContext())
+            ->get($categoryId);
 
         if (!$category) {
             return null;
@@ -84,7 +83,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
             if ($seoUrl->getLanguageId() === $context->getLanguageId()
                 && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
             ) {
-                $categoryPath = '/' . rtrim($category->getSeoUrls()->first()->seoPathInfo, '/');
+                $categoryPath = '/' . rtrim($seoUrl->getSeoPathInfo(), '/');
                 break;
             }
         }
