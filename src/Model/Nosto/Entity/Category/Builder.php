@@ -49,6 +49,7 @@ class Builder
                 ) {
                     $url = $seoUrl->getSeoPathInfo();
                     $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
+                    break;
                 }
             }
         }
