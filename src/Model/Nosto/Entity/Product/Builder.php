@@ -320,7 +320,9 @@ class Builder
                 }
             }
 
-            $nostoProdcut->setSupplierCost($this->priceRounding->cashRound($supplierCostPrice, $context->getItemRounding()));
+            $nostoProdcut->setSupplierCost(
+                $this->priceRounding->cashRound($supplierCostPrice, $context->getItemRounding()),
+            );
         }
 
         if (!$isGross) {
