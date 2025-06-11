@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
@@ -13,7 +14,6 @@ use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Nosto\Helper\SerializationHelper;
 
 class SkuBuilder
 {
