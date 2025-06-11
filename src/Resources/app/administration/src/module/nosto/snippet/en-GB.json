@@ -49,7 +49,7 @@
                 "title": "General settings",
                 "deferredInit": {
                     "label": "Initialize Nosto Script After First Page Iteration",
-                    "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
+                    "helpText": "This setting is a web page performance tweak. If this option is enabled, the Nosto script will be loaded and initialized immediately after the user clicks anywhere (first interaction) during their first visit to the page. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
                 "domain": {
                     "label": "Domain for generating product url",

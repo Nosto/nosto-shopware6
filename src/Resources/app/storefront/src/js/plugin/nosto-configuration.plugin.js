@@ -18,7 +18,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     _registerInitializationEvents() {
-        window.addEventListener('scroll', this._prepareForInitialization.bind(this), {once: true});
+        window.addEventListener('click', this._prepareForInitialization.bind(this), {once: true});
     }
 
     _prepareForInitialization() {
