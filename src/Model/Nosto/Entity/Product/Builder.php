@@ -279,6 +279,25 @@ class Builder
         $unitPrice = $productPrice->getUnitPrice();
         $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
 
+        if ($product->getPurchasePrices()) {
+            $supplierCost = $product->getPurchasePrices()->first() ?: $product->getPurchasePrices();
+            $supplierCostPrice = $supplierCost->getGross();
+
+            if (!$isGross) {
+                $priceSupplierCost = $this->calculator->calculate(
+                    new QuantityPriceDefinition($supplierCostPrice, $productPrice->getTaxRules(), 1),
+                    $context->getItemRounding(),
+                );
+                foreach ($priceSupplierCost->getCalculatedTaxes()->getElements() as $tax) {
+                    $supplierCostPrice += ($tax->getTax() + $tax->getPrice());
+                }
+            }
+
+            $nostoProdcut->setSupplierCost(
+                $this->priceRounding->cashRound($supplierCostPrice, $context->getItemRounding()),
+            );
+        }
+
         if (!$isGross) {
             $price = $this->calculator->calculate(
                 new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),

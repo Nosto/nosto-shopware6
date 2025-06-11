@@ -13,6 +13,7 @@ use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Nosto\Helper\SerializationHelper;
 
 class SkuBuilder
 {
@@ -84,6 +85,21 @@ class SkuBuilder
                         $propertyOption->getGroup()->getTranslation('name'),
                         $propertyOption->getTranslation('name'),
                     );
+                }
+            }
+        }
+
+        // Add custom fields processing for SKUs (same logic as main product)
+        $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
+
+        if ($product->getCustomFields() !== null) {
+            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+                // All non-scalar value should be serialized
+                $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
+                    $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
+
+                if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
+                    $nostoSku->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
             }
         }
