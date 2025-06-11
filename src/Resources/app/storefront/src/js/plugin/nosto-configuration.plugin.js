@@ -19,7 +19,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _registerInitializationEvents() {
-        window.addEventListener('scroll', this._prepareForInitialization.bind(this), {once: true});
+        window.addEventListener('click', this._prepareForInitialization.bind(this), {once: true});
     }
 
     _prepareForInitialization() {
