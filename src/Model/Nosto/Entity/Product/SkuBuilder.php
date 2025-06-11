@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
@@ -85,6 +86,21 @@ class SkuBuilder
                         $propertyOption->getGroup()->getTranslation('name'),
                         $propertyOption->getTranslation('name'),
                     );
+                }
+            }
+        }
+
+        // Add custom fields processing for SKUs (same logic as main product)
+        $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
+
+        if ($product->getCustomFields() !== null) {
+            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+                // All non-scalar value should be serialized
+                $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
+                    $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
+
+                if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
+                    $nostoSku->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
             }
         }
