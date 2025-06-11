@@ -17,11 +17,10 @@ class NostoMonitoringHelper
 
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface    $logger,
-        private readonly ConfigProvider     $nostoConfigProvider,
-        private readonly NostoIntegration   $plugin,
-    )
-    {
+        private readonly LoggerInterface $logger,
+        private readonly ConfigProvider $nostoConfigProvider,
+        private readonly NostoIntegration $plugin,
+    ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
         $this->connection = $connection;
