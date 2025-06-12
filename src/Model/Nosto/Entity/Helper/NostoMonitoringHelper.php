@@ -10,8 +10,8 @@ use Doctrine\DBAL\Exception;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\NostoIntegration;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class NostoMonitoringHelper
 {
@@ -19,11 +19,10 @@ class NostoMonitoringHelper
 
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface    $logger,
-        private readonly ConfigProvider     $nostoConfigProvider,
-        private readonly NostoIntegration   $plugin,
-    )
-    {
+        private readonly LoggerInterface $logger,
+        private readonly ConfigProvider $nostoConfigProvider,
+        private readonly NostoIntegration $plugin,
+    ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
         $this->connection = $connection;
@@ -157,7 +156,10 @@ class NostoMonitoringHelper
                 'enablePersonalizedSearch' => $this->extractConfigValue($configuration, 'isSearchEnabled'),
                 'enableCategoryMerchandising' => $this->extractConfigValue($configuration, 'isNavigationEnabled'),
                 // General Settings
-                'initializeNostoAfterInteraction' => $this->extractConfigValue($configuration, 'shouldInitializeNostoAfterInteraction'),
+                'initializeNostoAfterInteraction' => $this->extractConfigValue(
+                    $configuration,
+                    'shouldInitializeNostoAfterInteraction',
+                ),
                 'domainId' => $domainId,
                 'domainForGeneratingProductUrl' => $domainUrl,
             ],
@@ -173,11 +175,6 @@ class NostoMonitoringHelper
 
     /**
      * Get Nosto configuration (dynamic & hybrid way of doing it)
-     *
-     * @param string|null $salesChannelId
-     * @param string|null $languageId
-     *
-     * @return array
      */
     public function getAllConfigsHybrid(?string $salesChannelId, ?string $languageId): array
     {
@@ -238,7 +235,7 @@ class NostoMonitoringHelper
      *
      * @return mixed
      */
-    function extractConfigValue(array &$config, string $key, $default = null)
+    public function extractConfigValue(array &$config, string $key, $default = null)
     {
         if (array_key_exists($key, $config)) {
             $value = $config[$key];
