@@ -6,10 +6,12 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\NostoIntegration;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class NostoMonitoringHelper
 {
@@ -17,10 +19,11 @@ class NostoMonitoringHelper
 
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-        private readonly ConfigProvider $nostoConfigProvider,
-        private readonly NostoIntegration $plugin,
-    ) {
+        private readonly LoggerInterface    $logger,
+        private readonly ConfigProvider     $nostoConfigProvider,
+        private readonly NostoIntegration   $plugin,
+    )
+    {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
         $this->connection = $connection;
@@ -117,128 +120,132 @@ class NostoMonitoringHelper
     }
 
     /**
-     * Get serialized Nosto configuration as an array
+     * Get structured Nosto configuration as an array
      *
      * @return array<string, mixed> Configuration array with all Nosto settings
+     * @throws Exception
      */
-    public function getSerializedNostoConfiguration(?string $salesChannelId, ?string $languageId): array
+    public function getStructuredNostoConfiguration(?string $salesChannelId, ?string $languageId): array
     {
+        $configuration = $this->getAllConfigsHybrid($salesChannelId, $languageId);
+
+        $domainId = $this->extractConfigValue($configuration, 'getDomainId');
+        $domainUrl = null;
+        if ($domainId) {
+            $domainUrl = $this->connection->fetchOne(
+                'SELECT scd.url FROM sales_channel_domain as scd WHERE scd.id = :salesChannelId',
+                [
+                    'salesChannelId' => Uuid::fromHexToBytes($domainId),
+                ],
+            );
+        }
+
         return [
-            // Account Settings
-            'accountEnabled' => $this->nostoConfigProvider->isAccountEnabled($salesChannelId, $languageId),
-            'accountId' => $this->nostoConfigProvider->getAccountId($salesChannelId, $languageId),
-            'accountName' => $this->nostoConfigProvider->getAccountName($salesChannelId, $languageId),
-
-            // API Tokens
-            'productToken' => $this->nostoConfigProvider->getProductToken($salesChannelId, $languageId),
-            'emailToken' => $this->nostoConfigProvider->getEmailToken($salesChannelId, $languageId),
-            'appToken' => $this->nostoConfigProvider->getAppToken($salesChannelId, $languageId),
-            'searchToken' => $this->nostoConfigProvider->getSearchToken($salesChannelId, $languageId),
-
-            // Personalized Search & Category Merchandising
-            'enablePersonalizedSearch' => $this->nostoConfigProvider->isSearchEnabled($salesChannelId, $languageId),
-            'enableCategoryMerchandising' => $this->nostoConfigProvider->isNavigationEnabled(
-                $salesChannelId,
-                $languageId,
-            ),
-
-            // General Settings
-            'initializeNostoAfterInteraction' => $this->nostoConfigProvider->shouldInitializeNostoAfterInteraction(
-                $salesChannelId,
-                $languageId,
-            ),
-            'domainId' => $this->nostoConfigProvider->getDomainId($salesChannelId, $languageId),
-
-            // Tags Assignment
-            'selectedCustomFields' => $this->nostoConfigProvider->getSelectedCustomFields($salesChannelId, $languageId),
-            'tag1' => $this->nostoConfigProvider->getTagFieldKey(1, $salesChannelId, $languageId),
-            'tag2' => $this->nostoConfigProvider->getTagFieldKey(2, $salesChannelId, $languageId),
-            'tag3' => $this->nostoConfigProvider->getTagFieldKey(3, $salesChannelId, $languageId),
-            'googleCategory' => $this->nostoConfigProvider->getGoogleCategory($salesChannelId, $languageId),
-
-            // Feature Flags (these return enum values)
-            'productIdentifier' => $this->nostoConfigProvider->getProductIdentifier(
-                $salesChannelId,
-                $languageId,
-            )->value,
-            'ratingsReviews' => $this->nostoConfigProvider->getRatingReviews($salesChannelId, $languageId)->value,
-            'stockField' => $this->nostoConfigProvider->getStockField($salesChannelId, $languageId)->value,
-            'crossSellingSync' => $this->nostoConfigProvider->getCrossSellingSyncOption(
-                $salesChannelId,
-                $languageId,
-            )->value,
-            'categoryNaming' => $this->nostoConfigProvider->getCategoryNamingOption(
-                $salesChannelId,
-                $languageId,
-            )->value,
-            'categoryBlocklist' => $this->nostoConfigProvider->getCategoryBlocklist($salesChannelId, $languageId),
-
-            // Toggle Features
-            'enableVariations' => $this->nostoConfigProvider->isEnabledVariations($salesChannelId, $languageId),
-            'enableProductProperties' => $this->nostoConfigProvider->isEnabledProductProperties(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableAlternateImages' => $this->nostoConfigProvider->isEnabledAlternateImages(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableInventoryLevels' => $this->nostoConfigProvider->isEnabledInventoryLevels(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableCustomerDataToNosto' => $this->nostoConfigProvider->isEnabledCustomerDataToNosto(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableSyncInactiveProducts' => $this->nostoConfigProvider->isEnabledSyncInactiveProducts(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableProductPublishedDateTagging' => $this->nostoConfigProvider->isEnabledProductPublishedDateTagging(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableReloadRecommendations' => $this->nostoConfigProvider->isEnabledReloadRecommendationsAfterAdding(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableProductLabellingSync' => $this->nostoConfigProvider->isEnabledProductLabellingSync(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableStoreAbandonedCartData' => $this->nostoConfigProvider->isEnabledStoreAbandonedCartData(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableIgnoreCookieConsent' => $this->nostoConfigProvider->isEnabledIgnoreCookieConsent(
-                $salesChannelId,
-                $languageId,
-            ),
-            'enableSyncFirstAvailableVariant' => $this->nostoConfigProvider->isEnabledSyncFirstAvailableVariant(
-                $salesChannelId,
-                $languageId,
-            ),
-
-            // daily Sync & Cleanup Settings
-            'dailyProductSyncEnabled' => $this->nostoConfigProvider->isDailyProductSyncEnabled(
-                $salesChannelId,
-                $languageId,
-            ),
-            //            'dailyProductSyncTime' => $this->nostoConfigProvider->getDailyProductSyncTime($salesChannelId, $languageId),
-            'oldJobCleanupEnabled' => $this->nostoConfigProvider->isOldJobCleanupEnabled($salesChannelId, $languageId),
-            'oldJobCleanupPeriod' => $this->nostoConfigProvider->getOldJobCleanupPeriod($salesChannelId, $languageId),
-            'oldNostoDataCleanupEnabled' => $this->nostoConfigProvider->isOldNostoDataCleanupEnabled(
-                $salesChannelId,
-                $languageId,
-            ),
-            'oldNostoDataCleanupPeriod' => $this->nostoConfigProvider->getOldNostoDataCleanupPeriod(
-                $salesChannelId,
-                $languageId,
-            ),
-
-            // Full config array for debugging/additional data
-            'fullConfig' => $this->nostoConfigProvider->toArray($salesChannelId, $languageId),
+            'accountSettings' => [
+                // Account Settings
+                'accountEnabled' => $this->extractConfigValue($configuration, 'isAccountEnabled'),
+                'accountId' => $this->extractConfigValue($configuration, 'getAccountId'),
+                'accountName' => $this->extractConfigValue($configuration, 'getAccountName'),
+                // API Tokens
+                'productToken' => $this->extractConfigValue($configuration, 'getProductToken'),
+                'emailToken' => $this->extractConfigValue($configuration, 'getEmailToken'),
+                'appToken' => $this->extractConfigValue($configuration, 'getAppToken'),
+                'searchToken' => $this->extractConfigValue($configuration, 'getSearchToken'),
+            ],
+            'generalSettings' => [
+                // Personalized Search & Category Merchandising
+                'enablePersonalizedSearch' => $this->extractConfigValue($configuration, 'isSearchEnabled'),
+                'enableCategoryMerchandising' => $this->extractConfigValue($configuration, 'isNavigationEnabled'),
+                // General Settings
+                'initializeNostoAfterInteraction' => $this->extractConfigValue($configuration, 'shouldInitializeNostoAfterInteraction'),
+                'domainId' => $domainId,
+                'domainForGeneratingProductUrl' => $domainUrl,
+            ],
+            'tagsAssignment' => [
+                // Tags Assignment
+                'selectedCustomFields' => $this->extractConfigValue($configuration, 'getSelectedCustomFields'),
+                'tagFieldKeys' => $this->extractConfigValue($configuration, 'tagFieldKeys'),
+                'googleCategory' => $this->extractConfigValue($configuration, 'getGoogleCategory'),
+            ],
+            'featureFlags' => $configuration,
         ];
+    }
+
+    /**
+     * Get Nosto configuration (dynamic & hybrid way of doing it)
+     *
+     * @param string|null $salesChannelId
+     * @param string|null $languageId
+     *
+     * @return array
+     */
+    public function getAllConfigsHybrid(?string $salesChannelId, ?string $languageId): array
+    {
+        $reflection = new \ReflectionClass($this->nostoConfigProvider);
+        $configs = [];
+
+        // Manually handled methods (with special param needs)
+        // TODO - extracted IDs - values needed
+        $configs['tagFieldKeys'] = [
+            'getTagFieldKey1' => $this->nostoConfigProvider->getTagFieldKey(1, $salesChannelId, $languageId),
+            'getTagFieldKey2' => $this->nostoConfigProvider->getTagFieldKey(2, $salesChannelId, $languageId),
+            'getTagFieldKey3' => $this->nostoConfigProvider->getTagFieldKey(3, $salesChannelId, $languageId),
+        ];
+
+        // Methods that should be excluded from dynamic call (because they were manually handled or incompatible)
+        $excluded = [
+            'getTagFieldKey',
+            'getAllConfigsHybrid', // avoid recursion
+        ];
+
+        foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            $methodName = $method->getName();
+
+            // Skip excluded or already-handled methods
+            if (
+                in_array($methodName, $excluded, true) ||
+                !(
+                    str_starts_with($methodName, 'get') ||
+                    str_starts_with($methodName, 'is') ||
+                    str_starts_with($methodName, 'should')
+                )
+            ) {
+                continue;
+            }
+
+            $params = $method->getParameters();
+            if (count($params) !== 2) {
+                $configs[$methodName] = 'SKIPPED: incompatible parameter count';
+                continue;
+            }
+
+            try {
+                $configs[$methodName] = $method->invoke($this->nostoConfigProvider, $salesChannelId, $languageId);
+            } catch (\Throwable $e) {
+                $configs[$methodName] = 'ERROR: ' . $e->getMessage();
+            }
+        }
+
+        return $configs;
+    }
+
+    /**
+     * Extracts a config value by key and unsets it from the original array.
+     *
+     * @param array  $config Reference to the config array
+     * @param string $key    Key to extract
+     * @param mixed  $default Default value if key does not exist
+     *
+     * @return mixed
+     */
+    function extractConfigValue(array &$config, string $key, $default = null)
+    {
+        if (array_key_exists($key, $config)) {
+            $value = $config[$key];
+            unset($config[$key]);
+            return $value;
+        }
+
+        return $default;
     }
 }
