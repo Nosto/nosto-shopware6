@@ -82,6 +82,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
             if ($seoUrl->getLanguageId() === $context->getLanguageId()
                 && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                && $seoUrl->getIsCanonical()
             ) {
                 $categoryPath = '/' . rtrim($seoUrl->getSeoPathInfo(), '/');
                 break;
