@@ -159,25 +159,25 @@
             <!-- SECTION - ACCOUNT SETTINGS -->
             <div class="nosto-configuration-sub-section nosto-account-settings">
                 <h3>Account settings</h3>
-                {{ dump(nostoConfig.accountSettings) }}
+                <pre>{{ nostoConfig.accountSettings|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
             </div>
 
             <!-- SECTION - GENERAL SETTINGS -->
             <div class="nosto-configuration-sub-section">
                 <h3>General Settings</h3>
-                {{ dump(nostoConfig.generalSettings) }}
+                <pre>{{ nostoConfig.generalSettings|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
             </div>
 
             <!-- SECTION - TAGS ASSIGNMENT -->
             <div class="nosto-configuration-sub-section">
                 <h3>Tags Assignment</h3>
-                {{ dump(nostoConfig.tagsAssignment) }}
+                <pre>{{ nostoConfig.tagsAssignment|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
             </div>
 
             <!-- SECTION - FEATURE FLAGS -->
             <div class="nosto-configuration-sub-section">
                 <h3>Features flags</h3>
-                {{ dump(nostoConfig.featureFlags) }}
+                <pre>{{ nostoConfig.featureFlags|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
             </div>
         </div>
 
