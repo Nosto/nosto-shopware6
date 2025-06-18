@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use GuzzleHttp\Client;
 use Monolog\Logger;
 use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -133,6 +134,83 @@ abstract class AbstractRequestHandler
 
     protected function setSessionParamsFromCookies(Request $request, SearchOperation $searchOperation): void
     {
+        $cookieValue = $request->cookies->get('nosto-search-session-params');
+
+        if (!$cookieValue) {
+            try {
+                $client = new Client();
+                // TODO: @ugljesa fix
+                $nostoAccountId = 'pe5iajdk';
+
+                $path = $request->getPathInfo();
+                $isSearch = str_contains($path, '/search');
+                $isCategory = $request->attributes->has('navigationId');
+
+                $message = [
+                    'url' => $request->getUri(),
+                    'response_mode' => 'HTML',
+                    'referrer' => $request->headers->get('referer'),
+                    'page_type' => $isSearch ? 'search' : 'category',
+                    'elements' => [],
+                    'cart' => [],
+                ];
+
+                $events = [];
+
+                foreach ($request->query->all() as $key => $value) {
+                    if (empty($value)) {
+                        continue;
+                    }
+
+                    $events[] = ['ec', $value];
+                }
+                $message['events'] = $events;
+
+
+                $query = http_build_query([
+                    'c' => $request->cookies->get('2c_cId') ?? '68514ad25e20f8f341712173e',
+                    'm' => $nostoAccountId,
+                    'message' => json_encode($message),
+                    'skipEvents' => 'true',
+                ]);
+
+                $url = 'https://connect.nosto.com/ev1?' . $query;
+
+                $response = $client->get($url, [
+                    'headers' => [
+                        'User-Agent' => $request->headers->get('User-Agent'),
+                        'Accept' => 'application/json',
+                        'Accept-Language' => $request->headers->get('Accept-Language'),
+                        'Referer' => $request->headers->get('referer'),
+                        'Cookie' => $request->headers->get('cookie'),
+                    ]
+                ]);
+                $data = json_decode($response->getBody()->getContents(), true);
+
+                $sessionParams = [
+                    'segments' => array_map(
+                        fn($s) => $s['id'],
+                        $data['se']['active_segments'] ?? []
+                    ),
+                    'products' => [
+                        'personalizationBoost' => array_map(
+                            fn($cat) => [
+                                'field' => 'affinities.categories',
+                                'value' => [$cat['name']],
+                                'weight' => $cat['score'],
+                            ],
+                            $data['af']['top_categories'] ?? []
+                        ),
+                    ],
+                ];
+
+                $searchOperation->setSessionParams($sessionParams);
+
+            } catch (\Throwable $e) {
+                $this->logger->warning('Nosto ev1 call failed: ' . $e->getMessage());
+            }
+        }
+
         if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
             $sessionParams = json_decode($sessionParamsString, true);
             $searchOperation->setSessionParams(empty($sessionParams) ? null : $sessionParams);
