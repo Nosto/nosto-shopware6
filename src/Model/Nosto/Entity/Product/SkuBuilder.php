@@ -80,13 +80,19 @@ class SkuBuilder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            foreach ($product->getOptions() as $propertyOption) {
-                if ($propertyOption->getGroup() !== null) {
-                    $nostoSku->addCustomField(
-                        $propertyOption->getGroup()->getTranslation('name'),
-                        $propertyOption->getTranslation('name'),
-                    );
-                }
+            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
+            foreach ($options as $name => $option) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $option,
+                );
+            }
+            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
+            foreach ($properties as $name => $property) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $property,
+                );
             }
 
             // Add custom fields processing for SKUs (same logic as main product)

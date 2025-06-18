@@ -17,6 +17,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -259,5 +260,29 @@ class ProductHelper
         ) === StockFieldOptions::ACTUAL_STOCK
             ? $product->getStock()
             : $product->getAvailableStock();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function preparePropertiesOrOptions(PropertyGroupOptionCollection $array): array
+    {
+        $properties = [];
+
+        foreach ($array as $property) {
+            $group = $property->getGroup();
+            if (!$group) {
+                continue;
+            }
+
+            $groupName = $group->getTranslation('name');
+            $propertyName = $property->getTranslation('name');
+
+            $properties[$groupName] = isset($properties[$groupName])
+                ? $properties[$groupName] . ', ' . $propertyName
+                : $propertyName;
+        }
+
+        return $properties;
     }
 }

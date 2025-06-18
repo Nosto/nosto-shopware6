@@ -29,7 +29,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -172,14 +171,14 @@ class Builder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            $options = $this->preparePropertiesOrOptions($product->getOptions());
+            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
             foreach ($options as $name => $option) {
                 $nostoProduct->addCustomField(
                     $name,
                     $option,
                 );
             }
-            $properties = $this->preparePropertiesOrOptions($product->getProperties());
+            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
             foreach ($properties as $name => $property) {
                 $nostoProduct->addCustomField(
                     $name,
@@ -571,29 +570,5 @@ class Builder
         }
 
         return $skuCollection;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function preparePropertiesOrOptions(PropertyGroupOptionCollection $array): array
-    {
-        $properties = [];
-
-        foreach ($array as $property) {
-            $group = $property->getGroup();
-            if (!$group) {
-                continue;
-            }
-
-            $groupName = $group->getTranslation('name');
-            $propertyName = $property->getTranslation('name');
-
-            $properties[$groupName] = isset($properties[$groupName])
-                ? $properties[$groupName] . ', ' . $propertyName
-                : $propertyName;
-        }
-
-        return $properties;
     }
 }
