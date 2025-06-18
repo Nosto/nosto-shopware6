@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -20,6 +21,7 @@ class SkuBuilder
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
+        private readonly CrossSellingBuilder $crossSellingBuilder,
     ) {
     }
 
@@ -44,6 +46,22 @@ class SkuBuilder
         );
         $nostoSku->addCustomField(Builder::PRODUCT_NUMBER_KEY, $product->getProductNumber());
         $nostoSku->addCustomField(Builder::PRODUCT_ID_KEY, $product->getId());
+
+        if ($product->getShippingFree()) {
+            $nostoSku->addCustomField(Builder::SHIPPING_FREE_ATTR_NAME, 'true');
+        }
+
+        if ($manufacturer = $product->getManufacturer()) {
+            if ($brandMediaUrl = $manufacturer->getMedia()?->getUrl()) {
+                $nostoSku->addCustomField('brand-image-url', $brandMediaUrl);
+            }
+        }
+
+        $crossSellings = $this->crossSellingBuilder->build($product->getId(), $context);
+
+        if (!empty($crossSellings)) {
+            $nostoSku->addCustomField('cross-sellings', json_encode($crossSellings));
+        }
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {
