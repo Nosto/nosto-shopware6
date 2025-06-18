@@ -80,27 +80,33 @@ class SkuBuilder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            foreach ($product->getOptions() as $propertyOption) {
-                if ($propertyOption->getGroup() !== null) {
-                    $nostoSku->addCustomField(
-                        $propertyOption->getGroup()->getTranslation('name'),
-                        $propertyOption->getTranslation('name'),
-                    );
-                }
+            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
+            foreach ($options as $name => $option) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $option,
+                );
             }
-        }
+            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
+            foreach ($properties as $name => $property) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $property,
+                );
+            }
 
-        // Add custom fields processing for SKUs (same logic as main product)
-        $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
+            // Add custom fields processing for SKUs (same logic as main product)
+            $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
 
-        if ($product->getCustomFields() !== null) {
-            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
-                // All non-scalar value should be serialized
-                $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
-                    $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
+            if ($product->getCustomFields() !== null) {
+                foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+                    // All non-scalar value should be serialized
+                    $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
+                        $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
 
-                if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
-                    $nostoSku->addCustomField(mb_strtolower($fieldName), $fieldValue);
+                    if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
+                        $nostoSku->addCustomField(mb_strtolower($fieldName), $fieldValue);
+                    }
                 }
             }
         }
