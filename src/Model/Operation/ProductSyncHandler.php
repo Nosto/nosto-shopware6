@@ -100,6 +100,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
+
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
 
         while (($products = $parentProductIterator->fetch()) !== null) {
