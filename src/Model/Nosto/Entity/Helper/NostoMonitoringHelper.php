@@ -20,8 +20,7 @@ class NostoMonitoringHelper
         private readonly LoggerInterface $logger,
         private readonly ConfigProvider $nostoConfigProvider,
         private readonly NostoIntegration $plugin,
-    )
-    {
+    ) {
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);
         $this->connection = $connection;
