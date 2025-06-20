@@ -19,16 +19,6 @@ class TreeBuilder
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
 
-        $categoryNameSets = [
-            '2185182cbbd4462ea844abeb2a438b33' => [
-                'a515ae260223466f8e37471d279e6406' => 'Clothing',
-                '2185182cbbd4462ea844abeb2a438b33' => null,
-            ],
-            'a515ae260223466f8e37471d279e6406' => [
-                'a515ae260223466f8e37471d279e6406' => 'Clothing',
-            ],
-        ];
-
         $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
             $nameSet,
             static function (array $acc, $categoryName): array {
