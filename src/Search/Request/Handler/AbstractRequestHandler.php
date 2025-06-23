@@ -14,6 +14,7 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -94,7 +95,7 @@ abstract class AbstractRequestHandler
 
         $searchOperation->setAccountId($this->configProvider->getAccountId($channelId, $languageId));
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation);
+        $this->setSessionParamsFromCookies($request, $searchOperation, $channelId, $languageId);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         if ($criteria->hasExtension('nostoFilters')) {
             $this->filterHandler->handleFilters($request, $criteria, $searchOperation);
@@ -132,88 +133,88 @@ abstract class AbstractRequestHandler
         $criteria->addExtension('nostoPagination', $pagination);
     }
 
-    protected function setSessionParamsFromCookies(Request $request, SearchOperation $searchOperation): void
-    {
-        $cookieValue = $request->cookies->get('nosto-search-session-params');
+    protected function setSessionParamsFromCookies(
+        Request $request,
+        SearchOperation $searchOperation,
+        $channelId,
+        $languageId,
+    ): void {
+        $cookieName = 'nosto-search-session-params';
+        $cookieValue = $request->cookies->get($cookieName);
 
         if (!$cookieValue) {
             try {
-                $client = new Client();
-                // TODO: @ugljesa fix
-                $nostoAccountId = 'pe5iajdk';
+                $nostoAccountId = (new Account(
+                    $this->configProvider->getAccountId($channelId, $languageId),
+                ))->getName();
 
-                $path = $request->getPathInfo();
-                $isSearch = str_contains($path, '/search');
+                $isSearch = str_contains($request->getPathInfo(), '/search');
                 $isCategory = $request->attributes->has('navigationId');
 
                 $message = [
                     'url' => $request->getUri(),
                     'response_mode' => 'HTML',
                     'referrer' => $request->headers->get('referer'),
-                    'page_type' => $isSearch ? 'search' : 'category',
+                    'page_type' => $isSearch ? 'search' : ($isCategory ? 'category' : 'other'),
                     'elements' => [],
                     'cart' => [],
+                    'events' => [],
                 ];
 
-                $events = [];
-
-                foreach ($request->query->all() as $key => $value) {
-                    if (empty($value)) {
-                        continue;
+                foreach ($request->query->all() as $value) {
+                    if (!empty($value)) {
+                        $message['events'][] = ['ec', $value];
                     }
-
-                    $events[] = ['ec', $value];
                 }
-                $message['events'] = $events;
 
+                $clientId = $request->cookies->get('2c_cId') ?? Uuid::randomHex();
 
-                $query = http_build_query([
-                    'c' => $request->cookies->get('2c_cId') ?? '68514ad25e20f8f341712173e',
+                $queryParams = [
+                    'c' => $clientId,
                     'm' => $nostoAccountId,
                     'message' => json_encode($message),
                     'skipEvents' => 'true',
-                ]);
+                ];
 
-                $url = 'https://connect.nosto.com/ev1?' . $query;
-
-                $response = $client->get($url, [
+                $response = (new Client())->get('https://connect.nosto.com/ev1?' . http_build_query($queryParams), [
                     'headers' => [
                         'User-Agent' => $request->headers->get('User-Agent'),
                         'Accept' => 'application/json',
                         'Accept-Language' => $request->headers->get('Accept-Language'),
                         'Referer' => $request->headers->get('referer'),
                         'Cookie' => $request->headers->get('cookie'),
-                    ]
+                    ],
                 ]);
-                $data = json_decode($response->getBody()->getContents(), true);
+
+                $responseData = json_decode($response->getBody()->getContents(), true);
+
+                $segments = array_column($responseData['se']['active_segments'] ?? [], 'id');
+
+                $categories = array_map(
+                    fn ($cat) => [
+                        'field' => 'affinities.categories',
+                        'value' => [$cat['name']],
+                        'weight' => $cat['score'],
+                    ],
+                    $responseData['af']['top_categories'] ?? [],
+                );
 
                 $sessionParams = [
-                    'segments' => array_map(
-                        fn($s) => $s['id'],
-                        $data['se']['active_segments'] ?? []
-                    ),
+                    'segments' => $segments,
                     'products' => [
-                        'personalizationBoost' => array_map(
-                            fn($cat) => [
-                                'field' => 'affinities.categories',
-                                'value' => [$cat['name']],
-                                'weight' => $cat['score'],
-                            ],
-                            $data['af']['top_categories'] ?? []
-                        ),
+                        'personalizationBoost' => $categories,
                     ],
                 ];
 
                 $searchOperation->setSessionParams($sessionParams);
-
             } catch (\Throwable $e) {
                 $this->logger->warning('Nosto ev1 call failed: ' . $e->getMessage());
             }
         }
 
-        if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
-            $sessionParams = json_decode($sessionParamsString, true);
-            $searchOperation->setSessionParams(empty($sessionParams) ? null : $sessionParams);
+        if ($cookieValue = $request->cookies->get($cookieName)) {
+            $sessionParams = json_decode($cookieValue, true);
+            $searchOperation->setSessionParams(!empty($sessionParams) ? $sessionParams : null);
         }
     }
 }
