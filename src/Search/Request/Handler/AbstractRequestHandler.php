@@ -67,12 +67,14 @@ abstract class AbstractRequestHandler
             }
 
             $this->updateCriteriaWithProductIds($criteria, $responseParser);
-            $this->setPagination(
-                $criteria,
-                $responseParser,
-                $originalCriteria->getLimit(),
-                $originalCriteria->getOffset(),
-            );
+            if (!empty($criteria->getLimit()) && !empty($criteria->getOffset())) {
+                $this->setPagination(
+                    $criteria,
+                    $responseParser,
+                    $originalCriteria->getLimit(),
+                    $originalCriteria->getOffset(),
+                );
+            }
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Error while fetching products: {message}',
