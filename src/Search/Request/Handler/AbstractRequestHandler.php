@@ -67,7 +67,7 @@ abstract class AbstractRequestHandler
             }
 
             $this->updateCriteriaWithProductIds($criteria, $responseParser);
-            if (!empty($criteria->getLimit()) && !empty($criteria->getOffset())) {
+            if (!is_null($criteria->getLimit()) && !is_null($criteria->getOffset())) {
                 $this->setPagination(
                     $criteria,
                     $responseParser,
