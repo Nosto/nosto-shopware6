@@ -18,8 +18,8 @@ use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -33,7 +33,7 @@ class SearchService
         private readonly PaginationService $paginationService,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
-        private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $categoryRepository,
     ) {
     }
 
