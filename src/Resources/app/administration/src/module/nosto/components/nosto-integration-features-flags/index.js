@@ -175,6 +175,7 @@ Component.register('nosto-integration-features-flags', {
                 cacheTtl: 15,
                 redirectToThePDP: false,
                 enableProductVisibility: false,
+                enableTaggingForAllSkus: true,
             });
 
             this.createCategoryCollection();

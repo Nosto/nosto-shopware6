@@ -608,5 +608,25 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_tagging_skus %}
+            <sw-inherit-wrapper
+                :value="currentConfig['enableTaggingForAllSkus']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableTaggingForAllSkus']"
+                @update:value="onUpdateValue('enableTaggingForAllSkus', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="enableTaggingForAllSkus"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableTaggingForAllSkus.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('enableTaggingForAllSkus', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}
