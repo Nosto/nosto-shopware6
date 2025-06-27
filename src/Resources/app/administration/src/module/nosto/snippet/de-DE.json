@@ -101,12 +101,19 @@
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
                 "ignoreCookieConsent": "Cookie-Zustimmung ignorieren",
+                "timeEnableCache" : "Cache-Zeit einstellen (in Minuten)",
+                "enableCache": {
+                  "label": "Cache aktivieren",
+                  "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden"
+                },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",
                 "timeDailySynchronizationHelp": "Die Option gibt an, zu welcher Uhrzeit die t\u00e4gliche Produktsynchronisierung synchronisiert werden soll",
                 "enableProductPublishedDateTaggingHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird auch das Veröffentlichungsdatum des Produkts markiert.",
+                "redirectToProductDetailIfSingleSearchResult": "Automatische Weiterleitung zur Produktdetailseite bei nur einem Suchergebnis",
+                "redirectToProductDetailIfSingleSearchResultHelpText": "Wenn diese Option aktiviert ist, werden Kunden automatisch zur Produktdetailseite weitergeleitet, wenn eine Suchanfrage nur ein einziges passendes Produkt ergibt.",
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "storeAbandonedCartDataHelpText": "Diese Konfigurationsoption steuert, ob Daten für abgebrochene Warenkörbe in der entsprechenden Datenbank Tabelle gespeichert werden sollen. Wenn diese Option aktiviert ist, ruft das System die Daten ab und erstellt neue Zeilen in der Tabelle für jeden abgebrochenen Warenkorb. Wenn sie deaktiviert ist, werden keine neuen Zeilen hinzugefügt, was möglicherweise Leistungsprobleme verhindert.",
@@ -121,9 +128,9 @@
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
-                "enableSearchImpressions": {
-                    "label": "Sende Such- und Kategorieanalyse",
-                    "helpText": "Aktivieren Sie die Such- und Kategorie-Impressions-Analyse über das Plugin. Passen Sie vorher die Autovervollständigungs-Vorlage an, um doppelte Impressions zu vermeiden. Bei Fragen wenden Sie sich an den Nosto-Support.."
+                "enableProductVisibility": {
+                    "label": "Produkt-Sichtbarkeit aktivieren",
+                    "helpText": "Bitte führen Sie eine vollständige Produktsynchronisierung durch und indexieren Sie die Felder \"showCategory\" und \"showSearch\" im Nosto-Konto, bevor Sie dies aktivieren"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",

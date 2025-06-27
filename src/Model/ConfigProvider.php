@@ -236,15 +236,6 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledSearchImpressions(?string $channelId = null, ?string $languageId = null): bool
-    {
-        return $this->configService->getBool(
-            NostoConfigService::ENABLE_SEARCH_IMPRESSIONS,
-            $channelId,
-            $languageId,
-        );
-    }
-
     public function isEnabledProductLabellingSync(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
@@ -296,6 +287,38 @@ class ConfigProvider
     {
         return $this->configService->getInt(
             NostoConfigService::OLD_NOSTO_DATA_CLEANUP_PERIOD,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isCacheEnabled(?string $channelId = null, ?string $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_CACHE,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function getCacheTtl(?string $channelId = null, ?string $languageId = null): ?int
+    {
+        return $this->configService->get(NostoConfigService::CACHE_TTL, $channelId, $languageId);
+    }
+
+    public function isEnabledRedirectToThePDP($channelId = null, $languageId = null): ?int
+    {
+        return $this->configService->getInt(
+            NostoConfigService::REDIRECT_TO_THE_PDP,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledProductVisibility($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_PRODUCT_VISIBILITY,
             $channelId,
             $languageId,
         );
