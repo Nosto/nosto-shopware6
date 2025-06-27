@@ -66,12 +66,19 @@ Component.register('nosto-integration-settings-general', {
     },
 
     methods: {
+        hasError(value) {
+            return !value ? {
+                code: 1,
+                detail: this.$tc('nosto.messages.blank-field-error'),
+            } : null;
+        },
+
         createdComponent() {
             this.setDefaultConfigs({
                 tag1: [],
                 tag2: [],
                 tag3: [],
-                selectedCustomFields: null,
+                selectedCustomFields: [],
                 googleCategory: null,
                 isInitializeNostoAfterInteraction: null,
             });

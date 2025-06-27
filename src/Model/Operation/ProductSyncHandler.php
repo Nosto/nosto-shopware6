@@ -33,7 +33,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Throwable;
 
 class ProductSyncHandler implements Job\JobHandlerInterface
 {
@@ -104,16 +103,43 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
 
-        try {
-            while (($products = $parentProductIterator->fetch()) !== null) {
-                $this->doUpsertOperation($account, $context, $products->getEntities(), $result, $ids);
-            }
+        while (($products = $parentProductIterator->fetch()) !== null) {
+            foreach ($products->getEntities() as $product) {
+                try {
+                    $productCollection = new ProductCollection([$product]);
 
-            if (!empty($deletedProductIds)) {
-                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
+                    $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
+                } catch (\Throwable $e) {
+                    $productId = $product->getId();
+                    $productNumber = method_exists(
+                        $product,
+                        'getProductNumber',
+                    ) ? $product->getProductNumber() : 'unknown';
+
+                    $message = sprintf(
+                        'Error while processing product ID: %s (Product Number: %s): %s',
+                        $productId,
+                        $productNumber,
+                        $e->getMessage(),
+                    );
+
+                    $wrappedException = new \RuntimeException($message, 0, $e);
+                    $result->addError($wrappedException);
+                }
             }
-        } catch (Throwable $e) {
-            $result->addError($e);
+        }
+
+        if (!empty($deletedProductIds)) {
+            try {
+                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
+            } catch (\Throwable $e) {
+                $wrappedException = new \RuntimeException(
+                    'Error during product deletion: ' . $e->getMessage(),
+                    0,
+                    $e,
+                );
+                $result->addError($wrappedException);
+            }
         }
 
         return $result;
