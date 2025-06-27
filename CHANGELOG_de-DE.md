@@ -1,3 +1,11 @@
+# 6.0.1
+* Neu: Senden von zusätzlichen Daten für Produkte und Varianten an Nosto
+* Neu: Migration von Vuex zu Pinia
+* Fix: Verbesserte Produktkennzeichnung für Crawler und Nosto Personalisierung
+* Fix: Verbesserte Informationen und Status für Sync-Jobs
+* Fix: Domain-URL-Validierung hinzugefügt und Label und Hilfetext aktualisiert
+* Fix: Redundante Suchaufrufe durch einmaliges Abrufen von Filtern reduziert
+
 # 6.0.0
 * Neu: Kompatibilität mit Shopware 6.7
 * Neu: Möglichkeit, Caching für Such- und Kategorieseiten zu deaktivieren und anzupassen, wodurch Analytics und die Nosto-Personalisierung verbessert werden.
