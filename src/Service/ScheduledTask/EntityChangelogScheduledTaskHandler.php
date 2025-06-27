@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Service\ScheduledTask;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\JobScheduler;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,8 +19,9 @@ class EntityChangelogScheduledTaskHandler extends ScheduledTaskHandler implement
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         private readonly JobScheduler $jobScheduler,
+        private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $this->logger);
     }
 
     public function run(): void

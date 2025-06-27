@@ -180,7 +180,8 @@ Component.register('nosto-integration-settings', {
                         !this.getInheritedValue(configKey, 'ratingsReviews') ||
                         !this.getInheritedValue(configKey, 'stockField') ||
                         !this.getInheritedValue(configKey, 'crossSellingSync') ||
-                        !this.getInheritedValue(configKey, 'categoryNaming')
+                        !this.getInheritedValue(configKey, 'categoryNaming') ||
+                        !this.getInheritedValue(configKey, 'domain')
                     )
                 ) {
                     const [salesChannelId, languageId] = configKey === 'null'

@@ -34,7 +34,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         private readonly TagAwareAdapterInterface $cache,
         private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $this->logger);
     }
 
     public function run(): void
