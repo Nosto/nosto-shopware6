@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "748e2416c617f06d1216f3db405d00eb",
+    "content-hash": "eb769b7f825e045af3d7211ba9a26e83",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.6.7",
+            "version": "7.6.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "e6926d030654294b114c9b2444cfd4ba0e381ad8"
+                "reference": "1fbd114f3d56aec068543a4a7f652ce90f427f5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/e6926d030654294b114c9b2444cfd4ba0e381ad8",
-                "reference": "e6926d030654294b114c9b2444cfd4ba0e381ad8",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/1fbd114f3d56aec068543a4a7f652ce90f427f5a",
+                "reference": "1fbd114f3d56aec068543a4a7f652ce90f427f5a",
                 "shasum": ""
             },
             "require": {
@@ -58,9 +58,9 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.7"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.6.9"
             },
-            "time": "2025-04-15T05:51:02+00:00"
+            "time": "2025-06-27T12:32:21+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
