@@ -68,7 +68,11 @@ class CategorySyncHandler implements JobHandlerInterface
             try {
                 $this->sendCategory($category, $account, $context, $result);
             } catch (Throwable $e) {
-                $result->addError($e);
+                $message = $e->getMessage() . ' | Category ID: ' . $category->getId();
+
+                $wrappedException = new \RuntimeException($message, 0, $e);
+
+                $result->addError($wrappedException);
             }
         }
 
