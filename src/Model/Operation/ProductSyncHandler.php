@@ -33,7 +33,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Throwable;
 
 class ProductSyncHandler implements Job\JobHandlerInterface
 {
@@ -78,7 +77,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $operationResult;
     }
 
-    private function loadRuleIds(SalesChannelContext $channelContext): array
+    protected function loadRuleIds(SalesChannelContext $channelContext): array
     {
         return $this->ruleLoader->load($channelContext->getContext())->filter(
             function (RuleEntity $rule) use ($channelContext) {
@@ -87,7 +86,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         )->getIds();
     }
 
-    private function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
+    protected function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
     {
         $productIds = array_keys($ids);
         $result = new Job\JobResult();
@@ -103,16 +102,43 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
 
-        try {
-            while (($products = $parentProductIterator->fetch()) !== null) {
-                $this->doUpsertOperation($account, $context, $products->getEntities(), $result, $ids);
-            }
+        while (($products = $parentProductIterator->fetch()) !== null) {
+            foreach ($products->getEntities() as $product) {
+                try {
+                    $productCollection = new ProductCollection([$product]);
 
-            if (!empty($deletedProductIds)) {
-                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
+                    $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
+                } catch (\Throwable $e) {
+                    $productId = $product->getId();
+                    $productNumber = method_exists(
+                        $product,
+                        'getProductNumber',
+                    ) ? $product->getProductNumber() : 'unknown';
+
+                    $message = sprintf(
+                        'Error while processing product ID: %s (Product Number: %s): %s',
+                        $productId,
+                        $productNumber,
+                        $e->getMessage(),
+                    );
+
+                    $wrappedException = new \RuntimeException($message, 0, $e);
+                    $result->addError($wrappedException);
+                }
             }
-        } catch (Throwable $e) {
-            $result->addError($e);
+        }
+
+        if (!empty($deletedProductIds)) {
+            try {
+                $this->doDeleteOperation($account, $context, $deletedProductIds, $ids);
+            } catch (\Throwable $e) {
+                $wrappedException = new \RuntimeException(
+                    'Error during product deletion: ' . $e->getMessage(),
+                    0,
+                    $e,
+                );
+                $result->addError($wrappedException);
+            }
         }
 
         return $result;
@@ -122,7 +148,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      * @throws NostoException
      * @throws AbstractHttpException
      */
-    private function doUpsertOperation(
+    protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
         ProductCollection $productCollection,
@@ -248,7 +274,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $this->productProvider->get($product, $context);
     }
 
-    private function deleteVariantProducts(
+    protected function deleteVariantProducts(
         SalesChannelProductEntity|ProductEntity $product,
         SalesChannelContext $context,
         Account $account,
@@ -263,7 +289,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
     }
 
-    private function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
+    protected function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
     {
         $message = '';
 
@@ -284,7 +310,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
     }
 
-    private function doDeleteOperation(
+    protected function doDeleteOperation(
         Account $account,
         SalesChannelContext $context,
         array $productIds,
@@ -304,7 +330,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->delete();
     }
 
-    private function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
+    protected function getIdentifiers(SalesChannelContext $context, array $productIds, array $mapping): array
     {
         $identifierType = $this->configProvider->getProductIdentifier(
             $context->getSalesChannelId(),
@@ -317,7 +343,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productIds;
     }
 
-    private function getProductNumbers(array $productIds, array $mapping): array
+    protected function getProductNumbers(array $productIds, array $mapping): array
     {
         $productNumbers = [];
 
@@ -330,7 +356,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         return $productNumbers;
     }
 
-    private function getDomainUrl(
+    protected function getDomainUrl(
         ?SalesChannelDomainCollection $domains,
         ?string $channelId,
         ?string $languageId,

@@ -83,6 +83,16 @@
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
         </service>
 
+        <service
+                id="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
+                class="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
+                decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute"
+                decoration-priority="1000"
+                autowire="true"
+                autoconfigure="true"
+        >
+        </service>
+
         <service id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute.inner"/>
             <argument type="service" id="event_dispatcher"/>

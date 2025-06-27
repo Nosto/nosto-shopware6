@@ -74,6 +74,13 @@ Component.register('nosto-integration-settings-general', {
     },
 
     methods: {
+        hasError(value) {
+            return !value ? {
+                code: 1,
+                detail: this.$tc('nosto.messages.blank-field-error'),
+            } : null;
+        },
+
         createdComponent() {
             const defaultConfigs = {
                 tag1: null,
