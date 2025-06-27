@@ -9,6 +9,11 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
+use Nosto\NostoIntegration\Struct\FiltersExtension;
+use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -80,6 +85,7 @@ class ProductHelper
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
 
         return $criteria;
     }
@@ -280,5 +286,63 @@ class ProductHelper
         }
 
         return $properties;
+    }
+
+    public static function convertJsonToFilterMapping(?string $json): IdToFieldMapping
+    {
+        $mapping = new IdToFieldMapping();
+
+        if (!$json) {
+            return $mapping;
+        }
+
+        $decoded = json_decode($json, true);
+
+        if (!is_array($decoded)) {
+            return $mapping;
+        }
+
+        foreach ($decoded as $filterId => $field) {
+            $mapping->addMapping($filterId, $field);
+        }
+
+        return $mapping;
+    }
+
+    public static function convertJsonToFilter(string $json): FiltersExtension
+    {
+        $filtersExtension = new FiltersExtension();
+
+        $parsed = json_decode($json, true);
+
+        $facets = $parsed['data']['search']['products']['facets'] ?? [];
+
+        foreach ($facets as $facet) {
+            $id = $facet['id'];
+            $name = $facet['name'];
+            $field = $facet['field'];
+            $type = $facet['type'];
+
+            if ($type === 'stats') {
+                $min = $facet['min'] ?? 0;
+                $max = $facet['max'] ?? 0;
+
+                $filter = new RangeSliderFilter($id, $name, $field, $min, $max);
+            } elseif ($type === 'terms') {
+                $filter = new LabelTextFilter($id, $name, $field);
+
+                foreach ($facet['data'] as $item) {
+                    $value = $item['value'];
+                    $filterValue = new FilterValue($value, $value);
+                    $filter->addValue($filterValue);
+                }
+            } else {
+                continue;
+            }
+
+            $filtersExtension->addFilter($filter);
+        }
+
+        return $filtersExtension;
     }
 }

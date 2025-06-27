@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,9 +21,25 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setQuery((string) $request->query->get('search'));
+
+        if ($this->configProvider->isEnabledProductVisibility(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $searchOperation->addValueFilter(
+                'customFields.' . Builder::SHOW_SEARCH,
+                'true',
+            );
+        }
+
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
+        $nostoResponse = $searchOperation->executeSw();
 
-        return $searchOperation->execute();
+        if (empty($request->cookies->get('nostoCookieFilter'))) {
+            $request->attributes->set('nostoAPIResult', $nostoResponse[0]);
+        }
+
+        return $nostoResponse[1];
     }
 }

@@ -52,8 +52,8 @@
                     "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
                 "domain": {
-                    "label": "Domain for generating product url",
-                    "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url"
+                    "label": "Domain for generating product url, category url, and placeholder image url",
+                    "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url, category url, and placeholder image url"
                 }
             },
             "featuresFlags": {
@@ -101,6 +101,11 @@
                 "enableLabelling": "Enable Product Labelling Sync",
                 "storeAbandonedCartData": "Store data for abandoned carts",
                 "ignoreCookieConsent": "Ignore cookie consent",
+                "timeEnableCache" : "Set cache time (in minutes)",
+                "enableCache": {
+                    "label": "Enable Cache",
+                    "helpText": "Set the cache time to live for Search and Category pages. To get the most of the Nosto personalisation disable the caching"
+                },
                 "enableSyncFirstAvailableVariant": "Sync first available variant as a product, if product is on clearance and out of stock",
                 "enableSyncFirstAvailableVariantHelpText": "If the checkbox is checked, sync first available variant as a product, if product is on clearance and out of stock.",
                 "enableDailySynchronization": "Enable Daily Product Synchronization",
@@ -108,6 +113,8 @@
                 "timeDailySynchronization": "Time for Daily Product Synchronization",
                 "timeDailySynchronizationHelp": "The option specifies at which time to sync daily product synchronization",
                 "enableProductPublishedDateTaggingHelpText": "If the checkbox is checked, product publishing date will be tagged as well.",
+                "redirectToProductDetailIfSingleSearchResult": "Auto-redirect to product detail page if search returns only one result",
+                "redirectToProductDetailIfSingleSearchResultHelpText": "When enabled, customers will be automatically redirected to the product detail page if a search query returns only one matching product.",
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "storeAbandonedCartDataHelpText": "This configuration option controls whether data for abandoned carts should be stored in the relevant table. When this option is enabled, the system will fetch and create new rows in the table for each abandoned cart. If disabled, no new rows will be added, potentially preventing performance issues.",
@@ -121,9 +128,9 @@
                     "label": "Enable cleanup of old jobs",
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
                 },
-                "enableSearchImpressions": {
-                    "label": "Send Search & Category analytics",
-                    "helpText": "Enable search & category impression analytics via the plugin. Please ensure your autocomplete template has been adjusted before activating this function to avoid duplicated impressions being reported. If unsure, please contact Nosto support."
+                "enableProductVisibility": {
+                    "label": "Enable product visibility",
+                    "helpText": "Please perform a full product sync and index the fields \"showCategory\" and \"showSearch\" on the Nosto account before enabling this"
                 },
                 "oldJobCleanupPeriod": {
                     "after": "After",
