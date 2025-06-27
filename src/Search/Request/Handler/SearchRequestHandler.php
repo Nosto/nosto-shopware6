@@ -24,10 +24,7 @@ class SearchRequestHandler extends AbstractRequestHandler
         $searchOperation->setConnectTimeout(3);
         $nostoResponse = $searchOperation->executeSw();
 
-        if ((empty(
-            $request->cookies->get('nostoCookieFilter')) && count($request->query->all()) === 1)
-            || $limit === 0
-        ) {
+        if (empty($request->cookies->get('nostoCookieFilter'))) {
             $request->attributes->set('nostoAPIResult', $nostoResponse[0]);
         }
 
