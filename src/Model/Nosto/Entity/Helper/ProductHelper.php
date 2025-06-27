@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -322,5 +323,29 @@ class ProductHelper
         ) === StockFieldOptions::ACTUAL_STOCK
             ? $product->getStock()
             : $product->getAvailableStock();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function preparePropertiesOrOptions(PropertyGroupOptionCollection $array): array
+    {
+        $properties = [];
+
+        foreach ($array as $property) {
+            $group = $property->getGroup();
+            if (!$group) {
+                continue;
+            }
+
+            $groupName = $group->getTranslation('name');
+            $propertyName = $property->getTranslation('name');
+
+            $properties[$groupName] = isset($properties[$groupName])
+                ? $properties[$groupName] . ', ' . $propertyName
+                : $propertyName;
+        }
+
+        return $properties;
     }
 }
