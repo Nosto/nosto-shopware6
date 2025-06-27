@@ -46,9 +46,11 @@ class Builder
             foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
                 if ($seoUrl->getLanguageId() === $context->getLanguageId()
                     && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                    && $seoUrl->getIsCanonical()
                 ) {
                     $url = $seoUrl->getSeoPathInfo();
                     $nostoCategory->setUrl($domain->getUrl() . '/' . $url);
+                    break;
                 }
             }
         }
