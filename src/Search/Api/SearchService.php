@@ -67,8 +67,7 @@ class SearchService
                 return;
             }
 
-            $this->fetchFilters($request, $criteria, $context, $handler);
-            $this->fetchSelectableFilters($request, $criteria, $context, $handler);
+            $handler->fetchResults($request, $criteria, $context);
         }
     }
 
@@ -97,8 +96,13 @@ class SearchService
             sprintf('Shopware 6 Plugin %s', $pluginVersion),
         );
 
-        $this->fetchFilters($request, $criteria, $context, $requestHandler);
-        $requestHandler->fetchProducts($request, $criteria, $context);
+        $fetchedFilters = false;
+        if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
+            $fetchedFilters = true;
+            $this->fetchFilters($request, $criteria, $context, $requestHandler);
+        }
+
+        $requestHandler->fetchResults($request, $criteria, $context, $fetchedFilters);
     }
 
     protected function fetchFilters(
@@ -109,11 +113,16 @@ class SearchService
     ): void {
         try {
             $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $filters = $this->parseFiltersFromResponse($response);
-            $filterMapping = $this->parseFilterMappingFromResponse($response);
+            $filters = $requestHandler->parseFiltersFromResponse($response);
+            $filterMapping = $requestHandler->parseFilterMappingFromResponse($response);
 
             $criteria->addExtension('nostoFilters', $filters);
             $criteria->addExtension('nostoFilterMapping', $filterMapping);
+
+            $request->attributes->set(
+                'setNostoCookie',
+                json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR),
+            );
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
@@ -121,28 +130,6 @@ class SearchService
 
             $this->logger->error(
                 sprintf('Error while fetching all filters: %s', $e->getMessage()),
-            );
-        }
-    }
-
-    protected function fetchSelectableFilters(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context,
-        AbstractRequestHandler $requestHandler,
-    ): void {
-        try {
-            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $response = $this->parseFiltersFromResponse($response);
-
-            $criteria->addExtension('nostoAvailableFilters', $response);
-        } catch (Throwable $e) {
-            /** @var NostoService $nostoService */
-            $nostoService = $context->getContext()->getExtension('nostoService');
-            $nostoService->disable();
-
-            $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage()),
             );
         }
     }
