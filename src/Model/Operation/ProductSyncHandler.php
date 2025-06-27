@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Model\Operation;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
@@ -15,6 +14,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
+use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Nosto\Operation\DeleteProduct;
 use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Http\Exception\AbstractHttpException;
@@ -170,17 +170,36 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $channelId,
         );
 
+        $productTaggingHelper = new ProductTaggingHelper(
+            $this->systemConfigService,
+            $this->configProvider,
+            $this->productProvider,
+            $this->productHelper,
+        );
+
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            $handledProducts = $this->processProductVariants(
-                $product,
+
+            $handledProducts = $productTaggingHelper->findProductId(
                 $context,
-                $account,
-                $ids,
-                $hideProductsAfterClearance,
+                $product,
+                null,
+                true,
+                true,
             );
+
+            if (!$handledProducts->count()) {
+                $this->deleteVariantProducts($product, $context, $account, $ids);
+                $this->doDeleteOperation(
+                    $account,
+                    $context,
+                    [$product->getId(), $product->getParentId()],
+                    $ids,
+                );
+            }
+
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
@@ -230,260 +249,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
-    /**
-     * If you are changing logic here please make sure
-     * to update the {@see Nosto\NostoIntegration\Utils\ProductTaggingHelper} logic otherwise
-     * TAGGING AND ORDER SYNC MAY BREAK
-     */
-    protected function processProductVariants(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        Account $account,
-        array $ids,
-        bool $hideProductsAfterClearance,
-    ): ProductCollection {
-        $variantConfig = $product->getVariantListingConfig();
-        $configuratorGroups = array_filter(
-            $variantConfig?->getConfiguratorGroupConfig() ?? [],
-            static fn (array $config) => $config['expressionForListings'],
-        );
-
-        if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
-            return new ProductCollection([$product]);
-        }
-
-        $mainProducts = new ProductCollection();
-        if ($variantConfig->getDisplayParent()) {
-            if ($mainProduct = $this->handleMainProduct($product, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($mainProduct);
-            }
-        } elseif ($variantConfig->getDisplayCheapestVariant()) {
-            $mainProducts->add($this->handleCheapestVariant($product, $context));
-        } elseif ($variantConfig->getMainVariantId()) {
-            if ($variant = $this->handleMainVariant($product, $variantConfig, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($variant);
-            }
-        } elseif (count($configuratorGroups)) {
-            $mainProducts->merge($this->handleConfiguratorGroups($product, $context, $hideProductsAfterClearance));
-        } else {
-            if ($variant = $this->handleVariant($product, $context, $hideProductsAfterClearance)) {
-                $mainProducts->add($variant);
-            }
-        }
-
-        if (!$mainProducts->count()) {
-            $this->deleteVariantProducts($product, $context, $account, $ids);
-            $this->doDeleteOperation(
-                $account,
-                $context,
-                [$product->getId(), $product->getParentId()],
-                $ids,
-            );
-        }
-
-        return $mainProducts;
-    }
-
-    protected function handleVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-
-        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
-            $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-        }
-
-        if (!$mainProduct) {
-            $mainProduct = $this->handleFirstActiveVariant($product);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleMainProduct(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $stock = $this->productHelper->getProductStock($product, $context);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        if ($product->getActive()) {
-            $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $product->getIsCloseout()
-                ? $this->handleFirstAvailableVariant($product, $context)
-                : $product;
-        } else {
-            $mainProduct = $shouldHandleFirstAvailable
-                ? $this->handleFirstAvailableVariant($product, $context)
-                : $this->handleFirstActiveVariant($product);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleCheapestVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-    ): ProductEntity {
-        $cheapestVariant = $product;
-        $lowestPrice = null;
-
-        foreach ($product->getChildren() as $child) {
-            $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
-
-            if ((is_null($lowestPrice) || $variantPrice < $lowestPrice) && $child->getActive()) {
-                $lowestPrice = $variantPrice;
-                $cheapestVariant = $child;
-            }
-        }
-
-        $cheapestVariant->setChildren(
-            $product->getChildren()->filter(
-                static fn (ProductEntity $child) => $child->getId() !== $cheapestVariant->getId(),
-            ),
-        );
-
-        return $cheapestVariant;
-    }
-
-    protected function handleMainVariant(
-        ProductEntity $product,
-        VariantListingConfig $variantConfig,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        foreach ($product->getChildren() as $child) {
-            if ($child->getId() !== $variantConfig->getMainVariantId()) {
-                $variants->add($child);
-                continue;
-            }
-
-            if ($child->getActive()) {
-                $stock = $this->productHelper->getProductStock($child, $context);
-                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $child->getIsCloseout()
-                    ? $this->handleFirstAvailableVariant($product, $context)
-                    : $child;
-            } else {
-                $mainProduct = $shouldHandleFirstAvailable
-                    ? $this->handleFirstAvailableVariant($product, $context)
-                    : $this->handleFirstActiveVariant($product);
-            }
-        }
-
-        if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleConfiguratorGroups(
-        ProductEntity $product,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ProductCollection {
-        $groupedVariants = [];
-        foreach ($product->getChildren() as $child) {
-            $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
-        }
-
-        $mainProducts = new ProductCollection();
-        foreach ($groupedVariants as $variants) {
-            /** @var SalesChannelProductEntity $mainProduct */
-            $mainProduct = $this->handleVariantByProperty($variants, $context, $hideProductsAfterClearance);
-            if ($mainProduct) {
-                $mainProducts->add($mainProduct);
-            }
-        }
-
-        return $mainProducts;
-    }
-
-    protected function handleVariantByProperty(
-        array $variants,
-        SalesChannelContext $context,
-        bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $children = new ProductCollection();
-        $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
-
-        foreach ($variants as $child) {
-            if ($shouldHandleFirstAvailable) {
-                $stock = $this->productHelper->getProductStock($child, $context);
-                if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
-                    $mainProduct = $child;
-                } else {
-                    $children->add($child);
-                }
-            } elseif (!$mainProduct && $child->getActive()) {
-                $mainProduct = $child;
-            } else {
-                $children->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($children);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
-    {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-
-        foreach ($product->getChildren() as $child) {
-            if ($child->getActive() && !$mainProduct) {
-                $mainProduct = $child;
-            } else {
-                $variants->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleFirstAvailableVariant(
-        ProductEntity $product,
-        SalesChannelContext $context,
-    ): ?ProductEntity {
-        $mainProduct = null;
-        $variants = new ProductCollection([$product]);
-
-        foreach ($product->getChildren() as $child) {
-            $stock = $this->productHelper->getProductStock($child, $context);
-
-            if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
-                $mainProduct = $child;
-            } else {
-                $variants->add($child);
-            }
-        }
-
-        if ($mainProduct) {
-            $mainProduct->setChildren($variants);
-        }
-
-        return $mainProduct;
-    }
-
-    protected function handleProduct(
+    private function handleProduct(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
         Account $account,
