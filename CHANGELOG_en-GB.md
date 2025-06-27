@@ -1,3 +1,14 @@
+# 5.1.5
+* New: Ability to disable and adjust caching for Search and Category Pages, Improving analytics and Nosto Personalisation
+* New: Ability to open Product Details page if only 1 search result is given
+* New: Ability to use Shopware visibility to filter search/category merchandising products (Make sure full product sync is done beforehand)
+* Fix: Fixed an issue with Nosto responses including data and error to just fail
+* Fix: Category merchandising using SEO category names
+* Fix: Use default category name if translation is not provided
+* Fix: Search issues if elastic search is used by default
+* Fix: Send Search analytics if no result was given
+* Fix: Removal of Feature flag to send search analytics (analytics are always sent)
+
 # 5.1.4
 * New: Synchronization for category urls, and improved category tagging
 
