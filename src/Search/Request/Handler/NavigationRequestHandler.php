@@ -7,11 +7,12 @@ namespace Nosto\NostoIntegration\Search\Request\Handler;
 use Monolog\Logger;
 use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +22,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
         ConfigProvider $configProvider,
         SortingHandlerService $sortingHandlerService,
         Logger $logger,
-        private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $categoryRepository,
     ) {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
@@ -41,6 +42,17 @@ class NavigationRequestHandler extends AbstractRequestHandler
         if ($searchOperation->getVariables()["query"] === "" && $searchOperation->getVariables()["sort"] === null) {
             $searchOperation->setQuery(null);
         }
+
+        if ($this->configProvider->isEnabledProductVisibility(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $searchOperation->addValueFilter(
+                'customFields.' . Builder::SHOW_CATEGORY,
+                'true',
+            );
+        }
+
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 
@@ -49,10 +61,13 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
     {
+        $criteria = new Criteria([$categoryId]);
+        $criteria->addAssociation('seoUrls');
+
         /** @var ?CategoryEntity $category */
         $category = $this->categoryRepository
-            ->search(new Criteria([$categoryId]), $context)
-            ->first();
+            ->search($criteria, $context->getContext())
+            ->get($categoryId);
 
         if (!$category) {
             return null;
@@ -62,24 +77,24 @@ class NavigationRequestHandler extends AbstractRequestHandler
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-        $pathIds = explode('|', trim($category->getPath(), '|'));
-        $mapping = $category->getTranslation('breadcrumb');
-        $categoryName = $category->getTranslation('name');
-        $navigationCategoryId = $context->getSalesChannel()->getNavigationCategoryId();
 
-        $categoryNames = array_map(
-            static fn (string $categoryId): string => $mapping[$categoryId],
-            array_filter($pathIds, static fn (string $id): bool => $id !== $navigationCategoryId),
-        );
+        $categoryPath = '';
+        foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
+            if ($seoUrl->getLanguageId() === $context->getLanguageId()
+                && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                && $seoUrl->getIsCanonical()
+            ) {
+                $categoryPath = '/' . rtrim($seoUrl->getSeoPathInfo(), '/');
+                break;
+            }
+        }
 
-        $categoryNames[] = $withId === CategoryNamingOptions::WITH_ID
+        return $withId === CategoryNamingOptions::WITH_ID
             ? sprintf(
                 TreeBuilder::NAME_WITH_ID_TEMPLATE,
-                $categoryName,
+                $categoryPath,
                 $category->getId(),
             )
-            : $categoryName;
-
-        return '/' . implode('/', $categoryNames);
+            : $categoryPath;
     }
 }
