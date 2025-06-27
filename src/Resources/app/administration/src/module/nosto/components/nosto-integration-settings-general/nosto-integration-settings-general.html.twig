@@ -68,7 +68,9 @@
                             :isInherited="props.isInherited"
                             :disabled="props.isInherited"
                             :value="props.currentValue"
-                            @update:modelValue="onUpdateValue('selectedCustomFields', $event)"
+                            @update:value="onUpdateValue('selectedCustomFields', $event)"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
                         />
                     </template>
                 </sw-inherit-wrapper>

@@ -78,7 +78,7 @@ Component.register('nosto-integration-settings-general', {
                 tag1: [],
                 tag2: [],
                 tag3: [],
-                selectedCustomFields: null,
+                selectedCustomFields: [],
                 googleCategory: null,
                 isInitializeNostoAfterInteraction: null,
             });
