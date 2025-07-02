@@ -1,3 +1,10 @@
+# 3.5.6
+* Fix: Verbesserte Produktkennzeichnung für Crawler und Nosto Personalisierung
+* Fix: Verbesserte Informationen und Status für Sync-Jobs
+* Fix: Domain-URL-Validierung hinzugefügt und Label und Hilfetext aktualisiert
+* Fix: Redundante Suchaufrufe durch einmaliges Abrufen von Filtern reduziert
+* Neu: Senden von zusätzlichen Daten für Produkte und Varianten an Nosto
+
 # 3.5.5
 * Neu: Möglichkeit, Caching für Such- und Kategorieseiten zu deaktivieren und anzupassen, wodurch Analytics und die Nosto-Personalisierung verbessert werden.
 * Neu: Das Öffnen der Produktdetailseite ist nun möglich, wenn die Suche genau ein Ergebnis liefert.

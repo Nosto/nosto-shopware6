@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Utils;
 
+use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
-use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -23,14 +26,18 @@ class ProductTaggingHelper
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
+        private readonly ?ProductProviderInterface $productProvider = null,
+        private readonly ?ProductHelper $productHelper = null,
     ) {
     }
 
     public function findProductId(
         SalesChannelContext $context,
         ProductEntity $product,
-        ProductEntity $variant,
-    ): string {
+        ?ProductEntity $variant,
+        bool $isProductTagging = false,
+        bool $isProductSync = false,
+    ): string|NostoProduct|ProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $productToReturn = $product;
         $configuratorGroups = array_filter(
@@ -38,7 +45,18 @@ class ProductTaggingHelper
             static fn (array $config) => $config['expressionForListings'],
         );
         if (!$product->getChildCount() || !($variantConfig instanceof VariantListingConfig)) {
-            return $this->getIdOrProductNumber($context, $product);
+            if (!$isProductTagging) {
+                return $this->getIdOrProductNumber($context, $product);
+            } elseif (!$isProductSync) {
+                $shopwareProduct = $this->productHelper->getShopwareProducts(
+                    [$product->getId()],
+                    $context,
+                )->first();
+                $shopwareProduct->setChildren($productToReturn->getChildren());
+                return $this->productProvider->get($shopwareProduct, $context);
+            } else {
+                return new ProductCollection([$product]);
+            }
         }
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
@@ -66,7 +84,25 @@ class ProductTaggingHelper
             }
         }
         //if for whatever reason we don't find the correct product return just main product id
-        return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
+        if ($isProductSync) {
+            if ($productToReturn instanceof ProductCollection) {
+                $mainProducts = $productToReturn;
+            } else {
+                $mainProducts = new ProductCollection();
+                $mainProducts->add($productToReturn);
+            }
+            return $mainProducts;
+        } elseif (!$isProductTagging) {
+            return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
+        } else {
+            $productId = $productToReturn?->getId() ?? $product->getId();
+            $shopwareProduct = $this->productHelper->getShopwareProducts(
+                [$productId],
+                $context,
+            )->first();
+            $shopwareProduct->setChildren($productToReturn?->getChildren() ?? $product->getChildren());
+            return $this->productProvider->get($shopwareProduct, $context);
+        }
     }
 
     private function handleVariant(
@@ -90,7 +126,7 @@ class ProductTaggingHelper
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
-        $stock = $this->getProductStock($product, $salesChannelContext);
+        $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
         if ($product->getActive()) {
@@ -107,24 +143,21 @@ class ProductTaggingHelper
         return $mainProduct;
     }
 
-    private function getProductStock(ProductEntity $product, SalesChannelContext $context): int
-    {
-        if ($this->configProvider->getStockField(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === StockFieldOptions::ACTUAL_STOCK) {
-            return $product->getAvailableStock();
-        }
-        return $product->getStock();
-    }
-
     private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
     {
         $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
         foreach ($product->getChildren() as $child) {
             if ($child->getActive() && !$mainProduct) {
                 $mainProduct = $child;
+            } else {
+                $variants->add($child);
             }
+        }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
         }
 
         return $mainProduct;
@@ -132,23 +165,31 @@ class ProductTaggingHelper
 
     private function handleConfiguratorGroups(
         ProductEntity $product,
-        ProductEntity $variantFromDb,
+        ?ProductEntity $variantFromDb,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): null|ProductEntity|ProductCollection {
         $groupedVariants = [];
         foreach ($product->getChildren() as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
-        if ($variantFromDb->getDisplayGroup() !== null) {
+        if ($variantFromDb?->getDisplayGroup() !== null) {
             return $this->handleVariantByProperty(
                 $groupedVariants[$variantFromDb->getDisplayGroup()],
                 $context,
                 $hideProductsAfterClearance,
             );
+        } else {
+            $mainProducts = new ProductCollection();
+            foreach ($groupedVariants as $variants) {
+                /** @var SalesChannelProductEntity $mainProduct */
+                $mainProduct = $this->handleVariantByProperty($variants, $context, $hideProductsAfterClearance);
+                if ($mainProduct) {
+                    $mainProducts->add($mainProduct);
+                }
+            }
+            return $mainProducts;
         }
-
-        return null;
     }
 
     private function handleVariantByProperty(
@@ -157,24 +198,29 @@ class ProductTaggingHelper
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
         $mainProduct = null;
-
+        $children = new ProductCollection();
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
         foreach ($variants as $child) {
-            if ($mainProduct) {
-                break;
-            }
-
             if ($shouldHandleFirstAvailable) {
-                $stock = $this->getProductStock($child, $context);
-
-                if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
+                $stock = $this->productHelper->getProductStock($child, $context);
+                if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                     $mainProduct = $child;
+                } else {
+                    $children->add($child);
                 }
-            } elseif ($child->getActive()) {
+            } elseif (!$mainProduct && $child->getActive()) {
                 $mainProduct = $child;
+            } else {
+                $children->add($child);
             }
         }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($children);
+        }
+
         return $mainProduct;
     }
 
@@ -185,25 +231,32 @@ class ProductTaggingHelper
         bool $hideProductsAfterClearance,
     ): ?ProductEntity {
         $mainProduct = null;
-
+        $variants = new ProductCollection([$product]);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+
         foreach ($product->getChildren() as $child) {
-            if ($child->getId() === $variantConfig->getMainVariantId()) {
-                if ($child->getActive()) {
-                    $stock = $this->getProductStock($child, $context);
-                    if ($shouldHandleFirstAvailable && ($stock < 1 && $child->getIsCloseout())) {
-                        $mainProduct = $this->handleFirstAvailableVariant($product, $context);
-                    } else {
-                        $mainProduct = $child;
-                    }
-                } else {
-                    $mainProduct = $shouldHandleFirstAvailable
-                        ? $this->handleFirstAvailableVariant($product, $context)
-                        : $this->handleFirstActiveVariant($product);
-                }
+            if ($child->getId() !== $variantConfig->getMainVariantId()) {
+                $variants->add($child);
+                continue;
+            }
+
+            if ($child->getActive()) {
+                $stock = $this->productHelper->getProductStock($child, $context);
+                $mainProduct = $shouldHandleFirstAvailable && $stock < 1 && $child->getIsCloseout()
+                    ? $this->handleFirstAvailableVariant($product, $context)
+                    : $child;
+            } else {
+                $mainProduct = $shouldHandleFirstAvailable
+                    ? $this->handleFirstAvailableVariant($product, $context)
+                    : $this->handleFirstActiveVariant($product);
             }
         }
+
+        if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
+            $mainProduct->setChildren($variants);
+        }
+
         return $mainProduct;
     }
 
@@ -227,15 +280,22 @@ class ProductTaggingHelper
         SalesChannelContext $context,
     ): ?ProductEntity {
         $mainProduct = null;
+        $variants = new ProductCollection([$product]);
+
         foreach ($product->getChildren() as $child) {
-            if ($mainProduct) {
-                break;
-            }
-            $stock = $this->getProductStock($child, $context);
-            if ($child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
+            $stock = $this->productHelper->getProductStock($child, $context);
+
+            if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
                 $mainProduct = $child;
+            } else {
+                $variants->add($child);
             }
         }
+
+        if ($mainProduct) {
+            $mainProduct->setChildren($variants);
+        }
+
         return $mainProduct;
     }
 
@@ -254,6 +314,12 @@ class ProductTaggingHelper
                 $cheapestVariant = $child;
             }
         }
+
+        $cheapestVariant->setChildren(
+            $product->getChildren()->filter(
+                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
+            ),
+        );
 
         return $cheapestVariant;
     }

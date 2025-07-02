@@ -9,6 +9,7 @@ use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -38,6 +39,7 @@ class NostoExtension extends AbstractExtension
         private readonly EntityRepository $productRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly CategoryBuilder $nostoCategoryBuilder,
+        private readonly ProductHelper $productHelper,
     ) {
     }
 
@@ -106,7 +108,8 @@ class NostoExtension extends AbstractExtension
         $id,
         $variantId,
         SalesChannelContext $context,
-    ): ?string {
+        bool $isProductTagging = false,
+    ): string|NostoProduct {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addAssociation('children');
@@ -118,8 +121,14 @@ class NostoExtension extends AbstractExtension
         $variantFromDb = $this->productRepository
             ->search(new Criteria([$variantId]), $context->getContext())
             ->first();
-        $productTaggingHelper = new ProductTaggingHelper($this->systemConfigService, $this->configProvider);
-        return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb);
+        $productTaggingHelper = new ProductTaggingHelper(
+            $this->systemConfigService,
+            $this->configProvider,
+            $this->productProvider,
+            $this->productHelper,
+        );
+
+        return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
     }
 
     public function getPageType($activeRoute, $pageCmsType): string

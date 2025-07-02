@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product;
 
+use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -20,6 +22,7 @@ class SkuBuilder
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
+        private readonly CrossSellingBuilder $crossSellingBuilder,
     ) {
     }
 
@@ -44,6 +47,22 @@ class SkuBuilder
         );
         $nostoSku->addCustomField(Builder::PRODUCT_NUMBER_KEY, $product->getProductNumber());
         $nostoSku->addCustomField(Builder::PRODUCT_ID_KEY, $product->getId());
+
+        if ($product->getShippingFree()) {
+            $nostoSku->addCustomField(Builder::SHIPPING_FREE_ATTR_NAME, 'true');
+        }
+
+        if ($manufacturer = $product->getManufacturer()) {
+            if ($brandMediaUrl = $manufacturer->getMedia()?->getUrl()) {
+                $nostoSku->addCustomField('brand-image-url', $brandMediaUrl);
+            }
+        }
+
+        $crossSellings = $this->crossSellingBuilder->build($product->getId(), $context);
+
+        if (!empty($crossSellings)) {
+            $nostoSku->addCustomField('cross-sellings', json_encode($crossSellings));
+        }
 
         $name = $product->getTranslation('name');
         if (!empty($name)) {
@@ -79,12 +98,33 @@ class SkuBuilder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            foreach ($product->getOptions() as $propertyOption) {
-                if ($propertyOption->getGroup() !== null) {
-                    $nostoSku->addCustomField(
-                        $propertyOption->getGroup()->getTranslation('name'),
-                        $propertyOption->getTranslation('name'),
-                    );
+            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
+            foreach ($options as $name => $option) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $option,
+                );
+            }
+            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
+            foreach ($properties as $name => $property) {
+                $nostoSku->addCustomField(
+                    $name,
+                    $property,
+                );
+            }
+
+            // Add custom fields processing for SKUs (same logic as main product)
+            $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
+
+            if ($product->getCustomFields() !== null) {
+                foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+                    // All non-scalar value should be serialized
+                    $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
+                        $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
+
+                    if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
+                        $nostoSku->addCustomField(mb_strtolower($fieldName), $fieldValue);
+                    }
                 }
             }
         }

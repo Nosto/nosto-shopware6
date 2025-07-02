@@ -52,8 +52,8 @@
                     "helpText": "This setting is a web page performance tweak. If this setting is enabled, Nosto script will be loaded and initialized directly after user scroll page down (first interaction) on very first page visit. On all further page reloading/visiting, Nosto script will be loaded and initialized immediately."
                 },
                 "domain": {
-                    "label": "Domain for generating product url",
-                    "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url"
+                    "label": "Domain for generating product url, category url, and placeholder image url",
+                    "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url, category url, and placeholder image url"
                 }
             },
             "featuresFlags": {
@@ -131,6 +131,10 @@
                 "enableProductVisibility": {
                     "label": "Enable product visibility",
                     "helpText": "Please perform a full product sync and index the fields \"showCategory\" and \"showSearch\" on the Nosto account before enabling this"
+                },
+                "enableTaggingForAllSkus": {
+                    "label": "Enable tagging for all SKUs",
+                    "helpText": "Product and SKU tagging helps Nosto determine which product is viewed, it’s also used for a crawler to keep your product date up to date on Nosto. If you can notice a slow performance of your Product pages, please disable this feature and make sure crawler is disabled on Nosto Admin."
                 },
                 "oldJobCleanupPeriod": {
                     "after": "After",
