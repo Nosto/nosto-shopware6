@@ -249,7 +249,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operation->upsert();
     }
 
-    private function handleProduct(
+    protected function handleProduct(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
         Account $account,
