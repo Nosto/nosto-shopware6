@@ -2,7 +2,7 @@
     "name": "nosto/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "version": "5.1.5",
+    "version": "5.1.6",
     "license": "OSL-3.0",
     "authors": [
         {
@@ -12,7 +12,7 @@
     ],
     "require": {
         "nosto/shopware6-job-scheduler": "^3.0",
-        "nosto/php-sdk": "7.6.8",
+        "nosto/php-sdk": "^7.6.9",
         "php": "^8.2"
     },
     "require-dev": {

@@ -1,3 +1,10 @@
+# 5.1.6
+* Fix: Product tagging fix for crawler and Nosto Personalisation
+* Fix: Improve information and status for sync jobs
+* Fix: Add domain URL validation and update label and help text
+* Fix: Reduced redundant search calls by fetching filters once
+* New: Sending additional data for products and variants to Nosto
+
 # 5.1.5
 * New: Ability to disable and adjust caching for Search and Category Pages, Improving analytics and Nosto Personalisation
 * New: Ability to open Product Details page if only 1 search result is given

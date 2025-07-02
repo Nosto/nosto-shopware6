@@ -11,15 +11,11 @@ use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
-use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
-use Nosto\NostoIntegration\Struct\FiltersExtension;
-use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -33,7 +29,7 @@ class SearchService
         private readonly PaginationService $paginationService,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
-        private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $categoryRepository,
     ) {
     }
 
@@ -66,9 +62,7 @@ class SearchService
                 $this->disableNostoService($context->getContext());
                 return;
             }
-
-            $this->fetchFilters($request, $criteria, $context, $handler);
-            $this->fetchSelectableFilters($request, $criteria, $context, $handler);
+            $handler->fetchResults($request, $criteria, $context);
         }
     }
 
@@ -97,8 +91,13 @@ class SearchService
             sprintf('Shopware 6 Plugin %s', $pluginVersion),
         );
 
-        $this->fetchFilters($request, $criteria, $context, $requestHandler);
-        $requestHandler->fetchProducts($request, $criteria, $context);
+        $fetchedFilters = false;
+        if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
+            $fetchedFilters = true;
+            $this->fetchFilters($request, $criteria, $context, $requestHandler);
+        }
+
+        $requestHandler->fetchResults($request, $criteria, $context, $fetchedFilters);
     }
 
     protected function fetchFilters(
@@ -109,11 +108,16 @@ class SearchService
     ): void {
         try {
             $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $filters = $this->parseFiltersFromResponse($response);
-            $filterMapping = $this->parseFilterMappingFromResponse($response);
+            $filters = $requestHandler->parseFiltersFromResponse($response);
+            $filterMapping = $requestHandler->parseFilterMappingFromResponse($response);
 
             $criteria->addExtension('nostoFilters', $filters);
             $criteria->addExtension('nostoFilterMapping', $filterMapping);
+
+            $request->attributes->set(
+                'setNostoCookie',
+                json_encode($filterMapping->getMap(), JSON_THROW_ON_ERROR),
+            );
         } catch (Throwable $e) {
             /** @var NostoService $nostoService */
             $nostoService = $context->getContext()->getExtension('nostoService');
@@ -121,28 +125,6 @@ class SearchService
 
             $this->logger->error(
                 sprintf('Error while fetching all filters: %s', $e->getMessage()),
-            );
-        }
-    }
-
-    protected function fetchSelectableFilters(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context,
-        AbstractRequestHandler $requestHandler,
-    ): void {
-        try {
-            $response = $requestHandler->sendRequest($request, $criteria, $context, self::FILTER_REQUEST_LIMIT);
-            $response = $this->parseFiltersFromResponse($response);
-
-            $criteria->addExtension('nostoAvailableFilters', $response);
-        } catch (Throwable $e) {
-            /** @var NostoService $nostoService */
-            $nostoService = $context->getContext()->getExtension('nostoService');
-            $nostoService->disable();
-
-            $this->logger->error(
-                sprintf('Error while fetching the available filters: %s', $e->getMessage()),
             );
         }
     }
@@ -164,18 +146,6 @@ class SearchService
             $this->logger,
             $this->categoryRepository,
         );
-    }
-
-    protected function parseFiltersFromResponse(SearchResult $response): FiltersExtension
-    {
-        $responseParser = new GraphQLResponseParser($response);
-        return $responseParser->getFiltersExtension();
-    }
-
-    protected function parseFilterMappingFromResponse(SearchResult $response): IdToFieldMapping
-    {
-        $responseParser = new GraphQLResponseParser($response);
-        return $responseParser->getFilterMapping();
     }
 
     protected function disableNostoService(Context $context): void
