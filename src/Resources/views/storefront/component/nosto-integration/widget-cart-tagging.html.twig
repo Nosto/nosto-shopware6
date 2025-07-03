@@ -12,7 +12,7 @@
                         {% else %}
                             {% if productIdentifier == 'product-number' %}
                                 {{ lineItem.payload.productNumber }}
-                            {% else %}#}
+                            {% else %}
                                 {{ lineItem.referencedId }}
                             {% endif %}
                         {% endif %}
