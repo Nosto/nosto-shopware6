@@ -72,6 +72,7 @@ class SearchService
             $context,
             $this->configProvider,
             SearchHelper::isNavigationPage($request),
+            $request
         );
     }
 

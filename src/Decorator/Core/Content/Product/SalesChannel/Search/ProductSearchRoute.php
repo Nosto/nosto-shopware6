@@ -78,7 +78,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $originalCriteria->setTerm($query);
 
         try {
-            if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+            if (!SearchHelper::shouldHandleRequest($context, $this->configProvider, false, $request)) {
                 $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
