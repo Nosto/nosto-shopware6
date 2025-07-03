@@ -17,6 +17,7 @@ class SearchHelper
         SalesChannelContext $context,
         ConfigProvider $configProvider,
         bool $isNavigationPage = false,
+        Request $request = null
     ): bool {
         /** @var NostoService $nostoService */
         $nostoService = $context->getContext()->getExtension('nostoService');
@@ -33,6 +34,16 @@ class SearchHelper
         $accountId = $configProvider->getAccountId($channelId, $languageId);
         if (!$searchApiToken || trim($searchApiToken) === '' || !$accountId || trim($accountId) === '') {
             return $nostoService->disable();
+        }
+        
+        $isPreviewEnabled = $request ? static::isPreviewEnabled($request) : false;
+        
+        if ($isPreviewEnabled) {
+            if (!$context->getContext()->hasExtension('nostoConfig')) {
+                $nostoConfig = new Config($configProvider->toArray($channelId, $languageId));
+                $context->getContext()->addExtension('nostoConfig', $nostoConfig);
+            }
+            return $nostoService->enable();
         }
 
         if (
@@ -86,5 +97,21 @@ class SearchHelper
         /** @var NostoService $nostoService */
         $nostoService = $context->getContext()->getExtension('nostoService');
         $nostoService->disable();
+    }
+
+    private static function isPreviewEnabled(Request $request): bool
+    {
+        // Check cookie first (automatically sent with every request)
+        $cookieValue = $request->cookies->get('nosto_preview');
+        if ($cookieValue !== null) {
+            return $cookieValue === '1';
+        }
+
+        // Fallback to session
+        if ($request->hasSession() && $request->getSession()->isStarted()) {
+            return $request->getSession()->get('nosto_preview_enabled', false);
+        }
+
+        return false;
     }
 }

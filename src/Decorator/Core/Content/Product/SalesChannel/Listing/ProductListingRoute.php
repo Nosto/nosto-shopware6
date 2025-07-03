@@ -70,7 +70,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $originalContext = unserialize(serialize($context));
         $originalCriteria = unserialize(serialize($criteria));
         try {
-            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
+            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true, $request);
 
             $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
             if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {
