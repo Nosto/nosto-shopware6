@@ -16,24 +16,26 @@ class TreeBuilder
         $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
 
-        $nostoCategoryNames = array_map(function (array $nameSet) {
-            return array_reduce(
-                $nameSet,
-                function (array $acc, $categoryName) {
-                    $acc[] = end($acc) . '/' . $categoryName;
-
+        $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
+            $nameSet,
+            static function (array $acc, $categoryName): array {
+                if (!is_string($categoryName)) {
                     return $acc;
-                },
-                [],
-            );
-        }, $categoryNameSets);
+                }
+                $acc[] = (end($acc) ?: '') . '/' . $categoryName;
+                return $acc;
+            },
+            [],
+        ), $categoryNameSets);
 
         $nostoCategorySeoUrls = array_map(function (array $nameSet) {
             return array_reduce(
                 $nameSet,
-                function (array $acc, $categoryName) {
-                    $acc[] = end($acc) . '/' . $categoryName;
-
+                static function (array $acc, $categoryName): array {
+                    if (!is_string($categoryName)) {
+                        return $acc;
+                    }
+                    $acc[] = (end($acc) ?: '') . '/' . $categoryName;
                     return $acc;
                 },
                 [],
