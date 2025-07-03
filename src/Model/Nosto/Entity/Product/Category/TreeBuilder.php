@@ -34,7 +34,7 @@ class TreeBuilder
         $nostoCategorySeoUrls = array_map(function (array $nameSet) {
             return array_reduce(
                 $nameSet,
-                static function (array $acc, $categoryName): array {
+                function (array $acc, $categoryName) {
                     if (!is_string($categoryName)) {
                         return $acc;
                     }
