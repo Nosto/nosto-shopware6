@@ -57,7 +57,10 @@ class SearchController extends StorefrontController
     {
         $isPreviewEnabled = $this->isPreviewEnabled($request);
 
-        if (!$this->configProvider->isSearchEnabled($context->getSalesChannelId(), $context->getLanguageId()) && !$isPreviewEnabled) {
+        if (!$this->configProvider->isSearchEnabled(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) && !$isPreviewEnabled) {
             return $this->decorated->search($context, $request);
         }
 
@@ -187,8 +190,10 @@ class SearchController extends StorefrontController
     #[Route(
         path: '/nosto/preview-toggle',
         name: 'frontend.nosto.preview.toggle',
-        defaults: ['XmlHttpRequest' => true],
-        methods: ['POST']
+        defaults: [
+            'XmlHttpRequest' => true,
+        ],
+        methods: ['POST'],
     )]
     public function togglePreview(Request $request, SessionInterface $session): JsonResponse
     {
@@ -206,7 +211,7 @@ class SearchController extends StorefrontController
         return new JsonResponse([
             'success' => true,
             'preview' => $isEnabled,
-            'session_value' => $session->get('nosto_preview_enabled')
+            'session_value' => $session->get('nosto_preview_enabled'),
         ]);
     }
 

@@ -17,7 +17,7 @@ class SearchHelper
         SalesChannelContext $context,
         ConfigProvider $configProvider,
         bool $isNavigationPage = false,
-        Request $request = null
+        Request $request = null,
     ): bool {
         /** @var NostoService $nostoService */
         $nostoService = $context->getContext()->getExtension('nostoService');
@@ -35,9 +35,9 @@ class SearchHelper
         if (!$searchApiToken || trim($searchApiToken) === '' || !$accountId || trim($accountId) === '') {
             return $nostoService->disable();
         }
-        
+
         $isPreviewEnabled = $request ? static::isPreviewEnabled($request) : false;
-        
+
         if ($isPreviewEnabled) {
             if (!$context->getContext()->hasExtension('nostoConfig')) {
                 $nostoConfig = new Config($configProvider->toArray($channelId, $languageId));

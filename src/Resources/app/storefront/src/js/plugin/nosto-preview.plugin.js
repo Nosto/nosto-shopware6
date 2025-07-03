@@ -18,7 +18,7 @@ export default class NostoPreviewPlugin extends window.PluginBaseClass {
 
         const headers = {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
         };
 
         if (window.csrf?.token) {
@@ -28,7 +28,7 @@ export default class NostoPreviewPlugin extends window.PluginBaseClass {
         fetch(apiRoute, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ preview: isNostoPreview })
+            body: JSON.stringify({ preview: isNostoPreview }),
         }).catch(err => {
             console.warn('[Nosto] Failed to send preview status:', err);
         });
