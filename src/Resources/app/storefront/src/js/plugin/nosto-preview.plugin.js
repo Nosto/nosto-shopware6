@@ -1,4 +1,5 @@
 export default class NostoPreviewPlugin extends window.PluginBaseClass {
+
     init() {
         this.syncPreviewStatus();
         this.syncWithCookies();
