@@ -44,6 +44,8 @@ class NostoMonitoringHelper
 
     /**
      * Get the Nosto scheduler jobs information
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getSchedulerJobs(): array
     {
