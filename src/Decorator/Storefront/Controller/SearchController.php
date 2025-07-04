@@ -198,14 +198,9 @@ class SearchController extends StorefrontController
     {
         $data = json_decode($request->getContent(), true);
 
-        // Ako nije eksplicitno 'true', tretiraj kao false
         $isEnabled = isset($data['preview']) && $data['preview'] === true;
 
-        // Upamti u sesiji da li je preview mod uključen
         $session->set('nosto_preview_enabled', $isEnabled);
-
-        // (Opcionalno) dodeli u globalni Twig varijablu ako koristiš Twig negde
-        // $this->twig->addGlobal('nostoPreviewEnabled', $isEnabled);
 
         return new JsonResponse([
             'success' => true,
