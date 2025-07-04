@@ -30,8 +30,6 @@ class NostoMonitoringHelper
 
     /**
      * Get the current version of Nosto Plugin
-     *
-     * @return string
      */
     public function getPluginVersion(): string
     {
@@ -46,15 +44,14 @@ class NostoMonitoringHelper
 
     /**
      * Get the Nosto scheduler jobs information
-     *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
     public function getSchedulerJobs(): array
     {
         // Get Nosto scheduler jobs information
         try {
             $rows = $this->connection->fetchAllAssociative(
-                'SELECT * FROM nosto_scheduler_job ORDER BY created_at DESC LIMIT 100'
+                'SELECT * FROM nosto_scheduler_job ORDER BY created_at DESC LIMIT 100',
             );
 
             return array_map(function (array $row) {

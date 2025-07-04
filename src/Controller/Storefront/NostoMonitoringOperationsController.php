@@ -120,7 +120,7 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         } catch (\Exception $e) {
             $request->getSession()->getFlashBag()->add(
                 'error',
-                'Error loading scheduler jobs: ' . $e->getMessage()
+                'Error loading scheduler jobs: ' . $e->getMessage(),
             );
             return $this->redirectToRoute('nosto-monitoring.manage-operations');
         }
