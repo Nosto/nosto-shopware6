@@ -14,7 +14,7 @@ PluginManager.register('NostoSearchSessionParams', NostoSearchSessionParams, '[d
 PluginManager.register('NostoAnalytics', NostoAnalytics, '[data-nosto-analytics]');
 PluginManager.override('FilterRange', NostoFilterRange, '[data-filter-range]');
 PluginManager.override('FilterPropertySelect', NostoFilterPropertySelectPlugin, '[data-filter-property-select]');
-PluginManager.override('NostoPreviewPlugin', NostoPreviewPlugin, '[data-nosto-preview]');
+PluginManager.register('NostoPreviewPlugin', NostoPreviewPlugin, '[data-nosto-preview]');
 
 if (module.hot) {
     module.hot.accept();
