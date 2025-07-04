@@ -158,36 +158,32 @@
         <div class="nosto-configuration-section">
             <!-- SECTION - ACCOUNT SETTINGS -->
             <div class="nosto-configuration-sub-section nosto-account-settings">
-                <h3>Account settings - TEST</h3>
-                <pre>{{ nostoConfig.accountSettings|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
+                <h3>Nosto Configuration</h3>
+                <pre>{{ nostoConfig|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
             </div>
+        </div>
 
-            <!-- SECTION - GENERAL SETTINGS -->
-            <div class="nosto-configuration-sub-section">
-                <h3>General Settings</h3>
-                <pre>{{ nostoConfig.generalSettings|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
-            </div>
-
-            <!-- SECTION - TAGS ASSIGNMENT -->
-            <div class="nosto-configuration-sub-section">
-                <h3>Tags Assignment</h3>
-                <pre>{{ nostoConfig.tagsAssignment|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
-            </div>
-
-            <!-- SECTION - FEATURE FLAGS -->
-            <div class="nosto-configuration-sub-section">
-                <h3>Features flags</h3>
-                <pre>{{ nostoConfig.featureFlags|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
+        <div class="nosto-configuration-section">
+            <!-- SECTION - PHP SETTINGS -->
+            <div class="nosto-configuration-sub-section php-settings">
+                <h3>PHP Settings</h3>
+                <button type="button" class="nosto-toggle-php-settings nosto-button" style="width: 320px;">Show PHP settings</button>
+                <div class="nosto-toggle-php-settings-wrapper" style="display: none;">
+                    <pre>{{ phpSettings|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
+                </div>
             </div>
         </div>
 
         <!-- SECTION - LOGS -->
         <div class="nosto-configuration-section-logs">
-            <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET">
-                <button type="submit" class="nosto-button">Logs</button>
+            <form action="{{ path('nosto-monitoring.show-scheduler-jobs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Show Scheduler Jobs</button>
+            </form>
+            <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Logs</button>
             </form>
             <form id="nosto-download-logs">
-                <button onclick="handleLogsDownload()" class="nosto-button">Download log files</button>
+                <button onclick="handleLogsDownload()" class="nosto-button" style="width: 320px;">Download log files</button>
             </form>
         </div>
 
@@ -463,5 +459,18 @@
             a.click();
             document.body.removeChild(a);
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.querySelector('.nosto-toggle-php-settings');
+            const wrapper = document.querySelector('.nosto-toggle-php-settings-wrapper');
+
+            if (button && wrapper) {
+                button.addEventListener('click', function () {
+                    wrapper.style.display = (wrapper.style.display === 'none' || !wrapper.style.display)
+                        ? 'block'
+                        : 'none';
+                });
+            }
+        });
     </script>
 {% endblock %}
