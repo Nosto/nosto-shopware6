@@ -52,8 +52,8 @@
                     "helpText": "Diese Einstellung ist eine Optimierung der Webseitenleistung. Wenn diese Einstellung aktiviert ist, wird das Nosto-Skript direkt nach dem Scrollen der Seite nach unten (erste Interaktion) beim allerersten Seitenbesuch geladen und initialisiert. Bei jedem weiteren Neuladen/Besuchen der Seite wird das Nosto-Skript sofort geladen und initialisiert."
                 },
                 "domain": {
-                    "label": "Domäne für die Erzeugung der Produkturl.",
-                    "helpText": "Diese Domain wird für Multi-Domain-Verkaufskanäle verwendet, und die ausgewählte Domain wird als Uri für die Produkt-Url verwendet."
+                    "label": "Domäne für die Erzeugung der Produkturl, Kategorieurl und Platzhalterbildurl.",
+                    "helpText": "Diese Domain wird für Multi-Domain-Verkaufskanäle verwendet, und die ausgewählte Domain wird als Uri für die Produkt-Url, Kategorieurl und Platzhalterbildurl verwendet."
                 }
             },
             "featuresFlags": {
@@ -127,6 +127,10 @@
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
+                },
+                "enableTaggingForAllSkus": {
+                  "label": "Aktiviere Tagging für alle SKUs",
+                  "helpText": "Produkt- und SKU-Tagging hilft Nosto dabei, zu erkennen, welches Produkt angesehen wird. Es wird außerdem vom Crawler verwendet, um Ihre Produktdaten auf Nosto aktuell zu halten.\nFalls Sie eine langsame Performance Ihrer Produktseiten bemerken, deaktivieren Sie bitte diese Funktion und stellen Sie sicher, dass der Crawler im Nosto-Admin deaktiviert ist."
                 },
                 "enableProductVisibility": {
                     "label": "Produkt-Sichtbarkeit aktivieren",

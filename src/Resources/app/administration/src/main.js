@@ -18,9 +18,9 @@ import enGB from './snippet/en-GB.json';
 import NostoIntegrationService from './core/service/api/nosto-integration.service';
 import NostoCategoriesService from './core/service/api/nosto-categories.service';
 
-const { Application, State } = Shopware;
+const { Application } = Shopware;
 
-State.registerModule('nostoIntegrationConfig', configurationState);
+Shopware.Store.register(configurationState);
 
 Application.addServiceProvider('NostoIntegrationProviderService', () => {
     return new NostoIntegrationService(

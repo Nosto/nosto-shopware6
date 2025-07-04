@@ -1,11 +1,6 @@
 /* eslint-disable sw-core-rules/require-package-annotation */
 const { Mixin } = Shopware;
 
-const {
-    mapVuexState,
-    mapVuexMutations,
-} = Shopware.Component.getComponentHelper();
-
 Mixin.register('nosto-integration-config-component', {
     props: {
         configKey: {
@@ -20,19 +15,24 @@ Mixin.register('nosto-integration-config-component', {
     ],
 
     computed: {
-        ...mapVuexState('nostoIntegrationConfig', [
-            'configs',
-        ]),
+        nostoStore() {
+            return Shopware.Store.get('nostoIntegrationConfig');
+        },
+        configs() {
+            return this.nostoStore.configs;
+        },
         currentConfig() {
             return this.configs[this.configKey] || {};
         },
     },
 
     methods: {
-        ...mapVuexMutations('nostoIntegrationConfig', [
-            'setDefaultConfigs',
-            'setConfigValue',
-        ]),
+        setDefaultConfigs(defaultConfig) {
+            this.nostoStore.setDefaultConfigs(defaultConfig);
+        },
+        setConfigValue({ configKey, key, value }) {
+            this.nostoStore.setConfigValue({ configKey, key, value });
+        },
         onUpdateValue(key, value) {
             if (key === 'productIdentifier') {
                 this.createNotificationWarning({
