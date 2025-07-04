@@ -43,6 +43,42 @@ class NostoMonitoringHelper
     }
 
     /**
+     * Get the Nosto scheduler jobs information
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getSchedulerJobs(): array
+    {
+        // Get Nosto scheduler jobs information
+        try {
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT * FROM nosto_scheduler_job ORDER BY created_at DESC LIMIT 100',
+            );
+
+            return array_map(function (array $row) {
+                // Convert binary fields to hex
+                foreach (['id', 'parent_id'] as $field) {
+                    if (isset($row[$field]) && !mb_check_encoding($row[$field], 'UTF-8')) {
+                        $row[$field] = bin2hex($row[$field]);
+                    }
+                }
+
+                // base64-encode large binary 'message' values
+                if (isset($row['message']) && !mb_check_encoding($row['message'], 'UTF-8')) {
+                    $row['message'] = base64_encode($row['message']);
+                }
+
+                return $row;
+            }, $rows);
+        } catch (Exception $e) {
+            return [
+                'error' => true,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Clears Nosto scheduler jobs that are in 'running' or 'pending' status,
      * including their associated job messages. The function retrieves the
      * job IDs and deletes them from the database. If successful, it returns
@@ -126,57 +162,27 @@ class NostoMonitoringHelper
      */
     public function getStructuredNostoConfiguration(?string $salesChannelId, ?string $languageId): array
     {
-        $configuration = $this->getAllConfigsHybrid($salesChannelId, $languageId);
+        $configuration = $this->getAllConfigsReflection($salesChannelId, $languageId);
 
-        $domainId = $this->extractConfigValue($configuration, 'getDomainId');
-        $domainUrl = null;
-        if ($domainId) {
-            $domainUrl = $this->connection->fetchOne(
+        $configuration['domainForGeneratingProductUrl'] = null;
+        if ($configuration['getDomainId']) {
+            $configuration['domainForGeneratingProductUrl'] = $this->connection->fetchOne(
                 'SELECT scd.url FROM sales_channel_domain as scd WHERE scd.id = :salesChannelId',
                 [
-                    'salesChannelId' => Uuid::fromHexToBytes($domainId),
+                    'salesChannelId' => Uuid::fromHexToBytes($configuration['getDomainId']),
                 ],
             );
         }
 
-        return [
-            'accountSettings' => [
-                // Account Settings
-                'accountEnabled' => $this->extractConfigValue($configuration, 'isAccountEnabled'),
-                'accountId' => $this->extractConfigValue($configuration, 'getAccountId'),
-                'accountName' => $this->extractConfigValue($configuration, 'getAccountName'),
-                // API Tokens
-                'productToken' => $this->extractConfigValue($configuration, 'getProductToken'),
-                'emailToken' => $this->extractConfigValue($configuration, 'getEmailToken'),
-                'appToken' => $this->extractConfigValue($configuration, 'getAppToken'),
-                'searchToken' => $this->extractConfigValue($configuration, 'getSearchToken'),
-            ],
-            'generalSettings' => [
-                // Personalized Search & Category Merchandising
-                'enablePersonalizedSearch' => $this->extractConfigValue($configuration, 'isSearchEnabled'),
-                'enableCategoryMerchandising' => $this->extractConfigValue($configuration, 'isNavigationEnabled'),
-                // General Settings
-                'initializeNostoAfterInteraction' => $this->extractConfigValue(
-                    $configuration,
-                    'shouldInitializeNostoAfterInteraction',
-                ),
-                'domainId' => $domainId,
-                'domainForGeneratingProductUrl' => $domainUrl,
-            ],
-            'tagsAssignment' => [
-                // Tags Assignment
-                'selectedCustomFields' => $this->extractConfigValue($configuration, 'getSelectedCustomFields'),
-                'tagFieldKeys' => $this->extractConfigValue($configuration, 'tagFieldKeys'),
-                'googleCategory' => $this->extractConfigValue($configuration, 'getGoogleCategory'),
-            ],
-            'featureFlags' => $configuration,
-        ];
+        return $configuration;
     }
 
     /**
      * Get Nosto configuration (dynamic & hybrid way of doing it)
+     *
+     * @return array<string, mixed>
      */
-    public function getAllConfigsHybrid(?string $salesChannelId, ?string $languageId): array
+    public function getAllConfigsReflection(?string $salesChannelId, ?string $languageId): array
     {
         $reflection = new \ReflectionClass($this->nostoConfigProvider);
         $configs = [];
@@ -192,7 +198,6 @@ class NostoMonitoringHelper
         // Methods that should be excluded from dynamic call (because they were manually handled or incompatible)
         $excluded = [
             'getTagFieldKey',
-            'getAllConfigsHybrid', // avoid recursion
         ];
 
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
@@ -224,25 +229,5 @@ class NostoMonitoringHelper
         }
 
         return $configs;
-    }
-
-    /**
-     * Extracts a config value by key and unsets it from the original array.
-     *
-     * @param array  $config Reference to the config array
-     * @param string $key    Key to extract
-     * @param mixed  $default Default value if key does not exist
-     *
-     * @return mixed
-     */
-    public function extractConfigValue(array &$config, string $key, $default = null)
-    {
-        if (array_key_exists($key, $config)) {
-            $value = $config[$key];
-            unset($config[$key]);
-            return $value;
-        }
-
-        return $default;
     }
 }

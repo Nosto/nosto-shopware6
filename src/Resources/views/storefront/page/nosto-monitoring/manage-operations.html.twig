@@ -158,36 +158,32 @@
         <div class="nosto-configuration-section">
             <!-- SECTION - ACCOUNT SETTINGS -->
             <div class="nosto-configuration-sub-section nosto-account-settings">
-                <h3>Account settings</h3>
-                <pre>{{ nostoConfig.accountSettings|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                <h3>Nosto Configuration</h3>
+                <pre>{{ nostoConfig|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
             </div>
+        </div>
 
-            <!-- SECTION - GENERAL SETTINGS -->
-            <div class="nosto-configuration-sub-section">
-                <h3>General Settings</h3>
-                <pre>{{ nostoConfig.generalSettings|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
-            </div>
-
-            <!-- SECTION - TAGS ASSIGNMENT -->
-            <div class="nosto-configuration-sub-section">
-                <h3>Tags Assignment</h3>
-                <pre>{{ nostoConfig.tagsAssignment|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
-            </div>
-
-            <!-- SECTION - FEATURE FLAGS -->
-            <div class="nosto-configuration-sub-section">
-                <h3>Features flags</h3>
-                <pre>{{ nostoConfig.featureFlags|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+        <div class="nosto-configuration-section">
+            <!-- SECTION - PHP SETTINGS -->
+            <div class="nosto-configuration-sub-section php-settings">
+                <h3>PHP Settings</h3>
+                <button type="button" class="nosto-toggle-php-settings nosto-button" style="width: 320px;">Show PHP settings</button>
+                <div class="nosto-toggle-php-settings-wrapper" style="display: none;">
+                    <pre>{{ phpSettings|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
+                </div>
             </div>
         </div>
 
         <!-- SECTION - LOGS -->
         <div class="nosto-configuration-section-logs">
-            <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET">
-                <button type="submit" class="nosto-button">Logs</button>
+            <form action="{{ path('nosto-monitoring.show-scheduler-jobs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Show Scheduler Jobs</button>
+            </form>
+            <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Logs</button>
             </form>
             <form id="nosto-download-logs">
-                <button onclick="handleLogsDownload()" class="nosto-button">Download log files</button>
+                <button onclick="handleLogsDownload()" class="nosto-button" style="width: 320px;">Download log files</button>
             </form>
         </div>
 
@@ -206,8 +202,7 @@
                                     name="productId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter product ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Product</button>
                     </form>
@@ -220,13 +215,13 @@
                             <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Category ID</label>
                             <input type="hidden" name="languageId" value="{{ app.request.get('languageId') }}">
                             <input type="hidden" name="salesChannelId" value="{{ app.request.get('salesChannelId') }}">
+
                             <input
                                     type="text"
                                     name="categoryId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter category ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Category</button>
                     </form>
@@ -242,19 +237,18 @@
                                     name="orderId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter order ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Order</button>
                     </form>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
         window.router['nosto-monitoring.log-download-all'] = '{{ path('nosto-monitoring.log-download-all') }}';
+
         async function detectIncognito() {
             return new Promise(function (resolve, reject) {
                 let browserName = 'Unknown';
@@ -465,5 +459,18 @@
             a.click();
             document.body.removeChild(a);
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.querySelector('.nosto-toggle-php-settings');
+            const wrapper = document.querySelector('.nosto-toggle-php-settings-wrapper');
+
+            if (button && wrapper) {
+                button.addEventListener('click', function () {
+                    wrapper.style.display = (wrapper.style.display === 'none' || !wrapper.style.display)
+                        ? 'block'
+                        : 'none';
+                });
+            }
+        });
     </script>
 {% endblock %}
