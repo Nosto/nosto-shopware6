@@ -23,7 +23,7 @@ class SendVersionInfoTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         private readonly LoggerInterface $logger,
         private readonly Provider $nostoAccountProvider,
-        private readonly NostoMonitoringHelper $nostoMonitoringHelper
+        private readonly NostoMonitoringHelper $nostoMonitoringHelper,
     ) {
         parent::__construct($scheduledTaskRepository);
     }
@@ -52,21 +52,20 @@ class SendVersionInfoTaskHandler extends ScheduledTaskHandler
                 'Shopware',
                 $platformVersion,
                 $pluginVersion,
-                $this->logger
+                $this->logger,
             );
 
             if ($result) {
                 $this->logger->info('Successfully sent version info to Nosto via scheduled task', [
                     'platform' => 'Shopware',
                     'platformVersion' => $platformVersion,
-                    'pluginVersion' => $pluginVersion
+                    'pluginVersion' => $pluginVersion,
                 ]);
             }
-
         } catch (\Exception $e) {
             $this->logger->error('Failed to send version info to Nosto via scheduled task', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
