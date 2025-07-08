@@ -20,4 +20,3 @@ class SendVersionInfoTask extends ScheduledTask
         return 1296000;
     }
 }
-
