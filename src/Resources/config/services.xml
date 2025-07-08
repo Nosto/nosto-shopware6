@@ -88,6 +88,14 @@
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
+
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\SendVersionInfoTaskHandler">
+            <tag name="messenger.message_handler"/>
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+            <argument key="$nostoAccountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+        </service>
         <!-- /Handlers -->
 
         <!-- Services -->
@@ -128,6 +136,10 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldNostoDataCleanupScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\SendVersionInfoTask">
             <tag name="shopware.scheduled.task"/>
         </service>
 
