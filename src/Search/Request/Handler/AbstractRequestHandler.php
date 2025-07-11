@@ -282,7 +282,6 @@ abstract class AbstractRequestHandler
                     ],
                     $responseData['af']['top_categories'] ?? [],
                 );
-
                 $sessionParams = [
                     'segments' => $segments,
                     'products' => [
