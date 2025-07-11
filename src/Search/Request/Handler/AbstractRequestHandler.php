@@ -292,7 +292,7 @@ abstract class AbstractRequestHandler
 
                 $searchOperation->setSessionParams($sessionParams);
             } catch (\Throwable $e) {
-                $this->logger->warning('Nosto ev1 call failed: ' . $e->getMessage());
+                $this->logger->error('Nosto ev1 call failed: ' . $e->getMessage());
             }
         }
 
