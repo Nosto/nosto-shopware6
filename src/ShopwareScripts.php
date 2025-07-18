@@ -21,7 +21,7 @@ class ShopwareScripts
             [$rootPath . '/bin/console', 'database:migrate', 'NostoIntegration', '--all'],
             [$rootPath . '/bin/build-administration.sh'],
             [$rootPath . '/bin/build-storefront.sh'],
-            [$rootPath . '/bin/console', 'cache:clear']
+            [$rootPath . '/bin/console', 'cache:clear'],
         ];
 
         foreach ($commands as $command) {
@@ -38,4 +38,5 @@ class ShopwareScripts
             }
         }
     }
+
 }
