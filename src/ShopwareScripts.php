@@ -10,13 +10,13 @@ use Symfony\Component\Process\Process;
 
 class ShopwareScripts
 {
-    public static function postUpdate(Event $event)
+    public static function postUpdate(Event $event): void
     {
         $event->getIO()->write("<info>Running post-update tasks...</info>");
         self::runShopwareTasks($event);
     }
 
-    private static function runShopwareTasks(Event $event)
+    private static function runShopwareTasks(Event $event): void
     {
         $rootPath = realpath(__DIR__ . '/../../../../');
         $commands = [
