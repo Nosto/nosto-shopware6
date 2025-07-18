@@ -64,6 +64,9 @@
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
         "test": "./bin/phpunit.sh",
-        "release": "release/bin/release"
+        "release": "release/bin/release",
+        "post-update-cmd": [
+            "Nosto\\NostoIntegration\\ShopwareScripts::postUpdate"
+        ]
     }
 }
