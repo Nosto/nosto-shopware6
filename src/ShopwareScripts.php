@@ -10,6 +10,14 @@ use Symfony\Component\Process\Process;
 
 class ShopwareScripts
 {
+    private const PROCESS_TIMEOUT = 300;
+    private const COMMANDS = [
+        ['bin/console', 'database:migrate', 'NostoIntegration', '--all'],
+        ['bin/build-administration.sh'],
+        ['bin/build-storefront.sh'],
+        ['bin/console', 'cache:clear'],
+    ];
+
     public static function postUpdate(Event $event): void
     {
         $event->getIO()->write("<info>Running post-update tasks...</info>");
@@ -25,48 +33,79 @@ class ShopwareScripts
             return;
         }
 
-        $commands = [
-            [$rootPath . '/bin/console', 'database:migrate', 'NostoIntegration', '--all'],
-            [$rootPath . '/bin/build-administration.sh'],
-            [$rootPath . '/bin/build-storefront.sh'],
-            [$rootPath . '/bin/console', 'cache:clear'],
-        ];
+        foreach (self::COMMANDS as $command) {
+            $fullCommand = array_merge([$rootPath . '/' . $command[0]], array_slice($command, 1));
+            self::executeCommand($fullCommand, $rootPath, $event);
+        }
+    }
 
-        foreach ($commands as $command) {
-            $event->getIO()->write("Running: " . implode(' ', $command));
-            $process = new Process($command, $rootPath);
-            $process->setTimeout(300);
+    private static function executeCommand(array $command, string $workingDir, Event $event): void
+    {
+        $event->getIO()->write("Running: " . implode(' ', $command));
+        $process = new Process($command, $workingDir);
+        $process->setTimeout(self::PROCESS_TIMEOUT);
 
-            try {
-                $process->mustRun();
-                $event->getIO()->write($process->getOutput());
-            } catch (ProcessFailedException $e) {
-                $event->getIO()->writeError("Failed: " . implode(' ', $command));
-                $event->getIO()->writeError($e->getMessage());
-            }
+        try {
+            $process->mustRun();
+            $event->getIO()->write($process->getOutput());
+        } catch (ProcessFailedException $e) {
+            $event->getIO()->writeError("Failed: " . implode(' ', $command));
+            $event->getIO()->writeError($e->getMessage());
         }
     }
 
     private static function findShopwareRootPath(): ?string
     {
         $possiblePaths = [
-            __DIR__ . '/../../../../composer.json',
-            __DIR__ . '/../../../../../composer.json',
-            __DIR__ . '/../../../../../../composer.json',
-            dirname(__FILE__, 6) . '/composer.json',
-            $_SERVER['DOCUMENT_ROOT'] . '/../composer.json',
+            __DIR__ . '/../../../../',
+            __DIR__ . '/../../../../../',
+            __DIR__ . '/../../../../../../',
+            $_SERVER['DOCUMENT_ROOT'] . '/../',
+            $_SERVER['DOCUMENT_ROOT'] . '/',
+            getcwd() . '/../../../',
+            getcwd() . '/../../',
         ];
 
         foreach ($possiblePaths as $path) {
-            if (file_exists($path)) {
-                $composerJson = json_decode(file_get_contents($path), true);
-
-                if (isset($composerJson['require']['shopware/core'])) {
-                    return dirname($path);
-                }
+            $normalizedPath = realpath($path);
+            if ($normalizedPath && self::isShopwareRoot($normalizedPath)) {
+                return $normalizedPath;
             }
         }
 
         return null;
+    }
+
+    private static function isShopwareRoot(string $path): bool
+    {
+        // Check for essential Shopware files/directories
+        $requiredPaths = [
+            $path . '/bin/console',
+            $path . '/public',
+        ];
+
+        // At least one of these should exist
+        $shopwarePaths = [
+            $path . '/src/Core',
+            $path . '/vendor/shopware/core',
+            $path . '/config',
+            $path . '/composer.json',
+        ];
+
+        // Check required paths
+        foreach ($requiredPaths as $requiredPath) {
+            if (!file_exists($requiredPath)) {
+                return false;
+            }
+        }
+
+        // Check if at least one Shopware-specific path exists
+        foreach ($shopwarePaths as $shopwarePath) {
+            if (file_exists($shopwarePath)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
