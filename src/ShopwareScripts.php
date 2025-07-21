@@ -11,6 +11,7 @@ use Symfony\Component\Process\Process;
 class ShopwareScripts
 {
     private const PROCESS_TIMEOUT = 300;
+
     private const COMMANDS = [
         ['bin/console', 'database:migrate', 'NostoIntegration', '--all'],
         ['bin/build-administration.sh'],
