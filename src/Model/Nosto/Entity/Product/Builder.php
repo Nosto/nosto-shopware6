@@ -55,6 +55,8 @@ class Builder
 
     public const SHOW_SEARCH = 'showSearch';
 
+    public const SEARCH_KEYWORDS = 'searchKeywords';
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
@@ -283,6 +285,10 @@ class Builder
                 $nostoProduct->addCustomField(self::SHOW_SEARCH, $showSearch);
                 break;
             }
+        }
+
+        if ($keywords = $product->getCustomSearchKeywords()) {
+            $nostoProduct->addCustomField(self::SEARCH_KEYWORDS, implode(', ', $keywords));
         }
 
         $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
