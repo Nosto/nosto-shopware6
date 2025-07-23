@@ -19,6 +19,12 @@ class ShopwareScripts
         ['bin/console', 'cache:clear'],
     ];
 
+    public static function postInstall(Event $event): void
+    {
+        $event->getIO()->write("<info>Running post-install tasks...</info>");
+        self::runShopwareTasks($event);
+    }
+
     public static function postUpdate(Event $event): void
     {
         $event->getIO()->write("<info>Running post-update tasks...</info>");

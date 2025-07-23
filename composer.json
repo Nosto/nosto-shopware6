@@ -67,6 +67,9 @@
         "release": "release/bin/release",
         "post-update-cmd": [
             "Nosto\\NostoIntegration\\ShopwareScripts::postUpdate"
+        ],
+        "post-install-cmd": [
+            "Nosto\\NostoIntegration\\ShopwareScripts::postInstall"
         ]
     }
 }
