@@ -7,8 +7,9 @@ namespace Nosto\NostoIntegration\Async;
 use Nosto\NostoIntegration\Model\Operation\CategorySyncHandler;
 use Nosto\Scheduler\Async\ParentAwareMessageInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class CategorySyncMessage extends AbstractMessage implements ParentAwareMessageInterface
+class CategorySyncMessage extends AbstractMessage implements ParentAwareMessageInterface, AsyncMessageInterface
 {
     protected static string $defaultName = 'Category Sync Operation';
 
