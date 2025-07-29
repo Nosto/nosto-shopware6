@@ -20,7 +20,7 @@ runs:
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
         
-        echo "=== Applying targeted fix for method visibility ==="
+        echo "=== Applying targeted fix for method visibility and return type ==="
         
         # Create a proper backup first
         cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
@@ -29,22 +29,32 @@ runs:
         echo "=== Current line 68 ==="
         sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Make the simple fix - change private to protected on line 68
+        # Fix 1: Change private to protected on line 68
         sed -i '68s/private function parseAssignmentExpression/protected function parseAssignmentExpression/' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Verify the change
-        echo "=== After fix - line 68 ==="
+        # Fix 2: Change return type from Node to Nodes on line 68
+        sed -i '68s/: Node/: Nodes/' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Verify the changes
+        echo "=== After fixes - line 68 ==="
         sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Now we need to fix the method to actually return Nodes instead of Node
+        # Looking at the method, it builds an array and then returns new Node at the end
+        # We need to find where it returns Node and wrap it in Nodes
+        
+        echo "=== Looking for the return statement ==="
+        grep -n -A 3 -B 3 "return new Node" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Find the end of the method to see what it returns
+        echo "=== End of parseAssignmentExpression method ==="
+        sed -n '85,93p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
         # Check PHP syntax
         echo "=== Checking PHP syntax ==="
         php -l vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Show the context around the fixed method
-        echo "=== Method after fix ==="
-        sed -n '65,75p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        echo "=== Fix applied successfully ==="
+        echo "=== Partial fix applied - may need return statement adjustment ==="
 
     - name: Install Shopware
       shell: bash
