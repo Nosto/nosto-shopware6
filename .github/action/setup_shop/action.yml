@@ -20,51 +20,28 @@ runs:
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
         
-        echo "=== Applying comprehensive compatibility patch ==="
+        echo "=== Restoring backup and examining the actual method ==="
         
-        # Backup the original file
-        cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
+        # Restore from backup
+        cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Show the original problematic method
-        echo "=== Original method ==="
-        grep -A 10 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # Find the actual parseAssignmentExpression method
+        echo "=== Full parseAssignmentExpression method ==="
+        grep -n -A 20 "private function parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Use a very simple approach - just manually fix the two problematic lines
-        FILE="vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php"
+        # Let's see the file structure around line 68 where the error occurs
+        echo "=== Lines around 68 (where the error occurs) ==="
+        sed -n '60,80p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Step 1: Change private to protected
-        sed -i 's/private function parseAssignmentExpression/protected function parseAssignmentExpression/' "$FILE"
+        # Check if this is the simple method we expect or a different one
+        echo "=== Looking for the simple AssignNameExpression method ==="
+        grep -n -A 5 -B 5 "AssignNameExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Step 2: Create variables with the replacement strings to avoid escaping in sed
-        RETURN_TYPE_NEW="Twig"
-        NAMESPACE_SEPARATOR="Node"
-        CLASS_NAME="Nodes"
+        # Check the exact line 68 mentioned in the original error
+        echo "=== Line 68 specifically ==="
+        sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Step 3: Build the replacement incrementally
-        # First replace AssignNameExpression with a placeholder
-        sed -i 's/: AssignNameExpression/: PLACEHOLDER_TYPE/' "$FILE"
-        
-        # Then replace the placeholder with the correct type
-        sed -i "s/PLACEHOLDER_TYPE/\\\\${RETURN_TYPE_NEW}\\\\${NAMESPACE_SEPARATOR}\\\\${CLASS_NAME}/" "$FILE"
-        
-        # Step 4: Fix the return statement similarly
-        # Replace the return line with a placeholder first
-        sed -i 's/return new AssignNameExpression(/return PLACEHOLDER_RETURN/' "$FILE"
-        
-        # Then replace with the correct wrapped version
-        sed -i "s/PLACEHOLDER_RETURN/new \\\\${RETURN_TYPE_NEW}\\\\${NAMESPACE_SEPARATOR}\\\\${CLASS_NAME}([new AssignNameExpression(/" "$FILE"
-        
-        # Add the closing bracket and parenthesis
-        sed -i 's/getLine());/getLine())]);/' "$FILE"
-        
-        echo "=== After all changes ==="
-        grep -A 10 "parseAssignmentExpression" "$FILE"
-        
-        # Verify PHP syntax is valid
-        echo "=== Checking PHP syntax ==="
-        php -l "$FILE"
-        
-        echo "=== Patch completed ==="
+        echo "=== Method signature analysis complete - no changes made yet ==="
     - name: Install Shopware
       shell: bash
       run: |
