@@ -19,43 +19,46 @@ runs:
         echo "=== Current versions ==="
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
-
+        
         echo "=== Applying comprehensive compatibility patch ==="
-
+        
         # Backup the original file
         cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
-
+        
         # Show the original problematic method
         echo "=== Original method ==="
-        grep -A 5 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-
-        # Use a simpler approach - just fix the specific method signature and return
+        grep -A 10 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
         FILE="vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php"
-
-        # Step 1: Change private to protected
+        
+        # Step 1: Change private to protected only
         sed -i 's/private function parseAssignmentExpression/protected function parseAssignmentExpression/g' "$FILE"
-
-        # Step 2: Show current state
+        
         echo "=== After visibility change ==="
-        grep -A 5 "parseAssignmentExpression" "$FILE"
-
-        # Step 3: Replace the entire method content using a different approach
-        # Find the line with the method and replace just that line
-        LINE_NUM=$(grep -n "protected function parseAssignmentExpression" "$FILE" | cut -d ':' -f 1)
-        if [ ! -z "$LINE_NUM" ]; then
-          # Replace the method signature line
-          sed -i "${LINE_NUM}s/.*/    protected function parseAssignmentExpression(Token \$token): \\\\Twig\\\\Node\\\\Nodes/" "$FILE"
-
-          # Find and replace the return statement
-          sed -i 's/return new AssignNameExpression(/return new \\Twig\\Node\\Nodes([new AssignNameExpression(/g' "$FILE"
-          sed -i 's/\$token->getLine());/\$token->getLine())]);/g' "$FILE"
-        fi
-
-        # Verify the patch was applied
-        echo "=== Verifying patch ==="
-        grep -A 5 -B 2 "parseAssignmentExpression" "$FILE"
-
-        echo "=== Patch applied successfully ==="
+        grep -A 10 "parseAssignmentExpression" "$FILE"
+        
+        # Step 2: Use tr and simple replacements to avoid YAML issues
+        # Replace the return type annotation
+        sed -i 's/AssignNameExpression$/\\Twig\\Node\\Nodes/g' "$FILE"
+        
+        echo "=== After return type change ==="
+        grep -A 10 "parseAssignmentExpression" "$FILE"
+        
+        # Step 3: Fix the return statement - wrap it in Nodes
+        sed -i 's/new AssignNameExpression(/new \\Twig\\Node\\Nodes([new AssignNameExpression(/g' "$FILE"
+        sed -i 's/getLine());$/getLine())]);/g' "$FILE"
+        
+        echo "=== After return statement change ==="
+        grep -A 10 "parseAssignmentExpression" "$FILE"
+        
+        # Verify PHP syntax is valid
+        echo "=== Checking PHP syntax ==="
+        php -l "$FILE" || echo "Syntax check failed - showing file content around the method"
+        
+        echo "=== Final method ==="
+        grep -A 15 "parseAssignmentExpression" "$FILE"
+        
+        echo "=== Patch completed ==="
     - name: Install Shopware
       shell: bash
       run: |
