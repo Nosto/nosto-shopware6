@@ -19,49 +19,43 @@ runs:
         echo "=== Current versions ==="
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
-        
+
         echo "=== Applying comprehensive compatibility patch ==="
-        
+
         # Backup the original file
         cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
-        
+
         # Show the original problematic method
         echo "=== Original method ==="
-        grep -A 10 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        # Create a patch file with the corrected method
-        cat > /tmp/method_patch.txt << 'PATCH'
-        protected function parseAssignmentExpression(Token $token): \Twig\Node\Nodes
-        {
-          if ($token->test('name')) {
-          return new \Twig\Node\Nodes([new AssignNameExpression($token->getValue(), $token->getLine())]);
-        }
-          
-          throw new SyntaxError(sprintf('Expected name for "foreach" assignment, got "%s".', $token->getValue()), $token->getLine(), $this->stream->getSourceContext());
-        }
-        PATCH
+        grep -A 5 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
 
-      # Find the line numbers for the method
-      START_LINE=$(grep -n "private function parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php | cut -d: -f1)
-      END_LINE=$(tail -n +$START_LINE vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php | grep -n "^    }" | head -1 | cut -d: -f1)
-        END_LINE=$((START_LINE + END_LINE - 1))
-        
-        echo "=== Replacing lines $START_LINE to $END_LINE ==="
-        
-        # Replace the method with the fixed version
-        head -n $((START_LINE - 1)) vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php > /tmp/before.php
-        cat /tmp/method_patch.txt >> /tmp/before.php
-        tail -n +$((END_LINE + 1)) vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php >> /tmp/before.php
-        
-        # Replace the original file
-        mv /tmp/before.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
+        # Use a simpler approach - just fix the specific method signature and return
+        FILE="vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php"
+
+        # Step 1: Change private to protected
+        sed -i 's/private function parseAssignmentExpression/protected function parseAssignmentExpression/g' "$FILE"
+
+        # Step 2: Show current state
+        echo "=== After visibility change ==="
+        grep -A 5 "parseAssignmentExpression" "$FILE"
+
+        # Step 3: Replace the entire method content using a different approach
+        # Find the line with the method and replace just that line
+        LINE_NUM=$(grep -n "protected function parseAssignmentExpression" "$FILE" | cut -d ':' -f 1)
+        if [ ! -z "$LINE_NUM" ]; then
+          # Replace the method signature line
+          sed -i "${LINE_NUM}s/.*/    protected function parseAssignmentExpression(Token \$token): \\\\Twig\\\\Node\\\\Nodes/" "$FILE"
+
+          # Find and replace the return statement
+          sed -i 's/return new AssignNameExpression(/return new \\Twig\\Node\\Nodes([new AssignNameExpression(/g' "$FILE"
+          sed -i 's/\$token->getLine());/\$token->getLine())]);/g' "$FILE"
+        fi
+
         # Verify the patch was applied
         echo "=== Verifying patch ==="
-        grep -A 10 -B 2 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        echo "=== Patch applied successfully ==="
+        grep -A 5 -B 2 "parseAssignmentExpression" "$FILE"
 
+        echo "=== Patch applied successfully ==="
     - name: Install Shopware
       shell: bash
       run: |
