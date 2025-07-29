@@ -16,30 +16,25 @@ runs:
       shell: bash
       run: |
         cd shopware
-        echo "=== Investigating current state ==="
-        composer show twig/twig || echo "twig/twig not found"
-        composer show squirrelphp/twig-php-syntax || echo "squirrelphp/twig-php-syntax not found"
-        
-        echo "=== Checking what Shopware actually allows ==="
-        composer why twig/twig
-        composer why squirrelphp/twig-php-syntax
-        
-        # Try to find a working combination by allowing composer to resolve it
-        # Use --ignore-platform-reqs to bypass some restrictions temporarily
-        echo "=== Attempting to resolve dependencies ==="
-        composer update --no-progress --no-interaction --ignore-platform-reqs twig/twig squirrelphp/twig-php-syntax || echo "Update failed, trying alternative approach"
-        
-        # If that fails, try forcing a specific known-good combination
-        if ! composer show twig/twig > /dev/null 2>&1; then
-        echo "=== Trying manual resolution ==="
-        composer require --no-update twig/twig:3.4.3
-        composer update --no-progress --no-interaction --ignore-platform-reqs
-        fi
-        
-        echo "=== Final state ==="
+        echo "=== Current versions ==="
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
-
+        
+        # The issue is that squirrelphp v1.7 has a method visibility bug
+        # We need to patch the file directly since we can't upgrade the package
+        echo "=== Applying method visibility patch ==="
+        
+        # Backup the original file
+        cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
+        
+        # Apply the fix: change 'private function parseAssignmentExpression' to 'protected function parseAssignmentExpression'
+        sed -i 's/private function parseAssignmentExpression/protected function parseAssignmentExpression/g' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Verify the patch was applied
+        echo "=== Verifying patch ==="
+        grep -n "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php || echo "Method not found"
+        
+        echo "=== Patch applied successfully ==="
 
     - name: Install Shopware
       shell: bash
