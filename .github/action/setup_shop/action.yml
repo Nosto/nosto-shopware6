@@ -20,33 +20,32 @@ runs:
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
         
-        echo "=== Examining the current file structure ==="
+        echo "=== Applying targeted fix for method visibility ==="
         
-        # First, let's see what the current file looks like
-        echo "=== Current file structure around parseAssignmentExpression ==="
-        grep -n -A 20 -B 5 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php || echo "Method not found with that exact name"
+        # Create a proper backup first
+        cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup
         
-        # Let's check line 68 specifically (where the original error occurred)
-        echo "=== Line 68 specifically ==="
+        # Show the current problematic line
+        echo "=== Current line 68 ==="
         sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Let's see a broader context around line 68
-        echo "=== Lines 60-80 ==="
-        sed -n '60,80p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # Make the simple fix - change private to protected on line 68
+        sed -i '68s/private function parseAssignmentExpression/protected function parseAssignmentExpression/' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Look for any method that might be the problematic one
-        echo "=== All function definitions in the file ==="
-        grep -n "function " vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # Verify the change
+        echo "=== After fix - line 68 ==="
+        sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Look for AssignNameExpression usage
-        echo "=== AssignNameExpression usage ==="
-        grep -n "AssignNameExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # Check PHP syntax
+        echo "=== Checking PHP syntax ==="
+        php -l vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        # Show file size and basic info
-        echo "=== File info ==="
-        wc -l vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # Show the context around the fixed method
+        echo "=== Method after fix ==="
+        sed -n '65,75p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        echo "=== Analysis complete - no changes made ==="
+        echo "=== Fix applied successfully ==="
+
     - name: Install Shopware
       shell: bash
       run: |
