@@ -15,8 +15,8 @@ class SendVersionInfoTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        // Run twice a month = every 15 days
-        // 15 days * 24 hours * 60 minutes * 60 seconds = 1,296,000 seconds
-        return 1296000;
+        // Run once a day = every 24 hours
+        // 24 hours * 60 minutes * 60 seconds = 86,400 seconds
+        return 86400;
     }
 }
