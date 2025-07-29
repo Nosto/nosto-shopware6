@@ -40,25 +40,10 @@ jobs:
         with:
           shopware-version: ${{ matrix.shopware-versions }}
 
-      - name: Fix Twig compatibility issue
-        run: |
-          cd shopware
-          # Lock to compatible versions that work with older Shopware versions
-          composer require --dev --no-update "twig/twig:^3.4.0"
-          composer require --dev --no-update "squirrelphp/twig-php-syntax:^1.8"
-          composer update --no-progress --no-interaction --with-dependencies twig/twig squirrelphp/twig-php-syntax
-
       - name: Install test dependencies for SW
         run: |
           cd shopware
           composer require --dev symfony/test-pack
-
-      - name: Debug dependency versions (optional - remove after fixing)
-        run: |
-          cd shopware
-          echo "=== Resolved versions ==="
-          composer show twig/twig
-          composer show squirrelphp/twig-php-syntax
 
       - name: Run PHPUnit test suite
         run: |
