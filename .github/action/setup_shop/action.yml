@@ -20,10 +20,11 @@ runs:
         composer show twig/twig || echo "twig/twig not found"
         composer show squirrelphp/twig-php-syntax || echo "squirrelphp/twig-php-syntax not found"
         
-        # Downgrade to compatible versions
-        composer require --no-update twig/twig:^3.4.0
-        composer require --no-update squirrelphp/twig-php-syntax:^1.8
-        composer update --no-progress --no-interaction --with-dependencies twig/twig squirrelphp/twig-php-syntax
+        # Force compatible versions - we need to stick with what Shopware allows
+        # but ensure Twig is compatible with the locked squirrelphp version
+        composer require --no-update twig/twig:~3.4.0
+        # Don't try to change squirrelphp version - use what Shopware requires (v1.7)
+        composer update --no-progress --no-interaction --with-dependencies twig/twig
         
         echo "=== After fix ==="
         composer show twig/twig
