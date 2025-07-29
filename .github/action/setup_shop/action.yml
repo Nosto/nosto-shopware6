@@ -20,8 +20,8 @@ runs:
         composer show twig/twig squirrelphp/twig-php-syntax
 
         # Downgrade to compatible versions
-        composer require --no-update "twig/twig:^3.4.0"
-        composer require --no-update "squirrelphp/twig-php-syntax:^1.8"
+        composer require --no-update twig/twig:^3.4.0
+        composer require --no-update squirrelphp/twig-php-syntax:^1.8
         composer update --no-progress --no-interaction twig/twig squirrelphp/twig-php-syntax
 
         echo "=== After fix ==="
