@@ -20,28 +20,33 @@ runs:
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
         
-        echo "=== Restoring backup and examining the actual method ==="
+        echo "=== Examining the current file structure ==="
         
-        # Restore from backup
-        cp vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php.backup vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        # First, let's see what the current file looks like
+        echo "=== Current file structure around parseAssignmentExpression ==="
+        grep -n -A 20 -B 5 "parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php || echo "Method not found with that exact name"
         
-        # Find the actual parseAssignmentExpression method
-        echo "=== Full parseAssignmentExpression method ==="
-        grep -n -A 20 "private function parseAssignmentExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        # Let's see the file structure around line 68 where the error occurs
-        echo "=== Lines around 68 (where the error occurs) ==="
-        sed -n '60,80p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        # Check if this is the simple method we expect or a different one
-        echo "=== Looking for the simple AssignNameExpression method ==="
-        grep -n -A 5 -B 5 "AssignNameExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
-        
-        # Check the exact line 68 mentioned in the original error
+        # Let's check line 68 specifically (where the original error occurred)
         echo "=== Line 68 specifically ==="
         sed -n '68p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
         
-        echo "=== Method signature analysis complete - no changes made yet ==="
+        # Let's see a broader context around line 68
+        echo "=== Lines 60-80 ==="
+        sed -n '60,80p' vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Look for any method that might be the problematic one
+        echo "=== All function definitions in the file ==="
+        grep -n "function " vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Look for AssignNameExpression usage
+        echo "=== AssignNameExpression usage ==="
+        grep -n "AssignNameExpression" vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        # Show file size and basic info
+        echo "=== File info ==="
+        wc -l vendor/squirrelphp/twig-php-syntax/src/TokenParser/ForeachTokenParser.php
+        
+        echo "=== Analysis complete - no changes made ==="
     - name: Install Shopware
       shell: bash
       run: |
