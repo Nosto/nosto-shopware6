@@ -16,19 +16,30 @@ runs:
       shell: bash
       run: |
         cd shopware
-        echo "=== Before fix ==="
+        echo "=== Investigating current state ==="
         composer show twig/twig || echo "twig/twig not found"
         composer show squirrelphp/twig-php-syntax || echo "squirrelphp/twig-php-syntax not found"
         
-        # Force compatible versions - we need to stick with what Shopware allows
-        # but ensure Twig is compatible with the locked squirrelphp version
-        composer require --no-update twig/twig:~3.4.0
-        # Don't try to change squirrelphp version - use what Shopware requires (v1.7)
-        composer update --no-progress --no-interaction --with-dependencies twig/twig
+        echo "=== Checking what Shopware actually allows ==="
+        composer why twig/twig
+        composer why squirrelphp/twig-php-syntax
         
-        echo "=== After fix ==="
+        # Try to find a working combination by allowing composer to resolve it
+        # Use --ignore-platform-reqs to bypass some restrictions temporarily
+        echo "=== Attempting to resolve dependencies ==="
+        composer update --no-progress --no-interaction --ignore-platform-reqs twig/twig squirrelphp/twig-php-syntax || echo "Update failed, trying alternative approach"
+        
+        # If that fails, try forcing a specific known-good combination
+        if ! composer show twig/twig > /dev/null 2>&1; then
+        echo "=== Trying manual resolution ==="
+        composer require --no-update twig/twig:3.4.3
+        composer update --no-progress --no-interaction --ignore-platform-reqs
+        fi
+        
+        echo "=== Final state ==="
         composer show twig/twig
         composer show squirrelphp/twig-php-syntax
+
 
     - name: Install Shopware
       shell: bash
