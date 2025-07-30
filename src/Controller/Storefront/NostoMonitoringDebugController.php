@@ -19,7 +19,7 @@ use Nosto\Scheduler\Model\Job\JobResult;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -44,7 +44,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         private readonly Provider $productProvider,
         private readonly CategoryBuilder $nostoCategoryBuilder,
         private readonly OrderBuilder $nostoOrderbuilder,
-        private readonly CachedSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
     ) {
         parent::__construct($authService);
     }
