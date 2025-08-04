@@ -64,6 +64,7 @@
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
         "test": "./bin/phpunit.sh",
+        "test-unit": "./bin/phpunit-unit.sh",
         "release": "release/bin/release"
     }
 }
