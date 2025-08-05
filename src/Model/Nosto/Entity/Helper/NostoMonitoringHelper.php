@@ -71,6 +71,11 @@ class NostoMonitoringHelper
             $jobsToDelete = $this->connection->fetchAllAssociative($jobQuery);
 
             if (!empty($jobsToDelete)) {
+                $this->connection->executeStatement("
+                    DELETE FROM `messenger_messages`
+		            WHERE body LIKE '%nosto-integration%'
+                ");
+
                 $jobIds = array_column($jobsToDelete, 'id');
 
                 $deleteMessagesQuery = '

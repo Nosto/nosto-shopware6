@@ -1,3 +1,11 @@
+# 5.1.7
+* Fix: Null-Wert beim Aufbau des Kategoriebaums
+* Fix: Nosto-Scheduler-Job fehlgeschlagen oder bereits aktiv
+* Fix: Composer-Installation erfordert manuellen Backend-Build
+* Fix: Hängender Produktabgleich
+* Neu: Suche/CM-Vorschau mit nostodebug
+* Neu: Export von Suchbegriffen aus SW zu Nosto
+
 # 5.1.6
 * Fix: Verbesserte Produktkennzeichnung für Crawler und Nosto Personalisierung
 * Fix: Verbesserte Informationen und Status für Sync-Jobs
