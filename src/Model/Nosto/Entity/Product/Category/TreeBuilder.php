@@ -20,7 +20,10 @@ class TreeBuilder
             return array_reduce(
                 $nameSet,
                 function (array $acc, $categoryName) {
-                    $acc[] = end($acc) . '/' . $categoryName;
+                    if (!is_string($categoryName)) {
+                        return $acc;
+                    }
+                    $acc[] = (end($acc) ?: '') . '/' . $categoryName;
 
                     return $acc;
                 },
@@ -32,7 +35,10 @@ class TreeBuilder
             return array_reduce(
                 $nameSet,
                 function (array $acc, $categoryName) {
-                    $acc[] = end($acc) . '/' . $categoryName;
+                    if (!is_string($categoryName)) {
+                        return $acc;
+                    }
+                    $acc[] = (end($acc) ?: '') . '/' . $categoryName;
 
                     return $acc;
                 },
