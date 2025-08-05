@@ -4,5 +4,14 @@
     <script>
         // Get full path for Analytics by name. Insert JS in the head.
         window.router['frontend.nosto.analytics-tracking'] = '{{ path('frontend.nosto.analytics-tracking') }}';
+        window.router['frontend.nosto.preview.toggle'] = '{{ path('frontend.nosto.preview.toggle') }}';
+
+        // Immediately sync localStorage with cookie for instant availability
+        (function() {
+            const currentPreview = localStorage.getItem('nosto:preview') === 'true';
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000)); // 1 day
+            document.cookie = `nosto_preview=${currentPreview ? '1' : '0'};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+        })();
     </script>
 {% endblock %}

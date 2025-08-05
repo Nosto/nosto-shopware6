@@ -20,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -54,7 +55,12 @@ class SearchController extends StorefrontController
     )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
-        if (!$this->configProvider->isSearchEnabled($context->getSalesChannelId(), $context->getLanguageId())) {
+        $isPreviewEnabled = $this->isPreviewEnabled($request);
+
+        if (!$this->configProvider->isSearchEnabled(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) && !$isPreviewEnabled) {
             return $this->decorated->search($context, $request);
         }
 
@@ -164,7 +170,7 @@ class SearchController extends StorefrontController
     )]
     public function filter(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!SearchHelper::shouldHandleRequest($salesChannelContext, $this->configProvider)) {
+        if (!SearchHelper::shouldHandleRequest($salesChannelContext, $this->configProvider, false, $request)) {
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
@@ -178,5 +184,44 @@ class SearchController extends StorefrontController
         return new JsonResponse(
             $this->filterHandler->handleAvailableFilters($criteria),
         );
+    }
+
+    #[Route(
+        path: '/nosto/preview-toggle',
+        name: 'frontend.nosto.preview.toggle',
+        defaults: [
+            'XmlHttpRequest' => true,
+        ],
+        methods: ['POST'],
+    )]
+    public function togglePreview(Request $request, SessionInterface $session): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $isEnabled = isset($data['preview']) && $data['preview'] === true;
+
+        $session->set('nosto_preview_enabled', $isEnabled);
+
+        return new JsonResponse([
+            'success' => true,
+            'preview' => $isEnabled,
+            'session_value' => $session->get('nosto_preview_enabled'),
+        ]);
+    }
+
+    private function isPreviewEnabled(Request $request): bool
+    {
+        // Check cookie first (automatically sent with every request)
+        $cookieValue = $request->cookies->get('nosto_preview');
+        if ($cookieValue !== null) {
+            return $cookieValue === '1';
+        }
+
+        // Fallback to session
+        if ($request->hasSession() && $request->getSession()->isStarted()) {
+            return $request->getSession()->get('nosto_preview_enabled', false);
+        }
+
+        return false;
     }
 }
