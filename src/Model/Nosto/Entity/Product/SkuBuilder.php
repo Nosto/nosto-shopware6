@@ -163,6 +163,10 @@ class SkuBuilder
             }
         }
 
+        if ($keywords = $product->getCustomSearchKeywords()) {
+            $nostoSku->addCustomField(Builder::SEARCH_KEYWORDS, implode(', ', $keywords));
+        }
+
         return $nostoSku;
     }
 }
