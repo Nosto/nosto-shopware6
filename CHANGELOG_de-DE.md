@@ -1,3 +1,12 @@
+# 3.5.7
+* Fix: Syntaxfehler
+* Fix: Null-Wert beim Aufbau des Kategoriebaums
+* Fix: Nosto-Scheduler-Job fehlgeschlagen oder bereits aktiv
+* Fix: Composer-Installation erfordert manuellen Backend-Build
+* Fix: Hängender Produktabgleich
+* Neu: Suche/CM-Vorschau mit nostodebug
+* Neu: Export von Suchbegriffen aus SW zu Nosto
+
 # 3.5.6
 * Fix: Verbesserte Produktkennzeichnung für Crawler und Nosto Personalisierung
 * Fix: Verbesserte Informationen und Status für Sync-Jobs

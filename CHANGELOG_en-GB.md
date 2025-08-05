@@ -1,3 +1,12 @@
+# 3.5.7
+* Fix: Syntax error
+* Fix: Null value in category tree
+* Fix: Nosto Scheduler job failed or already running
+* Fix: Composer install requires manual backend build
+* Fix: Stuck product sync
+* New: Search/CM preview with nostodebug
+* New: Export search keywords from SW to Nosto
+
 # 3.5.6
 * Fix: Product tagging fix for crawler and Nosto Personalisation
 * Fix: Improve information and status for sync jobs
