@@ -1,3 +1,11 @@
+# 6.0.2
+* Fix: Null-Wert beim Aufbau des Kategoriebaums
+* Fix: Nosto-Scheduler-Job fehlgeschlagen oder bereits aktiv
+* Fix: Composer-Installation erfordert manuellen Backend-Build
+* Fix: Hängender Produktabgleich
+* Neu: Suche/CM-Vorschau mit nostodebug
+* Neu: Export von Suchbegriffen aus SW zu Nosto
+
 # 6.0.1
 * Neu: Senden von zusätzlichen Daten für Produkte und Varianten an Nosto
 * Neu: Migration von Vuex zu Pinia

@@ -1,3 +1,11 @@
+# 6.0.2
+* Fix: Null value in category tree
+* Fix: Nosto Scheduler job failed or already running
+* Fix: Composer install requires manual backend build
+* Fix: Stuck product sync
+* New: Search/CM preview with nostodebug
+* New: Export search keywords from SW to Nosto
+
 # 6.0.1
 * New: Sending additional data for products and variants to Nosto
 * New: Migration from Vuex to Pinia
