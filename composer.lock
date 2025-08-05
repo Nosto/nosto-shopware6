@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b3aa528949f415395a4bb7f36670e5cb",
+    "content-hash": "be19b11acc1e8c7f8b75f388072bba02",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -64,24 +64,23 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "3.0.1",
+            "version": "2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "9f3aff63ac2cdd548c422472ce73289f04fef1b5"
+                "reference": "7d8c71ccabe9078ae4ec5d8803123a66754ab879"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/9f3aff63ac2cdd548c422472ce73289f04fef1b5",
-                "reference": "9f3aff63ac2cdd548c422472ce73289f04fef1b5",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/7d8c71ccabe9078ae4ec5d8803123a66754ab879",
+                "reference": "7d8c71ccabe9078ae4ec5d8803123a66754ab879",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.2"
+                "php": "^8.1"
             },
             "require-dev": {
-                "shopware/administration": "^6.6",
-                "slevomat/coding-standard": "^8.15",
+                "shopware/administration": "^6.5",
                 "symplify/easy-coding-standard": "^12.0"
             },
             "type": "library",
@@ -97,9 +96,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.1"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.8"
             },
-            "time": "2025-08-04T10:23:43+00:00"
+            "time": "2025-08-05T09:14:58+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -882,7 +881,7 @@
     },
     "platform-dev": {},
     "platform-overrides": {
-        "php": "8.2"
+        "php": "8.1"
     },
     "plugin-api-version": "2.6.0"
 }
