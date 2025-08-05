@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a9db36f8af41bf5f5d943e8d9f49be5",
+    "content-hash": "be19b11acc1e8c7f8b75f388072bba02",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -64,16 +64,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "2.0.7",
+            "version": "2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "c434a199cc75149310d396d71b12f1dd0437f326"
+                "reference": "7d8c71ccabe9078ae4ec5d8803123a66754ab879"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/c434a199cc75149310d396d71b12f1dd0437f326",
-                "reference": "c434a199cc75149310d396d71b12f1dd0437f326",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/7d8c71ccabe9078ae4ec5d8803123a66754ab879",
+                "reference": "7d8c71ccabe9078ae4ec5d8803123a66754ab879",
                 "shasum": ""
             },
             "require": {
@@ -91,14 +91,14 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "proprietary"
+                "OSL-3.0"
             ],
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.7"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/2.0.8"
             },
-            "time": "2023-12-22T08:46:35+00:00"
+            "time": "2025-08-05T09:14:58+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
