@@ -101,7 +101,10 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             if (!$productListing->getElements()
-                && $this->configProvider->isEnabledFallbackMechanism($context->getSalesChannelId(), $context->getLanguageId())
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
             ) {
                 return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
             }

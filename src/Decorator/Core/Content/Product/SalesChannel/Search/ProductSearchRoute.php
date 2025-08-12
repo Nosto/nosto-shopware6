@@ -107,7 +107,10 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $this->sendImpressionAnalytics($context, $productListing, $request);
 
             if (!$result->getElements()
-                && $this->configProvider->isEnabledFallbackMechanism($context->getSalesChannelId(), $context->getLanguageId())
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
             ) {
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
