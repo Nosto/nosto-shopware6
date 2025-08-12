@@ -307,6 +307,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledFallbackMechanism($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_FALLBACK_MECHANISM,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function toArray($channelId = null, $languageId = null): array
     {
         return $this->configService->getConfigWithInheritance($channelId, $languageId);
