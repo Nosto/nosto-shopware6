@@ -138,7 +138,7 @@
                 },
                 "enableFallbackMechanism": {
                   "label": "Enable fallback mechanism",
-                  "helpText": "If the checkbox is checked, fallback to the default Shopware search/category when Nosto returns 0 results."
+                  "helpText": "If this checkbox is selected, the system will use the default Shopware search or category when Nosto returns no results."
                 },
                 "oldJobCleanupPeriod": {
                     "after": "After",
