@@ -15,29 +15,29 @@
     {% if product and nostoProduct %}
         <div class="nosto_product" style="display:none">
 
-            <span class="product_id">{{ nostoProduct.productId }}</span>
-            <span class="name">{{ nostoProduct.name }}</span>
-            <span class="url">{{ nostoProduct.url }}</span>
-            <span class="image_url">{{ nostoProduct.imageUrl }}</span>
-            <span class="availability">{{ nostoProduct.availability }}</span>
-            <span class="price">{{ nostoProduct.price }}</span>
-            <span class="price_currency_code">{{ nostoProduct.priceCurrencyCode }}</span>
+            <span class="product_id" translate="no">{{ nostoProduct.productId }}</span>
+            <span class="name" translate="no">{{ nostoProduct.name }}</span>
+            <span class="url" translate="no">{{ nostoProduct.url }}</span>
+            <span class="image_url" translate="no">{{ nostoProduct.imageUrl }}</span>
+            <span class="availability" translate="no">{{ nostoProduct.availability }}</span>
+            <span class="price" translate="no">{{ nostoProduct.price }}</span>
+            <span class="price_currency_code" translate="no">{{ nostoProduct.priceCurrencyCode }}</span>
 
             {% if isNostoParentProduct and nostoProduct.skus %}
                 {% for key, variantData in nostoProduct.skus %}
                     <span class="nosto_sku">
-                      <span class="id">{{ variantData.id }}</span>
-                      <span class="name">{{ variantData.name }}</span>
-                      <span class="price">{{ variantData.price }}</span>
-                      <span class="list_price">{{ variantData.listPrice }}</span>
-                      <span class="inventory_level">{{ variantData.inventoryLevel }}</span>
-                      <span class="url">{{ variantData.url }}</span>
-                      <span class="image_url">{{ variantData.imageUrl }}</span>
-                      <span class="availability">{{ variantData.availability }}</span>
+                      <span class="id" translate="no">{{ variantData.id }}</span>
+                      <span class="name" translate="no">{{ variantData.name }}</span>
+                      <span class="price" translate="no">{{ variantData.price }}</span>
+                      <span class="list_price" translate="no">{{ variantData.listPrice }}</span>
+                      <span class="inventory_level" translate="no">{{ variantData.inventoryLevel }}</span>
+                      <span class="url" translate="no">{{ variantData.url }}</span>
+                      <span class="image_url" translate="no">{{ variantData.imageUrl }}</span>
+                      <span class="availability" translate="no">{{ variantData.availability }}</span>
                         {% if variantData.customFields %}
                             <span class="custom_fields">
                             {% for key, value in variantData.customFields %}
-                                <span class="{{ key }}">{{ value }}</span>
+                                <span class="{{ key }}" translate="no">{{ value }}</span>
                             {% endfor %}
                             </span>
                         {% endif %}
@@ -45,18 +45,18 @@
                 {% endfor %}
             {% else %}
                 <span class="nosto_sku">
-                  <span class="id">{{ nostoProduct.productId }}</span>
-                  <span class="name">{{ nostoProduct.name }}</span>
-                  <span class="price">{{ nostoProduct.price }}</span>
-                  <span class="list_price">{{ nostoProduct.listPrice }}</span>
-                  <span class="inventory_level">{{ nostoProduct.inventoryLevel }}</span>
-                  <span class="url">{{ nostoProduct.url }}</span>
-                  <span class="image_url">{{ nostoProduct.imageUrl }}</span>
-                  <span class="availability">{{ nostoProduct.availability }}</span>
+                  <span class="id" translate="no">{{ nostoProduct.productId }}</span>
+                  <span class="name" translate="no">{{ nostoProduct.name }}</span>
+                  <span class="price" translate="no">{{ nostoProduct.price }}</span>
+                  <span class="list_price" translate="no">{{ nostoProduct.listPrice }}</span>
+                  <span class="inventory_level" translate="no">{{ nostoProduct.inventoryLevel }}</span>
+                  <span class="url" translate="no">{{ nostoProduct.url }}</span>
+                  <span class="image_url" translate="no">{{ nostoProduct.imageUrl }}</span>
+                  <span class="availability" translate="no">{{ nostoProduct.availability }}</span>
                     {% if nostoProduct.customFields %}
                         <span class="custom_fields">
                         {% for key, value in nostoProduct.customFields %}
-                            <span class="{{ key }}">{{ value }}</span>
+                            <span class="{{ key }}" translate="no">{{ value }}</span>
                         {% endfor %}
                         </span>
                     {% endif %}
@@ -66,7 +66,7 @@
             {% if nostoProduct.categories %}
                 <span class="categories">
                     {% for category in nostoProduct.categories %}
-                        <span class="category">{{ category }}</span>
+                        <span class="category" translate="no">{{ category }}</span>
                     {% endfor %}
                 </span>
             {% endif %}
@@ -74,7 +74,7 @@
             {% if nostoProduct.categoryIds %}
                 <span class="category_ids">
                     {% for categoryId in nostoProduct.categoryIds %}
-                        <span class="category_id">{{ categoryId }}</span>
+                        <span class="category_id" translate="no">{{ categoryId }}</span>
                     {% endfor %}
                 </span>
             {% endif %}
@@ -82,29 +82,29 @@
             {% if nostoProduct.parentCategoryIds %}
                 <span class="parent_category_ids">
                     {% for parentCategoryId in nostoProduct.parentCategoryIds %}
-                        <span class="parent_category_id">{{ parentCategoryId }}</span>
+                        <span class="parent_category_id" translate="no">{{ parentCategoryId }}</span>
                     {% endfor %}
                 </span>
             {% endif %}
 
             {% if nostoProduct.brand %}
-                <span class="brand">{{ nostoProduct.brand }}</span>
+                <span class="brand" translate="no">{{ nostoProduct.brand }}</span>
             {% endif %}
 
             {% if nostoProduct.description %}
-                <span class="description">{{ nostoProduct.description }}</span>
+                <span class="description" translate="no">{{ nostoProduct.description }}</span>
             {% endif %}
 
             {% if nostoProduct.googleCategory %}
-                <span class="google_category">{{ nostoProduct.googleCategory }}</span>
+                <span class="google_category" translate="no">{{ nostoProduct.googleCategory }}</span>
             {% endif %}
 
             {% if nostoProduct.listPrice %}
-                <span class="list_price">{{ nostoProduct.listPrice }}</span>
+                <span class="list_price" translate="no">{{ nostoProduct.listPrice }}</span>
             {% endif %}
 
             {% if nostoProduct.tag1 is not empty %}
-                <span class="tag1">
+                <span class="tag1" translate="no">
                     {% if nostoProduct.tag1|length > 1 %}
                         [{{ nostoProduct.tag1|join(', ') }}]
                     {% else %}
@@ -113,7 +113,7 @@
                 </span>
             {% endif %}
             {% if nostoProduct.tag2 is not empty %}
-                <span class="tag2">
+                <span class="tag2" translate="no">
                     {% if nostoProduct.tag2|length > 1 %}
                         [{{ nostoProduct.tag2|join(', ') }}]
                     {% else %}
@@ -122,7 +122,7 @@
                 </span>
             {% endif %}
             {% if nostoProduct.tag3 is not empty %}
-                <span class="tag3">
+                <span class="tag3" translate="no">
                     {% if nostoProduct.tag3|length > 1 %}
                         [{{ nostoProduct.tag3|join(', ') }}]
                     {% else %}
@@ -132,16 +132,16 @@
             {% endif %}
 
             {% if nostoProduct.ratingValue %}
-                <span class="rating_value">{{ nostoProduct.ratingValue }}</span>
+                <span class="rating_value" translate="no">{{ nostoProduct.ratingValue }}</span>
             {% endif %}
 
             {% if nostoProduct.reviewCount %}
-                <span class="review_count">{{ nostoProduct.reviewCount }}</span>
+                <span class="review_count" translate="no">{{ nostoProduct.reviewCount }}</span>
             {% endif %}
 
             {% if nostoProduct.alternateImageUrls %}
                 {% for url in nostoProduct.alternateImageUrls %}
-                    <span class="alternate_image_url">{{ url }}</span>
+                    <span class="alternate_image_url" translate="no">{{ url }}</span>
                 {% endfor %}
             {% endif %}
 
