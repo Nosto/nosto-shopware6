@@ -138,7 +138,7 @@
                 },
                 "enableFallbackMechanism": {
                   "label": "Fallback-Mechanismus aktivieren",
-                  "helpText": "Wenn das Kontrollkästchen aktiviert ist, auf die standardmäßige Shopware-Suche/Kategorie zurückfallen, wenn Nosto 0 Ergebnisse zurückgibt."
+                  "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
                 },
                 "oldJobCleanupPeriod": {
                     "after": "Nach",
