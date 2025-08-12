@@ -6,25 +6,25 @@
 
     {% if order %}
         <div class="nosto_purchase_order" style="display:none">
-            <span class="order_number">{{ order.orderNumber }}</span>
+            <span class="order_number" translate="no">{{ order.orderNumber }}</span>
 
             {% if customerDataToNosto %}
                 <div class="buyer">
-                    <span class="email">{{ order.orderCustomer.email }}</span>
-                    <span class="first_name">{{ order.orderCustomer.firstName }}</span>
-                    <span class="last_name">{{ order.orderCustomer.lastName }}</span>
+                    <span class="email" translate="no">{{ order.orderCustomer.email }}</span>
+                    <span class="first_name" translate="no">{{ order.orderCustomer.firstName }}</span>
+                    <span class="last_name" translate="no">{{ order.orderCustomer.lastName }}</span>
                     <span class="marketing_permission">false</span>
                 </div>
             {% endif %}
 
-            <span class="payment_provider">{{ order.transactions.first.paymentMethod.name }}</span>
-            <span class="order_status_code">{{ order.stateMachineState.technicalName }}</span>
+            <span class="payment_provider" translate="no">{{ order.transactions.first.paymentMethod.name }}</span>
+            <span class="order_status_code" translate="no">{{ order.stateMachineState.technicalName }}</span>
 
             <div class="purchased_items">
                 {% for lineItem in order.lineItems %}
                     {% if lineItem.type == 'product' %}
                         <div class="line_item">
-                            <span class="product_id">
+                            <span class="product_id" translate="no">
                                     {% if lineItem.payload.parentId != null %}
                                         {% set productId = nosto_shopware_main_product_identifier(lineItem.payload.parentId, lineItem.referencedId, context) %}
                                         {{ productId }}
@@ -36,11 +36,11 @@
                                         {% endif %}
                                     {% endif %}
                             </span>
-                            <span class="quantity">{{ lineItem.quantity }}</span>
-                            <span class="name">{{ lineItem.label }}</span>
-                            <span class="unit_price">{{ lineItem.unitPrice }}</span>
-                            <span class="price_currency_code">{{ context.currency.isoCode }}</span>
-                            <span class="sku_id">
+                            <span class="quantity" translate="no">{{ lineItem.quantity }}</span>
+                            <span class="name" translate="no">{{ lineItem.label }}</span>
+                            <span class="unit_price" translate="no">{{ lineItem.unitPrice }}</span>
+                            <span class="price_currency_code" translate="no">{{ context.currency.isoCode }}</span>
+                            <span class="sku_id" translate="no">
                                 {% if productIdentifier == 'product-number' %}
                                     {{ lineItem.payload.productNumber }}
                                 {% else %}
