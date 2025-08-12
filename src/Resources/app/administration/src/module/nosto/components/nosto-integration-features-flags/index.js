@@ -177,6 +177,7 @@ Component.register('nosto-integration-features-flags', {
                 redirectToThePDP: false,
                 enableProductVisibility: false,
                 enableTaggingForAllSkus: true,
+                enableFallbackMechanism: false,
             });
 
             this.createCategoryCollection();

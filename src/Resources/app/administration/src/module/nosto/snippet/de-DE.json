@@ -132,6 +132,10 @@
                   "label": "Aktiviere Tagging für alle SKUs",
                   "helpText": "Produkt- und SKU-Tagging hilft Nosto dabei, zu erkennen, welches Produkt angesehen wird. Es wird außerdem vom Crawler verwendet, um Ihre Produktdaten auf Nosto aktuell zu halten.\nFalls Sie eine langsame Performance Ihrer Produktseiten bemerken, deaktivieren Sie bitte diese Funktion und stellen Sie sicher, dass der Crawler im Nosto-Admin deaktiviert ist."
                 },
+                "enableFallbackMechanism": {
+                  "label": "Fallback-Mechanismus aktivieren",
+                  "helpText": "Wenn das Kontrollkästchen aktiviert ist, auf die standardmäßige Shopware-Suche/Kategorie zurückfallen, wenn Nosto 0 Ergebnisse zurückgibt."
+                },
                 "enableProductVisibility": {
                     "label": "Produkt-Sichtbarkeit aktivieren",
                     "helpText": "Bitte führen Sie eine vollständige Produktsynchronisierung durch und indexieren Sie die Felder \"showCategory\" und \"showSearch\" im Nosto-Konto, bevor Sie dies aktivieren"
