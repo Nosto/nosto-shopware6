@@ -5,7 +5,7 @@
         {% for lineItem in  page.cart.lineItems %}
             {% if lineItem.type == 'product' %}
                 <div class="line_item">
-                    <span class="product_id">
+                    <span class="product_id" translate="no">
                         {% if lineItem.payload.parentId != null %}
                             {% set productId = nosto_shopware_main_product_identifier(lineItem.payload.parentId, lineItem.referencedId, context) %}
                             {{ productId }}
@@ -17,21 +17,21 @@
                             {% endif %}
                         {% endif %}
                     </span>
-                    <span class="sku_id">
+                    <span class="sku_id" translate="no">
                         {% if productIdentifier == 'product-number' %}
                             {{ lineItem.payload.productNumber }}
                         {% else %}
                             {{ lineItem.referencedId }}
                         {% endif %}
                     </span>
-                    <span class="quantity">{{ lineItem.quantity }}</span>
-                    <span class="name">{{ lineItem.label }}</span>
-                    <span class="unit_price">{{ lineItem.price.unitPrice }}</span>
-                    <span class="price_currency_code">{{ context.currency.isoCode }}</span>
+                    <span class="quantity" translate="no">{{ lineItem.quantity }}</span>
+                    <span class="name" translate="no">{{ lineItem.label }}</span>
+                    <span class="unit_price" translate="no">{{ lineItem.price.unitPrice }}</span>
+                    <span class="price_currency_code" translate="no">{{ context.currency.isoCode }}</span>
                 </div>
             {% endif %}
         {% endfor %}
         {% set restoreLink = nosto_restore_cart_link(context) %}
-        <div class="restore_link">{{ restoreLink }}</div>
+        <div class="restore_link" translate="no">{{ restoreLink }}</div>
     </div>
 {% endblock %}
