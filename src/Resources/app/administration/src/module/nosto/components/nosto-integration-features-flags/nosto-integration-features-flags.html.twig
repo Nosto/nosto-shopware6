@@ -692,5 +692,28 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_fallback_mechanism %}
+            <sw-inherit-wrapper
+                :value="currentConfig['enableFallbackMechanism']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableFallbackMechanism']"
+                @update:value="onUpdateValue('enableFallbackMechanism', $event)"
+            >
+                <template #content="props">
+                    <mt-switch
+                        name="enableFallbackMechanism"
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
+                        :label="$tc('nosto.configuration.featuresFlags.enableFallbackMechanism.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableFallbackMechanism.helpText')"
+                        :disabled="props.isInherited"
+                        :modelValue="props.currentValue"
+                        @update:modelValue="onUpdateValue('enableFallbackMechanism', $event)"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </mt-card>
 {% endblock %}

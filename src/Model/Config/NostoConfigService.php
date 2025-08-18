@@ -104,6 +104,8 @@ class NostoConfigService
 
     public const ENABLE_PRODUCT_VISIBILITY = 'enableProductVisibility';
 
+    public const ENABLE_FALLBACK_MECHANISM = 'enableFallbackMechanism';
+
     private array $configs = [];
 
     public function __construct(

@@ -107,8 +107,12 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->sendImpressionAnalytics($context, $productListing, $request);
 
-            // If result is empty, use fallback.
-            if (!$result->getElements()) {
+            if (!$result->getElements()
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
+            ) {
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
 
