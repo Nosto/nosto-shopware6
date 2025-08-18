@@ -16,6 +16,7 @@ use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
 use Nosto\Scheduler\Model\Job\JobResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -219,6 +220,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
     )]
     public function showOrder(
         Request $request,
+        Context $context,
         SalesChannelContext $salesChannelContext,
     ): Response|RedirectResponse {
         if ($redirect = $this->requireAuthentication($request)) {
@@ -241,7 +243,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             $criteria->addAssociation('transactions.paymentMethod');
             $criteria->addAssociation('lineItems.orderLineItem.product');
 
-            $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $order = $this->orderRepository->search($criteria, $context)->first();
 
             if (!$order) {
                 $request->getSession()->getFlashBag()->add('error', "Order with ID '{$orderId}' not found.");
@@ -253,10 +255,20 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $salesChannelContext,
             );
 
+            $reflect = new \ReflectionClass($nostoOrder);
+            $props = $reflect->getProperties();
+
+            $orderData = [];
+
+            foreach ($props as $prop) {
+                $prop->setAccessible(true);
+                $orderData[$prop->getName()] = $prop->getValue($nostoOrder);
+            }
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-order.html.twig',
                 [
-                    'order' => $nostoOrder,
+                    'order' => $orderData,
                     'orderId' => $orderId,
                     'resourceType' => 'order',
                 ],
