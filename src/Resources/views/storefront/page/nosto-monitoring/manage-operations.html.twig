@@ -1,7 +1,53 @@
 {% extends '@Storefront/storefront/base.html.twig' %}
 
 {% block base_body %}
+    <style>
+        .nosto-configuration-section {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .nosto-configuration-sub-section {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px;
+        }
+        .nosto-configuration-sub-section h3 {
+            margin: 0 0 20px 0;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        .nosto-configuration-debug-section {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+        .nosto-configuration-debug-section h3 {
+            margin: 0 0 20px 0;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+
     <div class="nosto-layout" style="display: flex; flex-direction: column;">
+        <!-- SECTION - NOSTO VERSION -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin: 0; color: #6c757d;">Nosto Monitoring (v: {{ nostoVersion }})</h2>
             <form action="{{ path('nosto-monitoring.logout') }}" method="POST" style="margin: 0;">
@@ -10,17 +56,23 @@
                 </button>
             </form>
         </div>
-        <div class="nosto-context-selectors" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+
+        <!-- SECTION - CONTEXT & SALES CHANNEL SELECTION -->
+        <div class="nosto-context-selectors"
+             style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
             <h3 style="margin: 0 0 15px 0; color: #6c757d; font-size: 18px;">Context Selection</h3>
             <form method="GET" action="{{ path('nosto-monitoring.manage-operations') }}">
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <!-- Language Dropdown -->
                     <div style="flex: 1; min-width: 200px;">
-                        <label for="languageId" style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Language</label>
-                        <select name="languageId" style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
+                        <label for="languageId"
+                               style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Language</label>
+                        <select name="languageId"
+                                style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
                             <option value="">All Languages</option>
                             {% for language in languages %}
-                                <option value="{{ language.id }}" {% if language.id == currentLanguageId %}selected{% endif %}>
+                                <option value="{{ language.id }}"
+                                        {% if language.id == currentLanguageId %}selected{% endif %}>
                                     {{ language.locale.name }} ({{ language.locale.code }})
                                 </option>
                             {% endfor %}
@@ -29,11 +81,15 @@
 
                     <!-- Sales Channel Dropdown -->
                     <div style="flex: 1; min-width: 200px;">
-                        <label for="salesChannelId" style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Sales Channel</label>
-                        <select name="salesChannelId" style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
+                        <label for="salesChannelId"
+                               style="display: block; margin-bottom: 8px; color: #8b5cf6; font-weight: 500;">Sales
+                            Channel</label>
+                        <select name="salesChannelId"
+                                style="width: 100%; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 6px; background: white; font-size: 14px; color: #495057;">
                             <option value="">All Sales Channels</option>
                             {% for salesChannel in salesChannels %}
-                                <option value="{{ salesChannel.id }}" {% if salesChannel.id == currentSalesChannelId %}selected{% endif %}>
+                                <option value="{{ salesChannel.id }}"
+                                        {% if salesChannel.id == currentSalesChannelId %}selected{% endif %}>
                                     {{ salesChannel.name }}
                                 </option>
                             {% endfor %}
@@ -42,7 +98,8 @@
 
                     <!-- Submit Button -->
                     <div style="display: flex; align-items: end;">
-                        <button type="submit" class="nosto-button" style="padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                        <button type="submit" class="nosto-button"
+                                style="padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
                             Apply Context
                         </button>
                     </div>
@@ -89,347 +146,50 @@
                 Success message! Green color modern
             </div>
         </div>
-        <form id="nosto-clear-form" action="{{ path('nosto-monitoring.clear-jobs') }}" method="POST">
-            <button type="submit" class="nosto-button">Clear Nosto Jobs</button>
-        </form>
 
-        <!-- Nosto Configuration Display -->
-        <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px;">
+        <!-- SECTION - CLEAR JOBS -->
+        <div class="nosto-clear-form-wrapper" style="margin-bottom: 20px;">
+            <form id="nosto-clear-form" action="{{ path('nosto-monitoring.clear-jobs') }}" method="POST">
+                <button type="submit" class="nosto-button">Clear Nosto Jobs</button>
+            </form>
+        </div>
 
-            <!-- Personalized Search & Category Merchandising -->
-            <div style="border-bottom: 1px solid #f0f0f0; padding: 20px;">
-                <h3 style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">Personalized Search & Category Merchandising</h3>
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enablePersonalizedSearch %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                        <span style="color: #8b5cf6;">Enable Personalized Search</span>
-                        <span style="margin-left: auto; color: {% if nostoConfig.enablePersonalizedSearch %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enablePersonalizedSearch %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-                </div>
-                <div>
-                    <div style="display: flex; align-items: center;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableCategoryMerchandising %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                        <span style="color: #8b5cf6;">Enable Category Merchandising</span>
-                        <span style="margin-left: auto; color: {% if nostoConfig.enableCategoryMerchandising %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableCategoryMerchandising %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-                </div>
+        <!-- SECTION - CONFIGURATION -->
+        <div class="nosto-configuration-section">
+            <!-- SECTION - ACCOUNT SETTINGS -->
+            <div class="nosto-configuration-sub-section nosto-account-settings">
+                <h3>Nosto Configuration</h3>
+                <pre>{{ nostoConfig|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
             </div>
+        </div>
 
-            <!-- General settings -->
-            <div style="border-bottom: 1px solid #f0f0f0; padding: 20px;">
-                <h3 style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">General settings</h3>
-                <div style="display: flex; align-items: center;">
-                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.initializeNostoAfterInteraction %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                    <span style="color: #8b5cf6;">Initialize Nosto Script After First Page Iteration</span>
-                    <span style="margin-left: auto; color: {% if nostoConfig.initializeNostoAfterInteraction %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                {% if nostoConfig.initializeNostoAfterInteraction %}Enabled{% else %}Disabled{% endif %}
-            </span>
-                </div>
-            </div>
-
-            <!-- Tags assignment -->
-            <div style="border-bottom: 1px solid #f0f0f0; padding: 20px;">
-                <h3 style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">Tags assignment</h3>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Custom Fields</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.selectedCustomFields|length > 0 %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.selectedCustomFields|length > 0 %}
-                                    {{ nostoConfig.selectedCustomFields|join(', ') }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Tag 1</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.tag1|length > 0 %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.tag1|length > 0 %}
-                                    {{ nostoConfig.tag1|join(', ') }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Tag 2</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.tag2|length > 0 %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.tag2|length > 0 %}
-                                    {{ nostoConfig.tag2|join(', ') }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Tag 3</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.tag3|length > 0 %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.tag3|length > 0 %}
-                                    {{ nostoConfig.tag3|join(', ') }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style="color: #007bff; font-weight: 500; display: block; margin-bottom: 8px;">Google category</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.googleCategory %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.googleCategory %}
-                                    {{ nostoConfig.googleCategory }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Features flags -->
-            <div style="border-bottom: 1px solid #f0f0f0; padding: 20px;">
-                <h3 style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">Features flags</h3>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #8b5cf6; font-weight: 500; display: block; margin-bottom: 8px;">Product Identifier<span style="color: red;">*</span></label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa;">
-                                {{ nostoConfig.productIdentifier|replace({'-': ' '})|title }}
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #8b5cf6; font-weight: 500; display: block; margin-bottom: 8px;">Enable Ratings & Reviews<span style="color: red;">*</span></label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa;">
-                                {{ nostoConfig.ratingsReviews|replace({'-': ' '})|title }}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style="color: #8b5cf6; font-weight: 500; display: block; margin-bottom: 8px;">Stock Field<span style="color: red;">*</span></label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa;">
-                                {{ nostoConfig.stockField|replace({'-': ' '})|title }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #8b5cf6; font-weight: 500; display: block; margin-bottom: 8px;">Cross-Selling Synchronization<span style="color: red;">*</span></label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa;">
-                                {{ nostoConfig.crossSellingSync|replace({'-': ' '})|title }}
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <label style="color: #8b5cf6; font-weight: 500; display: block; margin-bottom: 8px;">Product Category Names<span style="color: red;">*</span></label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa;">
-                                {{ nostoConfig.categoryNaming|replace({'-': ' '})|title }}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style="color: #6c757d; font-weight: 500; display: block; margin-bottom: 8px;">Category Exclusion</label>
-                            <div style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #f8f9fa; color: {% if nostoConfig.categoryBlocklist|length > 0 %}#495057{% else %}#6c757d{% endif %};">
-                                {% if nostoConfig.categoryBlocklist|length > 0 %}
-                                    {{ nostoConfig.categoryBlocklist|join(', ') }}
-                                {% else %}
-                                    Not configured
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Toggle Features Status -->
-            <div style="padding: 20px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableVariations %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable variations</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableVariations %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableVariations %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableProductProperties %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable product properties</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableProductProperties %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableProductProperties %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableAlternateImages %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable Alternate Images</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableAlternateImages %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableAlternateImages %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableInventoryLevels %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable Inventory Levels</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableInventoryLevels %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableInventoryLevels %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableCustomerDataToNosto %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Send Customer Data To Nosto</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableCustomerDataToNosto %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableCustomerDataToNosto %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableSyncInactiveProducts %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Sync Inactive Products</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableSyncInactiveProducts %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableSyncInactiveProducts %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableProductPublishedDateTagging %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable Product Published Date Tagging</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableProductPublishedDateTagging %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableProductPublishedDateTagging %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableReloadRecommendations %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Reload Recommendations After Adding a recommended product</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableReloadRecommendations %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableReloadRecommendations %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableProductLabellingSync %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Enable Product Labelling Sync</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableProductLabellingSync %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableProductLabellingSync %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableStoreAbandonedCartData %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Store data for abandoned carts</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableStoreAbandonedCartData %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableStoreAbandonedCartData %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableIgnoreCookieConsent %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Ignore cookie consent</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableIgnoreCookieConsent %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableIgnoreCookieConsent %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableSyncFirstAvailableVariant %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Sync first available variant as a product, if product is on clearance and out of stock</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableSyncFirstAvailableVariant %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableSyncFirstAvailableVariant %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.dailyProductSyncEnabled %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: {% if nostoConfig.dailyProductSyncEnabled %}#8b5cf6{% else %}#6c757d{% endif %};">Enable Daily Product Synchronization</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.dailyProductSyncEnabled %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.dailyProductSyncEnabled %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.oldJobCleanupEnabled %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: {% if nostoConfig.oldJobCleanupEnabled %}#8b5cf6{% else %}#6c757d{% endif %};">Enable cleanup of old jobs</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.oldJobCleanupEnabled %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.oldJobCleanupEnabled %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.oldNostoDataCleanupEnabled %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: {% if nostoConfig.oldNostoDataCleanupEnabled %}#8b5cf6{% else %}#6c757d{% endif %};">Enable cleanup of old Nosto data</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.oldNostoDataCleanupEnabled %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.oldNostoDataCleanupEnabled %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if nostoConfig.enableSearchImpressions %}#28a745{% else %}#6c757d{% endif %}; margin-right: 10px;"></span>
-                            <span style="color: #8b5cf6;">Send Search & Category analytics</span>
-                        </div>
-                        <span style="color: {% if nostoConfig.enableSearchImpressions %}#28a745{% else %}#6c757d{% endif %}; font-weight: 500;">
-                    {% if nostoConfig.enableSearchImpressions %}Enabled{% else %}Disabled{% endif %}
-                </span>
-                    </div>
+        <div class="nosto-configuration-section">
+            <!-- SECTION - PHP SETTINGS -->
+            <div class="nosto-configuration-sub-section php-settings">
+                <h3>PHP Settings</h3>
+                <button type="button" class="nosto-toggle-php-settings nosto-button" style="width: 320px;">Show PHP settings</button>
+                <div class="nosto-toggle-php-settings-wrapper" style="display: none;">
+                    <pre>{{ phpSettings|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</pre>
                 </div>
             </div>
         </div>
 
-        <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET">
-            <button type="submit" class="nosto-button">Logs</button>
-        </form>
-        <form id="nosto-download-logs">
-            <button onclick="handleLogsDownload()" class="nosto-button">Download log files</button>
-        </form>
+        <!-- SECTION - LOGS -->
+        <div class="nosto-configuration-section-logs">
+            <form action="{{ path('nosto-monitoring.show-scheduler-jobs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Show Scheduler Jobs</button>
+            </form>
+            <form id="nosto-logs" action="{{ path('nosto-monitoring.logs') }}" method="GET" style="margin-bottom: 20px;">
+                <button type="submit" class="nosto-button" style="width: 320px;">Logs</button>
+            </form>
+            <form id="nosto-download-logs">
+                <button onclick="handleLogsDownload()" class="nosto-button" style="width: 320px;">Download log files</button>
+            </form>
+        </div>
 
-        <!-- Debug Resources Section -->
-        <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; margin-top: 20px; padding: 20px;">
-            <h3 style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">Debug Resources</h3>
+        <!-- SECTION - DEBUG INSTANCES -->
+        <div class="nosto-configuration-debug-section">
+            <h3>Debug Resources</h3>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                 <!-- Product Debug Form -->
@@ -442,8 +202,7 @@
                                     name="productId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter product ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Product</button>
                     </form>
@@ -462,8 +221,7 @@
                                     name="categoryId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter category ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Category</button>
                     </form>
@@ -479,19 +237,18 @@
                                     name="orderId"
                                     style="width: 100%; padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; background: #fff;"
                                     placeholder="Enter order ID"
-                                    required
-                            >
+                                    required>
                         </div>
                         <button type="submit" class="nosto-button" style="width: 100%;">Show Order</button>
                     </form>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
         window.router['nosto-monitoring.log-download-all'] = '{{ path('nosto-monitoring.log-download-all') }}';
+
         async function detectIncognito() {
             return new Promise(function (resolve, reject) {
                 let browserName = 'Unknown';
@@ -558,7 +315,7 @@
                             const res = i.target.result;
 
                             try {
-                                res.createObjectStore('test', { autoIncrement: true }).put(new Blob());
+                                res.createObjectStore('test', {autoIncrement: true}).put(new Blob());
                                 __callback(false);
                             } catch (e) {
                                 const message = e.message || e;
@@ -702,5 +459,18 @@
             a.click();
             document.body.removeChild(a);
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.querySelector('.nosto-toggle-php-settings');
+            const wrapper = document.querySelector('.nosto-toggle-php-settings-wrapper');
+
+            if (button && wrapper) {
+                button.addEventListener('click', function () {
+                    wrapper.style.display = (wrapper.style.display === 'none' || !wrapper.style.display)
+                        ? 'block'
+                        : 'none';
+                });
+            }
+        });
     </script>
 {% endblock %}
