@@ -1,3 +1,12 @@
+# 3.5.8
+* Fix: Add translate="no" for tagging
+* Fix: nostoCookieFilter causing server errors and exceeding cookie length limit
+* Fix: Prevent trigger of search fallback mechanism when Nosto returns 0 products
+* Fix: Conflict with TrustedShops plugin due to missing null-check
+* Fix: UTM tag only applied on page refresh (search)
+* Fix: Nosto Job Listing – improved loading times
+* New: Monitoring/Debug page improvements
+
 # 3.5.7
 * Fix: Syntax error
 * Fix: Null value in category tree
