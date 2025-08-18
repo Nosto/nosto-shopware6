@@ -582,5 +582,23 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block nosto_integration_feature_fallback_mechanism %}
+            <sw-inherit-wrapper
+                v-model="actualConfigData['enableFallbackMechanism']"
+                :inheritedValue="configKey === null ? null : allConfigs['null']['enableFallbackMechanism']"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.enableFallbackMechanism.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableFallbackMechanism.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </sw-card>
 {% endblock %}

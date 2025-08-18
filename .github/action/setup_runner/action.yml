@@ -12,12 +12,13 @@ runs:
     - name: Setup PHP with Composer 2
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ inputs.php-version }}"
+        php-version: ${{ inputs.php-version }}
         extensions: dom, gd, mbstring, pdo_mysql, zip
         coverage: xdebug
         tools: composer:v2
 
-    - uses: mirromutth/mysql-action@v1.1
+    - name: Start MySQL
+      uses: mirromutth/mysql-action@v1.1
       with:
         mysql version: 8.0.36
         mysql database: shopware_test
