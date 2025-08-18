@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,10 +58,15 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         return $this->renderStorefront(
             '@NostoMonitoringController/storefront/page/nosto-monitoring/manage-operations.html.twig',
             [
-                'nostoConfig' => $this->nostoMonitoringHelper->getSerializedNostoConfiguration(
+                'nostoConfig' => $this->nostoMonitoringHelper->getStructuredNostoConfiguration(
                     $request->get('salesChannelId'),
                     $request->get('languageId'),
                 ),
+                'phpSettings' => [
+                    'phpversion' => phpversion(),
+                    'get_loaded_extensions' => get_loaded_extensions(),
+                    'iniSettings' => function_exists('ini_get_all') ? ini_get_all() : [],
+                ],
                 'languages' => $languages,
                 'salesChannels' => $salesChannels,
                 'currentLanguageId' => $currentLanguageId,
@@ -88,5 +94,35 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         $request->getSession()->getFlashBag()->add($clearedJobs['status'], $clearedJobs['message']);
 
         return $this->redirectToRoute('nosto-monitoring.manage-operations');
+    }
+
+    #[Route(
+        path: "/nosto-monitoring/show-scheduler-jobs",
+        name: "nosto-monitoring.show-scheduler-jobs",
+        options: [
+            "seo" => "false",
+        ],
+        methods: ["GET"],
+    )]
+    public function showSchedulerJobs(Request $request): JsonResponse|RedirectResponse
+    {
+        if ($redirect = $this->requireAuthentication($request)) {
+            return $redirect;
+        }
+
+        try {
+            $jobs = $this->nostoMonitoringHelper->getSchedulerJobs();
+
+            return new JsonResponse([
+                'success' => true,
+                'jobs' => $jobs,
+            ]);
+        } catch (\Exception $e) {
+            $request->getSession()->getFlashBag()->add(
+                'error',
+                'Error loading scheduler jobs: ' . $e->getMessage(),
+            );
+            return $this->redirectToRoute('nosto-monitoring.manage-operations');
+        }
     }
 }

@@ -253,10 +253,20 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $salesChannelContext,
             );
 
+            $reflect = new \ReflectionClass($nostoOrder);
+            $props = $reflect->getProperties();
+
+            $orderData = [];
+
+            foreach ($props as $prop) {
+                $prop->setAccessible(true);
+                $orderData[$prop->getName()] = $prop->getValue($nostoOrder);
+            }
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-order.html.twig',
                 [
-                    'order' => $nostoOrder,
+                    'order' => $orderData,
                     'orderId' => $orderId,
                     'resourceType' => 'order',
                 ],
