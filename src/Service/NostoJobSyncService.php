@@ -47,6 +47,9 @@ class NostoJobSyncService
         }
     }
 
+    /**
+     * @return array<string>
+     */
     private function getAllJobIds(Context $context, string $handlerCode): array
     {
         // 1. Find parent jobs: parent_id IS NULL AND status IN ('running', 'pending')
