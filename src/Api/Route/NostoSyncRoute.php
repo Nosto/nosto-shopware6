@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Api\Route;
 
 use Exception;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
+use Nosto\NostoIntegration\Service\NostoJobSyncService;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Nosto\NostoIntegration\Service\NostoJobSyncService;
 
 #[Route(
     defaults: [
