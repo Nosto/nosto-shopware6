@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Service\NostoJobSyncService;
 
 #[Route(
     defaults: [
@@ -29,6 +30,7 @@ class NostoSyncRoute
     public function __construct(
         private readonly JobScheduler $jobScheduler,
         private readonly EntityRepository $jobRepository,
+        private readonly NostoJobSyncService $jobSyncService,
     ) {
     }
 
@@ -42,6 +44,19 @@ class NostoSyncRoute
         $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
         $this->checkJobStatus($context, $job->getHandlerCode());
         $this->jobScheduler->schedule($job);
+        return new JsonApiResponse();
+    }
+
+    #[Route(
+        path: "/api/delete-running-full-product-sync",
+        name: "api.nosto_integration_sync.delete_running_sync",
+        methods: ["POST"],
+    )]
+    public function deleteRunningFullProductSync(Request $request, Context $context): JsonApiResponse
+    {
+        $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
+        $this->checkCancelJobStatus($context, $job->getHandlerCode());
+        $this->jobSyncService->deleteRunningFullProductSyncJobs($context, $job->getHandlerCode());
         return new JsonApiResponse();
     }
 
@@ -59,6 +74,23 @@ class NostoSyncRoute
             $message = $job->getStatus() === JobEntity::TYPE_PENDING
                 ? 'Job is already scheduled.'
                 : 'Job is already running.';
+
+            throw new Exception($message);
+        }
+    }
+
+    private function checkCancelJobStatus(Context $context, string $type): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('type', $type),
+                new EqualsAnyFilter('status', [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING]),
+            ]),
+        );
+        /** @var JobEntity $job */
+        if (!$this->jobRepository->search($criteria, $context)->first()) {
+            $message = 'There are currently no jobs available for cancellation, all jobs are completed successfully.';
 
             throw new Exception($message);
         }
