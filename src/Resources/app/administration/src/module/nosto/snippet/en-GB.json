@@ -166,7 +166,8 @@
             }
         },
         "listing": {
-            "rescheduleActionLabel": "Schedule Full Product Sync"
+            "rescheduleActionLabel": "Schedule Full Product Sync",
+            "cancelJobActionLabel": "Cancel Full Product Sync"
         },
         "messages": {
             "success-message": "Successfully saved!",
@@ -179,6 +180,7 @@
             },
             "notification": {
                 "success": "Job has been scheduled successfully!",
+                "cancelSuccess": "Job has been cancelled successfully!",
                 "unknownError": "Unknown error."
             },
             "date-filter": {

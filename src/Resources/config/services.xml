@@ -146,6 +146,12 @@
             <tag name="shopware.scheduled.task"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Service\NostoJobSyncService">
+            <argument type="service" id="nosto_scheduler_job.repository"/>
+            <argument type="service" id="nosto_scheduler_job_message.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Async\EventsWriter" lazy="true">
             <argument key="$changelogRepository" type="service" id="nosto_integration_entity_changelog.repository"/>
         </service>
@@ -264,6 +270,7 @@
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
             <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository"/>
+            <argument key="$jobSyncService" type="service" id="Nosto\NostoIntegration\Service\NostoJobSyncService"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition" public="true">
