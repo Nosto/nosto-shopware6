@@ -9,6 +9,15 @@
             >
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
+            <sw-button
+                    @click="onCancelJobProductSync"
+                    :isLoading="isLoading"
+                    class="nosto-integration-detail__smart-bar-edit-button"
+                    variant="ghost"
+                    title="Cancelling full product sync, will delete the latest running full product sync job"
+            >
+                {{ $tc('nosto.listing.cancelJobActionLabel') }}
+            </sw-button>
         </template>
         <template slot="content">
             <nosto-job-listing-index ref="jobListing"

@@ -14,6 +14,13 @@ class NostoIntegrationService extends ApiService {
         return this.httpClient.post(apiRoute, {}, { headers });
     }
 
+    deleteRunningFullProductSync() {
+        const apiRoute = '_action/nosto-integration/delete-running-full-product-sync';
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient.post(apiRoute, {}, { headers });
+    }
+
     clearCaches() {
         const apiRoute = '_action/nosto-integration/clear-cache';
         const headers = this.getBasicHeaders();

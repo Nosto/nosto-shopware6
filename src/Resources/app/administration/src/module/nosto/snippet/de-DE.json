@@ -166,7 +166,8 @@
             }
         },
         "listing": {
-            "rescheduleActionLabel": "Vollständige Produktsynchronisierung planen"
+            "rescheduleActionLabel": "Vollständige Produktsynchronisierung planen",
+            "cancelJobActionLabel": "Vollständige Produktsynchronisierung stornieren"
         },
         "messages": {
             "success-message": "Erfolgreich gespeichert!",
@@ -179,6 +180,7 @@
             },
             "notification": {
                 "success": "Job wurde erfolgreich eingeplant!",
+                "cancelSuccess": "Job wurde erfolgreich storniert!",
                 "unknownError": "Unbekannter Fehler."
             },
             "date-filter": {

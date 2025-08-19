@@ -122,6 +122,22 @@ Component.register('nosto-job-listing', {
             });
         },
 
+        onCancelJobProductSync() {
+            this.isLoading = true;
+            this.NostoIntegrationProviderService.deleteRunningFullProductSync().then(() => {
+                this.createNotificationSuccess({
+                    message: this.$tc('nosto.job.notification.cancelSuccess'),
+                });
+                this.onRefresh();
+            }).catch((exception) => {
+                this.createNotificationError({
+                    message: exception?.response?.data?.errors[0]?.detail ?? this.$tc('nosto.job.notification.unknownError'),
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
         onDisplayModeChange(mode) {
             const innerBox = this.$el;
             innerBox.classList.remove('no-filter');
