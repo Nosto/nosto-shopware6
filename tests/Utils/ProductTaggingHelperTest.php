@@ -124,7 +124,7 @@ class ProductTaggingHelperTest extends TestCase
         $product->method('getId')->willReturn('product-id-123');
 
         $shopwareProduct = $this->createMock(SalesChannelProductEntity::class);
-        $shopwareProduct->method('setChildren')->willReturn();
+        $shopwareProduct->method('setChildren');
 
         $salesChannelProductCollection = $this->createMock(SalesChannelProductCollection::class);
         $salesChannelProductCollection->method('first')->willReturn($shopwareProduct);
@@ -154,6 +154,8 @@ class ProductTaggingHelperTest extends TestCase
     {
         $product = $this->createProductEntity();
         $product->method('getChildCount')->willReturn(0);
+        $product->method('getId')->willReturn('sync-product-id');
+        $product->method('getProductNumber')->willReturn('SYNC-PRODUCT');
 
         $this->configProvider->method('getProductIdentifier')
             ->with('test-sales-channel-id', 'test-language-id')
@@ -163,7 +165,7 @@ class ProductTaggingHelperTest extends TestCase
             $this->salesChannelContext,
             $product,
             null,
-            false,
+            true,
             true,
         );
 
@@ -217,6 +219,9 @@ class ProductTaggingHelperTest extends TestCase
         $variant1->method('getCurrencyPrice')
             ->with('test-currency-id')
             ->willReturn($this->createPrice(15.0));
+        $variant1->method('getProductNumber')->willReturn('VARIANT-1');
+        $variant1->method('getIsCloseout')->willReturn(false);
+        $variant1->method('setChildren');
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
@@ -224,6 +229,9 @@ class ProductTaggingHelperTest extends TestCase
         $variant2->method('getCurrencyPrice')
             ->with('test-currency-id')
             ->willReturn($this->createPrice(10.0)); // cheaper
+        $variant2->method('getProductNumber')->willReturn('VARIANT-2');
+        $variant2->method('getIsCloseout')->willReturn(false);
+        $variant2->method('setChildren');
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
@@ -261,9 +269,13 @@ class ProductTaggingHelperTest extends TestCase
         $mainVariant->method('getActive')->willReturn(true);
         $mainVariant->method('getProductNumber')->willReturn('MAIN-VARIANT');
         $mainVariant->method('getIsCloseout')->willReturn(false);
+        $mainVariant->method('setChildren');
 
         $otherVariant = $this->createProductEntity();
         $otherVariant->method('getId')->willReturn('other-variant-id');
+        $otherVariant->method('getProductNumber')->willReturn('OTHER-VARIANT');
+        $otherVariant->method('getActive')->willReturn(true);
+        $otherVariant->method('getIsCloseout')->willReturn(false);
 
         $children = new ProductCollection([$mainVariant, $otherVariant]);
         $product->method('getChildren')->willReturn($children);
@@ -311,6 +323,7 @@ class ProductTaggingHelperTest extends TestCase
         $variant1->method('getDisplayGroup')->willReturn('group-1');
         $variant1->method('getProductNumber')->willReturn('VARIANT-1');
         $variant1->method('getIsCloseout')->willReturn(false);
+        $variant1->method('setChildren');
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
@@ -318,6 +331,7 @@ class ProductTaggingHelperTest extends TestCase
         $variant2->method('getDisplayGroup')->willReturn('group-1');
         $variant2->method('getProductNumber')->willReturn('VARIANT-2');
         $variant2->method('getIsCloseout')->willReturn(false);
+        $variant2->method('setChildren');
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
@@ -357,12 +371,14 @@ class ProductTaggingHelperTest extends TestCase
         $variant1->method('getActive')->willReturn(false);
         $variant1->method('getProductNumber')->willReturn('VARIANT-1');
         $variant1->method('getIsCloseout')->willReturn(false);
+        $variant1->method('setChildren');
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
         $variant2->method('getActive')->willReturn(true);
         $variant2->method('getProductNumber')->willReturn('VARIANT-2');
         $variant2->method('getIsCloseout')->willReturn(false);
+        $variant2->method('setChildren');
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
@@ -402,6 +418,7 @@ class ProductTaggingHelperTest extends TestCase
         $variant->method('getActive')->willReturn(true);
         $variant->method('getIsCloseout')->willReturn(false);
         $variant->method('getProductNumber')->willReturn('AVAILABLE-VARIANT');
+        $variant->method('setChildren');
 
         $children = new ProductCollection([$variant]);
         $product->method('getChildren')->willReturn($children);
