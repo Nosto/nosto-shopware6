@@ -98,7 +98,7 @@ Component.register('nosto-job-listing', {
 
         cancelRunningFullProductSyncJobActionTitle() {
             return this.$tc('nosto.listing.cancelRunningFullProductSyncJobActionTitle');
-        }
+        },
     },
 
     created() {
