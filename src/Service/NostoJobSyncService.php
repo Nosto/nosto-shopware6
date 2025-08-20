@@ -23,34 +23,30 @@ class NostoJobSyncService
     ) {
     }
 
-    public function deleteRunningFullProductSyncJobs(Context $context, string $handlerCode): void
+    public function deleteRunningFullProductSyncJob(Context $context, string $handlerCode): void
     {
-        $jobIds = $this->getAllJobIds($context, $handlerCode);
+        $jobIds = $this->getAllRunningFullProductSyncJobIds($context, $handlerCode);
         if (empty($jobIds)) {
             throw new Exception(
-                'There are currently no jobs available for cancellation, all jobs are completed successfully.',
+                'There are currently no jobs available for cancellation.',
             );
         }
 
-        try {
-            $this->connection->executeStatement(
-                "DELETE FROM `messenger_messages` WHERE body LIKE '%nosto-integration%'",
-            );
+        $this->connection->executeStatement(
+            "DELETE FROM `messenger_messages` WHERE body LIKE '%nosto-integration-product-sync%' or body LIKE '%nosto-integration-category-sync%';",
+        );
 
-            $deleteIds = array_map(fn ($id) => [
-                'id' => $id,
-            ], array_values($jobIds));
-            $this->jobMessageRepository->delete($deleteIds, $context);
-            $this->jobRepository->delete($deleteIds, $context);
-        } catch (Exception $e) {
-            throw new Exception('An error occurred while cancelling full product sync jobs');
-        }
+        $deleteIds = array_map(fn ($id) => [
+            'id' => $id,
+        ], array_values($jobIds));
+        $this->jobMessageRepository->delete($deleteIds, $context);
+        $this->jobRepository->delete($deleteIds, $context);
     }
 
     /**
      * @return array<string>
      */
-    private function getAllJobIds(Context $context, string $handlerCode): array
+    private function getAllRunningFullProductSyncJobIds(Context $context, string $handlerCode): array
     {
         // 1. Find parent jobs: parent_id IS NULL AND status IN ('running', 'pending')
         $parentCriteria = new Criteria();

@@ -167,7 +167,8 @@
         },
         "listing": {
             "rescheduleActionLabel": "Schedule Full Product Sync",
-            "cancelJobActionLabel": "Cancel Full Product Sync"
+            "cancelRunningFullProductSyncJobActionLabel": "Cancel Full Product Sync",
+            "cancelRunningFullProductSyncJobActionTitle": "Cancelling full product sync, will delete the latest running full product sync job"
         },
         "messages": {
             "success-message": "Successfully saved!",
