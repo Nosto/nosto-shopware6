@@ -56,6 +56,8 @@ class ProductTaggingHelperTest extends TestCase
             ->willReturn('test-sales-channel-id');
         $this->salesChannelContext->method('getLanguageId')
             ->willReturn('test-language-id');
+        $this->salesChannelContext->method('getCurrencyId')
+            ->willReturn('test-currency-id');
     }
 
     public function testProductTaggingHelperClassExists(): void
@@ -208,12 +210,16 @@ class ProductTaggingHelperTest extends TestCase
         $variant1 = $this->createProductEntity();
         $variant1->method('getId')->willReturn('variant-1-id');
         $variant1->method('getActive')->willReturn(true);
-        $variant1->method('getCurrencyPrice')->willReturn($this->createPrice(15.0));
+        $variant1->method('getCurrencyPrice')
+            ->with('test-currency-id')
+            ->willReturn($this->createPrice(15.0));
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
         $variant2->method('getActive')->willReturn(true);
-        $variant2->method('getCurrencyPrice')->willReturn($this->createPrice(10.0)); // cheaper
+        $variant2->method('getCurrencyPrice')
+            ->with('test-currency-id')
+            ->willReturn($this->createPrice(10.0)); // cheaper
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
@@ -395,7 +401,6 @@ class ProductTaggingHelperTest extends TestCase
         $product = $this->createMock(ProductEntity::class);
         $product->method('getVariantListingConfig')->willReturn(null);
         $product->method('getChildren')->willReturn(new ProductCollection());
-        $product->method('getCurrencyId')->willReturn('test-currency-id');
 
         return $product;
     }
