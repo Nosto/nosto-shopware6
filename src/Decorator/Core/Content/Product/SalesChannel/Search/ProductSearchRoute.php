@@ -77,7 +77,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $query = $request->query->get('search');
         $originalCriteria->setTerm($query);
         try {
-            if (!SearchHelper::shouldHandleRequest($context, $this->configProvider)) {
+            if (!SearchHelper::shouldHandleRequest($context, $this->configProvider, false, $request)) {
                 $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
@@ -106,8 +106,12 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->sendImpressionAnalytics($context, $productListing, $request);
 
-            // If result is empty, use fallback.
-            if (!$result->getElements()) {
+            if (!$result->getElements()
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
+            ) {
                 return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
             }
 

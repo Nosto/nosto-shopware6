@@ -77,6 +77,10 @@ Plugin can be installed in such ways:
 1. Community store (preferred)
 2. Zip archive
 
+The commands that need to be executed after installing the plugin from the root of the Shopware installation are:
+`./bin/build-administration.sh`
+`./bin/build-storefront.sh`
+
 Also, the plugin has the embedded dependency of Nosto Job Scheduler. It's delivered with plugin sources.
 
 <a name="installation-store"></a>

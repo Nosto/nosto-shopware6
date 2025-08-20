@@ -7,13 +7,13 @@
         {% set nostoCategory = nosto_category(category, context) %}
 
         <span class="nosto_category" style="display:none">
-            <span class="id">{{ nostoCategory.id }}</span>
-            <span class="parent_id">{{ nostoCategory.parentId }}</span>
-            <span class="title">{{ nostoCategory.title }}</span>
-            <span class="url">{{ nostoCategory.url }}</span>
-            <span class="path">{{ nostoCategory.path }}</span>
-            <span class="available">{{ nostoCategory.available }}</span>
-            <span class="category_string">{{ nostoCategory.categoryString }}</span>
+            <span class="id" translate="no">{{ nostoCategory.id }}</span>
+            <span class="parent_id" translate="no">{{ nostoCategory.parentId }}</span>
+            <span class="title" translate="no">{{ nostoCategory.title }}</span>
+            <span class="url" translate="no">{{ nostoCategory.url }}</span>
+            <span class="path" translate="no">{{ nostoCategory.path }}</span>
+            <span class="available" translate="no">{{ nostoCategory.available }}</span>
+            <span class="category_string" translate="no">{{ nostoCategory.categoryString }}</span>
         </span>
     {% endif %}
 
