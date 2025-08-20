@@ -19,7 +19,8 @@
         "symplify/easy-coding-standard": "^12.0",
         "monolog/monolog": "^3.5",
         "bramus/monolog-colored-line-formatter": "^3.1",
-        "slevomat/coding-standard": "^8.15"
+        "slevomat/coding-standard": "^8.15",
+        "phpunit/phpunit": "^10.5 || ^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -64,6 +65,7 @@
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
         "test": "./bin/phpunit.sh",
+        "test-unit": "./bin/phpunit-unit.sh",
         "release": "release/bin/release"
     }
 }
