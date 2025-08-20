@@ -104,10 +104,26 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 ),
             );
 
+            $products = $nostoProduct->getMessages();
+
+            $productsArray = array_map(function ($product) {
+                $reflect = new \ReflectionClass($product);
+                $props = $reflect->getProperties();
+
+                $data = [];
+
+                foreach ($props as $prop) {
+                    $prop->setAccessible(true);
+                    $data[$prop->getName()] = $prop->getValue($product);
+                }
+
+                return $data;
+            }, $products);
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-product.html.twig',
                 [
-                    'product' => $nostoProduct->getMessages() ?? null,
+                    'product' => $productsArray,
                     'productId' => $productId,
                     'resourceType' => 'product',
                 ],
@@ -170,10 +186,20 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $salesChannelContext,
             );
 
+            $reflect = new \ReflectionClass($nostoCategory);
+            $props = $reflect->getProperties();
+
+            $categoryData = [];
+
+            foreach ($props as $prop) {
+                $prop->setAccessible(true);
+                $categoryData[$prop->getName()] = $prop->getValue($nostoCategory);
+            }
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-category.html.twig',
                 [
-                    'category' => $nostoCategory,
+                    'category' => $categoryData,
                     'categoryId' => $categoryId,
                     'resourceType' => 'category',
                 ],
@@ -229,10 +255,20 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                 $salesChannelContext,
             );
 
+            $reflect = new \ReflectionClass($nostoOrder);
+            $props = $reflect->getProperties();
+
+            $orderData = [];
+
+            foreach ($props as $prop) {
+                $prop->setAccessible(true);
+                $orderData[$prop->getName()] = $prop->getValue($nostoOrder);
+            }
+
             return $this->renderStorefront(
                 '@NostoMonitoringController/storefront/page/nosto-monitoring/debug-order.html.twig',
                 [
-                    'order' => $nostoOrder,
+                    'order' => $orderData,
                     'orderId' => $orderId,
                     'resourceType' => 'order',
                 ],

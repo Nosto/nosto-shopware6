@@ -7,11 +7,11 @@
 
         {% if customer %}
             <div class="nosto_customer" style="display:none">
-                <span class="email">{{ customer.email }}</span>
-                <span class="first_name">{{ customer.firstName }}</span>
-                <span class="last_name">{{ customer.lastName }}</span>
-                <span class="customer_reference">{{ customer.customerReference }}</span>
-                <span class="marketing_permission">{% if customer.marketingPermission %}true{% else %}false{% endif %}</span>
+                <span class="email" translate="no">{{ customer.email }}</span>
+                <span class="first_name" translate="no">{{ customer.firstName }}</span>
+                <span class="last_name" translate="no">{{ customer.lastName }}</span>
+                <span class="customer_reference" translate="no">{{ customer.customerReference }}</span>
+                <span class="marketing_permission" translate="no">{% if customer.marketingPermission %}true{% else %}false{% endif %}</span>
             </div>
         {% endif %}
     {% endif %}
