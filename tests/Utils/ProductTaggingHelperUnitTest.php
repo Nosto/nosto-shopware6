@@ -23,10 +23,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ProductTaggingHelperUnitTest extends TestCase
 {
     private ProductTaggingHelper $productTaggingHelper;
+
     private MockObject|SystemConfigService $systemConfigService;
+
     private MockObject|ConfigProvider $configProvider;
+
     private MockObject|ProductProviderInterface $productProvider;
+
     private MockObject|ProductHelper $productHelper;
+
     private MockObject|SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
@@ -43,7 +48,7 @@ class ProductTaggingHelperUnitTest extends TestCase
             $this->systemConfigService,
             $this->configProvider,
             $this->productProvider,
-            $this->productHelper
+            $this->productHelper,
         );
 
         $this->salesChannelContext->method('getSalesChannelId')
@@ -63,7 +68,7 @@ class ProductTaggingHelperUnitTest extends TestCase
     {
         $helper = new ProductTaggingHelper(
             $this->systemConfigService,
-            $this->configProvider
+            $this->configProvider,
         );
 
         $this->assertInstanceOf(ProductTaggingHelper::class, $helper);
@@ -84,7 +89,7 @@ class ProductTaggingHelperUnitTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('product-id-123', $result);
@@ -105,7 +110,7 @@ class ProductTaggingHelperUnitTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('PROD-123', $result);
@@ -137,7 +142,7 @@ class ProductTaggingHelperUnitTest extends TestCase
             $this->salesChannelContext,
             $product,
             null,
-            true
+            true,
         );
 
         $this->assertInstanceOf(NostoProduct::class, $result);
@@ -164,7 +169,7 @@ class ProductTaggingHelperUnitTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('main-product-id', $result);
@@ -205,7 +210,7 @@ class ProductTaggingHelperUnitTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('main-product-id', $result);
@@ -216,7 +221,7 @@ class ProductTaggingHelperUnitTest extends TestCase
         $product = $this->createMock(ProductEntity::class);
         $product->method('getVariantListingConfig')->willReturn(null);
         $product->method('getChildren')->willReturn(new ProductCollection());
-        
+
         return $product;
     }
-} 
+}

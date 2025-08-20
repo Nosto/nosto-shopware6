@@ -15,23 +15,24 @@ use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductTaggingHelperTest extends TestCase
 {
     private ProductTaggingHelper $productTaggingHelper;
+
     private MockObject|SystemConfigService $systemConfigService;
+
     private MockObject|ConfigProvider $configProvider;
+
     private MockObject|ProductProviderInterface $productProvider;
+
     private MockObject|ProductHelper $productHelper;
+
     private MockObject|SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
@@ -48,7 +49,7 @@ class ProductTaggingHelperTest extends TestCase
             $this->systemConfigService,
             $this->configProvider,
             $this->productProvider,
-            $this->productHelper
+            $this->productHelper,
         );
 
         $this->salesChannelContext->method('getSalesChannelId')
@@ -66,7 +67,7 @@ class ProductTaggingHelperTest extends TestCase
     {
         $helper = new ProductTaggingHelper(
             $this->systemConfigService,
-            $this->configProvider
+            $this->configProvider,
         );
 
         $this->assertInstanceOf(ProductTaggingHelper::class, $helper);
@@ -87,7 +88,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('product-id-123', $result);
@@ -108,7 +109,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('PROD-123', $result);
@@ -141,7 +142,7 @@ class ProductTaggingHelperTest extends TestCase
             $this->salesChannelContext,
             $product,
             null,
-            true
+            true,
         );
 
         $this->assertInstanceOf(NostoProduct::class, $result);
@@ -157,7 +158,7 @@ class ProductTaggingHelperTest extends TestCase
             $product,
             null,
             false,
-            true
+            true,
         );
 
         $this->assertInstanceOf(ProductCollection::class, $result);
@@ -185,7 +186,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('main-product-id', $result);
@@ -223,7 +224,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('variant-2-id', $result);
@@ -261,7 +262,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals($mainVariantId, $result);
@@ -277,7 +278,9 @@ class ProductTaggingHelperTest extends TestCase
         $variantConfig->method('getDisplayCheapestVariant')->willReturn(false);
         $variantConfig->method('getMainVariantId')->willReturn(null);
         $variantConfig->method('getConfiguratorGroupConfig')->willReturn([
-            ['expressionForListings' => true]
+            [
+                'expressionForListings' => true,
+            ],
         ]);
 
         $product->method('getVariantListingConfig')->willReturn($variantConfig);
@@ -302,7 +305,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('variant-1-id', $result);
@@ -339,7 +342,7 @@ class ProductTaggingHelperTest extends TestCase
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('variant-2-id', $result);
@@ -374,14 +377,14 @@ class ProductTaggingHelperTest extends TestCase
         $this->productHelper->method('getProductStock')
             ->willReturnMap([
                 [$product, $this->salesChannelContext, 0], // Main product out of stock
-                [$variant, $this->salesChannelContext, 5]  // Variant in stock
+                [$variant, $this->salesChannelContext, 5],  // Variant in stock
             ]);
         $this->configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
             $product,
-            null
+            null,
         );
 
         $this->assertEquals('available-variant-id', $result);
@@ -393,7 +396,7 @@ class ProductTaggingHelperTest extends TestCase
         $product->method('getVariantListingConfig')->willReturn(null);
         $product->method('getChildren')->willReturn(new ProductCollection());
         $product->method('getCurrencyId')->willReturn('test-currency-id');
-        
+
         return $product;
     }
 
@@ -403,7 +406,7 @@ class ProductTaggingHelperTest extends TestCase
             'test-currency-id',
             $netPrice,
             $netPrice * 1.19, // gross with 19% tax
-            false
+            false,
         );
     }
-} 
+}
