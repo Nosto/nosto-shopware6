@@ -17,7 +17,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -124,7 +124,7 @@ class ProductTaggingHelperTest extends TestCase
         $product->method('getId')->willReturn('product-id-123');
 
         $shopwareProduct = $this->createMock(SalesChannelProductEntity::class);
-        $shopwareProduct->method('setChildren')->willReturn(null);
+        $shopwareProduct->method('setChildren')->willReturn();
 
         $salesChannelProductCollection = $this->createMock(SalesChannelProductCollection::class);
         $salesChannelProductCollection->method('first')->willReturn($shopwareProduct);
@@ -154,6 +154,10 @@ class ProductTaggingHelperTest extends TestCase
     {
         $product = $this->createProductEntity();
         $product->method('getChildCount')->willReturn(0);
+
+        $this->configProvider->method('getProductIdentifier')
+            ->with('test-sales-channel-id', 'test-language-id')
+            ->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
@@ -240,6 +244,8 @@ class ProductTaggingHelperTest extends TestCase
     {
         $product = $this->createProductEntity();
         $product->method('getChildCount')->willReturn(2);
+        $product->method('getId')->willReturn('main-product-id');
+        $product->method('getProductNumber')->willReturn('MAIN-PRODUCT');
 
         $mainVariantId = 'main-variant-id';
         $variantConfig = $this->createMock(VariantListingConfig::class);
@@ -253,6 +259,8 @@ class ProductTaggingHelperTest extends TestCase
         $mainVariant = $this->createProductEntity();
         $mainVariant->method('getId')->willReturn($mainVariantId);
         $mainVariant->method('getActive')->willReturn(true);
+        $mainVariant->method('getProductNumber')->willReturn('MAIN-VARIANT');
+        $mainVariant->method('getIsCloseout')->willReturn(false);
 
         $otherVariant = $this->createProductEntity();
         $otherVariant->method('getId')->willReturn('other-variant-id');
@@ -262,8 +270,12 @@ class ProductTaggingHelperTest extends TestCase
 
         $this->systemConfigService->method('getBool')->willReturn(false);
         $this->configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn(false);
-        $this->productHelper->method('getProductStock')->willReturn(10);
-        $this->configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_ID);
+        $this->productHelper->method('getProductStock')
+            ->with($mainVariant, $this->salesChannelContext)
+            ->willReturn(10);
+        $this->configProvider->method('getProductIdentifier')
+            ->with('test-sales-channel-id', 'test-language-id')
+            ->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
@@ -278,6 +290,8 @@ class ProductTaggingHelperTest extends TestCase
     {
         $product = $this->createProductEntity();
         $product->method('getChildCount')->willReturn(2);
+        $product->method('getId')->willReturn('main-product-id');
+        $product->method('getProductNumber')->willReturn('MAIN-PRODUCT');
 
         $variantConfig = $this->createMock(VariantListingConfig::class);
         $variantConfig->method('getDisplayParent')->willReturn(false);
@@ -295,18 +309,24 @@ class ProductTaggingHelperTest extends TestCase
         $variant1->method('getId')->willReturn('variant-1-id');
         $variant1->method('getActive')->willReturn(true);
         $variant1->method('getDisplayGroup')->willReturn('group-1');
+        $variant1->method('getProductNumber')->willReturn('VARIANT-1');
+        $variant1->method('getIsCloseout')->willReturn(false);
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
         $variant2->method('getActive')->willReturn(false);
         $variant2->method('getDisplayGroup')->willReturn('group-1');
+        $variant2->method('getProductNumber')->willReturn('VARIANT-2');
+        $variant2->method('getIsCloseout')->willReturn(false);
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
 
         $this->systemConfigService->method('getBool')->willReturn(false);
         $this->configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn(false);
-        $this->configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_ID);
+        $this->configProvider->method('getProductIdentifier')
+            ->with('test-sales-channel-id', 'test-language-id')
+            ->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
@@ -321,6 +341,8 @@ class ProductTaggingHelperTest extends TestCase
     {
         $product = $this->createProductEntity();
         $product->method('getChildCount')->willReturn(2);
+        $product->method('getId')->willReturn('main-product-id');
+        $product->method('getProductNumber')->willReturn('MAIN-PRODUCT');
 
         $variantConfig = $this->createMock(VariantListingConfig::class);
         $variantConfig->method('getDisplayParent')->willReturn(false);
@@ -333,17 +355,23 @@ class ProductTaggingHelperTest extends TestCase
         $variant1 = $this->createProductEntity();
         $variant1->method('getId')->willReturn('variant-1-id');
         $variant1->method('getActive')->willReturn(false);
+        $variant1->method('getProductNumber')->willReturn('VARIANT-1');
+        $variant1->method('getIsCloseout')->willReturn(false);
 
         $variant2 = $this->createProductEntity();
         $variant2->method('getId')->willReturn('variant-2-id');
         $variant2->method('getActive')->willReturn(true);
+        $variant2->method('getProductNumber')->willReturn('VARIANT-2');
+        $variant2->method('getIsCloseout')->willReturn(false);
 
         $children = new ProductCollection([$variant1, $variant2]);
         $product->method('getChildren')->willReturn($children);
 
         $this->systemConfigService->method('getBool')->willReturn(false);
         $this->configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn(false);
-        $this->configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_ID);
+        $this->configProvider->method('getProductIdentifier')
+            ->with('test-sales-channel-id', 'test-language-id')
+            ->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
@@ -360,6 +388,8 @@ class ProductTaggingHelperTest extends TestCase
         $product->method('getChildCount')->willReturn(1);
         $product->method('getActive')->willReturn(true);
         $product->method('getIsCloseout')->willReturn(true);
+        $product->method('getId')->willReturn('main-product-id');
+        $product->method('getProductNumber')->willReturn('MAIN-PRODUCT');
 
         $variantConfig = $this->createMock(VariantListingConfig::class);
         $variantConfig->method('getDisplayParent')->willReturn(true);
@@ -371,6 +401,7 @@ class ProductTaggingHelperTest extends TestCase
         $variant->method('getId')->willReturn('available-variant-id');
         $variant->method('getActive')->willReturn(true);
         $variant->method('getIsCloseout')->willReturn(false);
+        $variant->method('getProductNumber')->willReturn('AVAILABLE-VARIANT');
 
         $children = new ProductCollection([$variant]);
         $product->method('getChildren')->willReturn($children);
@@ -385,7 +416,9 @@ class ProductTaggingHelperTest extends TestCase
                 [$product, $this->salesChannelContext, 0], // Main product out of stock
                 [$variant, $this->salesChannelContext, 5],  // Variant in stock
             ]);
-        $this->configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_ID);
+        $this->configProvider->method('getProductIdentifier')
+            ->with('test-sales-channel-id', 'test-language-id')
+            ->willReturn(ProductIdentifierOptions::PRODUCT_ID);
 
         $result = $this->productTaggingHelper->findProductId(
             $this->salesChannelContext,
