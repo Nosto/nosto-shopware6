@@ -10,13 +10,13 @@
                 {{ $tc('nosto.listing.rescheduleActionLabel') }}
             </sw-button>
             <sw-button
-                    @click="onCancelJobProductSync"
+                    @click="onCancelRunningFullProductSyncJob"
                     :isLoading="isLoading"
                     class="nosto-integration-detail__smart-bar-edit-button"
                     variant="ghost"
-                    title="Cancelling full product sync, will delete the latest running full product sync job"
+                    :title="cancelRunningFullProductSyncJobActionTitle"
             >
-                {{ $tc('nosto.listing.cancelJobActionLabel') }}
+                {{ $tc('nosto.listing.cancelRunningFullProductSyncJobActionLabel') }}
             </sw-button>
         </template>
         <template slot="content">
