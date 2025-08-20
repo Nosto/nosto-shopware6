@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Service\NostoJobSyncService;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,6 +32,7 @@ class NostoSyncRoute
         private readonly JobScheduler $jobScheduler,
         private readonly EntityRepository $jobRepository,
         private readonly NostoJobSyncService $jobSyncService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -48,16 +50,21 @@ class NostoSyncRoute
     }
 
     #[Route(
-        path: "/api/delete-running-full-product-sync",
-        name: "api.nosto_integration_sync.delete_running_sync",
+        path: "/api/delete-running-full-product-sync-job",
+        name: "api.nosto_integration_sync.delete_running_full_product_sync_job",
         methods: ["POST"],
     )]
-    public function deleteRunningFullProductSync(Request $request, Context $context): JsonApiResponse
+    public function deleteRunningFullProductSyncJob(Request $request, Context $context): JsonApiResponse
     {
-        $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
-        $this->checkCancelJobStatus($context, $job->getHandlerCode());
-        $this->jobSyncService->deleteRunningFullProductSyncJobs($context, $job->getHandlerCode());
-        return new JsonApiResponse();
+        try {
+            $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
+            $this->checkCancelRunningFullProductSyncJobStatus($context, $job->getHandlerCode());
+            $this->jobSyncService->deleteRunningFullProductSyncJob($context, $job->getHandlerCode());
+            return new JsonApiResponse();
+        } catch (Exception $e) {
+            $this->logger->error('Unable to delete running full product sync job due to:' . $e->getMessage());
+            throw new Exception($e->getMessage());
+        }
     }
 
     private function checkJobStatus(Context $context, string $type): void
@@ -79,7 +86,7 @@ class NostoSyncRoute
         }
     }
 
-    private function checkCancelJobStatus(Context $context, string $type): void
+    private function checkCancelRunningFullProductSyncJobStatus(Context $context, string $type): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -90,7 +97,7 @@ class NostoSyncRoute
         );
         /** @var JobEntity $job */
         if (!$this->jobRepository->search($criteria, $context)->first()) {
-            $message = 'There are currently no jobs available for cancellation, all jobs are completed successfully.';
+            $message = 'There are currently no jobs available for cancellation.';
 
             throw new Exception($message);
         }
