@@ -64,7 +64,7 @@
     "scripts": {
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
-        "test": "./bin/phpunit.sh",
+        "test": "./bin/phpunit-unit.sh",
         "test-unit": "./bin/phpunit-unit.sh",
         "release": "release/bin/release",
         "post-update-cmd": [
