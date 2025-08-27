@@ -8,6 +8,7 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
@@ -33,7 +34,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Nosto\NostoIntegration\Model\Nosto\Account;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
@@ -191,8 +191,19 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 return;
             }
             $userAgent = $request->headers->get('User-Agent');
-            $account = $this->accountProvider->get($context->getContext(), $context->getSalesChannelId(), $context->getLanguageId());
-            $tracker = new AnalyticsSearchTrackingGraphql($merchantId, $sessionId, $userAgent, $appToken, $account->getNostoAccount(), $request->getHost());
+            $account = $this->accountProvider->get(
+                $context->getContext(),
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $tracker = new AnalyticsSearchTrackingGraphql(
+                $merchantId,
+                $sessionId,
+                $userAgent,
+                $appToken,
+                $account->getNostoAccount(),
+                $request->getHost(),
+            );
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
             $metadata = new AnalyticsSearchMetadataForGraphql(
