@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search;
 
 use Exception;
-use Nosto\Model\Analytics\AnalyticsSearchMetadata;
+use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Operation\Search\AnalyticsSearchTracking;
+use Nosto\Operation\Search\AnalyticsSearchTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
@@ -33,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
@@ -50,6 +51,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
         private readonly SortingHandlerService $sortingHandlerService,
+        private readonly Account\Provider $accountProvider,
     ) {
     }
 
@@ -167,6 +169,14 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     ): void {
         try {
             $merchantId = $this->configProvider->getAccountId($context->getSalesChannelId(), $context->getLanguageId());
+            $appToken = $this->configProvider->getAppToken(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$appToken) {
+                throw new Exception('No app token found for the current sales channel and language.');
+            }
+
             $productIdentifier = $this->configProvider->getProductIdentifier(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
@@ -181,25 +191,26 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 return;
             }
             $userAgent = $request->headers->get('User-Agent');
-            $tracker = new AnalyticsSearchTracking($merchantId, $sessionId, $userAgent);
+            $account = $this->accountProvider->get($context->getContext(), $context->getSalesChannelId(), $context->getLanguageId());
+            $tracker = new AnalyticsSearchTrackingGraphql($merchantId, $sessionId, $userAgent, $appToken, $account->getNostoAccount(), $request->getHost());
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
-            $metadata = new AnalyticsSearchMetadata(
+            $metadata = new AnalyticsSearchMetadataForGraphql(
                 $request->get('search') ?? null,
                 $resultId,
-                //isOrganic
+                //organic
                 true,
-                //isAutoCorrect
+                //autoCorrect
                 true,
-                //isAutoComplete
+                //autoComplete
                 false,
-                //isKeyword
+                //keyword
                 false,
-                //isSorted
+                //sorted
                 $request->get('order') != null,
                 //hasResults
                 $productListing->count() > 0,
-                //isRefined
+                //refined
                 false,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
