@@ -78,7 +78,7 @@ class NostoCookieSubscriber implements EventSubscriberInterface
             $nostoCookieValue,
             strtotime('+1 day'),
             '/',
-           null,
+            null,
             $request->isSecure(),
             false,
             false,
@@ -87,5 +87,4 @@ class NostoCookieSubscriber implements EventSubscriberInterface
 
         $response->headers->setCookie($nostoAbCookie);
     }
-
 }
