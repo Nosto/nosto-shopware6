@@ -149,6 +149,7 @@ abstract class AbstractRequestHandler
             $request,
             $criteria,
             $limit,
+            $context,
         );
 
         return $searchOperation;
@@ -170,11 +171,13 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         ?int $limit,
+        SalesChannelContext $context
     ): void {
-        $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation, $channelId, $languageId);
-        $this->sortingHandlerService->handle($searchOperation, $criteria);
 
+        $this->setPaginationParams($criteria, $searchOperation, $limit);
+        $this->setSessionParamsFromCookies($request, $searchOperation, $context->getSalesChannelId(), $context->getLanguageId());
+        $this->setAbTests($request, $searchOperation);
+        $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
         $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);
     }
@@ -213,6 +216,31 @@ abstract class AbstractRequestHandler
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);
+    }
+
+    protected function setAbTests(
+        Request $request,
+        SearchOperation $searchOperation
+    ): void
+    {
+        $cookieValue = $request->cookies->get("nosto_ab_tests");
+        if ($cookieValue) {
+            $abTests = json_decode($cookieValue, true);
+            $searchOperation->setAbTests($abTests);
+        }
+    }
+
+    protected function updateAbTestsCookie(
+        Request $request,
+        mixed $abTests
+    ): void
+    {
+        if ($abTests != null) {
+            $request->attributes->set(
+                'setNostoAbTestsCookie',
+                json_encode($abTests),
+            );
+        }
     }
 
     protected function setSessionParamsFromCookies(

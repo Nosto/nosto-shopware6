@@ -20,7 +20,7 @@ class SearchRequestHandler extends AbstractRequestHandler
     ): SearchResult {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
-        $searchOperation->setQuery((string) $request->query->get('search'));
+        $searchOperation->setQuery((string)$request->query->get('search'));
 
         if ($this->configProvider->isEnabledProductVisibility(
             $context->getSalesChannelId(),
@@ -41,7 +41,7 @@ class SearchRequestHandler extends AbstractRequestHandler
             $data->data->search->products->hits = [];
             $request->attributes->set('nostoAPIResult', json_encode($data));
         }
-
+        $this->updateAbTestsCookie($request, $nostoResponse[1]->getAbTests());
         return $nostoResponse[1];
     }
 }
