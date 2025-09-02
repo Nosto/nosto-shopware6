@@ -112,7 +112,8 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $userAgent,
                     $appToken,
                     $account->getNostoAccount(),
-                    $request->getHost(),);
+                    $request->getHost(),
+                );
                 $metadata = new AnalyticsSearchMetadataForGraphql(
                     $data['query'] ?? null,
                     $data['resultId'] ?? vsprintf(
