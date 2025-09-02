@@ -176,7 +176,12 @@ abstract class AbstractRequestHandler
         $salesChannelId,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation, $languageId, $salesChannelId);
+        $this->setSessionParamsFromCookies(
+            $request,
+            $searchOperation,
+            $languageId,
+            $salesChannelId,
+        );
         $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
@@ -221,9 +226,8 @@ abstract class AbstractRequestHandler
 
     protected function setAbTests(
         Request $request,
-        SearchOperation $searchOperation
-    ): void
-    {
+        SearchOperation $searchOperation,
+    ): void {
         $cookieValue = $request->cookies->get("nosto_ab_tests");
         if ($cookieValue) {
             $abTests = json_decode($cookieValue, true);
@@ -233,9 +237,8 @@ abstract class AbstractRequestHandler
 
     protected function updateAbTestsCookie(
         Request $request,
-        mixed $abTests
-    ): void
-    {
+        mixed $abTests,
+    ): void {
         if ($abTests != null) {
             $request->attributes->set(
                 'setNostoAbTestsCookie',
