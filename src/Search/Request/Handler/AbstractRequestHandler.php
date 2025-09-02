@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use GuzzleHttp\Client;
 use Monolog\Logger;
 use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
@@ -17,6 +18,7 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -177,7 +179,6 @@ abstract class AbstractRequestHandler
         $this->setSessionParamsFromCookies($request, $searchOperation, $languageId, $salesChannelId);
         $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
-
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
         $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);
     }
@@ -220,9 +221,8 @@ abstract class AbstractRequestHandler
 
     protected function setAbTests(
         Request $request,
-        SearchOperation $searchOperation
-    ): void
-    {
+        SearchOperation $searchOperation,
+    ): void {
         $cookieValue = $request->cookies->get("nosto_ab_tests");
         if ($cookieValue) {
             $abTests = json_decode($cookieValue, true);
@@ -232,9 +232,8 @@ abstract class AbstractRequestHandler
 
     protected function updateAbTestsCookie(
         Request $request,
-        mixed $abTests
-    ): void
-    {
+        mixed $abTests,
+    ): void {
         if ($abTests != null) {
             $request->attributes->set(
                 'setNostoAbTestsCookie',

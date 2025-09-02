@@ -20,7 +20,7 @@ class SearchRequestHandler extends AbstractRequestHandler
     ): SearchResult {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
-        $searchOperation->setQuery((string)$request->query->get('search'));
+        $searchOperation->setQuery((string) $request->query->get('search'));
 
         if ($this->configProvider->isEnabledProductVisibility(
             $context->getSalesChannelId(),
