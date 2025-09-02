@@ -11,7 +11,7 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Operation\Category\AnalyticsCategoryTracking;
+use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Nosto\Operation\Search\AnalyticsSearchTrackingGraphql;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -99,7 +99,14 @@ class NostoAnalyticsTrackingController extends AbstractController
                 return new JsonResponse(null, 204);
             }
             if ($dataSource->getType() === DataSource::CATEGORY) {
-                $tracker = new AnalyticsCategoryTracking($merchantId, $data['sessionId'], $userAgent);
+                $tracker = new AnalyticsCategoryTrackingGraphql(
+                    $merchantId,
+                    $data['sessionId'],
+                    $userAgent,
+                    $appToken,
+                    $account->getNostoAccount(),
+                    $request->getHost(),
+                );
                 $metadata = new AnalyticsCategoryMetadata(
                     $data["category"] != null ? rtrim($data["category"], "/") : null,
                     $data["categoryId"] ?? null,
