@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
+use GuzzleHttp\Client;
 use Monolog\Logger;
 use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
@@ -17,6 +18,7 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -147,6 +149,8 @@ abstract class AbstractRequestHandler
             $request,
             $criteria,
             $limit,
+            $languageId,
+            $channelId,
         );
 
         return $searchOperation;
@@ -168,11 +172,13 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         ?int $limit,
+        $languageId,
+        $salesChannelId,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation);
+        $this->setSessionParamsFromCookies($request, $searchOperation, $languageId, $salesChannelId);
+        $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
-
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
         $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);
     }
@@ -213,11 +219,113 @@ abstract class AbstractRequestHandler
         $criteria->addExtension('nostoPagination', $pagination);
     }
 
-    protected function setSessionParamsFromCookies(Request $request, SearchOperation $searchOperation): void
+    protected function setAbTests(
+        Request $request,
+        SearchOperation $searchOperation
+    ): void
     {
-        if ($sessionParamsString = $request->cookies->get('nosto-search-session-params')) {
-            $sessionParams = json_decode($sessionParamsString, true);
-            $searchOperation->setSessionParams(empty($sessionParams) ? null : $sessionParams);
+        $cookieValue = $request->cookies->get("nosto_ab_tests");
+        if ($cookieValue) {
+            $abTests = json_decode($cookieValue, true);
+            $searchOperation->setAbTests($abTests);
+        }
+    }
+
+    protected function updateAbTestsCookie(
+        Request $request,
+        mixed $abTests
+    ): void
+    {
+        if ($abTests != null) {
+            $request->attributes->set(
+                'setNostoAbTestsCookie',
+                json_encode($abTests),
+            );
+        }
+    }
+
+    protected function setSessionParamsFromCookies(
+        Request $request,
+        SearchOperation $searchOperation,
+        $channelId,
+        $languageId,
+    ): void {
+        $cookieName = 'nosto-search-session-params';
+        $cookieValue = $request->cookies->get($cookieName);
+
+        if (!$cookieValue) {
+            try {
+                $nostoAccountId = (new Account(
+                    $this->configProvider->getAccountId($channelId, $languageId),
+                ))->getName();
+
+                $isSearch = str_contains($request->getPathInfo(), '/search');
+                $isCategory = $request->attributes->has('navigationId');
+
+                $message = [
+                    'url' => $request->getUri(),
+                    'response_mode' => 'HTML',
+                    'referrer' => $request->headers->get('referer'),
+                    'page_type' => $isSearch ? 'search' : ($isCategory ? 'category' : 'other'),
+                    'elements' => [],
+                    'cart' => [],
+                    'events' => [],
+                ];
+
+                foreach ($request->query->all() as $value) {
+                    if (!empty($value)) {
+                        $message['events'][] = ['ec', $value];
+                    }
+                }
+
+                $clientId = $request->cookies->get('2c_cId') ?? Uuid::randomHex();
+
+                $queryParams = [
+                    'c' => $clientId,
+                    'm' => $nostoAccountId,
+                    'message' => json_encode($message),
+                    'skipEvents' => 'true',
+                ];
+
+                $response = (new Client())->get('https://connect.nosto.com/ev1?' . http_build_query($queryParams), [
+                    'headers' => [
+                        'User-Agent' => $request->headers->get('User-Agent'),
+                        'Accept' => 'application/json',
+                        'Accept-Language' => $request->headers->get('Accept-Language'),
+                        'Referer' => $request->headers->get('referer'),
+                        'Cookie' => $request->headers->get('cookie'),
+                    ],
+                ]);
+
+                $responseData = json_decode($response->getBody()->getContents(), true);
+
+                $segments = array_column($responseData['se']['active_segments'] ?? [], 'id');
+
+                $categories = array_map(
+                    fn ($cat) => [
+                        'field' => 'affinities.categories',
+                        'value' => [$cat['name']],
+                        'weight' => $cat['score'],
+                    ],
+                    $responseData['af']['top_categories'] ?? [],
+                );
+
+                $sessionParams = [
+                    'segments' => $segments,
+                    'products' => [
+                        'personalizationBoost' => $categories,
+                    ],
+                ];
+
+                $searchOperation->setSessionParams($sessionParams);
+            } catch (\Throwable $e) {
+                $this->logger->error('Nosto ev1 call failed: ' . $e->getMessage());
+            }
+        }
+
+        if ($cookieValue = $request->cookies->get($cookieName)) {
+            $sessionParams = json_decode($cookieValue, true);
+            $searchOperation->setSessionParams(!empty($sessionParams) ? $sessionParams : null);
         }
     }
 
