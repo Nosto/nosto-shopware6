@@ -2,7 +2,7 @@
     "name": "nosto/nosto-integration",
     "description": "Nosto Integration",
     "type": "shopware-platform-plugin",
-    "version": "6.0.1",
+    "version": "6.0.3",
     "license": "OSL-3.0",
     "authors": [
         {
@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "nosto/shopware6-job-scheduler": "^4.0",
+        "nosto/shopware6-job-scheduler": "4.0.2",
         "nosto/php-sdk": "^7.6.9",
         "php": "^8.2"
     },
@@ -64,6 +64,12 @@
         "lint": "./vendor/bin/ecs check",
         "fix": "./vendor/bin/ecs check --fix",
         "test": "./bin/phpunit.sh",
-        "release": "release/bin/release"
+        "release": "release/bin/release",
+        "post-update-cmd": [
+            "Nosto\\NostoIntegration\\ShopwareScripts::postUpdate"
+        ],
+        "post-install-cmd": [
+            "Nosto\\NostoIntegration\\ShopwareScripts::postInstall"
+        ]
     }
 }

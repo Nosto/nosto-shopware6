@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
+use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
@@ -85,16 +86,24 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
             $channelId,
         );
 
+        $productTaggingHelper = new ProductTaggingHelper(
+            $this->systemConfigService,
+            $this->configProvider,
+            $this->productProvider,
+            $this->productHelper,
+        );
+
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
-            $handledProducts = $this->processProductVariants(
-                $product,
+
+            $handledProducts = $productTaggingHelper->findProductId(
                 $context,
-                $account,
-                $ids,
-                $hideProductsAfterClearance,
+                $product,
+                null,
+                true,
+                true,
             );
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)

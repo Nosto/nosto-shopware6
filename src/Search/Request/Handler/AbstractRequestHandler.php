@@ -176,13 +176,9 @@ abstract class AbstractRequestHandler
         $salesChannelId,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies(
-            $request,
-            $searchOperation,
-            $languageId,
-            $salesChannelId,
-        );
+        $this->setSessionParamsFromCookies($request, $searchOperation, $languageId, $salesChannelId);
         $this->setAbTests($request, $searchOperation);
+
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
         $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);

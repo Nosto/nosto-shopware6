@@ -37,7 +37,9 @@ class SearchRequestHandler extends AbstractRequestHandler
         $nostoResponse = $searchOperation->executeSw();
 
         if (empty($request->cookies->get('nostoCookieFilter'))) {
-            $request->attributes->set('nostoAPIResult', $nostoResponse[0]);
+            $data = json_decode($nostoResponse[0]);
+            $data->data->search->products->hits = [];
+            $request->attributes->set('nostoAPIResult', json_encode($data));
         }
         $this->updateAbTestsCookie($request, $nostoResponse[1]->getAbTests());
         return $nostoResponse[1];

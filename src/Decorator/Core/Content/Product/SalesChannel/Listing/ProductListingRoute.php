@@ -70,7 +70,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $originalContext = unserialize(serialize($context));
         $originalCriteria = unserialize(serialize($criteria));
         try {
-            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true);
+            $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true, $request);
 
             $isDefaultCategory = $categoryId === $context->getSalesChannel()->getNavigationCategoryId();
             if (!$shouldHandleRequest || $isDefaultCategory || !$this->isRouteSupported($request)) {
@@ -100,7 +100,12 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $this->fetchProductsById($criteria, $context),
             );
 
-            if (!$productListing->getElements()) {
+            if (!$productListing->getElements()
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
+            ) {
                 return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
             }
 

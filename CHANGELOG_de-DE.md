@@ -1,3 +1,20 @@
+# 6.0.3
+* Fix: „translate=„no"" für Tagging hinzufügen
+* Fix: nostoCookieFilter verursacht Serverfehler und überschreitet die Cookie-Längenbeschränkung
+* Fix: Auslösen des Such-Fallback-Mechanismus verhindern, wenn Nosto keine Produkte zurückgibt
+* Fix: Konflikt mit TrustedShops-Plugin aufgrund fehlender Null-Prüfung
+* Fix: UTM-Tag wird nur beim Aktualisieren der Seite (Suche) angewendet
+* Fix: Nosto-Job Listing – verbesserte Ladezeiten
+* Neu: Verbesserungen der Überwachungs-/Debug-Seite
+
+# 6.0.2
+* Fix: Null-Wert beim Aufbau des Kategoriebaums
+* Fix: Nosto-Scheduler-Job fehlgeschlagen oder bereits aktiv
+* Fix: Composer-Installation erfordert manuellen Backend-Build
+* Fix: Hängender Produktabgleich
+* Neu: Suche/CM-Vorschau mit nostodebug
+* Neu: Export von Suchbegriffen aus SW zu Nosto
+
 # 6.0.1
 * Neu: Senden von zusätzlichen Daten für Produkte und Varianten an Nosto
 * Neu: Migration von Vuex zu Pinia

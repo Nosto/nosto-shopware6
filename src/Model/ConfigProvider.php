@@ -116,6 +116,10 @@ class ConfigProvider
     ): ProductIdentifierOptions {
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
 
+        if (!is_string($value) || $value === '') {
+            return ProductIdentifierOptions::PRODUCT_ID;
+        }
+
         return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
     }
 
@@ -123,12 +127,20 @@ class ConfigProvider
     {
         $value = $this->configService->get(NostoConfigService::RATING_REVIEWS, $channelId, $languageId);
 
+        if (!is_string($value) || $value === '') {
+            return RatingOptions::SHOPWARE_RATINGS;
+        }
+
         return RatingOptions::tryFrom($value) ?? RatingOptions::SHOPWARE_RATINGS;
     }
 
     public function getStockField(?string $channelId = null, ?string $languageId = null): StockFieldOptions
     {
         $value = $this->configService->get(NostoConfigService::STOCK_FIELD, $channelId, $languageId);
+
+        if (!is_string($value) || $value === '') {
+            return StockFieldOptions::AVAILABLE_STOCK;
+        }
 
         return StockFieldOptions::tryFrom($value) ?? StockFieldOptions::AVAILABLE_STOCK;
     }
@@ -139,6 +151,10 @@ class ConfigProvider
     ): CrossSellingSyncOptions {
         $value = $this->configService->get(NostoConfigService::CROSS_SELLING_SYNC_FIELD, $channelId, $languageId);
 
+        if (!is_string($value) || $value === '') {
+            return CrossSellingSyncOptions::NO_SYNC;
+        }
+
         return CrossSellingSyncOptions::tryFrom($value) ?? CrossSellingSyncOptions::NO_SYNC;
     }
 
@@ -147,6 +163,10 @@ class ConfigProvider
         ?string $languageId = null,
     ): CategoryNamingOptions {
         $value = $this->configService->get(NostoConfigService::CATEGORY_NAMING_FIELD, $channelId, $languageId);
+
+        if (!is_string($value) || $value === '') {
+            return CategoryNamingOptions::NO_ID;
+        }
 
         return CategoryNamingOptions::tryFrom($value) ?? CategoryNamingOptions::NO_ID;
     }
@@ -319,6 +339,15 @@ class ConfigProvider
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_PRODUCT_VISIBILITY,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledFallbackMechanism($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_FALLBACK_MECHANISM,
             $channelId,
             $languageId,
         );

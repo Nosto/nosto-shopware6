@@ -132,6 +132,10 @@
                   "label": "Enable tagging for all SKUs",
                   "helpText": "Product and SKU tagging helps Nosto determine which product is viewed, it’s also used for a crawler to keep your product date up to date on Nosto. If you can notice a slow performance of your Product pages, please disable this feature and make sure crawler is disabled on Nosto Admin."
                 },
+                "enableFallbackMechanism": {
+                  "label": "Enable fallback mechanism",
+                  "helpText": "If this checkbox is selected, the system will use the default Shopware search or category when Nosto returns no results."
+                },
                 "enableProductVisibility": {
                     "label": "Enable product visibility",
                     "helpText": "Please perform a full product sync and index the fields \"showCategory\" and \"showSearch\" on the Nosto account before enabling this"
