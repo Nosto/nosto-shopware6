@@ -149,6 +149,8 @@ abstract class AbstractRequestHandler
             $request,
             $criteria,
             $limit,
+            $languageId,
+            $channelId,
         );
 
         return $searchOperation;
@@ -170,6 +172,8 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         ?int $limit,
+        $languageId,
+        $channelId,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
         $this->setSessionParamsFromCookies($request, $searchOperation, $channelId, $languageId);
