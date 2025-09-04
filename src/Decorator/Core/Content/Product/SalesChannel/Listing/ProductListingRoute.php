@@ -8,9 +8,10 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Operation\Category\AnalyticsCategoryTracking;
+use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -44,6 +45,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly Account\Provider $accountProvider,
     ) {
     }
 
@@ -140,6 +142,13 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
+            $appToken = $this->configProvider->getAppToken(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$appToken) {
+                throw new Exception('No app token found for the current sales channel and language.');
+            }
             $breadcrumb = $category->getBreadcrumb();
             if (is_array($breadcrumb) && count($breadcrumb) > 1) {
                 //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
@@ -162,7 +171,19 @@ class ProductListingRoute extends AbstractProductListingRoute
                 return;
             }
             $userAgent = $request->headers->get('User-Agent');
-            $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
+            $account = $this->accountProvider->get(
+                $context->getContext(),
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $tracker = new AnalyticsCategoryTrackingGraphql(
+                $merchantId,
+                $sessionId,
+                $userAgent,
+                $appToken,
+                $account->getNostoAccount(),
+                $request->getHost(),
+            );
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
                 //Either category or categoryId are needed
