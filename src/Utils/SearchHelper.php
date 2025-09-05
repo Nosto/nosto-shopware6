@@ -117,7 +117,6 @@ class SearchHelper
     }
 
     /**
-     * @param Request $request
      * @return AbTestAttribution[]
      */
     public static function getABTestsFromCookie(Request $request): array
@@ -132,7 +131,7 @@ class SearchHelper
             if ($abTest->id && $abTest->activeVariation->id) {
                 $attributions[] = new AbTestAttribution(
                     $abTest->id,
-                    $abTest->activeVariation->id
+                    $abTest->activeVariation->id,
                 );
             }
         }
