@@ -19,20 +19,22 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationRequestHandler extends AbstractRequestHandler
 {
     public function __construct(
-        ConfigProvider $configProvider,
-        SortingHandlerService $sortingHandlerService,
-        Logger $logger,
+        ConfigProvider                    $configProvider,
+        SortingHandlerService             $sortingHandlerService,
+        Logger                            $logger,
         private readonly EntityRepository $categoryRepository,
-    ) {
+    )
+    {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
 
     public function sendRequest(
-        Request $request,
-        Criteria $criteria,
+        Request             $request,
+        Criteria            $criteria,
         SalesChannelContext $context,
-        ?int $limit = null,
-    ): SearchResult {
+        ?int                $limit = null,
+    ): SearchResult
+    {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setCategoryPath(
@@ -56,7 +58,9 @@ class NavigationRequestHandler extends AbstractRequestHandler
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 
-        return $searchOperation->execute();
+        $nostoResponse = $searchOperation->execute();
+        $this->updateAbTestsCookie($request, $nostoResponse->getAbTests());
+        return $nostoResponse;
     }
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string

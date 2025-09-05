@@ -234,6 +234,7 @@ abstract class AbstractRequestHandler
         Request $request,
         mixed $abTests,
     ): void {
+        //sets attribute which is catched in NostoCookieSubscriber.php and cookie is created with the value of the attribute
         if ($abTests != null) {
             $request->attributes->set(
                 'setNostoAbTestsCookie',
