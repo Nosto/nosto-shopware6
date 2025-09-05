@@ -69,9 +69,10 @@ class NostoCookieSubscriber implements EventSubscriberInterface
 
     public function createAbTestsCookie(Request $request, Response $response): void
     {
-        if (!$request->attributes->has('setNostoAbTestsCookie')) {
+        if (!$request->attributes->has('setNostoAbTestsCookie') || str_contains($request->getRequestUri(), "filter")) {
             return;
         }
+
         $nostoCookieValue = $request->attributes->get('setNostoAbTestsCookie');
         $nostoAbCookie = new Cookie(
             'nosto_ab_tests',
