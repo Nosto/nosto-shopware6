@@ -227,7 +227,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $productListing->setExtensions([
                 "nosto_result_id" => $resultId,
             ]);
-            $tracker->impression($metadata, $productIds, $page);
+            $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed

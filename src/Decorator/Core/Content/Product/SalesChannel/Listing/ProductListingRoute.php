@@ -191,7 +191,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $category->getId() ?? null,
             );
 
-            $tracker->impression($metadata, $productIds, $page);
+            $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed

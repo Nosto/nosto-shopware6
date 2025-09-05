@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Utils;
 
+use Nosto\Model\Analytics\AbTestAttribution;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Struct\Config;
 use Nosto\NostoIntegration\Struct\NostoService;
@@ -113,5 +114,29 @@ class SearchHelper
         }
 
         return false;
+    }
+
+    /**
+     * @param Request $request
+     * @return AbTestAttribution[]
+     */
+    public static function getABTestsFromCookie(Request $request): array
+    {
+        $cookieValue = json_decode($request->cookies->get('nosto_ab_tests'));
+        if (!$cookieValue) {
+            return [];
+        }
+        $attributions = [];
+
+        foreach ($cookieValue as $abTest) {
+            if ($abTest->id && $abTest->activeVariation->id) {
+                $attributions[] = new AbTestAttribution(
+                    $abTest->id,
+                    $abTest->activeVariation->id
+                );
+            }
+        }
+
+        return $attributions;
     }
 }

@@ -98,6 +98,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                 //it's not an issue at all so lets just give 204 no content
                 return new JsonResponse(null, 204);
             }
+            $abTests = SearchHelper::getABTestsFromCookie($request);
             if ($dataSource->getType() === DataSource::CATEGORY) {
                 $tracker = new AnalyticsCategoryTrackingGraphql(
                     $merchantId,
@@ -111,7 +112,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data["category"] != null ? rtrim($data["category"], "/") : null,
                     $data["categoryId"] ?? null,
                 );
-                $tracker->click($metadata, $productId);
+                $tracker->click($metadata, $productId, $abTests);
             } elseif ($dataSource->getType() === DataSource::SEARCH) {
                 $tracker = new AnalyticsSearchTrackingGraphql(
                     $merchantId,
@@ -135,7 +136,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
                 );
-                $tracker->click($metadata, $productId);
+                $tracker->click($metadata, $productId, $abTests);
             } else {
                 throw new \InvalidArgumentException('Invalid dataSource');
             }
