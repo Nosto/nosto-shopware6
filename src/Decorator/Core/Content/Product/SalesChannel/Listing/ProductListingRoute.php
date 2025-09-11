@@ -168,7 +168,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                         && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
                         && $seoUrl->getIsCanonical()
                     ) {
-                        $url = rtrim($seoUrl->getSeoPathInfo(),'/');
+                        $url = rtrim($seoUrl->getSeoPathInfo(), '/');
                         break;
                     }
                 }
