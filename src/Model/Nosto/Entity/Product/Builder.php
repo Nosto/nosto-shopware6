@@ -217,7 +217,7 @@ class Builder
             );
 
             $alternateMediaUrls = $alternateMedia->map(
-                static fn (ProductMediaEntity $media) => $media->getMedia() ? $media->getMedia()->getUrl() : null,
+                fn (ProductMediaEntity $media) => $media->getMedia() ? $media->getMedia()->getUrl() : null,
             );
 
             $alternateMediaUrls = array_filter($alternateMediaUrls);
