@@ -191,7 +191,7 @@ class Builder
             $this->initTags($product, $nostoProduct, $context);
             $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
 
-            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+            foreach ($product->getTranslation('customFields') as $fieldName => $fieldOriginalValue) {
                 // All non-scalar value should be serialized
                 $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
