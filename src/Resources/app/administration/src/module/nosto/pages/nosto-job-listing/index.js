@@ -96,6 +96,10 @@ Component.register('nosto-job-listing', {
                 },
             });
         },
+
+        cancelRunningFullProductSyncJobActionTitle() {
+            return this.$tc('nosto.listing.cancelRunningFullProductSyncJobActionTitle');
+        },
     },
 
     created() {
@@ -112,6 +116,22 @@ Component.register('nosto-job-listing', {
             this.NostoIntegrationProviderService.scheduleFullProductSync().then(() => {
                 this.createNotificationSuccess({
                     message: this.$tc('nosto.job.notification.success'),
+                });
+                this.onRefresh();
+            }).catch((exception) => {
+                this.createNotificationError({
+                    message: exception?.response?.data?.errors[0]?.detail ?? this.$tc('nosto.job.notification.unknownError'),
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        onCancelRunningFullProductSyncJob() {
+            this.isLoading = true;
+            this.NostoIntegrationProviderService.deleteRunningFullProductSyncJob().then(() => {
+                this.createNotificationSuccess({
+                    message: this.$tc('nosto.job.notification.cancelSuccess'),
                 });
                 this.onRefresh();
             }).catch((exception) => {

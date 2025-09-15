@@ -58,6 +58,19 @@ class NostoController extends AbstractController
     }
 
     #[Route(
+        path: "/api/_action/nosto-integration/delete-running-full-product-sync-job",
+        name: "api.action.nosto_integration.delete.running.full.product.sync.job",
+        options: [
+            "seo" => "false",
+        ],
+        methods: ["POST"],
+    )]
+    public function deleteRunningFullProductSyncJobAction(Request $request, Context $context): JsonResponse
+    {
+        return $this->nostoSyncRoute->deleteRunningFullProductSyncJob($request, $context);
+    }
+
+    #[Route(
         path: "/api/_action/nosto-integration/clear-cache",
         name: "api.action.nosto_integration.clear.cache",
         methods: ["POST"],
