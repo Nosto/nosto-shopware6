@@ -85,6 +85,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                     ProductVisibilityDefinition::VISIBILITY_ALL,
                 ),
             );
+            $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
