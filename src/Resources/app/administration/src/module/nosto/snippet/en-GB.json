@@ -166,7 +166,9 @@
             }
         },
         "listing": {
-            "rescheduleActionLabel": "Schedule Full Product Sync"
+            "rescheduleActionLabel": "Schedule Full Product Sync",
+            "cancelRunningFullProductSyncJobActionLabel": "Cancel Full Product Sync",
+            "cancelRunningFullProductSyncJobActionTitle": "Cancelling full product sync, will delete the latest running full product sync job"
         },
         "messages": {
             "success-message": "Successfully saved!",
@@ -179,6 +181,7 @@
             },
             "notification": {
                 "success": "Job has been scheduled successfully!",
+                "cancelSuccess": "Job has been cancelled successfully!",
                 "unknownError": "Unknown error."
             },
             "date-filter": {
