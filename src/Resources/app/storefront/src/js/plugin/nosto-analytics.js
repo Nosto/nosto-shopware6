@@ -13,7 +13,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         };
         const searchQuery = document.querySelector('.nosto_search_term')?.textContent?.trim()
             || new URLSearchParams(window.location.search).get('search');
-        const category = document.querySelector('.nosto_category')?.textContent?.trim() || window.location.pathname;
+        const category = document.querySelector('.nosto_category')?.querySelector('.category_string')?.textContent?.trim() || window.location.pathname;
         const resultId = document.querySelector('.nosto_result_id')?.textContent?.trim() || null;
 
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
-use Nosto\Model\Analytics\AnalyticsSearchMetadata;
+use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\Model\Analytics\DataSource;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Operation\Category\AnalyticsCategoryTracking;
-use Nosto\Operation\Search\AnalyticsSearchTracking;
+use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
+use Nosto\Operation\Search\AnalyticsSearchTrackingGraphql;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,6 +71,19 @@ class NostoAnalyticsTrackingController extends AbstractController
             $productId = $data['productId'];
             $userAgent = $request->headers->get('User-Agent');
             $merchantId = $this->configProvider->getAccountId($channelId, $languageId);
+            $appToken = $this->configProvider->getAppToken(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$appToken) {
+                throw new Exception('No app token found for the current sales channel and language.');
+            }
+            $account = $this->accountProvider->get(
+                $context->getContext(),
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+
             $productIdentifier = $this->configProvider->getProductIdentifier($channelId, $languageId);
             $dataSource = DataSource::fromString($data['dataSource']);
             if ($productIdentifier === ProductIdentifierOptions::PRODUCT_NUMBER) {
@@ -85,16 +98,31 @@ class NostoAnalyticsTrackingController extends AbstractController
                 //it's not an issue at all so lets just give 204 no content
                 return new JsonResponse(null, 204);
             }
+            $abTests = SearchHelper::getABTestsFromCookie($request);
             if ($dataSource->getType() === DataSource::CATEGORY) {
-                $tracker = new AnalyticsCategoryTracking($merchantId, $data['sessionId'], $userAgent);
+                $tracker = new AnalyticsCategoryTrackingGraphql(
+                    $merchantId,
+                    $data['sessionId'],
+                    $userAgent,
+                    $appToken,
+                    $account->getNostoAccount(),
+                    $request->getHost(),
+                );
                 $metadata = new AnalyticsCategoryMetadata(
                     $data["category"] != null ? rtrim($data["category"], "/") : null,
                     $data["categoryId"] ?? null,
                 );
-                $tracker->click($metadata, $productId);
+                $tracker->click($metadata, $productId, $abTests);
             } elseif ($dataSource->getType() === DataSource::SEARCH) {
-                $tracker = new AnalyticsSearchTracking($merchantId, $data['sessionId'], $userAgent);
-                $metadata = new AnalyticsSearchMetadata(
+                $tracker = new AnalyticsSearchTrackingGraphql(
+                    $merchantId,
+                    $data['sessionId'],
+                    $userAgent,
+                    $appToken,
+                    $account->getNostoAccount(),
+                    $request->getHost(),
+                );
+                $metadata = new AnalyticsSearchMetadataForGraphql(
                     $data['query'] ?? null,
                     $data['resultId'] ?? vsprintf(
                         '%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s',
@@ -108,7 +136,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
                 );
-                $tracker->click($metadata, $productId);
+                $tracker->click($metadata, $productId, $abTests);
             } else {
                 throw new \InvalidArgumentException('Invalid dataSource');
             }
