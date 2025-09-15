@@ -1,3 +1,10 @@
+# 3.5.9
+* Fix: Fehlende Übersetzung für das customFields-Array hinzugefügt
+* Fix: Übergabe von Associations an options.group
+* Fix: Synchronisationsprobleme für FTP behoben
+* Fix: searchAnalytics aktualisiert, um die neue GraphQL-Mutation zu verwenden und AB-Testing-Tracking hinzuzufügen
+* Fix: Möglichkeit hinzugefügt, einen Job über die UI abzubrechen
+
 # 3.5.8
 * Fix: „translate=„no““ für Tagging hinzufügen
 * Fix: nostoCookieFilter verursacht Serverfehler und überschreitet die Cookie-Längenbeschränkung

@@ -1,3 +1,10 @@
+# 3.5.9
+* Fix: Add missing translation for customFields array
+* Fix: Pass Associations to options.group
+* Fix: Fix sync issues for FTP
+* Fix: Update searchAnalytics to use new Graphql mutation and add AB testing tracking
+* Fix: Add ability to cancel a job from the UI
+
 # 3.5.8
 * Fix: Add translate="no" for tagging
 * Fix: nostoCookieFilter causing server errors and exceeding cookie length limit
