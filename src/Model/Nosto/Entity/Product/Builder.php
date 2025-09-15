@@ -216,8 +216,10 @@ class Builder
                 fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition(),
             );
 
-            $alternateMediaUrls = $alternateMedia->map(
-                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
+            $alternateMediaUrls = array_values(
+                array_filter(
+                    $alternateMedia->map(static fn (ProductMediaEntity $media) => $media->getMedia()?->getUrl()),
+                ),
             );
 
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));
