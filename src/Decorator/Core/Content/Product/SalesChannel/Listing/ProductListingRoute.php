@@ -87,10 +87,13 @@ class ProductListingRoute extends AbstractProductListingRoute
                     ProductVisibilityDefinition::VISIBILITY_ALL,
                 ),
             );
+            /** @var CategoryEntity $category */
+            $criteria = new Criteria([$categoryId]);
+            $criteria->addAssociation('seoUrls');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
-                new Criteria([$categoryId]),
+                $criteria,
                 $context->getContext(),
             )->first();
 
@@ -149,14 +152,28 @@ class ProductListingRoute extends AbstractProductListingRoute
             if (!$appToken) {
                 throw new Exception('No app token found for the current sales channel and language.');
             }
-            $breadcrumb = $category->getBreadcrumb();
-            if (is_array($breadcrumb) && count($breadcrumb) > 1) {
-                //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
-                array_shift($breadcrumb);
-                $fullCategoryPath = '/' . implode('/', $breadcrumb);
-            } else {
-                $fullCategoryPath = null;
+            $domain = null;
+            if ($domains = $context->getSalesChannel()->getDomains()) {
+                $domainId = (string) $this->configProvider->getDomainId(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                );
+
+                $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
             }
+            $url = '';
+            if ($category->getSeoUrls()->getElements() && $domain) {
+                foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
+                    if ($seoUrl->getLanguageId() === $context->getLanguageId()
+                        && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                        && $seoUrl->getIsCanonical()
+                    ) {
+                        $url = rtrim($seoUrl->getSeoPathInfo(), '/');
+                        break;
+                    }
+                }
+            }
+            $fullCategoryPath = '/' . $url;
             $productIdentifier = $this->configProvider->getProductIdentifier(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
@@ -191,7 +208,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $category->getId() ?? null,
             );
 
-            $tracker->impression($metadata, $productIds, $page);
+            $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed
