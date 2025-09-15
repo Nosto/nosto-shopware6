@@ -8,9 +8,10 @@ use Exception;
 use Nosto\Model\Analytics\AnalyticsCategoryMetadata;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Nosto\Operation\Category\AnalyticsCategoryTracking;
+use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -44,6 +45,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly CompositeListingProcessor $listingProcessor,
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
+        private readonly Account\Provider $accountProvider,
     ) {
     }
 
@@ -85,11 +87,14 @@ class ProductListingRoute extends AbstractProductListingRoute
                     ProductVisibilityDefinition::VISIBILITY_ALL,
                 ),
             );
+            /** @var CategoryEntity $category */
+            $criteria = new Criteria([$categoryId]);
+            $criteria->addAssociation('seoUrls');
             $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
-                new Criteria([$categoryId]),
+                $criteria,
                 $context->getContext(),
             )->first();
 
@@ -141,14 +146,35 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
-            $breadcrumb = $category->getBreadcrumb();
-            if (is_array($breadcrumb) && count($breadcrumb) > 1) {
-                //seems like first part of the breadcrumb is the home page which in nosto we actually don't use
-                array_shift($breadcrumb);
-                $fullCategoryPath = '/' . implode('/', $breadcrumb);
-            } else {
-                $fullCategoryPath = null;
+            $appToken = $this->configProvider->getAppToken(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            if (!$appToken) {
+                throw new Exception('No app token found for the current sales channel and language.');
             }
+            $domain = null;
+            if ($domains = $context->getSalesChannel()->getDomains()) {
+                $domainId = (string) $this->configProvider->getDomainId(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                );
+
+                $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
+            }
+            $url = '';
+            if ($category->getSeoUrls()->getElements() && $domain) {
+                foreach ($category->getSeoUrls()->getElements() as $seoUrl) {
+                    if ($seoUrl->getLanguageId() === $context->getLanguageId()
+                        && $seoUrl->getSalesChannelId() === $context->getSalesChannelId()
+                        && $seoUrl->getIsCanonical()
+                    ) {
+                        $url = rtrim($seoUrl->getSeoPathInfo(), '/');
+                        break;
+                    }
+                }
+            }
+            $fullCategoryPath = '/' . $url;
             $productIdentifier = $this->configProvider->getProductIdentifier(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
@@ -163,7 +189,19 @@ class ProductListingRoute extends AbstractProductListingRoute
                 return;
             }
             $userAgent = $request->headers->get('User-Agent');
-            $tracker = new AnalyticsCategoryTracking($merchantId, $sessionId, $userAgent);
+            $account = $this->accountProvider->get(
+                $context->getContext(),
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $tracker = new AnalyticsCategoryTrackingGraphql(
+                $merchantId,
+                $sessionId,
+                $userAgent,
+                $appToken,
+                $account->getNostoAccount(),
+                $request->getHost(),
+            );
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
                 //Either category or categoryId are needed
@@ -171,7 +209,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 $category->getId() ?? null,
             );
 
-            $tracker->impression($metadata, $productIds, $page);
+            $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed

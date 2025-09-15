@@ -41,7 +41,7 @@ class SearchRequestHandler extends AbstractRequestHandler
             $data->data->search->products->hits = [];
             $request->attributes->set('nostoAPIResult', json_encode($data));
         }
-
+        $this->updateAbTestsCookie($request, $nostoResponse[1]->getAbTests());
         return $nostoResponse[1];
     }
 }
