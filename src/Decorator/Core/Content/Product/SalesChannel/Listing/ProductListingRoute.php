@@ -90,6 +90,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             /** @var CategoryEntity $category */
             $criteria = new Criteria([$categoryId]);
             $criteria->addAssociation('seoUrls');
+            $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
