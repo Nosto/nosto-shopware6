@@ -56,7 +56,9 @@ class NavigationRequestHandler extends AbstractRequestHandler
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 
-        return $searchOperation->execute();
+        $nostoResponse = $searchOperation->execute();
+        $this->updateAbTestsCookie($request, $nostoResponse->getAbTests());
+        return $nostoResponse;
     }
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
