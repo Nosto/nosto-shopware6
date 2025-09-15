@@ -190,7 +190,7 @@ class Builder
             $this->initTags($product, $nostoProduct, $context);
             $selectedCustomFieldsCustomFields = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
 
-            foreach ($product->getCustomFields() as $fieldName => $fieldOriginalValue) {
+            foreach ($product->getTranslation('customFields') as $fieldName => $fieldOriginalValue) {
                 // All non-scalar value should be serialized
                 $fieldValue = $fieldOriginalValue === null || is_scalar($fieldOriginalValue) ?
                     $fieldOriginalValue : SerializationHelper::serialize($fieldOriginalValue);
@@ -216,8 +216,10 @@ class Builder
                 fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition(),
             );
 
-            $alternateMediaUrls = $alternateMedia->map(
-                fn (ProductMediaEntity $media) => $media->getMedia()->getUrl(),
+            $alternateMediaUrls = array_values(
+                array_filter(
+                    $alternateMedia->map(static fn (ProductMediaEntity $media) => $media->getMedia()?->getUrl()),
+                ),
             );
 
             $nostoProduct->setAlternateImageUrls(array_values($alternateMediaUrls));

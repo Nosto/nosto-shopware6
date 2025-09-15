@@ -166,7 +166,9 @@
             }
         },
         "listing": {
-            "rescheduleActionLabel": "Vollständige Produktsynchronisierung planen"
+            "rescheduleActionLabel": "Vollständige Produktsynchronisierung planen",
+            "cancelRunningFullProductSyncJobActionLabel": "Vollständige Produktsynchronisierung abbrechen",
+            "cancelRunningFullProductSyncJobActionTitle": "Durch das Abbrechen der vollständigen Produktsynchronisierung wird der zuletzt ausgeführte vollständige Produktsynchronisierungs Job gelöscht"
         },
         "messages": {
             "success-message": "Erfolgreich gespeichert!",
@@ -179,6 +181,7 @@
             },
             "notification": {
                 "success": "Job wurde erfolgreich eingeplant!",
+                "cancelSuccess": "Job wurde erfolgreich abgebrochen!",
                 "unknownError": "Unbekannter Fehler."
             },
             "date-filter": {

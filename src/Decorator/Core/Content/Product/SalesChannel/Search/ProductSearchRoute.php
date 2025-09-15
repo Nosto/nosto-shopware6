@@ -96,6 +96,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                     ProductVisibilityDefinition::VISIBILITY_SEARCH,
                 ),
             );
+            $criteria->addAssociation('options.group');
 
             $this->searchBuilder->build($request, $criteria, $context);
 
