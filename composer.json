@@ -40,7 +40,7 @@
     },
     "extra": {
         "shopware-plugin-class": "Nosto\\NostoIntegration\\NostoIntegration",
-        "plugin-icon": "src/Resources/config/nosto_plugin_icon.png",
+        "plugin-icon": "src/Resources/config/nosto_plugin_icon_sw65.png",
         "label": {
             "de-DE": "Nosto-Integration",
             "en-GB": "Nosto Integration"
