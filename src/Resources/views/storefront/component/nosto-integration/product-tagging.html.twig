@@ -43,7 +43,7 @@
                         {% endif %}
                 </span>
                 {% endfor %}
-            {% else %}
+            {% elseif product.parentId %}
                 <span class="nosto_sku">
                   <span class="id" translate="no">{{ nostoProduct.productId }}</span>
                   <span class="name" translate="no">{{ nostoProduct.name }}</span>
