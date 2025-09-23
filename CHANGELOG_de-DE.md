@@ -1,4 +1,4 @@
-# 5.1.9
+# 5.1.10
 * Fix: Fehlende Übersetzung für das customFields-Array hinzugefügt
 * Fix: Übergabe von Associations an options.group
 * Fix: Synchronisationsprobleme für FTP behoben
