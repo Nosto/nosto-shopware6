@@ -104,7 +104,7 @@ jobs:
           path: ./
 
       - name: Upload plugin to Shopware Store
-        run: shopware-cli account producer extension upload ./${{ env.PLUGIN_NAME }}.zip
+        run: shopware-cli account producer extension upload ./${{ env.PLUGIN_NAME }}.zip --verbose
 
       - name: Create GitHub release
         id: create_release
