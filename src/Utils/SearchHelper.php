@@ -121,21 +121,25 @@ class SearchHelper
      */
     public static function getABTestsFromCookie(Request $request): array
     {
-        $cookieValue = json_decode($request->cookies->get('nosto_ab_tests'));
-        if (!$cookieValue) {
+        try {
+            $cookieValue = json_decode($request->cookies->get('nosto_ab_tests'));
+            if (!$cookieValue) {
+                return [];
+            }
+            $attributions = [];
+
+            foreach ($cookieValue as $abTest) {
+                if ($abTest->id && $abTest->activeVariation->id) {
+                    $attributions[] = new AbTestAttribution(
+                        $abTest->id,
+                        $abTest->activeVariation->id,
+                    );
+                }
+            }
+
+            return $attributions;
+        } catch (\Exception $e) {
             return [];
         }
-        $attributions = [];
-
-        foreach ($cookieValue as $abTest) {
-            if ($abTest->id && $abTest->activeVariation->id) {
-                $attributions[] = new AbTestAttribution(
-                    $abTest->id,
-                    $abTest->activeVariation->id,
-                );
-            }
-        }
-
-        return $attributions;
     }
 }
