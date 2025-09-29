@@ -122,7 +122,11 @@ class SearchHelper
     public static function getABTestsFromCookie(Request $request): array
     {
         try {
-            $cookieValue = json_decode($request->cookies->get('nosto_ab_tests'));
+            $value = $request->cookies->get('nosto_ab_tests');
+            if (!$value) {
+                return [];
+            }
+            $cookieValue = json_decode($value);
             if (!$cookieValue) {
                 return [];
             }
