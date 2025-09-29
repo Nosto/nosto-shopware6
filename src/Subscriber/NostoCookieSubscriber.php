@@ -34,8 +34,11 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         }
 
         $nostoApiResultValue = $request->attributes->get('nostoAPIResult');
-        $compressed = gzcompress($nostoApiResultValue, 9);
-        $cookieValue = base64_encode($compressed);
+        $cookieValue = $nostoApiResultValue;
+        if (function_exists('gzcompress')) {
+            $compressed = gzcompress($nostoApiResultValue, 9);
+            $cookieValue = base64_encode($compressed);
+        }
         $nostoCookieFilter = new Cookie(
             'nostoCookieFilter',
             $cookieValue,
