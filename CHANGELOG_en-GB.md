@@ -1,3 +1,7 @@
+# 6.0.6
+* Fix: nostoCookieFilter causing server errors and exceeding cookie length limit
+* Fix: Update nosto filters on CM2
+
 # 6.0.5
 * Fix: Add missing translation for customFields array
 * Fix: Pass Associations to options.group
