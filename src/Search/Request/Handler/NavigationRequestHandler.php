@@ -19,20 +19,22 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationRequestHandler extends AbstractRequestHandler
 {
     public function __construct(
-        ConfigProvider $configProvider,
-        SortingHandlerService $sortingHandlerService,
-        Logger $logger,
+        ConfigProvider                    $configProvider,
+        SortingHandlerService             $sortingHandlerService,
+        Logger                            $logger,
         private readonly EntityRepository $categoryRepository,
-    ) {
+    )
+    {
         parent::__construct($configProvider, $sortingHandlerService, $logger);
     }
 
     public function sendRequest(
-        Request $request,
-        Criteria $criteria,
+        Request             $request,
+        Criteria            $criteria,
         SalesChannelContext $context,
-        ?int $limit = null,
-    ): SearchResult {
+        ?int                $limit = null,
+    ): SearchResult
+    {
         $searchOperation = $this->getSearchOperation($request, $criteria, $context, $limit);
 
         $searchOperation->setCategoryPath(
@@ -56,9 +58,14 @@ class NavigationRequestHandler extends AbstractRequestHandler
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
 
-        $nostoResponse = $searchOperation->execute();
-        $this->updateAbTestsCookie($request, $nostoResponse->getAbTests());
-        return $nostoResponse;
+        $nostoResponse = $searchOperation->executeSw();
+        if (empty($request->cookies->get('nostoCookieFilter'))) {
+            $data = json_decode($nostoResponse[0]);
+            $data->data->search->products->hits = [];
+            $request->attributes->set('nostoAPIResult', json_encode($data));
+        }
+        $this->updateAbTestsCookie($request, $nostoResponse[1]->getAbTests());
+        return $nostoResponse[1];
     }
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
