@@ -50,6 +50,70 @@ class ProductHelper
     ) {
     }
 
+    public static function convertJsonToFilterMapping(?string $json): IdToFieldMapping
+    {
+        $mapping = new IdToFieldMapping();
+
+        if (!$json) {
+            return $mapping;
+        }
+
+        $decoded = json_decode($json, true);
+
+        if (!is_array($decoded)) {
+            return $mapping;
+        }
+
+        foreach ($decoded as $filterId => $field) {
+            $mapping->addMapping($filterId, $field);
+        }
+
+        return $mapping;
+    }
+
+    public static function convertJsonToFilter(string $filters): FiltersExtension
+    {
+        $filtersExtension = new FiltersExtension();
+
+        $jsonString = $filters;
+        if (function_exists('gzuncompress')) {
+            $compressed = base64_decode($filters);
+            $jsonString = gzuncompress($compressed);
+        }
+
+        $parsed = json_decode($jsonString, true);
+
+        $facets = $parsed['data']['search']['products']['facets'] ?? [];
+
+        foreach ($facets as $facet) {
+            $id = $facet['id'];
+            $name = $facet['name'];
+            $field = $facet['field'];
+            $type = $facet['type'];
+
+            if ($type === 'stats') {
+                $min = $facet['min'] ?? 0;
+                $max = $facet['max'] ?? 0;
+
+                $filter = new RangeSliderFilter($id, $name, $field, $min, $max);
+            } elseif ($type === 'terms') {
+                $filter = new LabelTextFilter($id, $name, $field);
+
+                foreach ($facet['data'] as $item) {
+                    $value = $item['value'];
+                    $filterValue = new FilterValue($value, $value);
+                    $filter->addValue($filterValue);
+                }
+            } else {
+                continue;
+            }
+
+            $filtersExtension->addFilter($filter);
+        }
+
+        return $filtersExtension;
+    }
+
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
     {
         $reviewCriteria = new Criteria();
@@ -286,63 +350,5 @@ class ProductHelper
         }
 
         return $properties;
-    }
-
-    public static function convertJsonToFilterMapping(?string $json): IdToFieldMapping
-    {
-        $mapping = new IdToFieldMapping();
-
-        if (!$json) {
-            return $mapping;
-        }
-
-        $decoded = json_decode($json, true);
-
-        if (!is_array($decoded)) {
-            return $mapping;
-        }
-
-        foreach ($decoded as $filterId => $field) {
-            $mapping->addMapping($filterId, $field);
-        }
-
-        return $mapping;
-    }
-
-    public static function convertJsonToFilter(string $json): FiltersExtension
-    {
-        $filtersExtension = new FiltersExtension();
-
-        $parsed = json_decode($json, true);
-
-        $facets = $parsed['data']['search']['products']['facets'] ?? [];
-
-        foreach ($facets as $facet) {
-            $id = $facet['id'];
-            $name = $facet['name'];
-            $field = $facet['field'];
-            $type = $facet['type'];
-
-            if ($type === 'stats') {
-                $min = $facet['min'] ?? 0;
-                $max = $facet['max'] ?? 0;
-
-                $filter = new RangeSliderFilter($id, $name, $field, $min, $max);
-            } elseif ($type === 'terms') {
-                $filter = new LabelTextFilter($id, $name, $field);
-
-                foreach ($facet['data'] as $item) {
-                    $value = $item['value'];
-                    $filterValue = new FilterValue($value, $value);
-                    $filter->addValue($filterValue);
-                }
-            } else {
-                continue;
-            }
-
-            $filtersExtension->addFilter($filter);
-        }
-
-        return $filtersExtension;
     }
 }
