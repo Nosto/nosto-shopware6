@@ -1,3 +1,7 @@
+# 3.5.11
+* Fix: nostoCookieFilter verursacht Serverfehler und überschreitet die Cookie-Längenbeschränkung
+* Fix: Aktualisierung der nosto-Filter auf CM2
+
 # 3.5.10
 * Fix: Fehlende Übersetzung für das customFields-Array hinzugefügt
 * Fix: Übergabe von Associations an options.group
