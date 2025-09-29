@@ -71,11 +71,17 @@ class ProductHelper
         return $mapping;
     }
 
-    public static function convertJsonToFilter(string $json): FiltersExtension
+    public static function convertJsonToFilter(string $filters): FiltersExtension
     {
         $filtersExtension = new FiltersExtension();
 
-        $parsed = json_decode($json, true);
+        $jsonString = $filters;
+        if (function_exists('gzuncompress')) {
+            $compressed = base64_decode($filters);
+            $jsonString = gzuncompress($compressed);
+        }
+
+        $parsed = json_decode($jsonString, true);
 
         $facets = $parsed['data']['search']['products']['facets'] ?? [];
 
