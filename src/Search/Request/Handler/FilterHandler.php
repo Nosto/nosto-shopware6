@@ -169,7 +169,7 @@ class FilterHandler
             return;
         }
 
-        if (in_array($filterId, $nostoFilters, true)) {
+        if (array_key_exists($filterId, $nostoFilters)) {
             $this->handlePropertyFilter($filterField, $filterValue, $searchOperation);
         }
     }
