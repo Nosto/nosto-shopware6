@@ -55,12 +55,13 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
         $searchOperation->setResponseTimeout(3);
         $searchOperation->setConnectTimeout(3);
-
         $nostoResponse = $searchOperation->executeSw();
-        if (empty($request->cookies->get('nostoCookieFilter'))) {
+
+        if (empty($searchOperation->getVariables()['filter'])) {
             $data = json_decode($nostoResponse[0]);
             $data->data->search->products->hits = [];
             $request->attributes->set('nostoAPIResult', json_encode($data));
+            $request->attributes->set('isInitialSearch', true);
         }
         $this->updateAbTestsCookie($request, $nostoResponse[1]->getAbTests());
         return $nostoResponse[1];
