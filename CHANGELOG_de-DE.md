@@ -1,3 +1,8 @@
+# 3.5.12
+* Fix: Fehlende/inkonsistente Such- und Kategoriefilter
+* Fix: Übermäßiges Logging
+* Fix: Produkt-Tagging für Produkte ohne Varianten
+
 # 3.5.11
 * Fix: nostoCookieFilter verursacht Serverfehler und überschreitet die Cookie-Längenbeschränkung
 * Fix: Aktualisierung der nosto-Filter auf CM2
