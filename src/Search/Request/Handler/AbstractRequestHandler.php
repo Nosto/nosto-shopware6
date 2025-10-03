@@ -97,9 +97,10 @@ abstract class AbstractRequestHandler
     ): void {
         $filterCookie = $request->cookies->get('nostoCookieFilter');
         $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        $isInitialSearch = $request->attributes->get('isInitialSearch');
 
         // USE NOSTO RESPONSE FILTERS
-        if (!$filterCookie || !$filterMappingCookie) {
+        if ($isInitialSearch || !$filterCookie || !$filterMappingCookie) {
             $filters = $this->parseFiltersFromResponse($response);
             $filterMapping = $this->parseFilterMappingFromResponse($response);
         } else {
