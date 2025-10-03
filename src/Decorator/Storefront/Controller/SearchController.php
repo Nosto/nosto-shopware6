@@ -165,7 +165,7 @@ class SearchController extends StorefrontController
         defaults: [
             'XmlHttpRequest' => true,
             '_routeScope' => ['storefront'],
-            '_httpCache' => true,
+            '_httpCache' => false,
         ],
         methods: ['GET', 'POST'],
     )]
