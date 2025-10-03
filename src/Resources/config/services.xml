@@ -334,6 +334,8 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="category.repository"/>
+            <argument type="service" key="$salesChannelContextFactory"
+                      id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <tag name="controller.service_arguments"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
