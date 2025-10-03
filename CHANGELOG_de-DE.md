@@ -1,3 +1,8 @@
+# 6.0.7
+* Fix: Fehlende/inkonsistente Such- und Kategoriefilter
+* Fix: Übermäßiges Logging
+* Fix: Produkt-Tagging für Produkte ohne Varianten
+
 # 6.0.6
 * Fix: nostoCookieFilter verursacht Serverfehler und überschreitet die Cookie-Längenbeschränkung
 * Fix: Aktualisierung der nosto-Filter auf CM2
