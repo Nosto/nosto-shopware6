@@ -176,7 +176,7 @@ abstract class AbstractRequestHandler
         $salesChannelId,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation, $languageId, $salesChannelId);
+        $this->setSessionParamsFromCookies($request, $searchOperation, $salesChannelId, $languageId);
         $this->setAbTests($request, $searchOperation);
 
         $this->sortingHandlerService->handle($searchOperation, $criteria);
