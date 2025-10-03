@@ -1,3 +1,8 @@
+# 5.1.12
+* Fix: Missing/inconsistent Search and Category Filters
+* Fix: Excessive logging
+* Fix: Product tagging for products without variants
+
 # 5.1.11
 * Fix: nostoCookieFilter causing server errors and exceeding cookie length limit
 * Fix: Update nosto filters on CM2
