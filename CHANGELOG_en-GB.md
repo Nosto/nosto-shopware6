@@ -1,3 +1,6 @@
+# 6.0.8
+* Fix: Handle cache in navigation pages only if Category Merchandising is enabled
+
 # 6.0.7
 * Fix: Missing/inconsistent Search and Category Filters
 * Fix: Excessive logging

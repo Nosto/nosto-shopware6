@@ -1,3 +1,6 @@
+# 6.0.8
+* Fix: Cache in Navigationsseiten werden nur verarbeitet, wenn Kategorie-Merchandising aktiviert ist
+
 # 6.0.7
 * Fix: Fehlende/inkonsistente Such- und Kategoriefilter
 * Fix: Übermäßiges Logging
