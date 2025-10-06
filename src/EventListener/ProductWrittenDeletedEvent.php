@@ -20,11 +20,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ProductWrittenDeletedEvent implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly EventsWriter   $eventsWriter,
-        private readonly ProductHelper  $productHelper,
+        private readonly EventsWriter $eventsWriter,
+        private readonly ProductHelper $productHelper,
         private readonly ConfigProvider $configProvider,
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -57,8 +56,8 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         }
 
         if ((str_starts_with($request->getPathInfo(), '/navigation/') || $request->attributes->get(
-                    '_route',
-                ) === 'frontend.navigation.page') && $isNavigationEnabled) {
+            '_route',
+        ) === 'frontend.navigation.page') && $isNavigationEnabled) {
             $response = $event->getResponse();
 
             if ($isEnabledCache) {
