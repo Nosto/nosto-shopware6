@@ -1,3 +1,6 @@
+# 3.5.13
+* Fix: Handle cache in navigation pages only if Category Merchandising is enabled
+
 # 3.5.12
 * Fix: Missing/inconsistent Search and Category Filters
 * Fix: Excessive logging
