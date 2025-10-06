@@ -1,3 +1,6 @@
+# 5.1.13
+* Fix: Cache in Navigationsseiten werden nur verarbeitet, wenn Kategorie-Merchandising aktiviert ist
+
 # 5.1.12
 * Fix: Fehlende/inkonsistente Such- und Kategoriefilter
 * Fix: Übermäßiges Logging
