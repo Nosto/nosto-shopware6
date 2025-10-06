@@ -38,21 +38,28 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
     public function onResponse(ResponseEvent $event): void
     {
         $request = $event->getRequest();
+        $isEnabledCache = false;
+        $isNavigationEnabled = false;
+        $context = null;
 
-        if (str_starts_with($request->getPathInfo(), '/navigation/') || $request->attributes->get(
+        if ($request->attributes->has('sw-sales-channel-context')) {
+            /** @var SalesChannelContext $salesChannelContext */
+            $context = $request->attributes->get('sw-sales-channel-context');
+            $isEnabledCache = $this->configProvider->isCacheEnabled(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+            $isNavigationEnabled = $this->configProvider->isNavigationEnabled(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+        }
+
+        if ((str_starts_with($request->getPathInfo(), '/navigation/') || $request->attributes->get(
             '_route',
-        ) === 'frontend.navigation.page') {
+        ) === 'frontend.navigation.page') && $isNavigationEnabled) {
             $response = $event->getResponse();
-            $isEnabledCache = false;
-            $context = null;
-            if ($request->attributes->has('sw-sales-channel-context')) {
-                /** @var SalesChannelContext $salesChannelContext */
-                $context = $request->attributes->get('sw-sales-channel-context');
-                $isEnabledCache = $this->configProvider->isCacheEnabled(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-            }
+
             if ($isEnabledCache) {
                 $cacheTtl = $this->configProvider->getCacheTtl(
                     $context->getSalesChannelId(),
