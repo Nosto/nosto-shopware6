@@ -144,7 +144,7 @@ export default class NostoAbTests extends window.PluginBaseClass {
 
     setNostoCookie(data) {
         if (CookieStorage.getItem('nosto_ab_tests')) {
-            let cookie = CookieStorage.getItem('nosto_ab_tests');
+            const cookie = CookieStorage.getItem('nosto_ab_tests');
             if (encodeURIComponent(JSON.stringify(data)) === cookie) {
                 return;
             }
