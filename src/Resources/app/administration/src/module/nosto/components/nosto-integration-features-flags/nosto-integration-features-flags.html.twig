@@ -154,29 +154,29 @@
         {% endblock %}
 
         {% block nosto_integration_sync_batch_size %}
-                    <sw-inherit-wrapper
-                        :value="currentConfig['syncBatchSize']"
-                        :inheritedValue="configKey === null ? null : configs['null']['syncBatchSize']"
+            <sw-inherit-wrapper
+                :value="currentConfig['syncBatchSize']"
+                :inheritedValue="configKey === null ? null : configs['null']['syncBatchSize']"
+                @update:value="onUpdateValue('syncBatchSize', $event)"
+            >
+                <template #content="props">
+                    <sw-number-field
+                        name="syncBatchSize"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.syncBatchSize')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.syncBatchSizeHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        :min="1"
+                        :max="150"
+                        :allow-empty="false"
+                        number-type="int"
+                        :step="1"
                         @update:value="onUpdateValue('syncBatchSize', $event)"
-                    >
-                        <template #content="props">
-                            <sw-number-field
-                                name="syncBatchSize"
-                                :map-inheritance="props"
-                                :label="$tc('nosto.configuration.featuresFlags.syncBatchSize')"
-                                :help-text="$tc('nosto.configuration.featuresFlags.syncBatchSizeHelpText')"
-                                :disabled="props.isInherited"
-                                :value="props.currentValue"
-                                :min="1"
-                                :max="150"
-                                :allow-empty="false"
-                                number-type="int"
-                                :step="1"
-                                @update:value="onUpdateValue('syncBatchSize', $event)"
-                            />
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
 
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper
