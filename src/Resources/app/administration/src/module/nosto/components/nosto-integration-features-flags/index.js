@@ -166,6 +166,7 @@ Component.register('nosto-integration-features-flags', {
                 ignoreCookieConsent: false,
                 syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
+                syncBatchSize: 150,
                 domain: null,
                 oldJobCleanup: false,
                 oldJobCleanupPeriod: 5,
