@@ -106,6 +106,8 @@ class NostoConfigService
 
     public const ENABLE_FALLBACK_MECHANISM = 'enableFallbackMechanism';
 
+    public const SYNC_BATCH_SIZE = 'syncBatchSize';
+
     private array $configs = [];
 
     public function __construct(
