@@ -37,9 +37,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
      */
     public function execute(object $message): JobResult
     {
+        $size = $this->configProvider->getBatchSize();
         $result = new JobResult();
         $criteriaProduct = new Criteria();
-        $criteriaProduct->setLimit(self::BATCH_SIZE);
+        $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
             $message->getContext(),
