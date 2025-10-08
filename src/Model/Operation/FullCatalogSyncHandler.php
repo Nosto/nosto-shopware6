@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Model\Operation;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
@@ -29,6 +30,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $productRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
+        private readonly ConfigProvider $configProvider
     ) {
     }
 
