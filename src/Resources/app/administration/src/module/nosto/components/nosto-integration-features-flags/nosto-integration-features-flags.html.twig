@@ -152,6 +152,21 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+        {% block nosto_integration_sync_batch_size %}
+            <sw-number-field
+                name="syncBatchSize"
+                :label="$tc('nosto.configuration.featuresFlags.syncBatchSize')"
+                :help-text="$tc('nosto.configuration.featuresFlags.syncBatchSizeHelpText')"
+                :disabled="configKey !== null"
+                :value="configKey === null ? currentConfig['syncBatchSize'] : configs['null']['syncBatchSize']"
+                :min="1"
+                :max="150"
+                :allow-empty="false"
+                number-type="int"
+                :step="1"
+                @update:value="configKey === null && onUpdateValue('syncBatchSize', $event)"
+            />
+        {% endblock %}
 
         {% block nosto_integration_feature_variations %}
             <sw-inherit-wrapper

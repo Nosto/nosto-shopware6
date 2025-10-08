@@ -124,6 +124,8 @@
                 "categoryBlocklist": "Kategorie Ausschluss",
                 "categoryBlocklistHelpText": "Produkte in den ausgewählten Kategorien werden vom Nosto Export ausgeschlossen",
                 "categoryBlocklistPlaceholder": "Kategorie auswählen:",
+                "syncBatchSize": "Batch-Größe für die Synchronisierung",
+                "syncBatchSizeHelpText": "Anzahl der Elemente, die pro Synchronisierungsdurchlauf verarbeitet werden. Kann nur global für alle Verkaufskanäle eingestellt werden.",
                 "oldJobCleanup": {
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
