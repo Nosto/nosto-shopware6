@@ -124,6 +124,8 @@
                 "categoryBlocklist": "Category Exclusion",
                 "categoryBlocklistHelpText": "Products in selected categories are excluded from the export to Nosto",
                 "categoryBlocklistPlaceholder": "Select category:",
+                "syncBatchSize": "Sync batch size",
+                "syncBatchSizeHelpText": "Number of entities processed per synchronization batch. This can only be configured globally for all sales channels.",
                 "oldJobCleanup": {
                     "label": "Enable cleanup of old jobs",
                     "helpText": "Enables cleaning up old jobs in the Nosto job listing"
