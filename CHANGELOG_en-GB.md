@@ -1,3 +1,7 @@
+# 5.1.14
+* Fix: Make sync batch size configurable
+* Fix: Get tags by ids directly from db
+
 # 5.1.13
 * Fix: Handle cache in navigation pages only if Category Merchandising is enabled
 

@@ -1,3 +1,7 @@
+# 5.1.14
+* Fix: Synchronisierungsgröße ist nun konfigurierbar
+* Fix: Tags anhand von IDs direkt aus der Datenbank abrufen
+
 # 5.1.13
 * Fix: Cache in Navigationsseiten werden nur verarbeitet, wenn Kategorie-Merchandising aktiviert ist
 
