@@ -340,4 +340,9 @@ class ConfigProvider
     {
         return $this->configService->getConfigWithInheritance($channelId, $languageId);
     }
+
+    public function getBatchSize()
+    {
+        return $this->configService->get(NostoConfigService::SYNC_BATCH_SIZE, null, null);
+    }
 }

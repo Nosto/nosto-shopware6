@@ -361,24 +361,39 @@ class Builder
         NostoProduct $nostoProduct,
         SalesChannelContext $context,
     ): void {
-        $tags = $this->loadTags($context->getContext());
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
+
+        $tagFieldKeys = [
+            1 => $this->configProvider->getTagFieldKey(1, $channelId, $languageId),
+            2 => $this->configProvider->getTagFieldKey(2, $channelId, $languageId),
+            3 => $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
+        ];
+
+        $tagIdsToLoad = array_values(array_unique(array_merge(...array_values($tagFieldKeys))));
+        $productTagIds = $productEntity->getTagIds() ?? [];
+        if (!empty($productTagIds)) {
+            $tagIdsToLoad = array_values(array_intersect($tagIdsToLoad, $productTagIds));
+        } else {
+            $tagIdsToLoad = [];
+        }
+
+        $tags = $this->loadTagsByIds($tagIdsToLoad, $context->getContext());
 
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(1, $channelId, $languageId),
-            $tags,
+            $tagFieldKeys[1],
         ));
         $nostoProduct->setTag2($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(2, $channelId, $languageId),
-            $tags,
+            $tagFieldKeys[2],
         ));
         $nostoProduct->setTag3($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
-            $tags,
+            $tagFieldKeys[3],
         ));
     }
 
@@ -397,9 +412,14 @@ class Builder
         return $result;
     }
 
-    private function loadTags(Context $context): TagCollection
+    private function loadTagsByIds(array $tagIds, Context $context): TagCollection
     {
+        if ($tagIds === []) {
+            return new TagCollection();
+        }
+
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', array_values($tagIds)));
 
         return $this->tagRepository->search($criteria, $context)->getEntities();
     }
