@@ -30,7 +30,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $productRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
-        private readonly ConfigProvider $configProvider
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
