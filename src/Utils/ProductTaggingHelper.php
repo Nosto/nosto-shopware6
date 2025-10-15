@@ -309,7 +309,9 @@ class ProductTaggingHelper
         foreach ($product->getChildren() as $child) {
             $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
 
-            if ((is_null($lowestPrice) || $variantPrice < $lowestPrice) && $child->getActive()) {
+            if ((is_null(
+                $lowestPrice,
+            ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
                 $lowestPrice = $variantPrice;
                 $cheapestVariant = $child;
             }
