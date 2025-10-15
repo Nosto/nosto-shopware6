@@ -1,3 +1,6 @@
+# 6.0.10
+* New: Check inventory quantity for selection of the cheapest product
+
 # 6.0.9
 * Fix: Make sync batch size configurable
 * Fix: Get tags by ids directly from db
