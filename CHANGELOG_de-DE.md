@@ -1,3 +1,6 @@
+# 5.1.15
+* Neu: Überprüfung der Lagerbestände für das günstigste Produkt
+
 # 5.1.14
 * Fix: Synchronisierungsgröße ist nun konfigurierbar
 * Fix: Tags anhand von IDs direkt aus der Datenbank abrufen
