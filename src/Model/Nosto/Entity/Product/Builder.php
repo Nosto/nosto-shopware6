@@ -384,17 +384,17 @@ class Builder
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(1, $channelId, $languageId),
-            $tagFieldKeys[1],
+            $tags,
         ));
         $nostoProduct->setTag2($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(2, $channelId, $languageId),
-            $tagFieldKeys[2],
+            $tags,
         ));
         $nostoProduct->setTag3($this->getTagValues(
             $productEntity,
             $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
-            $tagFieldKeys[3],
+            $tags,
         ));
     }
 
