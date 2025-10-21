@@ -1,3 +1,6 @@
+# 3.5.16
+* Fix: Refactor initTags, um geladene Tags anstelle von Tag-Feldschlüsseln für die Wertabfrage wiederzuverwenden.
+
 # 3.5.15
 * Neu: Überprüfung der Lagerbestände für das günstigste Produkt
 

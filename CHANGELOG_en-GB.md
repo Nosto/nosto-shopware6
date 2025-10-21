@@ -1,3 +1,6 @@
+# 3.5.16
+* Fix: Refactor initTags to reuse loaded tags instead of tag field keys for value retrieval
+
 # 3.5.15
 * New: Check inventory quantity for selection of the cheapest product
 
