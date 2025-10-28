@@ -8,11 +8,13 @@ use Nosto\NostoIntegration\Async\EventsWriter;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class OrderWrittenEventListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly EventsWriter $eventsWriter,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -29,10 +31,13 @@ class OrderWrittenEventListener implements EventSubscriberInterface
 
     public function onCheckoutOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
+        $cookieValue = $this->requestStack->getCurrentRequest()?->cookies->get('2c_cId');
+
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
             $event->getOrder()->getId(),
             $event->getContext(),
+            $cookieValue
         );
     }
 
