@@ -78,7 +78,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
 
         while (($events = $iterator->fetch()) !== null) {
-            $ids = $entityType === ProductDefinition::ENTITY_NAME || $entityType === 'order_placed'?
+            $ids = $entityType === ProductDefinition::ENTITY_NAME || $entityType === 'order_placed' ?
                 $events->reduce(static function (array $result, ChangelogEntity $event): array {
                     $result[$event->getEntityId()] = $event->getProductNumber();
                     return $result;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\EventListener;
 
 use Nosto\NostoIntegration\Async\EventsWriter;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,6 +16,7 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     public function __construct(
         private readonly EventsWriter $eventsWriter,
         private readonly RequestStack $requestStack,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -32,12 +34,21 @@ class OrderWrittenEventListener implements EventSubscriberInterface
     public function onCheckoutOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
         $cookieValue = $this->requestStack->getCurrentRequest()?->cookies->get('2c_cId');
-
+        if (!$cookieValue) {
+            $this->logger->error(
+                'Skipping ORDER_ENTITY_PLACED event because 2c_cId cookie is missing',
+                [
+                    'orderId' => $event->getOrder()->getId(),
+                    'orderNumber' => $event->getOrder()->getOrderNumber(),
+                ],
+            );
+            return;
+        }
         $this->eventsWriter->writeEvent(
             $this->eventsWriter::ORDER_ENTITY_PLACED_NAME,
             $event->getOrder()->getId(),
             $event->getContext(),
-            $cookieValue
+            $cookieValue,
         );
     }
 

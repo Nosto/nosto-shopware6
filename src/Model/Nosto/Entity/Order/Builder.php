@@ -75,7 +75,7 @@ class Builder
                     $this->configProvider,
                     $this->systemConfigService,
                     $this->productHelper,
-                    $this->productProvider
+                    $this->productProvider,
                 );
                 $nostoOrder->addPurchasedItems($nostoItem);
             }

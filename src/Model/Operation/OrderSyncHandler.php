@@ -112,8 +112,12 @@ class OrderSyncHandler implements JobHandlerInterface
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendNewOrder(OrderEntity $order, Account $account, SalesChannelContext $context, ?string $sessionId): void
-    {
+    private function sendNewOrder(
+        OrderEntity $order,
+        Account $account,
+        SalesChannelContext $context,
+        ?string $sessionId,
+    ): void {
         if (!$sessionId) {
             return;
         }
