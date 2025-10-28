@@ -65,9 +65,14 @@ class OrderSyncHandler implements JobHandlerInterface
     private function doOperation(Account $account, SalesChannelContext $context, object $message): JobResult
     {
         $result = new JobResult();
-        foreach ($this->getOrders($context->getContext(), $message->getNewOrderIds()) as $order) {
+        $orderIds = $message->getNewOrderIds();
+        if (empty($orderIds)) {
+            return new JobResult();
+        }
+        foreach ($this->getOrders($context->getContext(), $orderIds) as $order) {
             try {
-                $this->sendNewOrder($order, $account, $context);
+                $sessionId = $orderIds[$order->getId()] ?? null;
+                $this->sendNewOrder($order, $account, $context, $sessionId);
             } catch (Throwable $e) {
                 $result->addError($e);
             }
@@ -85,6 +90,14 @@ class OrderSyncHandler implements JobHandlerInterface
 
     private function getOrders(Context $context, array $orderIds): EntityCollection
     {
+        $ids = [];
+        if (array_is_list($orderIds)) {
+            $ids = $orderIds;
+        } else {
+            foreach ($orderIds as $entityId => $productId) {
+                $ids[] = $entityId;
+            }
+        }
         $criteria = new Criteria();
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('orderCustomer');
@@ -93,25 +106,31 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
-        $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
         $this->eventDispatcher->dispatch(new NostoOrderCriteriaEvent($criteria, $context));
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
 
-    private function sendNewOrder(OrderEntity $order, Account $account, SalesChannelContext $context): void
-    {
+    private function sendNewOrder(
+        OrderEntity $order,
+        Account $account,
+        SalesChannelContext $context,
+        ?string $sessionId,
+    ): void {
+        if (!$sessionId) {
+            return;
+        }
         $nostoOrder = $this->nostoOrderbuilder->build(
             $order,
             $context,
         );
-        $nostoCustomerId = $order->getOrderCustomer()->getCustomerId();
-        $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_REF;
+        $nostoCustomerIdentifier = AbstractGraphQLOperation::IDENTIFIER_BY_CID;
         $operation = new OrderCreate(
             $nostoOrder,
             $account->getNostoAccount(),
             $nostoCustomerIdentifier,
-            $nostoCustomerId,
+            $sessionId,
         );
         $this->eventDispatcher->dispatch(new BeforeOrderCreatedEvent($operation, $context->getContext()));
         $operation->execute();
