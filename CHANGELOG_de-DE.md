@@ -1,3 +1,6 @@
+# 5.1.16
+* Fix: Verbesserungen bei der Bestellverfolgung für Search und CM2 Analytics
+
 # 5.1.15
 * Neu: Überprüfung der Lagerbestände für das günstigste Produkt
 

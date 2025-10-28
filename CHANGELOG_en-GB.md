@@ -1,3 +1,6 @@
+# 5.1.16
+* Fix: Order tracking improvements, for Search and CM2 Analytics
+
 # 5.1.15
 * New: Check inventory quantity for selection of the cheapest product
 
