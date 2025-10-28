@@ -8,6 +8,8 @@ use Exception;
 use Nosto\Model\Cart\LineItem as NostoLineItem;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -26,12 +28,14 @@ class Builder
         SalesChannelContext $context,
         ConfigProvider $configProvider,
         SystemConfigService $systemConfigService,
+        ProductHelper $productHelper,
+        ProductProviderInterface $productProvider,
     ): NostoLineItem {
         $criteria = new Criteria([$item->getProductId()]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $product */
         $product = $productRepository->search($criteria, $context->getContext())->first();
-        $criteria = new Criteria([$product->getParentId()]);
+        $criteria = new Criteria([$product->getParentId() != null ? $product->getParentId() : $product->getId()]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $parentProduct */
         $parentProduct = $productRepository->search($criteria, $context->getContext())->first();
@@ -42,7 +46,12 @@ class Builder
         ) === ProductIdentifierOptions::PRODUCT_ID) {
             $skuId = $item->getProductId();
         }
-        $productTaggingHelper = new ProductTaggingHelper($systemConfigService, $configProvider);
+        $productTaggingHelper = new ProductTaggingHelper(
+            $systemConfigService,
+            $configProvider,
+            $productProvider,
+            $productHelper,
+        );
         $productId = $productTaggingHelper->findProductId($context, $parentProduct, $product);
 
         $nostoItem = new NostoLineItem();
