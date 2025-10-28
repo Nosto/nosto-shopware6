@@ -46,7 +46,12 @@ class Builder
         ) === ProductIdentifierOptions::PRODUCT_ID) {
             $skuId = $item->getProductId();
         }
-        $productTaggingHelper = new ProductTaggingHelper($systemConfigService, $configProvider, $productProvider, $productHelper);
+        $productTaggingHelper = new ProductTaggingHelper(
+            $systemConfigService,
+            $configProvider,
+            $productProvider,
+            $productHelper,
+        );
         $productId = $productTaggingHelper->findProductId($context, $parentProduct, $product);
 
         $nostoItem = new NostoLineItem();
