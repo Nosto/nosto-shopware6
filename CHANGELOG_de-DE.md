@@ -1,3 +1,6 @@
+# 3.5.17
+* Fix: Verbesserungen bei der Bestellverfolgung für Search und CM2 Analytics
+
 # 3.5.16
 * Fix: Refactor initTags, um geladene Tags anstelle von Tag-Feldschlüsseln für die Wertabfrage wiederzuverwenden.
 

@@ -1,3 +1,6 @@
+# 3.5.17
+* Fix: Order tracking improvements, for Search and CM2 Analytics
+
 # 3.5.16
 * Fix: Refactor initTags to reuse loaded tags instead of tag field keys for value retrieval
 
