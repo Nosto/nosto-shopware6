@@ -1,3 +1,6 @@
+# 3.5.18
+* Fix: Issue with Nosto settings page not showing all parameters
+
 # 3.5.17
 * Fix: Order tracking improvements, for Search and CM2 Analytics
 
