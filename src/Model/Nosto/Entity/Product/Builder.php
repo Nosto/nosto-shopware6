@@ -128,7 +128,7 @@ class Builder
         if ($this->configProvider->getCategoryNamingOption(
                 $channelId,
                 $languageId,
-            ) === CategoryNamingOptions::WITH_ID) {
+        ) === CategoryNamingOptions::WITH_ID) {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
         } else {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
