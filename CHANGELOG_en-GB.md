@@ -1,3 +1,9 @@
+# 6.0.12
+* Fix: Order tracking improvements, for Search and CM2 Analytics
+
+# 6.0.11
+* Fix: Refactor initTags to reuse loaded tags instead of tag field keys for value retrieval
+
 # 6.0.10
 * New: Check inventory quantity for selection of the cheapest product
 

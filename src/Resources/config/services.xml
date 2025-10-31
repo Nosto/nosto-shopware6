@@ -161,6 +161,8 @@
             <argument key="$buyerBuilder" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$productProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>

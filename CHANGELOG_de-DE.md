@@ -1,3 +1,9 @@
+# 6.0.12
+* Fix: Verbesserungen bei der Bestellverfolgung für Search und CM2 Analytics
+
+# 6.0.11
+* Fix: Refactor initTags, um geladene Tags anstelle von Tag-Feldschlüsseln für die Wertabfrage wiederzuverwenden.
+
 # 6.0.10
 * Neu: Überprüfung der Lagerbestände für das günstigste Produkt
 
