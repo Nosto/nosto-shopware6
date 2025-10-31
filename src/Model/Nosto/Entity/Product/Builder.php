@@ -218,16 +218,12 @@ class Builder
         }
 
         if ($product->getCover()) {
-//            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
-//            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
-            $nostoProduct->setImageUrl('https://placehold.co/800');
-            $nostoProduct->setThumbUrl('https://placehold.co/400');
+            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
+            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
-//            $nostoProduct->setImageUrl($placeholderImageUrl);
-//            $nostoProduct->setThumbUrl($placeholderImageUrl);
-            $nostoProduct->setImageUrl('https://placehold.co/800');
-            $nostoProduct->setThumbUrl('https://placehold.co/400');
+            $nostoProduct->setImageUrl($placeholderImageUrl);
+            $nostoProduct->setThumbUrl($placeholderImageUrl);
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
