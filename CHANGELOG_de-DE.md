@@ -1,3 +1,12 @@
+# 3.5.18
+* Fix: Problem mit der Nosto-Einstellungsseite, auf der nicht alle Parameter angezeigt werden
+
+# 3.5.17
+* Fix: Verbesserungen bei der Bestellverfolgung für Search und CM2 Analytics
+
+# 3.5.16
+* Fix: Refactor initTags, um geladene Tags anstelle von Tag-Feldschlüsseln für die Wertabfrage wiederzuverwenden.
+
 # 3.5.15
 * Neu: Überprüfung der Lagerbestände für das günstigste Produkt
 

@@ -1,3 +1,12 @@
+# 3.5.18
+* Fix: Issue with Nosto settings page not showing all parameters
+
+# 3.5.17
+* Fix: Order tracking improvements, for Search and CM2 Analytics
+
+# 3.5.16
+* Fix: Refactor initTags to reuse loaded tags instead of tag field keys for value retrieval
+
 # 3.5.15
 * New: Check inventory quantity for selection of the cheapest product
 
