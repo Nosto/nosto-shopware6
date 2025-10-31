@@ -90,6 +90,11 @@ Component.register('nosto-integration-account-general', {
                             title: this.$tc(`nosto.configuration.account.${prop}Title`),
                             message: this.$tc('nosto.configuration.account.apiValidation.correctApiMessage'),
                         });
+                    } else if (prop === 'searchToken') {
+                        this.createNotificationError({
+                            title: this.$tc(`nosto.configuration.account.${prop}Title`),
+                            message: this.$tc(`nosto.configuration.account.apiValidation.${prop}IncorrectApiMessage`),
+                        });
                     } else {
                         this.createNotificationError({
                             title: this.$tc(`nosto.configuration.account.${prop}Title`),
