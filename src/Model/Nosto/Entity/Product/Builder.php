@@ -126,9 +126,9 @@ class Builder
         $nostoProduct->setAvailability($stockStatus);
 
         if ($this->configProvider->getCategoryNamingOption(
-                $channelId,
-                $languageId,
-            ) === CategoryNamingOptions::WITH_ID) {
+            $channelId,
+            $languageId,
+        ) === CategoryNamingOptions::WITH_ID) {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
         } else {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
@@ -171,9 +171,9 @@ class Builder
 
         if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
-                    $channelId,
-                    $languageId,
-                ) && $product->getChildren()->count()) {
+                $channelId,
+                $languageId,
+            ) && $product->getChildren()->count()) {
                 $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
                 $nostoProduct->setSkus($skuCollection);
             }
