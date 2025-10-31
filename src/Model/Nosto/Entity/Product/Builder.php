@@ -126,9 +126,9 @@ class Builder
         $nostoProduct->setAvailability($stockStatus);
 
         if ($this->configProvider->getCategoryNamingOption(
-            $channelId,
-            $languageId,
-        ) === CategoryNamingOptions::WITH_ID) {
+                $channelId,
+                $languageId,
+            ) === CategoryNamingOptions::WITH_ID) {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
         } else {
             $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
@@ -154,11 +154,26 @@ class Builder
             $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($product, $context));
         }
 
+        if ($product->getPurchaseUnit() !== null) {
+            $nostoProduct->setUnitPricingMeasure((string) $product->getPurchaseUnit());
+        }
+
+        if ($product->getReferenceUnit() !== null) {
+            $nostoProduct->setUnitPricingBaseMeasure((string) $product->getReferenceUnit());
+        }
+
+        if ($product->getUnit()) {
+            $unitName = $product->getUnit()->getTranslation('name') ?: $product->getUnit()->getName();
+            if (!empty($unitName)) {
+                $nostoProduct->setUnitPricingUnit($unitName);
+            }
+        }
+
         if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
-                $channelId,
-                $languageId,
-            ) && $product->getChildren()->count()) {
+                    $channelId,
+                    $languageId,
+                ) && $product->getChildren()->count()) {
                 $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
                 $nostoProduct->setSkus($skuCollection);
             }
@@ -202,12 +217,16 @@ class Builder
         }
 
         if ($product->getCover()) {
-            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
-            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
+//            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
+//            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
+            $nostoProduct->setImageUrl('https://placehold.co/800');
+            $nostoProduct->setThumbUrl('https://placehold.co/400');
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
-            $nostoProduct->setImageUrl($placeholderImageUrl);
-            $nostoProduct->setThumbUrl($placeholderImageUrl);
+//            $nostoProduct->setImageUrl($placeholderImageUrl);
+//            $nostoProduct->setThumbUrl($placeholderImageUrl);
+            $nostoProduct->setImageUrl('https://placehold.co/800');
+            $nostoProduct->setThumbUrl('https://placehold.co/400');
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
