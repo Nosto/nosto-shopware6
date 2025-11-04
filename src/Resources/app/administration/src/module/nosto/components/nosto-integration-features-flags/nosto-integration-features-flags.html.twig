@@ -506,6 +506,7 @@
 
         {% block nosto_integration_enable_cache_flag %}
             <sw-inherit-wrapper
+                    v-if="configKey === null"
                     v-model="actualConfigData['enableCache']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['enableCache']"
             >
@@ -601,30 +602,30 @@
             </sw-inherit-wrapper>
         {% endblock %}
         {% block nosto_integration_sync_batch_size %}
-        <sw-inherit-wrapper
-                v-if="configKey === null"
-                v-model="actualConfigData['syncBatchSize']"
-                :inheritedValue="configKey === null ? null : allConfigs['null']['syncBatchSize']"
-        >
-            <template #content="props">
-                <sw-number-field
-                        name="syncBatchSize"
-                        labelProperty="label"
-                        valueProperty="value"
-                        :isInherited="props.isInherited"
-                        :disabled="props.isInherited"
-                        show-clearable-button
-                        :value="props.currentValue"
-                        @change="props.updateCurrentValue"
-                        :label="$tc('nosto.configuration.featuresFlags.syncBatchSize')"
-                        number-type="int"
-                        :allow-empty="false"
-                        :min="1"
-                        :max="150"
-                        :step="1"
-                />
-            </template>
-        </sw-inherit-wrapper>
+            <sw-inherit-wrapper
+                    v-if="configKey === null"
+                    v-model="actualConfigData['syncBatchSize']"
+                    :inheritedValue="configKey === null ? null : allConfigs['null']['syncBatchSize']"
+            >
+                <template #content="props">
+                    <sw-number-field
+                            name="syncBatchSize"
+                            labelProperty="label"
+                            valueProperty="value"
+                            :isInherited="props.isInherited"
+                            :disabled="props.isInherited"
+                            show-clearable-button
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                            :label="$tc('nosto.configuration.featuresFlags.syncBatchSize')"
+                            number-type="int"
+                            :allow-empty="false"
+                            :min="1"
+                            :max="150"
+                            :step="1"
+                    />
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
     </sw-card>
 {% endblock %}
