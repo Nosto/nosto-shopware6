@@ -126,18 +126,20 @@ class SearchHelper
             if (!$value) {
                 return [];
             }
-            $cookieValue = json_decode($value);
+            $cookieValue = json_decode($value, false);
             if (!$cookieValue) {
                 return [];
             }
             $attributions = [];
 
             foreach ($cookieValue as $abTest) {
-                if ($abTest->id && $abTest->activeVariation->id) {
-                    $attributions[] = new AbTestAttribution(
-                        $abTest->id,
-                        $abTest->activeVariation->id,
-                    );
+                $id = is_object($abTest) ? $abTest->id : $abTest['id'];
+                $variationId = is_object($abTest)
+                    ? $abTest->activeVariation->id
+                    : $abTest['activeVariation']['id'];
+
+                if ($id && $variationId) {
+                    $attributions[] = new AbTestAttribution($id, $variationId);
                 }
             }
 
