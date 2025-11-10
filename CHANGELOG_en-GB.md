@@ -1,3 +1,8 @@
+# 5.1.17
+* Fix: "searchToken" error updated
+* New: New fields added to nosto product to send price per unit to Nosto
+* Fix: Preventing undefined errors for A/B Testings
+
 # 5.1.16
 * Fix: Order tracking improvements, for Search and CM2 Analytics
 

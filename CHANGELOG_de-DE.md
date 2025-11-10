@@ -1,3 +1,8 @@
+# 5.1.17
+* Fix: "searchToken"-Fehler aktualisiert
+* Neu: Neue Felder zum Nosto-Produkt hinzugefügt, um den Preis pro Einheit an Nosto zu senden
+* Fix: Verhindert undefinierte Fehler bei A/B-Tests
+
 # 5.1.16
 * Fix: Verbesserungen bei der Bestellverfolgung für Search und CM2 Analytics
 
