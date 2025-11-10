@@ -5,8 +5,8 @@
         {{ parent() }}
     {% else %}
         {% if not (searchResult.criteria.extensions.nostoPagination) %}
-            {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-            {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
+            {% set currentPage = entities.page %}
+            {% set totalPages = (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
         {% else %}
             {% set currentPage = ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') %}
             {% set totalPages = (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') %}
