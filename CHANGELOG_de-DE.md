@@ -1,3 +1,9 @@
+# 3.5.19
+* Fix: "searchToken"-Fehler aktualisiert
+* Neu: Neue Felder zum Nosto-Produkt hinzugefügt, um den Preis pro Einheit an Nosto zu senden
+* Fix: Verhindert undefinierte Fehler bei A/B-Tests
+* Fix: Zeigt enableCache FF nur in globalen Konfigurationen an
+
 # 3.5.18
 * Fix: Problem mit der Nosto-Einstellungsseite, auf der nicht alle Parameter angezeigt werden
 
