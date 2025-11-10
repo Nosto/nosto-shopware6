@@ -1,3 +1,10 @@
+# 6.0.13
+* Fix: "searchToken" error updated
+* New: New fields added to nosto product to send price per unit to Nosto
+* Fix: Preventing undefined errors for A/B Testings
+* Fix: Pagination
+* Fix: "ghost" variant for sw-button-process
+
 # 6.0.12
 * Fix: Order tracking improvements, for Search and CM2 Analytics
 
