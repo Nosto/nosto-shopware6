@@ -42,6 +42,7 @@
                     "generalErrorMessage": "API-Schlüssel können nicht validiert werden",
                     "incorrectCredentialsTitle": "Falsche Anmeldeinformationen",
                     "correctApiMessage": "Key ist gültig",
+                    "searchTokenIncorrectApiMessage": "Unerwarteter Fehler - Im Falle das alle anderen Schlüssel gültig sind, plane eine neue Produkt Synchronisierung und teste die API Keys nochmals in 24 Stunden.",
                     "sendCategoriesLabel": "Kategorien aktualisieren"
                 }
             },

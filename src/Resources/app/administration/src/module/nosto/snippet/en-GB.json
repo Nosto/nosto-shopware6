@@ -42,6 +42,7 @@
                     "generalErrorMessage": "Unable to validate API-keys",
                     "incorrectCredentialsTitle": "Incorrect Credentials",
                     "correctApiMessage": "Key is valid",
+                    "searchTokenIncorrectApiMessage": "Unexpected Error - In case all other keys are valid, please schedule a full product sync to Nosto and test the API key again in 24 hours.",
                     "sendCategoriesLabel": "Update categories"
                 }
             },
