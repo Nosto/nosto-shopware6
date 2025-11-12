@@ -38,6 +38,28 @@
                     v-model="actualConfigData['domain']"
                 />
             {% endblock %}
+
+            {% block nosto_integration_setting_fallback_image_url %}
+                <sw-inherit-wrapper
+                    v-model="actualConfigData['fallbackImageUrl']"
+                    :inheritedValue="configKey === null ? null : allConfigs['null']['fallbackImageUrl']"
+                >
+                    <template #content="props">
+                        <sw-text-field
+                            name="fallbackImageUrl"
+                            type="url"
+                            labelProperty="label"
+                            valueProperty="value"
+                            :map-inheritance="props"
+                            :isInherited="props.isInherited"
+                            :disabled="props.isInherited"
+                            placeholder="https://example.com/placeholder.jpg"
+                            :value="props.currentValue"
+                            @change="props.updateCurrentValue"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
         </sw-card>
 
         <sw-card

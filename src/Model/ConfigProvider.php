@@ -78,7 +78,27 @@ class ConfigProvider
         return is_string($domainId) ? $domainId : null;
     }
 
-    public function getSelectedCustomFields($channelId = null, $languageId = null): array
+    public function getFallbackImageUrl($channelId = null, $languageId = null): ?string
+    {
+        $value = $this->configService->get(
+            NostoConfigService::FALLBACK_PRODUCT_IMAGE_URL,
+            $channelId,
+            $languageId,
+        );
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSelectedCustomFields(?string $channelId = null, ?string $languageId = null): array
     {
         $value = $this->configService->get(NostoConfigService::SELECTED_CUSTOM_FIELDS, $channelId, $languageId);
         return is_array($value) ? $value : [];

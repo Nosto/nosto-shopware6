@@ -55,6 +55,10 @@
                 "domain": {
                     "label": "Domain for generating product url, category url, and placeholder image url",
                     "helpText": "This domain is used for multi-domain sales channels, and the selected domain will be used as uri for product url, category url, and placeholder image url"
+                },
+                "fallbackImage": {
+                    "label": "Fallback product image URL",
+                    "helpText": "Optional absolute URL that will be sent to Nosto for products without media. Leave empty to keep using the default Shopware placeholder stored under bundles/storefront/assets/icon/default/placeholder.svg on your storefront domain."
                 }
             },
             "featuresFlags": {
