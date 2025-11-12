@@ -81,6 +81,7 @@ Component.register('nosto-integration-settings-general', {
                 selectedCustomFields: [],
                 googleCategory: null,
                 isInitializeNostoAfterInteraction: null,
+                fallbackImageUrl: null,
             });
         },
 

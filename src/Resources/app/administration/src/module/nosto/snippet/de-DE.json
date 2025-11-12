@@ -55,6 +55,10 @@
                 "domain": {
                     "label": "Domäne für die Erzeugung der Produkturl, Kategorieurl und Platzhalterbildurl.",
                     "helpText": "Diese Domain wird für Multi-Domain-Verkaufskanäle verwendet, und die ausgewählte Domain wird als Uri für die Produkt-Url, Kategorieurl und Platzhalterbildurl verwendet."
+                },
+                "fallbackImage": {
+                    "label": "Fallback-Produktbild-URL",
+                    "helpText": "Optionale absolute URL, die an Nosto gesendet wird, wenn ein Produkt keine Medien hat. Leer lassen, um weiterhin den Standard-Shopware-Platzhalter unter bundles/storefront/assets/icon/default/placeholder.svg auf Ihrer Storefront-Domain zu verwenden."
                 }
             },
             "featuresFlags": {
