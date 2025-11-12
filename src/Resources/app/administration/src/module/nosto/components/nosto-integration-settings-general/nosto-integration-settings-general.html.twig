@@ -56,10 +56,7 @@
                         <mt-text-field
                             name="fallbackImageUrl"
                             placeholder="https://example.com/placeholder.jpg"
-                            :placeholder="https://example.com/placeholder.jpg"
                             :modelValue="props.currentValue"
-                            :is-inheritance-field="props.isInheritField"
-                            :is-inherited="props.isInherited"
                             :disabled="props.isInherited"
                             @update:modelValue="props.updateCurrentValue"
                             @inheritance-restore="props.restoreInheritance"
