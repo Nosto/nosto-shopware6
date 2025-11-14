@@ -108,6 +108,8 @@ class NostoConfigService
 
     public const SYNC_BATCH_SIZE = 'syncBatchSize';
 
+    public const FALLBACK_PRODUCT_IMAGE_URL = 'fallbackImageUrl';
+
     private array $configs = [];
 
     public function __construct(

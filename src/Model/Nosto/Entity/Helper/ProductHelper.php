@@ -281,6 +281,15 @@ class ProductHelper
 
     protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
     {
+        $configuredUrl = $this->configProvider->getFallbackImageUrl(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+
+        if ($configuredUrl) {
+            return $configuredUrl;
+        }
+
         $schemaAuthority = null;
 
         if ($domains = $context->getSalesChannel()->getDomains()) {
