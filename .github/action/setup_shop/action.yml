@@ -12,16 +12,16 @@ runs:
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
 
-    - name: Log Composer version and configure audit
+    - name: Configure Composer to bypass audit and update
       shell: bash
       run: |
         if [ -d "shopware" ]; then
           cd shopware
           echo "Composer version:"
           composer --version
-          # Set audit abandoned to ignore to prevent blocking
-          jq '.config.audit.abandoned = "ignore"' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
-          composer update --no-interaction --no-audit
+          # Disable audit blocking by setting block-insecure to false
+          jq '.config.audit."block-insecure" = false' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+          composer update --no-interaction
         fi
 
     - name: Set minimum stability to dev
