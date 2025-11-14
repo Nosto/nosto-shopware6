@@ -21,11 +21,18 @@ runs:
           jq '.config.audit.ignore = [
             "PKSA-b824-t6kf-bqqz",
             "PKSA-6wp3-462p-vyty",
-            "PKSA-gm36-p24v-vh6h",
-            "PKSA-nh77-xw63-7449",
-            "PKSA-gvcf-vf74-x7f6",
-            "PKSA-5cdh-xb47-vj73",
-            "PKSA-rcx3-vwg6-xf63"
+            "PKSA-h5dj-jyqc-4fjr",
+            "PKSA-kypv-cx5n-qkc8",
+            "PKSA-v415-g75g-bqsy",
+            "PKSA-8vfm-96b7-t9nt",
+            "PKSA-m54b-2v2z-x1bs",
+            "PKSA-frt7-rv6d-9v53",
+            "PKSA-dbxn-psgm-2qmr",
+            "PKSA-k472-zz4q-rd5r",
+            "PKSA-kt1g-n1g2-hzb4",
+            "PKSA-wp2c-7yp8-5fvs",
+            "PKSA-4spx-rq41-wk8h",
+            "PKSA-6stq-czfs-1nvv"
           ]' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
           composer update --no-interaction --no-audit
         fi
