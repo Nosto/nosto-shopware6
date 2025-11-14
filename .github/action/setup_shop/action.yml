@@ -15,8 +15,8 @@ runs:
     - name: Configure Composer audit ignore inside shop
       shell: bash
       run: |
-            cd shopware
-            composer config --json audit.ignore '["PKSA-b824-t6kf-bqqz","PKSA-6wp3-462p-vyty","PKSA-h5dj-jyqc-4fjr","PKSA-kypv-cx5n-qkc8","PKSA-v415-g75g-bqsy","PKSA-8vfm-96b7-t9nt","PKSA-m54b-2v2z-x1bs","PKSA-frt7-rv6d-9v53","PKSA-dbxn-psgm-2qmr","PKSA-k472-zz4q-rd5r","PKSA-kt1g-n1g2-hzb4","PKSA-wp2c-7yp8-5fvs","PKSA-4spx-rq41-wk8h","PKSA-6stq-czfs-1nvv"]'
+        cd shopware
+        composer config --json audit.ignore '["PKSA-b824-t6kf-bqqz","PKSA-6wp3-462p-vyty","PKSA-h5dj-jyqc-4fjr","PKSA-kypv-cx5n-qkc8","PKSA-v415-g75g-bqsy","PKSA-8vfm-96b7-t9nt","PKSA-m54b-2v2z-x1bs","PKSA-frt7-rv6d-9v53","PKSA-dbxn-psgm-2qmr","PKSA-k472-zz4q-rd5r","PKSA-kt1g-n1g2-hzb4","PKSA-wp2c-7yp8-5fvs","PKSA-4spx-rq41-wk8h","PKSA-6stq-czfs-1nvv"]'
 
     - name: Set minimum stability to dev
       shell: bash
