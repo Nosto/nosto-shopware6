@@ -11,11 +11,15 @@ export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
 export default class NostoConfiguration extends Plugin {
     static options = {
         nostoInitializedStorageKey: 'nostoInitializedStorageKey',
+        cookieWatchInterval: 1000,
     };
 
     init() {
+        this._cookieWatcher = null;
+        this._scriptInjected = false;
         this._initNosto();
         this.cookieSubscriber();
+        this.watchCookieConsent();
     }
 
     _registerInitializationEvents() {
@@ -43,6 +47,10 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _placeClientScript() {
+        if (this._scriptInjected) {
+            return;
+        }
+
         const name = 'nostojs';
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
@@ -58,6 +66,8 @@ export default class NostoConfiguration extends Plugin {
             }
 
             document.body.appendChild(script);
+            this._scriptInjected = true;
+            this.clearCookieWatcher();
 
             this.registerSubscribers();
         }
@@ -118,5 +128,41 @@ export default class NostoConfiguration extends Plugin {
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, () => {
             this._initNosto();
         });
+    }
+
+    watchCookieConsent() {
+        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+            return;
+        }
+
+        if (this._cookieWatcher) {
+            return;
+        }
+
+        this._cookieWatcher = window.setInterval(() => {
+            if (!CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+                return;
+            }
+
+            this.clearCookieWatcher();
+            this._initNosto();
+        }, this.options.cookieWatchInterval);
+    }
+
+    clearCookieWatcher() {
+        if (!this._cookieWatcher) {
+            return;
+        }
+
+        window.clearInterval(this._cookieWatcher);
+        this._cookieWatcher = null;
+    }
+
+    destroy() {
+        this.clearCookieWatcher();
+
+        if (super.destroy) {
+            super.destroy();
+        }
     }
 }
