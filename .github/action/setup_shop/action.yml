@@ -12,13 +12,14 @@ runs:
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
 
-    - name: Configure Composer audit ignore and update
+    - name: Configure Composer to ignore audit
       shell: bash
       run: |
         if [ -d "shopware" ]; then
           cd shopware
-          # Disable audit completely by setting abandoned to report instead of error
-          composer update --no-interaction --no-audit
+          # Use composer config with --merge flag to add audit ignore without overwriting existing config
+          composer config --no-interaction --merge audit.ignore '["*"]'
+          composer update --no-interaction
         fi
 
     - name: Set minimum stability to dev
