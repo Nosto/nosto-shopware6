@@ -2,7 +2,7 @@
 * Neu: Möglichkeit, eine Standard-Bild-URL festzulegen, die verwendet wird, wenn für das Produkt kein Bild festgelegt ist.
 * Fix: Keine Ergebnisanalyse für die Suche senden, wenn die Weiterleitung aktiviert ist.
 * Fix: Fehlende benutzerdefinierte Felder zum Produkt-Tagging hinzufügen.
-* Fix: Überwachung der Cookie Erstellung, um Cookie zu initialisieren.
+* Fix: Überwachung der Cookie Erstellung, um Nosto zu initialisieren.
 
 # 5.1.17
 * Fix: "searchToken"-Fehler aktualisiert
