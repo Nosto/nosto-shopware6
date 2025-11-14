@@ -32,7 +32,12 @@ runs:
             "PKSA-kt1g-n1g2-hzb4",
             "PKSA-wp2c-7yp8-5fvs",
             "PKSA-4spx-rq41-wk8h",
-            "PKSA-6stq-czfs-1nvv"
+            "PKSA-6stq-czfs-1nvv",
+            "PKSA-4k7v-pfvw-nqvp",
+            "PKSA-365x-2zjk-pt47",
+            "PKSA-b35n-565h-rs4q",
+            "PKSA-9w98-4rwq-spxr",
+            "PKSA-t4rz-hp2g-57t1"
           ]' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
           composer update --no-interaction --no-audit
         fi
