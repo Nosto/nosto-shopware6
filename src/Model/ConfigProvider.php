@@ -78,6 +78,23 @@ class ConfigProvider
         return is_string($domainId) ? $domainId : null;
     }
 
+    public function getFallbackImageUrl(?string $channelId = null, ?string $languageId = null): ?string
+    {
+        $value = $this->configService->get(
+            NostoConfigService::FALLBACK_PRODUCT_IMAGE_URL,
+            $channelId,
+            $languageId,
+        );
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
+    }
+
     /**
      * @return string[]
      */
