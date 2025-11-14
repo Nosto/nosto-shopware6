@@ -12,14 +12,22 @@ runs:
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
 
-    - name: Configure Composer to ignore audit
+    - name: Configure Composer audit ignore and update
       shell: bash
       run: |
         if [ -d "shopware" ]; then
           cd shopware
-          # Use composer config with --merge flag to add audit ignore without overwriting existing config
-          composer config --no-interaction --merge audit.ignore '["*"]'
-          composer update --no-interaction
+          # Add all known security advisories to ignore list using jq
+          jq '.config.audit.ignore = [
+            "PKSA-b824-t6kf-bqqz",
+            "PKSA-6wp3-462p-vyty",
+            "PKSA-gm36-p24v-vh6h",
+            "PKSA-nh77-xw63-7449",
+            "PKSA-gvcf-vf74-x7f6",
+            "PKSA-5cdh-xb47-vj73",
+            "PKSA-rcx3-vwg6-xf63"
+          ]' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+          composer update --no-interaction --no-audit
         fi
 
     - name: Set minimum stability to dev
