@@ -16,7 +16,7 @@ runs:
 
     - name: Create shop
       shell: bash
-      run: shopware-cli project create shopware ${{ inputs.shopware-version }}
+      run: COMPOSER_AUDIT_ABANDONED=ignore shopware-cli project create shopware ${{ inputs.shopware-version }}
 
     - name: Configure Composer audit ignore inside shop
       shell: bash
