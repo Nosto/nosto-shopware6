@@ -17,9 +17,21 @@ runs:
       run: |
         if [ -d "shopware" ]; then
           cd shopware
-          composer config --json audit.ignore '["PKSA-b824-t6kf-bqqz","PKSA-6wp3-462p-vyty","PKSA-h5dj-jyqc-4fjr","PKSA-kypv-cx5n-qkc8","PKSA-v415-g75g-bqsy","PKSA-8vfm-96b7-t9nt","PKSA-m54b-2v2z-x1bs","PKSA-frt7-rv6d-9v53","PKSA-dbxn-psgm-2qmr","PKSA-k472-zz4q-rd5r","PKSA-kt1g-n1g2-hzb4","PKSA-wp2c-7yp8-5fvs","PKSA-4spx-rq41-wk8h","PKSA-6stq-czfs-1nvv"]'
-          cat composer.json | grep -A 5 audit || echo "Audit config not found"
-          COMPOSER_DISABLE_AUDIT=1 composer update --no-interaction
+          composer config audit.ignore.PKSA-b824-t6kf-bqqz PKSA-b824-t6kf-bqqz
+          composer config audit.ignore.PKSA-6wp3-462p-vyty PKSA-6wp3-462p-vyty
+          composer config audit.ignore.PKSA-h5dj-jyqc-4fjr PKSA-h5dj-jyqc-4fjr
+          composer config audit.ignore.PKSA-kypv-cx5n-qkc8 PKSA-kypv-cx5n-qkc8
+          composer config audit.ignore.PKSA-v415-g75g-bqsy PKSA-v415-g75g-bqsy
+          composer config audit.ignore.PKSA-8vfm-96b7-t9nt PKSA-8vfm-96b7-t9nt
+          composer config audit.ignore.PKSA-m54b-2v2z-x1bs PKSA-m54b-2v2z-x1bs
+          composer config audit.ignore.PKSA-frt7-rv6d-9v53 PKSA-frt7-rv6d-9v53
+          composer config audit.ignore.PKSA-dbxn-psgm-2qmr PKSA-dbxn-psgm-2qmr
+          composer config audit.ignore.PKSA-k472-zz4q-rd5r PKSA-k472-zz4q-rd5r
+          composer config audit.ignore.PKSA-kt1g-n1g2-hzb4 PKSA-kt1g-n1g2-hzb4
+          composer config audit.ignore.PKSA-wp2c-7yp8-5fvs PKSA-wp2c-7yp8-5fvs
+          composer config audit.ignore.PKSA-4spx-rq41-wk8h PKSA-4spx-rq41-wk8h
+          composer config audit.ignore.PKSA-6stq-czfs-1nvv PKSA-6stq-czfs-1nvv
+          composer update --no-interaction
         fi
 
     - name: Set minimum stability to dev
