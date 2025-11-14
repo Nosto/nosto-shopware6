@@ -168,6 +168,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Request $request,
     ): void {
         try {
+            if ($context->getContext()->getExtension('nostoRedirect')) {
+                return;
+            }
             $merchantId = $this->configProvider->getAccountId($context->getSalesChannelId(), $context->getLanguageId());
             $appToken = $this->configProvider->getAppToken(
                 $context->getSalesChannelId(),

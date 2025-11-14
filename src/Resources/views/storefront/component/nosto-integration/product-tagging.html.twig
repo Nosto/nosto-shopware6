@@ -22,7 +22,11 @@
             <span class="availability" translate="no">{{ nostoProduct.availability }}</span>
             <span class="price" translate="no">{{ nostoProduct.price }}</span>
             <span class="price_currency_code" translate="no">{{ nostoProduct.priceCurrencyCode }}</span>
-
+            <span class="custom_fields">
+               {% for key, value in nostoProduct.customFields %}
+                   <span class="{{ key }}" translate="no">{{ value }}</span>
+               {% endfor %}
+            </span>
             {% if isNostoParentProduct and nostoProduct.skus %}
                 {% for key, variantData in nostoProduct.skus %}
                     <span class="nosto_sku">
