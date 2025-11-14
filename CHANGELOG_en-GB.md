@@ -1,3 +1,9 @@
+# 6.0.14
+* New: Ability to set default image url, will be used if image is not set for the product
+* Fix: Do not send no result analytics for search if redirect is enabled
+* Fix: Adding missing custom fields to product tagging
+* Fix: Monitor cookie creation to initialise Nosto
+
 # 6.0.13
 * Fix: "searchToken" error updated
 * New: New fields added to nosto product to send price per unit to Nosto
