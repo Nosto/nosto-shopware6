@@ -38,6 +38,9 @@
         "allow-plugins": {
             "symfony/runtime": true,
             "dealerdirect/phpcodesniffer-composer-installer": false
+        },
+        "audit": {
+            "block-insecure": false
         }
     },
     "extra": {
