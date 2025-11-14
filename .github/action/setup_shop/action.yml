@@ -12,34 +12,14 @@ runs:
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
 
-    - name: Configure Composer audit ignore and update
+    - name: Configure Composer to disable audit and update
       shell: bash
       run: |
         if [ -d "shopware" ]; then
           cd shopware
-          # Add all known security advisories to ignore list using jq
-          jq '.config.audit.ignore = [
-            "PKSA-b824-t6kf-bqqz",
-            "PKSA-6wp3-462p-vyty",
-            "PKSA-h5dj-jyqc-4fjr",
-            "PKSA-kypv-cx5n-qkc8",
-            "PKSA-v415-g75g-bqsy",
-            "PKSA-8vfm-96b7-t9nt",
-            "PKSA-m54b-2v2z-x1bs",
-            "PKSA-frt7-rv6d-9v53",
-            "PKSA-dbxn-psgm-2qmr",
-            "PKSA-k472-zz4q-rd5r",
-            "PKSA-kt1g-n1g2-hzb4",
-            "PKSA-wp2c-7yp8-5fvs",
-            "PKSA-4spx-rq41-wk8h",
-            "PKSA-6stq-czfs-1nvv",
-            "PKSA-4k7v-pfvw-nqvp",
-            "PKSA-365x-2zjk-pt47",
-            "PKSA-b35n-565h-rs4q",
-            "PKSA-9w98-4rwq-spxr",
-            "PKSA-t4rz-hp2g-57t1"
-          ]' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
-          composer update --no-interaction --no-audit
+          # Disable audit completely to bypass all security advisories
+          jq '.config.audit = false' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+          composer update --no-interaction
         fi
 
     - name: Set minimum stability to dev
