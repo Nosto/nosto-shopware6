@@ -48,7 +48,7 @@
             <argument
                 type="service"
                 key="$translator"
-                id="translator"
+                id="Shopware\Core\Framework\Adapter\Translation\Translator"
             />
         </service>
 
