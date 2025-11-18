@@ -1,3 +1,6 @@
+# 6.0.15
+* Fix: Unterstützung für SearchPageLoader-Injektion in Shopware version 6.7.2.0
+
 # 6.0.14
 * Neu: Möglichkeit, eine Standard-Bild-URL festzulegen, die verwendet wird, wenn für das Produkt kein Bild festgelegt ist.
 * Fix: Keine Ergebnisanalyse für die Suche senden, wenn die Weiterleitung aktiviert ist.
