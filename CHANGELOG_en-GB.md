@@ -1,3 +1,6 @@
+# 6.0.15
+* Fix: support SearchPageLoader injection in Shopware version 6.7.2.0
+
 # 6.0.14
 * New: Ability to set default image url, will be used if image is not set for the product
 * Fix: Do not send no result analytics for search if redirect is enabled
