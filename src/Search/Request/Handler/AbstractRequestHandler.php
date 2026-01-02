@@ -13,6 +13,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Struct\Redirect;
 use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
@@ -30,6 +31,7 @@ abstract class AbstractRequestHandler
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
+        protected readonly FilterPayloadStore $filterPayloadStore,
     ) {
         $this->filterHandler = new FilterHandler();
     }
@@ -95,8 +97,8 @@ abstract class AbstractRequestHandler
         SearchResult $response,
         GraphQLResponseParser $responseParser,
     ): void {
-        $filterCookie = $request->cookies->get('nostoCookieFilter');
-        $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        $filterCookie = $this->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
+        $filterMappingCookie = $this->resolveCookiePayload($request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY));
         $isInitialSearch = $request->attributes->get('isInitialSearch');
 
         // USE NOSTO RESPONSE FILTERS
@@ -202,6 +204,23 @@ abstract class AbstractRequestHandler
         );
 
         return $account;
+    }
+
+    private function resolveCookiePayload(?string $cookieValue): ?string
+    {
+        if (!$cookieValue) {
+            return null;
+        }
+
+        if (str_starts_with($cookieValue, 't:')) {
+            $token = substr($cookieValue, 2);
+            $payload = $this->filterPayloadStore->fetch($token);
+            if ($payload !== null) {
+                return $payload;
+            }
+        }
+
+        return $cookieValue;
     }
 
     protected function setPaginationParams(

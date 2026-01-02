@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,9 +23,10 @@ class NavigationRequestHandler extends AbstractRequestHandler
         ConfigProvider $configProvider,
         SortingHandlerService $sortingHandlerService,
         Logger $logger,
+        FilterPayloadStore $filterPayloadStore,
         private readonly EntityRepository $categoryRepository,
     ) {
-        parent::__construct($configProvider, $sortingHandlerService, $logger);
+        parent::__construct($configProvider, $sortingHandlerService, $logger, $filterPayloadStore);
     }
 
     public function sendRequest(

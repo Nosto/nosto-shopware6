@@ -11,6 +11,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\Context;
@@ -30,6 +31,7 @@ class SearchService
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
         private readonly EntityRepository $categoryRepository,
+        private readonly FilterPayloadStore $filterPayloadStore,
     ) {
     }
 
@@ -136,6 +138,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
+            $this->filterPayloadStore,
         );
     }
 
@@ -145,6 +148,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
+            $this->filterPayloadStore,
             $this->categoryRepository,
         );
     }
