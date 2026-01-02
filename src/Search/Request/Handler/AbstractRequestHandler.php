@@ -11,9 +11,9 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
-use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Struct\Redirect;
 use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
@@ -98,7 +98,9 @@ abstract class AbstractRequestHandler
         GraphQLResponseParser $responseParser,
     ): void {
         $filterCookie = $this->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
-        $filterMappingCookie = $this->resolveCookiePayload($request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY));
+        $filterMappingCookie = $this->resolveCookiePayload(
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+        );
         $isInitialSearch = $request->attributes->get('isInitialSearch');
 
         // USE NOSTO RESPONSE FILTERS

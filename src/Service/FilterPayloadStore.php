@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 class FilterPayloadStore
 {
     private const CACHE_KEY_PREFIX = 'nosto_filter_payload.';
+
     private const DEFAULT_TTL_SECONDS = 86400; // 1 day
 
     public function __construct(

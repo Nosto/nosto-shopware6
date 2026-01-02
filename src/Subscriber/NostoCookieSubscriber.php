@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Subscriber;
 
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -11,17 +12,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Nosto\NostoIntegration\Service\FilterPayloadStore;
 
 class NostoCookieSubscriber implements EventSubscriberInterface
 {
     private const TOKEN_PREFIX = 't:';
+
     private const TOKEN_TTL_SECONDS = 86400;
 
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly FilterPayloadStore $filterPayloadStore,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, string>
