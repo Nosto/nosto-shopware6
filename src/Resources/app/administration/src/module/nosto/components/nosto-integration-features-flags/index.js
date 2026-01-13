@@ -178,6 +178,7 @@ Component.register('nosto-integration-features-flags', {
                 enableProductVisibility: false,
                 enableTaggingForAllSkus: true,
                 enableFallbackMechanism: false,
+                productSyncExtraLogging: false,
             });
 
             this.createCategoryCollection();

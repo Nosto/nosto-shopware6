@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -47,8 +48,14 @@ class ProductHelper
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly RouterInterface $router,
+        private readonly LoggerInterface $logger,
     ) {
     }
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $loggingCache = [];
 
     public static function convertJsonToFilterMapping(?string $json): IdToFieldMapping
     {
@@ -166,6 +173,8 @@ class ProductHelper
         array $existentParentProductIds,
         SalesChannelContext $context,
     ): RepositoryIterator {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -193,7 +202,20 @@ class ProductHelper
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
-        return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
+        $iterator = new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.productHelper.loadExistingParentProducts.criteria',
+                $startedAt,
+                [
+                    'parent_ids' => count($existentParentProductIds),
+                ],
+            );
+        }
+
+        return $iterator;
     }
 
     public function getProductsIterator(
@@ -265,21 +287,66 @@ class ProductHelper
         return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 
+    private function shouldLogExtra(SalesChannelContext $context): bool
+    {
+        $cacheKey = sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
+        if (!array_key_exists($cacheKey, $this->loggingCache)) {
+            $this->loggingCache[$cacheKey] = $this->configProvider->isEnabledProductSyncExtraLogging(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+        }
+
+        return $this->loggingCache[$cacheKey];
+    }
+
+    private function logDuration(
+        SalesChannelContext $context,
+        string $message,
+        float $startedAt,
+        array $additionalContext = [],
+    ): void {
+        $durationMs = (microtime(true) - $startedAt) * 1000;
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+            ],
+        ));
+    }
+
     public function getShopwareProducts(
         array $productIds,
         SalesChannelContext $context,
         bool $isProductTagging = false,
     ): SalesChannelProductCollection {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $criteria = $this->getCommonCriteria();
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
         }
         $criteria->setIds($productIds);
 
-        return $this->salesChannelProductRepository->search(
+        $result = $this->salesChannelProductRepository->search(
             $criteria,
             $context,
         )->getEntities();
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.productHelper.getShopwareProducts',
+                $startedAt,
+                [
+                    'product_count' => count($productIds),
+                ],
+            );
+        }
+
+        return $result;
     }
 
     protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
