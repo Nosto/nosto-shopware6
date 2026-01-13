@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
@@ -68,8 +69,14 @@ class Builder
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
         private readonly SalesChannelRepository $categoryRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $loggingCache = [];
 
     /**
      * @throws NostoException
@@ -377,6 +384,8 @@ class Builder
         NostoProduct $nostoProduct,
         SalesChannelContext $context,
     ): void {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -411,6 +420,18 @@ class Builder
             $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
             $tags,
         ));
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.builder.initTags',
+                $startedAt,
+                [
+                    'loaded_tags' => $tags->count(),
+                    'product_id' => $productEntity->getId(),
+                ],
+            );
+        }
     }
 
     /**
@@ -476,6 +497,8 @@ class Builder
         ?SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): void {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $categories = $this->getCategoriesWithDynamicProductGroups($context);
         $productCategoryRoIds = $product->getCategoriesRo()->getIds();
         $dynamicGroupCategoryIds = $dynamicGroupCategoryPaths = [];
@@ -508,6 +531,19 @@ class Builder
             throw new Exception(
                 'Cannot clear a product from categories associated with a dynamic group: ' . $e->getMessage(),
             );
+        } finally {
+            if ($shouldLog && $startedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.builder.makeActualProductCategories',
+                    $startedAt,
+                    [
+                        'product_id' => $product?->getId(),
+                        'initial_category_count' => count($productCategoryRoIds),
+                        'dynamic_category_count' => count($dynamicGroupCategoryIds),
+                    ],
+                );
+            }
         }
     }
 
@@ -567,10 +603,42 @@ class Builder
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
+    private function shouldLogExtra(SalesChannelContext $context): bool
+    {
+        $cacheKey = sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
+        if (!array_key_exists($cacheKey, $this->loggingCache)) {
+            $this->loggingCache[$cacheKey] = $this->configProvider->isEnabledProductSyncExtraLogging(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+        }
+
+        return $this->loggingCache[$cacheKey];
+    }
+
+    private function logDuration(
+        SalesChannelContext $context,
+        string $message,
+        float $startedAt,
+        array $additionalContext = [],
+    ): void {
+        $durationMs = (microtime(true) - $startedAt) * 1000;
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+            ],
+        ));
+    }
+
     private function preparingChildrenSkuCollection(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): SkuCollection {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
@@ -610,6 +678,18 @@ class Builder
                     $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
                 }
             }
+        }
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.builder.preparingChildrenSkuCollection',
+                $startedAt,
+                [
+                    'product_id' => $product->getId(),
+                    'children_count' => $product->getChildren()->count(),
+                ],
+            );
         }
 
         return $skuCollection;
