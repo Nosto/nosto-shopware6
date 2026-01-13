@@ -110,6 +110,8 @@ class NostoConfigService
 
     public const FALLBACK_PRODUCT_IMAGE_URL = 'fallbackImageUrl';
 
+    public const ENABLE_PRODUCT_SYNC_EXTRA_LOGGING = 'productSyncExtraLogging';
+
     private array $configs = [];
 
     public function __construct(

@@ -194,6 +194,7 @@ Component.register('nosto-integration-features-flags', {
                 redirectToThePDP: false,
                 enableProductVisibility: false,
                 enableFallbackMechanism: false,
+                productSyncExtraLogging: false,
             };
 
             /**

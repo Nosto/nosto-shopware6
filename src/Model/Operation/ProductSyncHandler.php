@@ -20,6 +20,7 @@ use Nosto\Operation\UpsertProduct;
 use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -47,8 +48,14 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
+        private readonly LoggerInterface $logger,
     ) {
     }
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $extraLoggingCache = [];
 
     /**
      * @param ProductSyncMessage $message
@@ -101,6 +108,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
 
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
+        $shouldLogParentFetch = $this->shouldLogExtra($context);
+        $parentFetchStartedAt = $shouldLogParentFetch ? microtime(true) : null;
+        $processedParentCount = 0;
 
         while (($products = $parentProductIterator->fetch()) !== null) {
             foreach ($products->getEntities() as $product) {
@@ -108,6 +118,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $productCollection = new ProductCollection([$product]);
 
                     $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
+                    ++$processedParentCount;
                 } catch (\Throwable $e) {
                     $productId = $product->getId();
                     $productNumber = method_exists(
@@ -126,6 +137,17 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $result->addError($wrappedException);
                 }
             }
+        }
+
+        if ($shouldLogParentFetch && $parentFetchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.loadExistingParentProducts.fetch',
+                $parentFetchStartedAt,
+                [
+                    'parent_count' => $processedParentCount,
+                ],
+            );
         }
 
         if (!empty($deletedProductIds)) {
@@ -164,6 +186,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
         $operation = new UpsertProduct($account->getNostoAccount(), $domain);
+        $shouldLogExtra = $this->shouldLogExtra($context);
 
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
@@ -182,6 +205,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             // TODO: up to 2MB payload!
             $nostoProducts = [];
 
+            $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
             $handledProducts = $productTaggingHelper->findProductId(
                 $context,
                 $product,
@@ -189,6 +213,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 true,
                 true,
             );
+
+            if ($shouldLogExtra && $findProductIdStartedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.productTaggingHelper.findProductId',
+                    $findProductIdStartedAt,
+                    [
+                        'product_id' => $product->getId(),
+                        'handled_count' => $handledProducts->count(),
+                    ],
+                );
+            }
 
             if (!$handledProducts->count()) {
                 $this->deleteVariantProducts($product, $context, $account, $ids);
@@ -206,18 +242,22 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
             foreach ($handledProducts as $handledProduct) {
                 $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
+                $productStartedAt = $shouldLogExtra ? microtime(true) : null;
+                $handledResult = 'skipped';
 
                 if ($shopwareProduct) {
                     $shopwareProduct->setChildren($handledProduct->getChildren());
-                    if ($nostoProduct = $this->handleProduct(
+                    $nostoProduct = $this->handleProduct(
                         $shopwareProduct,
                         $context,
                         $account,
                         $hideProductsAfterClearance,
                         $ids,
-                    )
-                    ) {
+                    );
+
+                    if ($nostoProduct) {
                         $nostoProducts[] = $nostoProduct;
+                        $handledResult = 'prepared';
                     }
                 } else {
                     $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
@@ -226,6 +266,19 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $context,
                         [$handledProduct->getId(), $handledProduct->getParentId()],
                         $ids,
+                    );
+                    $handledResult = 'deleted';
+                }
+
+                if ($shouldLogExtra && $productStartedAt !== null) {
+                    $this->logDuration(
+                        $context,
+                        'product_sync.product_handle',
+                        $productStartedAt,
+                        [
+                            'product_id' => $handledProduct->getId(),
+                            'result' => $handledResult,
+                        ],
                     );
                 }
             }
@@ -272,6 +325,37 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $this->productProvider->get($product, $context);
+    }
+
+    private function shouldLogExtra(SalesChannelContext $context): bool
+    {
+        $cacheKey = sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
+        if (!array_key_exists($cacheKey, $this->extraLoggingCache)) {
+            $this->extraLoggingCache[$cacheKey] = $this->configProvider->isEnabledProductSyncExtraLogging(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+        }
+
+        return $this->extraLoggingCache[$cacheKey];
+    }
+
+    private function logDuration(
+        SalesChannelContext $context,
+        string $message,
+        float $startTime,
+        array $additionalContext = [],
+    ): void {
+        $durationMs = (microtime(true) - $startTime) * 1000;
+
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+            ],
+        ));
     }
 
     protected function deleteVariantProducts(

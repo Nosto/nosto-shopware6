@@ -185,6 +185,17 @@ class ConfigProvider
         return is_array($value) ? $value : [];
     }
 
+    public function isEnabledProductSyncExtraLogging(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_PRODUCT_SYNC_EXTRA_LOGGING,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledVariations($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_VARIATIONS, $channelId, $languageId);

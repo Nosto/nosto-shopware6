@@ -147,6 +147,10 @@
                   "label": "Enable fallback mechanism",
                   "helpText": "If this checkbox is selected, the system will use the default Shopware search or category when Nosto returns no results."
                 },
+                "productSyncExtraLogging": {
+                    "label": "Product sync extra logging",
+                    "helpText": "Emit detailed timing information for each product sync step to the nosto_integration log channel. Enable only while troubleshooting slow catalog syncs."
+                },
                 "oldJobCleanupPeriod": {
                     "after": "After",
                     "days": "days"
