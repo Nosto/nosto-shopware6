@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
@@ -170,8 +169,6 @@ class ProductHelper
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        $this->logInvalidIds('parentProductIds', $existentParentProductIds);
-        $existentParentProductIds = $this->normalizeIdList($existentParentProductIds);
         $criteria = $this->getCommonCriteria();
         $this->getCommonCriteriaChildren($criteria);
         $criteria->setLimit(100);
@@ -183,9 +180,7 @@ class ProductHelper
             $criteria->addFilter(new EqualsFilter('active', true));
         }
 
-        $categoryBlocklist = $this->normalizeIdList(
-            $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId)
-        );
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
         if (count($categoryBlocklist)) {
             $criteria->addFilter(
                 new NotFilter(
@@ -208,8 +203,6 @@ class ProductHelper
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        $this->logInvalidIds('productIds', $productIds);
-        $productIds = $this->normalizeIdList($productIds);
         $criteria = new Criteria();
         $criteria->setLimit(100);
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
@@ -218,9 +211,7 @@ class ProductHelper
             $criteria->addFilter(new EqualsFilter('active', true));
         }
 
-        $categoryBlocklist = $this->normalizeIdList(
-            $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId)
-        );
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
         if (count($categoryBlocklist)) {
             $criteria->addFilter(
                 new NotFilter(
@@ -233,49 +224,6 @@ class ProductHelper
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
         return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function normalizeIdList(array $ids): array
-    {
-        $normalized = [];
-        foreach ($ids as $id) {
-            if (!is_string($id)) {
-                continue;
-            }
-            if (Uuid::isValid($id)) {
-                $normalized[] = $id;
-                continue;
-            }
-            if (strlen($id) === 16) {
-                $normalized[] = Uuid::fromBytesToHex($id);
-            }
-        }
-
-        return array_values(array_unique($normalized));
-    }
-
-    private function logInvalidIds(string $label, array $ids): void
-    {
-        $invalid = [];
-        foreach ($ids as $id) {
-            if (!is_string($id)) {
-                continue;
-            }
-            if (Uuid::isValid($id)) {
-                continue;
-            }
-            if (strlen($id) === 16) {
-                continue;
-            }
-            $invalid[] = $id;
-        }
-
-        if ($invalid) {
-            error_log('[nosto-product-helper] invalid ' . $label . ': ' . json_encode($invalid));
-        }
     }
 
     /**
@@ -322,8 +270,6 @@ class ProductHelper
         SalesChannelContext $context,
         bool $isProductTagging = false,
     ): SalesChannelProductCollection {
-        $this->logInvalidIds('shopwareProductIds', $productIds);
-        $productIds = $this->normalizeIdList($productIds);
         $criteria = $this->getCommonCriteria();
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
