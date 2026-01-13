@@ -1,3 +1,6 @@
+# 5.1.19
+* Fix: Job Scheduler Update - Verbesserte Fehlerbehandlung im JobExecutionHandler und Einführung von Prüfungen auf das Vorhandensein von Jobs
+
 # 5.1.18
 * Neu: Möglichkeit, eine Standard-Bild-URL festzulegen, die verwendet wird, wenn für das Produkt kein Bild festgelegt ist.
 * Fix: Keine Ergebnisanalyse für die Suche senden, wenn die Weiterleitung aktiviert ist.

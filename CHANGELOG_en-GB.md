@@ -1,3 +1,6 @@
+# 5.1.19
+* Fix: Job Scheduler Update - Improved error handling in JobExecutionHandler and Introduced job existence checks
+
 # 5.1.18
 * New: Ability to set default image url, will be used if image is not set for the product
 * Fix: Do not send no result analytics for search if redirect is enabled
