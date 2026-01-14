@@ -6,4 +6,11 @@ monolog:
       type: rotating_file
       path: "%kernel.logs_dir%/nosto_integration_%kernel.environment%.log"
       level: error
+      # Prevent error logs from being duplicated by the info handler.
+      bubble: false
+      channels: [ "nosto_integration" ]
+    nostoIntegrationInfoHandler:
+      type: rotating_file
+      path: "%kernel.logs_dir%/nosto_integration_%kernel.environment%.log"
+      level: info
       channels: [ "nosto_integration" ]

@@ -13,6 +13,8 @@ use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\Job\Message\InfoMessage;
 use Nosto\Scheduler\Model\JobScheduler;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,6 +33,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -39,7 +42,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
      */
     public function execute(object $message): JobResult
     {
+        $context = $message->getContext();
         $size = $this->configProvider->getBatchSize();
+        $shouldLogExtra = $this->shouldLogExtra();
+        $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
         $criteriaProduct = new Criteria();
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
@@ -50,8 +56,15 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         );
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
+        $productBatchCount = 0;
+        $productCount = 0;
+        $productsStartedAt = $shouldLogExtra ? microtime(true) : null;
         while (($products = $productRepositoryIterator->fetch()) !== null) {
+            ++$productBatchCount;
+            $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
             $ids = $this->getProductIdsForMessage($products->getEntities());
+            $batchSize = count($ids);
+            $productCount += $batchSize;
             $this->jobScheduler->schedule(
                 new ProductSyncMessage(
                     Uuid::randomHex(),
@@ -62,6 +75,28 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
             $result->addMessage(
                 new InfoMessage('Job with payload of: ' . count($ids) . ' products has been scheduled.'),
+            );
+            if ($shouldLogExtra && $batchStartedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.full_catalog.products.batch',
+                    $batchStartedAt,
+                    [
+                        'batch_index' => $productBatchCount,
+                        'batch_size' => $batchSize,
+                    ],
+                );
+            }
+        }
+        if ($shouldLogExtra && $productsStartedAt !== null && $productBatchCount > 0) {
+            $this->logDuration(
+                $context,
+                'product_sync.full_catalog.products',
+                $productsStartedAt,
+                [
+                    'batch_count' => $productBatchCount,
+                    'product_count' => $productCount,
+                ],
             );
         }
 
@@ -75,8 +110,15 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             $message->getContext(),
             $criteriaCategory,
         );
+        $categoryBatchCount = 0;
+        $categoryCount = 0;
+        $categoriesStartedAt = $shouldLogExtra ? microtime(true) : null;
         while (($categories = $categoryRepositoryIterator->fetch()) !== null) {
+            ++$categoryBatchCount;
+            $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
             $ids = $this->getCategoryIdsForMessage($categories->getEntities());
+            $batchSize = count($ids);
+            $categoryCount += $batchSize;
             $this->jobScheduler->schedule(
                 new CategorySyncMessage(
                     Uuid::randomHex(),
@@ -87,6 +129,40 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
             $result->addMessage(
                 new InfoMessage('Job with payload of: ' . count($ids) . ' categories has been scheduled.'),
+            );
+            if ($shouldLogExtra && $batchStartedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.full_catalog.categories.batch',
+                    $batchStartedAt,
+                    [
+                        'batch_index' => $categoryBatchCount,
+                        'batch_size' => $batchSize,
+                    ],
+                );
+            }
+        }
+        if ($shouldLogExtra && $categoriesStartedAt !== null && $categoryBatchCount > 0) {
+            $this->logDuration(
+                $context,
+                'product_sync.full_catalog.categories',
+                $categoriesStartedAt,
+                [
+                    'batch_count' => $categoryBatchCount,
+                    'category_count' => $categoryCount,
+                ],
+            );
+        }
+
+        if ($shouldLogExtra && $syncStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.full_catalog.execute',
+                $syncStartedAt,
+                [
+                    'product_count' => $productCount,
+                    'category_count' => $categoryCount,
+                ],
             );
         }
 
@@ -115,5 +191,28 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             $data[$category->getId()] = $category->getId();
         }
         return $data;
+    }
+
+    private function shouldLogExtra(): bool
+    {
+        return $this->configProvider->isEnabledProductSyncExtraLogging();
+    }
+
+    private function logDuration(
+        Context $context,
+        string $message,
+        float $startTime,
+        array $additionalContext = [],
+    ): void {
+        $durationMs = (microtime(true) - $startTime) * 1000;
+
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'language_id' => $context->getLanguageId(),
+                'currency_id' => $context->getCurrencyId(),
+            ],
+        ));
     }
 }
