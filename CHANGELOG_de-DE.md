@@ -1,3 +1,6 @@
+# 5.1.20
+* Fix: Weitere Logs hinzugefügt, um den Synchronisationsprozess zu Nosto besser zu überwachen
+
 # 5.1.19
 * Fix: Job Scheduler Update - Verbesserte Fehlerbehandlung im JobExecutionHandler und Einführung von Prüfungen auf das Vorhandensein von Jobs
 
