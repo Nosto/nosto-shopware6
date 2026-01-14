@@ -89,15 +89,32 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      */
     protected function loadRuleIds(SalesChannelContext $channelContext): array
     {
-        return $this->ruleLoader->load($channelContext->getContext())->filter(
+        $shouldLogExtra = $this->shouldLogExtra($channelContext);
+        $loadRulesStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $ruleIds = $this->ruleLoader->load($channelContext->getContext())->filter(
             static fn (RuleEntity $rule) => $rule->getPayload()->match(new CheckoutRuleScope($channelContext)),
         )->getIds();
+        if ($shouldLogExtra && $loadRulesStartedAt !== null) {
+            $this->logDuration(
+                $channelContext,
+                'product_sync.loadRuleIds',
+                $loadRulesStartedAt,
+                [
+                    'rule_count' => count($ruleIds),
+                ],
+            );
+        }
+
+        return $ruleIds;
     }
 
     protected function doOperation(Account $account, SalesChannelContext $context, array $ids): Job\JobResult
     {
+        $shouldLogExtra = $this->shouldLogExtra($context);
+        $operationStartedAt = $shouldLogExtra ? microtime(true) : null;
         $productIds = array_keys($ids);
         $result = new Job\JobResult();
+        $productsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $existingProductsIterator = $this->productHelper->getProductsIterator($productIds, $context);
         $existentProducts = [];
         while (($existingProducts = $existingProductsIterator->fetch()) !== null) {
@@ -105,12 +122,22 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $existentProducts[$key] = $product->getParentId() ?: $product->getId();
             }
         }
+        if ($shouldLogExtra && $productsFetchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.getProductsIterator.fetch',
+                $productsFetchStartedAt,
+                [
+                    'requested_count' => count($productIds),
+                    'existing_count' => count($existentProducts),
+                ],
+            );
+        }
 
         $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
 
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
-        $shouldLogParentFetch = $this->shouldLogExtra($context);
-        $parentFetchStartedAt = $shouldLogParentFetch ? microtime(true) : null;
+        $parentFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $processedParentCount = 0;
 
         while (($products = $parentProductIterator->fetch()) !== null) {
@@ -140,7 +167,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if ($shouldLogParentFetch && $parentFetchStartedAt !== null) {
+        if ($shouldLogExtra && $parentFetchStartedAt !== null) {
             $this->logDuration(
                 $context,
                 'product_sync.loadExistingParentProducts.fetch',
@@ -162,6 +189,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 );
                 $result->addError($wrappedException);
             }
+        }
+
+        if ($shouldLogExtra && $operationStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.doOperation',
+                $operationStartedAt,
+                [
+                    'product_count' => count($productIds),
+                    'deleted_count' => count($deletedProductIds),
+                ],
+            );
         }
 
         return $result;
@@ -237,9 +276,21 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 );
             }
 
+            $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
             $shopwareProducts = $handledProducts->count()
                 ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
                 : new ProductCollection();
+            if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.getShopwareProducts',
+                    $shopwareProductsFetchStartedAt,
+                    [
+                        'handled_count' => $handledProducts->count(),
+                        'loaded_count' => $shopwareProducts->count(),
+                    ],
+                );
+            }
 
             foreach ($handledProducts as $handledProduct) {
                 $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
@@ -299,8 +350,25 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
+        $dispatchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
+        if ($shouldLogExtra && $dispatchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.beforeUpsertProductsEvent',
+                $dispatchStartedAt,
+            );
+        }
+
+        $upsertStartedAt = $shouldLogExtra ? microtime(true) : null;
         $operation->upsert();
+        if ($shouldLogExtra && $upsertStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.upsert',
+                $upsertStartedAt,
+            );
+        }
     }
 
     protected function handleProduct(
@@ -401,7 +469,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         array $productIds,
         array $mapping,
     ): void {
+        $shouldLogExtra = $this->shouldLogExtra($context);
+        $identifiersStartedAt = $shouldLogExtra ? microtime(true) : null;
         $identifiers = $this->getIdentifiers($context, $productIds, $mapping);
+        if ($shouldLogExtra && $identifiersStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.getIdentifiers',
+                $identifiersStartedAt,
+                [
+                    'product_count' => count($productIds),
+                    'identifier_count' => count($identifiers),
+                ],
+            );
+        }
         $domainUrl = $this->getDomainUrl(
             $context->getSalesChannel()->getDomains(),
             $context->getSalesChannelId(),
@@ -411,8 +492,25 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $operation = new DeleteProduct($account->getNostoAccount(), $domain);
         $operation->setProductIds($identifiers);
+        $dispatchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $this->eventDispatcher->dispatch(new BeforeDeleteProductsEvent($operation, $context->getContext()));
+        if ($shouldLogExtra && $dispatchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.beforeDeleteProductsEvent',
+                $dispatchStartedAt,
+            );
+        }
+
+        $deleteStartedAt = $shouldLogExtra ? microtime(true) : null;
         $operation->delete();
+        if ($shouldLogExtra && $deleteStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.delete',
+                $deleteStartedAt,
+            );
+        }
     }
 
     /**
