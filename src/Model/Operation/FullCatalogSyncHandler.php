@@ -13,14 +13,14 @@ use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\Job\Message\InfoMessage;
 use Nosto\Scheduler\Model\JobScheduler;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Psr\Log\LoggerInterface;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
