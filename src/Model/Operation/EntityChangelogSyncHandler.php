@@ -10,8 +10,8 @@ use Nosto\NostoIntegration\Async\EventsWriter;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
@@ -67,7 +67,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::NEWSLETTER_ENTITY_NAME;
         $this->processEventBatches($context, $type, 'product_sync.changelog.newsletter', function (
-            array $subscriberIds
+            array $subscriberIds,
         ) use (
             $parentJobId,
             $result,
@@ -89,8 +89,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $entityType,
         string $metricPrefix,
         callable $processCallback,
-    ): void
-    {
+    ): void {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
@@ -170,7 +169,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::ORDER_ENTITY_PLACED_NAME;
         $this->processEventBatches($context, $type, 'product_sync.changelog.order_placed', function (
-            array $orderIds
+            array $orderIds,
         ) use (
             $parentJobId,
             $result,
@@ -195,7 +194,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::ORDER_ENTITY_UPDATED_NAME;
         $this->processEventBatches($context, $type, 'product_sync.changelog.order_updated', function (
-            array $orderIds
+            array $orderIds,
         ) use (
             $parentJobId,
             $result,
@@ -220,7 +219,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::PRODUCT_ENTITY_NAME;
         $this->processEventBatches($context, $type, 'product_sync.changelog.product', function (
-            array $productIds
+            array $productIds,
         ) use (
             $parentJobId,
             $result,
@@ -238,7 +237,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::CATEGORY_ENTITY_NAME;
         $this->processEventBatches($context, $type, 'product_sync.changelog.category', function (
-            array $categoryIds
+            array $categoryIds,
         ) use (
             $parentJobId,
             $result,
