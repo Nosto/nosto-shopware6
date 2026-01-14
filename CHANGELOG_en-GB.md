@@ -1,3 +1,6 @@
+# 5.1.20
+* Fix: Additional logging added for product sync flow under the feature flag
+
 # 5.1.19
 * Fix: Job Scheduler Update - Improved error handling in JobExecutionHandler and Introduced job existence checks
 
