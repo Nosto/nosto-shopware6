@@ -179,11 +179,8 @@ class ProductHelper
         $languageId = $context->getLanguageId();
 
         $criteria = $this->getCommonCriteria();
-        $this->getCommonCriteriaChildren($criteria);
+        $criteria->addAssociation('children');
         $criteria->setLimit(100);
-        $criteria->addAssociation('children.manufacturer');
-        $criteria->addAssociation('children.manufacturer.media');
-        $criteria->addAssociation('children.categoriesRo');
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
