@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Builder
 {
@@ -31,11 +32,11 @@ class Builder
         ProductHelper $productHelper,
         ProductProviderInterface $productProvider,
     ): NostoLineItem {
-        $criteria = new Criteria([$item->getProductId()]);
+        $criteria = NostoCriteriaFactory::createWithIds([$item->getProductId()]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $product */
         $product = $productRepository->search($criteria, $context->getContext())->first();
-        $criteria = new Criteria([$product->getParentId() != null ? $product->getParentId() : $product->getId()]);
+        $criteria = NostoCriteriaFactory::createWithIds([$product->getParentId() != null ? $product->getParentId() : $product->getId()]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $parentProduct */
         $parentProduct = $productRepository->search($criteria, $context->getContext())->first();

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class RestorerService
 {
@@ -52,7 +53,7 @@ class RestorerService
 
     protected function loadMapping(string $mappingId, Context $context): ?CheckoutMappingEntity
     {
-        return $this->mappingRepository->search(new Criteria([$mappingId]), $context)->first();
+        return $this->mappingRepository->search(NostoCriteriaFactory::createWithIds([$mappingId]), $context)->first();
     }
 
     protected function restoreCart(string $token, SalesChannelContext $context): void
@@ -88,7 +89,7 @@ class RestorerService
 
     private function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
-        $criteria = (new Criteria([$orderId]))
+        $criteria = (NostoCriteriaFactory::createWithIds([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('deliveries')

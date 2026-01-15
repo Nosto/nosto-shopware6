@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
@@ -47,7 +48,8 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
-        $criteriaProduct = new Criteria();
+        $criteriaProduct = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteriaProduct, 'product_sync.full_catalog.products');
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
@@ -100,7 +102,8 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
-        $criteriaCategory = new Criteria();
+        $criteriaCategory = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteriaCategory, 'product_sync.full_catalog.categories');
         $criteriaCategory->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('parentId', null),
         ]));

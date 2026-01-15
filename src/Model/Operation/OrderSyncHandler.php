@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class OrderSyncHandler implements JobHandlerInterface
 {
@@ -98,7 +99,7 @@ class OrderSyncHandler implements JobHandlerInterface
                 $ids[] = $entityId;
             }
         }
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('orderCustomer');
         $criteria->addAssociation('currency');

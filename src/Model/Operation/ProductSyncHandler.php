@@ -139,8 +139,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
         $parentFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $processedParentCount = 0;
+        $parentBatchIndex = 0;
 
-        while (($products = $parentProductIterator->fetch()) !== null) {
+        while (true) {
+            $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
+            $products = $parentProductIterator->fetch();
+            if ($products === null) {
+                break;
+            }
+            ++$parentBatchIndex;
             foreach ($products->getEntities() as $product) {
                 try {
                     $productCollection = new ProductCollection([$product]);
@@ -164,6 +171,17 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $wrappedException = new \RuntimeException($message, 0, $e);
                     $result->addError($wrappedException);
                 }
+            }
+            if ($shouldLogExtra && $batchStartedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.loadExistingParentProducts.fetch.batch',
+                    $batchStartedAt,
+                    [
+                        'batch_index' => $parentBatchIndex,
+                        'batch_size' => $products->getEntities()->count(),
+                    ],
+                );
             }
         }
 

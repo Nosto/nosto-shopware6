@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(
     defaults: [
@@ -69,7 +70,8 @@ class NostoSyncRoute
 
     private function checkJobStatus(Context $context, string $type): void
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, 'product_sync.nosto_sync_route.checkJobStatus');
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),
@@ -88,7 +90,8 @@ class NostoSyncRoute
 
     private function checkCancelRunningFullProductSyncJobStatus(Context $context, string $type): void
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, 'product_sync.nosto_sync_route.checkCancelRunningFullProductSyncJobStatus');
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),

@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(
     defaults: [
@@ -43,7 +44,7 @@ class NostoCategoriesController extends AbstractController
     )]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('children');
         $criteria->getAssociation('parent');
         $criteria->getAssociation('seoUrls');
