@@ -50,8 +50,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
-        $criteriaProduct = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteriaProduct, 'product_sync.full_catalog.products');
+        $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
@@ -117,8 +116,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
-        $criteriaCategory = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteriaCategory, 'product_sync.full_catalog.categories');
+        $criteriaCategory = NostoCriteriaFactory::create('product_sync.full_catalog.categories');
         $criteriaCategory->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('parentId', null),
         ]));

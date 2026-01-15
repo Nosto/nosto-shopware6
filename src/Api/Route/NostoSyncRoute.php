@@ -70,8 +70,7 @@ class NostoSyncRoute
 
     private function checkJobStatus(Context $context, string $type): void
     {
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, 'product_sync.nosto_sync_route.checkJobStatus');
+        $criteria = NostoCriteriaFactory::create('product_sync.nosto_sync_route.checkJobStatus');
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),
@@ -90,8 +89,7 @@ class NostoSyncRoute
 
     private function checkCancelRunningFullProductSyncJobStatus(Context $context, string $type): void
     {
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, 'product_sync.nosto_sync_route.checkCancelRunningFullProductSyncJobStatus');
+        $criteria = NostoCriteriaFactory::create('product_sync.nosto_sync_route.checkCancelRunningFullProductSyncJobStatus');
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),

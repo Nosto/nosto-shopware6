@@ -82,8 +82,7 @@ class CategorySyncHandler implements JobHandlerInterface
 
     private function getCategories(Context $context, array $categoryIds): EntityCollection
     {
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, 'product_sync.category_sync.getCategories');
+        $criteria = NostoCriteriaFactory::create('product_sync.category_sync.getCategories');
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', $categoryIds));
         $this->eventDispatcher->dispatch(new NostoCategoryCriteriaEvent($criteria, $context));
