@@ -64,7 +64,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     {
         $operationResult = new Job\JobResult();
 
-        foreach ($this->accountProvider->all($message->getContext()) as $account) {
+        $accounts = $this->resolveAccounts($message);
+
+        foreach ($accounts as $account) {
             $channelContext = $this->channelContextFactory->create(
                 Uuid::randomHex(),
                 $account->getChannelId(),
@@ -82,6 +84,23 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $operationResult;
+    }
+
+    /**
+     * @return Account[]
+     */
+    private function resolveAccounts(ProductSyncMessage $message): array
+    {
+        $context = $message->getContext();
+        $channelId = $message->getChannelId();
+        $languageId = $message->getLanguageId();
+
+        if ($channelId && $languageId) {
+            $account = $this->accountProvider->get($context, $channelId, $languageId);
+            return $account ? [$account] : [];
+        }
+
+        return $this->accountProvider->all($context);
     }
 
     /**
@@ -141,30 +160,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $processedParentCount = 0;
 
         while (($products = $parentProductIterator->fetch()) !== null) {
-            foreach ($products->getEntities() as $product) {
-                try {
-                    $productCollection = new ProductCollection([$product]);
-
-                    $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
-                    ++$processedParentCount;
-                } catch (\Throwable $e) {
-                    $productId = $product->getId();
-                    $productNumber = method_exists(
-                        $product,
-                        'getProductNumber',
-                    ) ? $product->getProductNumber() : 'unknown';
-
-                    $message = sprintf(
-                        'Error while processing product ID: %s (Product Number: %s): %s',
-                        $productId,
-                        $productNumber,
-                        $e->getMessage(),
-                    );
-
-                    $wrappedException = new \RuntimeException($message, 0, $e);
-                    $result->addError($wrappedException);
-                }
-            }
+            $productCollection = $products->getEntities();
+            $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
+            $processedParentCount += $productCollection->count();
         }
 
         if ($shouldLogExtra && $parentFetchStartedAt !== null) {
@@ -240,114 +238,135 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->productHelper,
         );
 
+        $hasProducts = false;
+
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
-            // TODO: up to 2MB payload!
-            $nostoProducts = [];
+            try {
+                // TODO: up to 2MB payload!
+                $nostoProducts = [];
 
-            $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $handledProducts = $productTaggingHelper->findProductId(
-                $context,
-                $product,
-                null,
-                true,
-                true,
-            );
-
-            if ($shouldLogExtra && $findProductIdStartedAt !== null) {
-                $this->logDuration(
+                $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
+                $handledProducts = $productTaggingHelper->findProductId(
                     $context,
-                    'product_sync.productTaggingHelper.findProductId',
-                    $findProductIdStartedAt,
-                    [
-                        'product_id' => $product->getId(),
-                        'handled_count' => $handledProducts->count(),
-                    ],
+                    $product,
+                    null,
+                    true,
+                    true,
                 );
-            }
 
-            if (!$handledProducts->count()) {
-                $this->deleteVariantProducts($product, $context, $account, $ids);
-                $this->doDeleteOperation(
-                    $account,
-                    $context,
-                    [$product->getId(), $product->getParentId()],
-                    $ids,
-                );
-            }
-
-            $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $shopwareProducts = $handledProducts->count()
-                ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
-                : new ProductCollection();
-            if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
-                $this->logDuration(
-                    $context,
-                    'product_sync.getShopwareProducts',
-                    $shopwareProductsFetchStartedAt,
-                    [
-                        'handled_count' => $handledProducts->count(),
-                        'loaded_count' => $shopwareProducts->count(),
-                    ],
-                );
-            }
-
-            foreach ($handledProducts as $handledProduct) {
-                $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
-                $productStartedAt = $shouldLogExtra ? microtime(true) : null;
-                $handledResult = 'skipped';
-
-                if ($shopwareProduct) {
-                    $shopwareProduct->setChildren($handledProduct->getChildren());
-                    $nostoProduct = $this->handleProduct(
-                        $shopwareProduct,
-                        $context,
-                        $account,
-                        $hideProductsAfterClearance,
-                        $ids,
-                    );
-
-                    if ($nostoProduct) {
-                        $nostoProducts[] = $nostoProduct;
-                        $handledResult = 'prepared';
-                    }
-                } else {
-                    $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
-                    $this->doDeleteOperation(
-                        $account,
-                        $context,
-                        [$handledProduct->getId(), $handledProduct->getParentId()],
-                        $ids,
-                    );
-                    $handledResult = 'deleted';
-                }
-
-                if ($shouldLogExtra && $productStartedAt !== null) {
+                if ($shouldLogExtra && $findProductIdStartedAt !== null) {
                     $this->logDuration(
                         $context,
-                        'product_sync.product_handle',
-                        $productStartedAt,
+                        'product_sync.productTaggingHelper.findProductId',
+                        $findProductIdStartedAt,
                         [
-                            'product_id' => $handledProduct->getId(),
-                            'result' => $handledResult,
+                            'product_id' => $product->getId(),
+                            'handled_count' => $handledProducts->count(),
                         ],
                     );
                 }
-            }
 
-            foreach ($nostoProducts as $preparedProductForSync) {
-                $invalidMessage = $this->validateProduct(
-                    $preparedProductForSync->getProductId(),
-                    $preparedProductForSync,
-                );
-
-                if ($invalidMessage) {
-                    $result->addMessage($invalidMessage);
-                    continue;
+                if (!$handledProducts->count()) {
+                    $this->deleteVariantProducts($product, $context, $account, $ids);
+                    $this->doDeleteOperation(
+                        $account,
+                        $context,
+                        [$product->getId(), $product->getParentId()],
+                        $ids,
+                    );
                 }
 
-                $operation->addProduct($preparedProductForSync);
+                $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
+                $shopwareProducts = $handledProducts->count()
+                    ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
+                    : new ProductCollection();
+                if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
+                    $this->logDuration(
+                        $context,
+                        'product_sync.getShopwareProducts',
+                        $shopwareProductsFetchStartedAt,
+                        [
+                            'handled_count' => $handledProducts->count(),
+                            'loaded_count' => $shopwareProducts->count(),
+                        ],
+                    );
+                }
+
+                foreach ($handledProducts as $handledProduct) {
+                    $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
+                    $productStartedAt = $shouldLogExtra ? microtime(true) : null;
+                    $handledResult = 'skipped';
+
+                    if ($shopwareProduct) {
+                        $shopwareProduct->setChildren($handledProduct->getChildren());
+                        $nostoProduct = $this->handleProduct(
+                            $shopwareProduct,
+                            $context,
+                            $account,
+                            $hideProductsAfterClearance,
+                            $ids,
+                        );
+
+                        if ($nostoProduct) {
+                            $nostoProducts[] = $nostoProduct;
+                            $handledResult = 'prepared';
+                        }
+                    } else {
+                        $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
+                        $this->doDeleteOperation(
+                            $account,
+                            $context,
+                            [$handledProduct->getId(), $handledProduct->getParentId()],
+                            $ids,
+                        );
+                        $handledResult = 'deleted';
+                    }
+
+                    if ($shouldLogExtra && $productStartedAt !== null) {
+                        $this->logDuration(
+                            $context,
+                            'product_sync.product_handle',
+                            $productStartedAt,
+                            [
+                                'product_id' => $handledProduct->getId(),
+                                'result' => $handledResult,
+                            ],
+                        );
+                    }
+                }
+
+                foreach ($nostoProducts as $preparedProductForSync) {
+                    $invalidMessage = $this->validateProduct(
+                        $preparedProductForSync->getProductId(),
+                        $preparedProductForSync,
+                    );
+
+                    if ($invalidMessage) {
+                        $result->addMessage($invalidMessage);
+                        continue;
+                    }
+
+                    $operation->addProduct($preparedProductForSync);
+                    $hasProducts = true;
+                }
+            } catch (\Throwable $e) {
+                $productId = $product->getId();
+                $productNumber = method_exists($product, 'getProductNumber') ? $product->getProductNumber() : 'unknown';
+                $message = sprintf(
+                    'Error while processing product ID: %s (Product Number: %s): %s',
+                    $productId,
+                    $productNumber,
+                    $e->getMessage(),
+                );
+
+                $wrappedException = new \RuntimeException($message, 0, $e);
+                $result->addError($wrappedException);
             }
+        }
+
+        if (!$hasProducts) {
+            return;
         }
 
         $dispatchStartedAt = $shouldLogExtra ? microtime(true) : null;
