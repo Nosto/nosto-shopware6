@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class MarketingPermissionSyncHandler implements JobHandlerInterface
 {
@@ -84,7 +85,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
 
     private function getSubscribers(Context $context, array $subscriberIds): EntityCollection
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsAnyFilter('id', $subscriberIds));
 
         return $this->newsletterRecipientRepository->search($criteria, $context)->getEntities();

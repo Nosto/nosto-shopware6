@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 /**
  * @see ShopwareSearchController
@@ -175,7 +176,7 @@ class SearchController extends StorefrontController
             return $this->decorated->filter($request, $salesChannelContext);
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $this->searchService->doFilter($request, $criteria, $salesChannelContext);
 
         if (!$criteria->hasExtension('nostoAvailableFilters')) {

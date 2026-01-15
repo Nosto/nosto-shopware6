@@ -42,6 +42,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Builder
 {
@@ -135,7 +136,8 @@ class Builder
             $stockStatus = ProductInterface::IN_STOCK;
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -236,8 +238,8 @@ class Builder
         }
 
         if ($product->getCover()) {
-            $nostoProduct->setImageUrl('https://placehold.co/800');
-            $nostoProduct->setThumbUrl('https://placehold.co/400');
+            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
+            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoProduct->setImageUrl($placeholderImageUrl);
@@ -478,7 +480,8 @@ class Builder
         $missingIds = array_diff($tagIds, array_keys($cachedTags));
 
         if ($missingIds !== []) {
-            $criteria = new Criteria();
+            $criteria = NostoCriteriaFactory::create();
+            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.loadTagsByIds');
             $criteria->addFilter(new EqualsAnyFilter('id', array_values($missingIds)));
             $fetched = $this->tagRepository->search($criteria, $context->getContext())->getEntities();
 
@@ -585,7 +588,8 @@ class Builder
         $cacheKey = $this->buildCacheKey($context);
 
         if (!isset($this->dynamicGroupCategoriesCache[$cacheKey])) {
-            $criteria = new Criteria();
+            $criteria = NostoCriteriaFactory::create();
+            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.dynamicGroupCategories');
             $criteria->addFilter(
                 new EqualsFilter(
                     self::PRODUCT_ASSIGNMENT_TYPE,
@@ -637,7 +641,8 @@ class Builder
     {
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.categoriesTreeCollection');
         $criteria->addFilter(
             new EqualsAnyFilter('id', $categoriesPaths),
         );
@@ -692,7 +697,8 @@ class Builder
             $salesChannelId = $context->getSalesChannelId();
             $languageId = $context->getLanguageId();
 
-            $criteria = new Criteria();
+            $criteria = NostoCriteriaFactory::create();
+            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.childrenSku');
             $criteria->addAssociation('media');
             $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');

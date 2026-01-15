@@ -15,6 +15,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class NostoMonitoringAuthService
 {
@@ -73,7 +74,7 @@ class NostoMonitoringAuthService
 
     private function validateFromApp(string $accessKey, Context $context): bool
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();

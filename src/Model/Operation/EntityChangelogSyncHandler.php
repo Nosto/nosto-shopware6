@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
@@ -92,7 +93,8 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): void {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, $metricPrefix . '.delete');
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);

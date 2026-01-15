@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[AsMessageHandler(handles: OldJobCleanupScheduledTask::class)]
 class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
@@ -43,7 +44,7 @@ class OldJobCleanupScheduledTaskHandler extends ScheduledTaskHandler
 
                 // Here we have context-less process
                 $context = new Context(new SystemSource());
-                $criteria = new Criteria();
+                $criteria = NostoCriteriaFactory::create();
                 $criteria->addFilter(
                     new AndFilter([
                         new RangeFilter(

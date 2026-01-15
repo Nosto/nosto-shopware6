@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(defaults: [
     '_routeScope' => ['storefront'],
@@ -72,7 +73,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$productId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$productId]);
             $criteria->addAssociations([
                 'categories',
                 'properties',
@@ -173,7 +174,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$categoryId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
             $criteria->getAssociation('seoUrls');
 
             $category = $this->categoryRepository->search($criteria, $salesChannelContext->getContext())->first();
@@ -236,7 +237,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$orderId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$orderId]);
             $criteria->addAssociation('stateMachineState');
             $criteria->addAssociation('orderCustomer');
             $criteria->addAssociation('currency');

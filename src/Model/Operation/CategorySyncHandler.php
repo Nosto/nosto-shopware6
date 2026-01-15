@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class CategorySyncHandler implements JobHandlerInterface
 {
@@ -81,7 +82,8 @@ class CategorySyncHandler implements JobHandlerInterface
 
     private function getCategories(Context $context, array $categoryIds): EntityCollection
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
+        NostoCriteriaFactory::setTitle($criteria, 'product_sync.category_sync.getCategories');
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', $categoryIds));
         $this->eventDispatcher->dispatch(new NostoCategoryCriteriaEvent($criteria, $context));

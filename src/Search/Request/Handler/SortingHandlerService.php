@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class SortingHandlerService
 {
@@ -76,14 +77,14 @@ class SortingHandlerService
             return $id;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = NostoCriteriaFactory::createWithIds([$id]);
 
         return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
     }
 
     public function getNostoSortingPriority(SalesChannelContext $context): ?int
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
         $criteria->setLimit(1);
         $sorting = $this->sortingRepository->search($criteria, $context->getContext())->first();
