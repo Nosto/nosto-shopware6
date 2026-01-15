@@ -101,6 +101,8 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                     ],
                     $salesChannelContext->getContext(),
                     'Product Debug',
+                    $salesChannelContext->getSalesChannelId(),
+                    $salesChannelContext->getLanguageId(),
                 ),
             );
 
@@ -308,6 +310,8 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             ],
             $context->getContext(),
             'Product Debug',
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
         );
 
         $result = $this->productSyncHandler->execute($message);

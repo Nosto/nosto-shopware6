@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder
@@ -77,6 +78,16 @@ class Builder
      * @var array<string, bool>
      */
     private array $loggingCache = [];
+
+    /**
+     * @var array<string, CategoryCollection>
+     */
+    private array $dynamicGroupCategoriesCache = [];
+
+    /**
+     * @var array<string, array<string, TagEntity>>
+     */
+    private array $tagCache = [];
 
     /**
      * @throws NostoException
@@ -384,7 +395,7 @@ class Builder
             $tagIdsToLoad = [];
         }
 
-        $tags = $this->loadTagsByIds($tagIdsToLoad, $context->getContext());
+        $tags = $this->loadTagsByIds($tagIdsToLoad, $context);
 
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
@@ -433,16 +444,38 @@ class Builder
         return $result;
     }
 
-    private function loadTagsByIds(array $tagIds, Context $context): TagCollection
+    private function loadTagsByIds(array $tagIds, SalesChannelContext $context): TagCollection
     {
         if ($tagIds === []) {
             return new TagCollection();
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', array_values($tagIds)));
+        $cacheKey = $this->buildCacheKey($context);
+        if (!isset($this->tagCache[$cacheKey])) {
+            $this->tagCache[$cacheKey] = [];
+        }
 
-        return $this->tagRepository->search($criteria, $context)->getEntities();
+        $cachedTags = &$this->tagCache[$cacheKey];
+        $missingIds = array_diff($tagIds, array_keys($cachedTags));
+
+        if ($missingIds !== []) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsAnyFilter('id', array_values($missingIds)));
+            $fetched = $this->tagRepository->search($criteria, $context->getContext())->getEntities();
+
+            foreach ($fetched as $tag) {
+                $cachedTags[$tag->getId()] = $tag;
+            }
+        }
+
+        $collection = new TagCollection();
+        foreach ($tagIds as $tagId) {
+            if (isset($cachedTags[$tagId])) {
+                $collection->add($cachedTags[$tagId]);
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -530,15 +563,24 @@ class Builder
 
     private function getCategoriesWithDynamicProductGroups(SalesChannelContext $context): CategoryCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter(
-                self::PRODUCT_ASSIGNMENT_TYPE,
-                CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-            ),
-        );
+        $cacheKey = $this->buildCacheKey($context);
 
-        return $this->categoryRepository->search($criteria, $context)->getEntities();
+        if (!isset($this->dynamicGroupCategoriesCache[$cacheKey])) {
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new EqualsFilter(
+                    self::PRODUCT_ASSIGNMENT_TYPE,
+                    CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ),
+            );
+
+            $this->dynamicGroupCategoriesCache[$cacheKey] = $this->categoryRepository->search(
+                $criteria,
+                $context,
+            )->getEntities();
+        }
+
+        return $this->dynamicGroupCategoriesCache[$cacheKey];
     }
 
     private function addCategoriesByDynamicGroupsAssigned(
@@ -595,6 +637,11 @@ class Builder
         }
 
         return $this->loggingCache[$cacheKey];
+    }
+
+    private function buildCacheKey(SalesChannelContext $context): string
+    {
+        return sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
     }
 
     private function logDuration(
