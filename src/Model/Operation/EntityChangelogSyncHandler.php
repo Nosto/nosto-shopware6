@@ -93,8 +93,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): void {
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, $metricPrefix . '.delete');
+        $criteria = NostoCriteriaFactory::create($metricPrefix . '.delete');
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
