@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class RestoreUrlService
 {
@@ -42,7 +43,7 @@ class RestoreUrlService
 
     protected function fetchFromDb(string $token, Context $context): ?CheckoutMappingEntity
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(
             new EqualsFilter('reference', $token),
             new EqualsFilter('mappingTable', CheckoutMappingDefinition::CART_TABLE),

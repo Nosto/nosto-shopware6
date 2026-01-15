@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(
     defaults: [
@@ -80,7 +81,7 @@ class CmsController extends StorefrontController
             return $this->decorated->filter($navigationId, $request, $salesChannelContext);
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $this->searchService->doFilter($request, $criteria, $salesChannelContext);
 
         if (!$criteria->hasExtension('nostoAvailableFilters')) {

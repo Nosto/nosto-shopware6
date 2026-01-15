@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class NavigationRequestHandler extends AbstractRequestHandler
 {
@@ -69,7 +70,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria([$categoryId]);
+        $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
         $criteria->addAssociation('seoUrls');
 
         /** @var ?CategoryEntity $category */

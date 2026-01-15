@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(defaults: [
     '_routeScope' => ['storefront'],
@@ -48,11 +49,11 @@ class NostoMonitoringOperationsController extends AbstractNostoMonitoringControl
         $currentLanguageId = $request->get('languageId');
         $currentSalesChannelId = $request->get('salesChannelId');
 
-        $languageCriteria = new Criteria();
+        $languageCriteria = NostoCriteriaFactory::create();
         $languageCriteria->addAssociation('locale');
         $languages = $this->languageRepository->search($languageCriteria, $context)->getEntities();
 
-        $salesChannels = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+        $salesChannels = $this->salesChannelRepository->search(NostoCriteriaFactory::create(), $context)->getEntities();
         $nostoVersion = $this->nostoMonitoringHelper->getPluginVersion();
 
         return $this->renderStorefront(

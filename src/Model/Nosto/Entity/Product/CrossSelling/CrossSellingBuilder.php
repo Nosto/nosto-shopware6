@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class CrossSellingBuilder
 {
@@ -44,8 +45,8 @@ class CrossSellingBuilder
         foreach ($crossSellings as $crossSelling) {
             $result[$this->createKeyFromName($crossSelling->getTranslation('name'))] = [
                 'productIds' => $this->useProductStream($crossSelling)
-                    ? $this->loadByStream($crossSelling, $context, new Criteria())
-                    : $this->loadByIds($crossSelling, $context, new Criteria()),
+                    ? $this->loadByStream($crossSelling, $context, NostoCriteriaFactory::create())
+                    : $this->loadByIds($crossSelling, $context, NostoCriteriaFactory::create()),
                 'position' => $crossSelling->getPosition(),
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
@@ -65,7 +66,7 @@ class CrossSellingBuilder
         if ($syncConfig === CrossSellingSyncOptions::NO_SYNC) {
             return new ProductCrossSellingCollection();
         }
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria
             ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))
