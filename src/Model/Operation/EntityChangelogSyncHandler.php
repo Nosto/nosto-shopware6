@@ -12,6 +12,7 @@ use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
@@ -34,6 +35,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         private readonly EntityRepository $entityChangelogRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -208,10 +210,24 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     {
         $type = EventsWriter::PRODUCT_ENTITY_NAME;
         $this->processEventBatches($context, $type, function (array $productIds) use ($parentJobId, $result, $context) {
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds, $context);
-            $this->jobScheduler->schedule($jobMessage);
+            foreach ($this->accountProvider->all($context) as $account) {
+                $jobMessage = new ProductSyncMessage(
+                    Uuid::randomHex(),
+                    $parentJobId,
+                    $productIds,
+                    $context,
+                    null,
+                    $account->getChannelId(),
+                    $account->getLanguageId(),
+                );
+                $this->jobScheduler->schedule($jobMessage);
+            }
             $result->addMessage(new InfoMessage(
-                sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
+                sprintf(
+                    'Job with payload of %s updated products has been scheduled for %s accounts.',
+                    count($productIds),
+                    count($this->accountProvider->all($context)),
+                ),
             ));
         });
     }

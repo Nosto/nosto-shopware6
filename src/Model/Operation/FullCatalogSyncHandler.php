@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
@@ -33,6 +34,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -59,22 +61,35 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $productBatchCount = 0;
         $productCount = 0;
         $productsStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $accounts = $this->accountProvider->all($context);
+
         while (($products = $productRepositoryIterator->fetch()) !== null) {
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
             $ids = $this->getProductIdsForMessage($products->getEntities());
             $batchSize = count($ids);
             $productCount += $batchSize;
-            $this->jobScheduler->schedule(
-                new ProductSyncMessage(
-                    Uuid::randomHex(),
-                    $message->getJobId(),
-                    $ids,
-                    $message->getContext(),
-                ),
-            );
+            foreach ($accounts as $account) {
+                $this->jobScheduler->schedule(
+                    new ProductSyncMessage(
+                        Uuid::randomHex(),
+                        $message->getJobId(),
+                        $ids,
+                        $message->getContext(),
+                        null,
+                        $account->getChannelId(),
+                        $account->getLanguageId(),
+                    ),
+                );
+            }
             $result->addMessage(
-                new InfoMessage('Job with payload of: ' . count($ids) . ' products has been scheduled.'),
+                new InfoMessage(
+                    sprintf(
+                        'Job with payload of: %s products has been scheduled for %s accounts.',
+                        count($ids),
+                        count($accounts),
+                    ),
+                ),
             );
             if ($shouldLogExtra && $batchStartedAt !== null) {
                 $this->logDuration(
