@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 trait SearchResultHelper
 {
@@ -135,7 +136,7 @@ trait SearchResultHelper
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
     ): void {
-        $productCriteria = new Criteria();
+        $productCriteria = NostoCriteriaFactory::create();
         $productCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('productNumber', $query),
             new EqualsFilter('ean', $query),

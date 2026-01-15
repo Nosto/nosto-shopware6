@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Throwable;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Provider
 {
@@ -46,7 +47,7 @@ class Provider
             return $this->accounts;
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAssociation('languages');

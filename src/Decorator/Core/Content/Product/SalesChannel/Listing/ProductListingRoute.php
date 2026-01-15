@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class ProductListingRoute extends AbstractProductListingRoute
 {
@@ -88,7 +89,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 ),
             );
             /** @var CategoryEntity $category */
-            $criteria = new Criteria([$categoryId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
             $criteria->addAssociation('seoUrls');
             $criteria->addAssociation('options.group');
 

@@ -26,6 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Throwable;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class NostoExtension extends AbstractExtension
 {
@@ -96,7 +97,7 @@ class NostoExtension extends AbstractExtension
 
     public function getShopwareProductByID($id, SalesChannelContext $context)
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
 
         return $this->salesChannelProductRepository
@@ -110,7 +111,7 @@ class NostoExtension extends AbstractExtension
         SalesChannelContext $context,
         bool $isProductTagging = false,
     ): string|NostoProduct {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addAssociation('children');
         /** @var ProductEntity $mainProduct */
@@ -119,7 +120,7 @@ class NostoExtension extends AbstractExtension
             ->first();
         /** @var ProductEntity $mainProduct */
         $variantFromDb = $this->productRepository
-            ->search(new Criteria([$variantId]), $context->getContext())
+            ->search(NostoCriteriaFactory::createWithIds([$variantId]), $context->getContext())
             ->first();
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
@@ -195,7 +196,7 @@ class NostoExtension extends AbstractExtension
         try {
             $categoryId = $category->getId();
 
-            $criteria = new Criteria([$categoryId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
             $criteria->addAssociation('seoUrls');
 
             $categoryWithSeo = $this->categoryRepository

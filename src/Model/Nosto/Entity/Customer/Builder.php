@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Builder
 {
@@ -37,7 +38,7 @@ class Builder
 
     private function hasMarketingPermission(CustomerEntity $customer, Context $context): bool
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
         $subscriber = $this->newsletterRecipientRepository->search($criteria, $context)->first();
 
