@@ -76,6 +76,7 @@ class SkuBuilder
 
         if ($product->getCover() && $product->getCover()->getMedia()) {
             $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
+            $nostoSku->setImageUrl('https://placehold.co/800');
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoSku->setImageUrl($placeholderImageUrl);

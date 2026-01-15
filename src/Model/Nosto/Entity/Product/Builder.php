@@ -236,8 +236,8 @@ class Builder
         }
 
         if ($product->getCover()) {
-            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
-            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
+            $nostoProduct->setImageUrl('https://placehold.co/800');
+            $nostoProduct->setThumbUrl('https://placehold.co/400');
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoProduct->setImageUrl($placeholderImageUrl);
@@ -679,6 +679,7 @@ class Builder
             $criteria->addAssociation('options.group');
             $criteria->addAssociation('properties.group');
             $criteria->addAssociation('manufacturer');
+            $criteria->addAssociation('manufacturer.media');
             $criteria->addAssociation('categoriesRo');
             $criteria->addAssociation('visibilities');
             $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
