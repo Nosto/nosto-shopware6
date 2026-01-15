@@ -136,8 +136,7 @@ class Builder
             $stockStatus = ProductInterface::IN_STOCK;
         }
 
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.loadCategorySeoUrls');
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -480,8 +479,7 @@ class Builder
         $missingIds = array_diff($tagIds, array_keys($cachedTags));
 
         if ($missingIds !== []) {
-            $criteria = NostoCriteriaFactory::create();
-            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.loadTagsByIds');
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.loadTagsByIds');
             $criteria->addFilter(new EqualsAnyFilter('id', array_values($missingIds)));
             $fetched = $this->tagRepository->search($criteria, $context->getContext())->getEntities();
 
@@ -588,8 +586,7 @@ class Builder
         $cacheKey = $this->buildCacheKey($context);
 
         if (!isset($this->dynamicGroupCategoriesCache[$cacheKey])) {
-            $criteria = NostoCriteriaFactory::create();
-            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.dynamicGroupCategories');
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.dynamicGroupCategories');
             $criteria->addFilter(
                 new EqualsFilter(
                     self::PRODUCT_ASSIGNMENT_TYPE,
@@ -641,8 +638,7 @@ class Builder
     {
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
-        $criteria = NostoCriteriaFactory::create();
-        NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.categoriesTreeCollection');
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.categoriesTreeCollection');
         $criteria->addFilter(
             new EqualsAnyFilter('id', $categoriesPaths),
         );
@@ -697,8 +693,7 @@ class Builder
             $salesChannelId = $context->getSalesChannelId();
             $languageId = $context->getLanguageId();
 
-            $criteria = NostoCriteriaFactory::create();
-            NostoCriteriaFactory::setTitle($criteria, 'product_sync.builder.childrenSku');
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.childrenSku');
             $criteria->addAssociation('media');
             $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');
