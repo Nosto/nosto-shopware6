@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Traits;
 
 use Nosto\NostoIntegration\Struct\Pagination;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 trait SearchResultHelper
 {

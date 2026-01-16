@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
@@ -19,10 +20,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {

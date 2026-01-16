@@ -6,14 +6,13 @@ namespace Nosto\NostoIntegration\Service;
 
 use Doctrine\DBAL\Connection;
 use Exception;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class NostoJobSyncService
 {

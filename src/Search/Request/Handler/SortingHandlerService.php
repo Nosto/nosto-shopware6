@@ -15,6 +15,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandl
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\StockSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class SortingHandlerService
 {

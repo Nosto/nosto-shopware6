@@ -12,13 +12,13 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilde
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,7 +26,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Throwable;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class NostoExtension extends AbstractExtension
 {

@@ -10,12 +10,12 @@ use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Event\NostoCategoryCriteriaEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeCategoryUpdateEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Operation\Category\CategoryUpdate;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +24,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class CategorySyncHandler implements JobHandlerInterface
 {

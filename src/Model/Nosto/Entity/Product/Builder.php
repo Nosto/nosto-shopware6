@@ -17,6 +17,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Types\Product\ProductInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -31,9 +32,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -42,7 +41,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Builder
 {

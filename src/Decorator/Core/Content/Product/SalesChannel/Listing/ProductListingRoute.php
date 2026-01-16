@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Psr\Log\LoggerInterface;
@@ -32,7 +33,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class ProductListingRoute extends AbstractProductListingRoute
 {

@@ -6,14 +6,13 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Customer;
 
 use Nosto\Model\Customer;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Event\NostoCustomerBuiltEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute as Newsletter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Builder
 {

@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
 
 use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -21,7 +22,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class CrossSellingBuilder
 {

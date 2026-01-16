@@ -12,6 +12,8 @@ use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
@@ -19,11 +21,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
 {
@@ -35,6 +35,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         private readonly EntityRepository $entityChangelogRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
     ) {
     }

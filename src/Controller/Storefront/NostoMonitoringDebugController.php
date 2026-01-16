@@ -15,9 +15,9 @@ use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -26,7 +26,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(defaults: [
     '_routeScope' => ['storefront'],
