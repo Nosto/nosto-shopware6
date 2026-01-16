@@ -1,3 +1,8 @@
+# 5.2.0
+* New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data.
+* New: Add Nosto criteria titles for product synchronization queries to improve debugging
+* Fix: Stop loading child product data during product sync twice
+
 # 5.1.20
 * Fix: Additional logging added for product sync flow under the feature flag
 
