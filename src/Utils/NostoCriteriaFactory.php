@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 final class NostoCriteriaFactory
 {
     private const PREFIX = 'Nosto.';
+
     private const DEFAULT_TITLE = 'criteria';
 
     public static function create(?string $title = null): Criteria
