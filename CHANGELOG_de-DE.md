@@ -1,3 +1,8 @@
+# 5.2.0
+* New: Produktsynchronisierung pro Verkaufskanal aufteilen, damit mehrere Consumer parallel schneller laufen, mit zusätzlichem Caching für wiederverwendete Daten
+* New: Nosto-Kriterien-Titel für Produktsynchronisierungsabfragen hinzufügen, um das Debugging zu verbessern
+* Fix: Doppelte Laden der Kindproduktdaten während der Produktsynchronisierung verhindern
+
 # 5.1.20
 * Fix: Zusätzliches Logging für den Produktsynchronisierungsablauf unter dem Feature-Flag hinzugefügt
 
