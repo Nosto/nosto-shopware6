@@ -6,16 +6,15 @@ namespace Nosto\NostoIntegration\Controller\Storefront;
 
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 #[Route(defaults: [
     '_routeScope' => ['storefront'],

@@ -8,8 +8,8 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
 use Nosto\NostoIntegration\Struct\Redirect;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\SearchController as ShopwareSearchController;
@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 /**
  * @see ShopwareSearchController

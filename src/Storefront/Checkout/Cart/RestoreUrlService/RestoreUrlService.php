@@ -7,9 +7,9 @@ namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,7 +17,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class RestoreUrlService
 {

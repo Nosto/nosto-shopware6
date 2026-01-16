@@ -7,15 +7,14 @@ namespace Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Request\Api\Token;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Throwable;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class Provider
 {

@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
@@ -36,7 +37,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 
 class ProductHelper
 {
