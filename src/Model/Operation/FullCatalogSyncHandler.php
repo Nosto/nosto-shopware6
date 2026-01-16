@@ -8,6 +8,8 @@ use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobResult;
@@ -18,7 +20,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -33,6 +34,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -47,7 +49,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
-        $criteriaProduct = new Criteria();
+        $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
@@ -59,22 +61,35 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $productBatchCount = 0;
         $productCount = 0;
         $productsStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $accounts = $this->accountProvider->all($context);
+
         while (($products = $productRepositoryIterator->fetch()) !== null) {
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
             $ids = $this->getProductIdsForMessage($products->getEntities());
             $batchSize = count($ids);
             $productCount += $batchSize;
-            $this->jobScheduler->schedule(
-                new ProductSyncMessage(
-                    Uuid::randomHex(),
-                    $message->getJobId(),
-                    $ids,
-                    $message->getContext(),
-                ),
-            );
+            foreach ($accounts as $account) {
+                $this->jobScheduler->schedule(
+                    new ProductSyncMessage(
+                        Uuid::randomHex(),
+                        $message->getJobId(),
+                        $ids,
+                        $message->getContext(),
+                        null,
+                        $account->getChannelId(),
+                        $account->getLanguageId(),
+                    ),
+                );
+            }
             $result->addMessage(
-                new InfoMessage('Job with payload of: ' . count($ids) . ' products has been scheduled.'),
+                new InfoMessage(
+                    sprintf(
+                        'Job with payload of: %s products has been scheduled for %s accounts.',
+                        count($ids),
+                        count($accounts),
+                    ),
+                ),
             );
             if ($shouldLogExtra && $batchStartedAt !== null) {
                 $this->logDuration(
@@ -100,7 +115,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
-        $criteriaCategory = new Criteria();
+        $criteriaCategory = NostoCriteriaFactory::create('product_sync.full_catalog.categories');
         $criteriaCategory->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('parentId', null),
         ]));

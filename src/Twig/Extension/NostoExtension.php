@@ -12,13 +12,13 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilde
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -96,7 +96,7 @@ class NostoExtension extends AbstractExtension
 
     public function getShopwareProductByID($id, SalesChannelContext $context): ?SalesChannelProductEntity
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
 
         return $this->salesChannelProductRepository
@@ -110,7 +110,7 @@ class NostoExtension extends AbstractExtension
         SalesChannelContext $context,
         bool $isProductTagging = false,
     ): string|NostoProduct {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addAssociation('children');
         /** @var ProductEntity $mainProduct */
@@ -119,7 +119,7 @@ class NostoExtension extends AbstractExtension
             ->first();
         /** @var ProductEntity $mainProduct */
         $variantFromDb = $this->productRepository
-            ->search(new Criteria([$variantId]), $context->getContext())
+            ->search(NostoCriteriaFactory::createWithIds([$variantId]), $context->getContext())
             ->first();
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
@@ -195,7 +195,7 @@ class NostoExtension extends AbstractExtension
         try {
             $categoryId = $category->getId();
 
-            $criteria = new Criteria([$categoryId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
             $criteria->addAssociation('seoUrls');
 
             $categoryWithSeo = $this->categoryRepository

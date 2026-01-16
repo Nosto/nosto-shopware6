@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
@@ -123,7 +124,7 @@ class ProductHelper
 
     public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
     {
-        $reviewCriteria = new Criteria();
+        $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
                 new EqualsFilter('product.id', $product->getId()),
@@ -146,9 +147,9 @@ class ProductHelper
         return $shopwareProduct->get($productId) ?? null;
     }
 
-    private function getCommonCriteria(): Criteria
+    private function getCommonCriteria(?string $title = null): Criteria
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create($title);
         $criteria->addAssociation('media');
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
@@ -178,12 +179,9 @@ class ProductHelper
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        $criteria = $this->getCommonCriteria();
-        $this->getCommonCriteriaChildren($criteria);
+        $criteria = $this->getCommonCriteria('product_sync.productHelper.loadExistingParentProducts');
+        $criteria->addAssociation('children');
         $criteria->setLimit(100);
-        $criteria->addAssociation('children.manufacturer');
-        $criteria->addAssociation('children.manufacturer.media');
-        $criteria->addAssociation('children.categoriesRo');
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
@@ -225,7 +223,7 @@ class ProductHelper
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create('product_sync.productHelper.getProductsIterator');
         $criteria->setLimit(100);
         $criteria->addFilter(new EqualsAnyFilter('id', $productIds));
 
@@ -253,7 +251,7 @@ class ProductHelper
      */
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
-        $criteria = new Criteria($ids);
+        $criteria = NostoCriteriaFactory::createWithIds($ids, 'product_sync.productHelper.loadOrderNumberMapping');
         $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
         $orderNumberMapping = [];
         while (($result = $iterator->fetch()) !== null) {
@@ -324,7 +322,7 @@ class ProductHelper
     ): SalesChannelProductCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
-        $criteria = $this->getCommonCriteria();
+        $criteria = $this->getCommonCriteria('product_sync.productHelper.getShopwareProducts');
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
         }

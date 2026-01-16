@@ -12,6 +12,8 @@ use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHandlerInterface, JobResult, Message\InfoMessage};
 use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
@@ -19,7 +21,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +35,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         private readonly EntityRepository $entityChangelogRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
+        private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -90,7 +92,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): void {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create($metricPrefix . '.delete');
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
@@ -225,10 +227,25 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $result,
             $context
         ): void {
-            $jobMessage = new ProductSyncMessage(Uuid::randomHex(), $parentJobId, $productIds, $context);
-            $this->jobScheduler->schedule($jobMessage);
+            foreach ($this->accountProvider->all($context) as $account) {
+                $jobMessage = new ProductSyncMessage(
+                    Uuid::randomHex(),
+                    $parentJobId,
+                    $productIds,
+                    $context,
+                    null,
+                    $account->getChannelId(),
+                    $account->getLanguageId(),
+                );
+                $this->jobScheduler->schedule($jobMessage);
+            }
+
             $result->addMessage(new InfoMessage(
-                sprintf('Job with payload of %s updated products has been scheduled.', count($productIds)),
+                sprintf(
+                    'Job with payload of %s updated products has been scheduled for %s accounts.',
+                    count($productIds),
+                    count($this->accountProvider->all($context)),
+                ),
             ));
         });
     }

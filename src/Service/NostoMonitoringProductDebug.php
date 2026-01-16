@@ -13,6 +13,7 @@ use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Scheduler\Model\Job;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -36,6 +37,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
         private readonly ProductHelper $productHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(
             $this->channelContextFactory,
@@ -46,6 +48,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
             $this->productHelper,
             $this->eventDispatcher,
             $this->systemConfigService,
+            $this->logger,
         );
     }
 

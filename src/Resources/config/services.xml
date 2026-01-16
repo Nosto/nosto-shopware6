@@ -18,6 +18,7 @@
 
             <argument key="$productRepository" type="service" id="product.repository"/>
             <argument key="$categoryRepository" type="service" id="category.repository"/>
+            <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
@@ -54,6 +55,7 @@
 
             <argument key="$entityChangelogRepository" type="service"
                       id="nosto_integration_entity_changelog.repository"/>
+            <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
@@ -331,6 +333,7 @@
             <argument key="$productProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
 

@@ -19,6 +19,8 @@ class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageIn
         private readonly array $productIds,
         ?Context $context = null,
         ?string $name = null,
+        private readonly ?string $channelId = null,
+        private readonly ?string $languageId = null,
     ) {
         parent::__construct($jobId, $context, $name);
     }
@@ -39,5 +41,15 @@ class ProductSyncMessage extends AbstractMessage implements ParentAwareMessageIn
     public function getParentJobId(): string
     {
         return $this->parentJobId;
+    }
+
+    public function getChannelId(): ?string
+    {
+        return $this->channelId;
+    }
+
+    public function getLanguageId(): ?string
+    {
+        return $this->languageId;
     }
 }
