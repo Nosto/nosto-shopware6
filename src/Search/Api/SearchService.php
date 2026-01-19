@@ -11,7 +11,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
-use Nosto\NostoIntegration\Service\FilterPayloadStore;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\Context;
@@ -31,7 +31,7 @@ class SearchService
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
         private readonly EntityRepository $categoryRepository,
-        private readonly FilterPayloadStore $filterPayloadStore,
+        private readonly FilterPayloadService $filterPayloadService,
     ) {
     }
 
@@ -95,7 +95,10 @@ class SearchService
         );
 
         $fetchedFilters = false;
-        if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload(
+            $request->cookies->get('nostoCookieFilter'),
+        );
+        if (empty($filterCookie) && count($request->query->all()) !== 1) {
             $fetchedFilters = true;
             $this->fetchFilters($request, $criteria, $context, $requestHandler);
         }
@@ -138,7 +141,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
-            $this->filterPayloadStore,
+            $this->filterPayloadService,
         );
     }
 
@@ -148,7 +151,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
-            $this->filterPayloadStore,
+            $this->filterPayloadService,
             $this->categoryRepository,
         );
     }
@@ -164,4 +167,5 @@ class SearchService
 
         $nostoService->disable();
     }
+
 }

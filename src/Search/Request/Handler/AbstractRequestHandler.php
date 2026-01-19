@@ -11,7 +11,7 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
-use Nosto\NostoIntegration\Service\FilterPayloadStore;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Redirect;
@@ -31,9 +31,9 @@ abstract class AbstractRequestHandler
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
-        protected readonly FilterPayloadStore $filterPayloadStore,
+        protected readonly FilterPayloadService $filterPayloadService,
     ) {
-        $this->filterHandler = new FilterHandler();
+        $this->filterHandler = new FilterHandler($this->filterPayloadService);
     }
 
     /**
@@ -97,8 +97,8 @@ abstract class AbstractRequestHandler
         SearchResult $response,
         GraphQLResponseParser $responseParser,
     ): void {
-        $filterCookie = $this->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
-        $filterMappingCookie = $this->resolveCookiePayload(
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
+        $filterMappingCookie = $this->filterPayloadService->resolveCookiePayload(
             $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
         );
         $isInitialSearch = $request->attributes->get('isInitialSearch');
@@ -193,7 +193,7 @@ abstract class AbstractRequestHandler
 
     private function shouldHandleAsNewRequest(Request $request, Criteria $criteria): bool
     {
-        $filterCookie = $request->cookies->get('nostoCookieFilter');
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
 
         return empty($filterCookie) && $criteria->hasExtension('nostoFilters');
     }
@@ -206,23 +206,6 @@ abstract class AbstractRequestHandler
         );
 
         return $account;
-    }
-
-    private function resolveCookiePayload(?string $cookieValue): ?string
-    {
-        if (!$cookieValue) {
-            return null;
-        }
-
-        if (str_starts_with($cookieValue, 't:')) {
-            $token = substr($cookieValue, 2);
-            $payload = $this->filterPayloadStore->fetch($token);
-            if ($payload !== null) {
-                return $payload;
-            }
-        }
-
-        return $cookieValue;
     }
 
     protected function setPaginationParams(

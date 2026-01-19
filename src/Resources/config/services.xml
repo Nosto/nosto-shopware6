@@ -191,6 +191,9 @@
             <argument key="$cache" type="service" id="cache.object"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
+        <service id="Nosto\NostoIntegration\Service\FilterPayloadService">
+            <argument key="$filterPayloadStore" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadStore"/>
+        </service>
         <!-- /Services -->
 
         <!-- Decorators -->

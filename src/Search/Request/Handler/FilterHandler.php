@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\Operation\Search\SearchOperation;
@@ -22,6 +23,11 @@ class FilterHandler
     protected const MIN_PREFIX = 'min-';
 
     protected const MAX_PREFIX = 'max-';
+
+    public function __construct(
+        private readonly FilterPayloadService $filterPayloadService,
+    ) {
+    }
 
     /**
      * Sets all requested filters to the Nosto API request.
@@ -69,7 +75,9 @@ class FilterHandler
         Request $request,
         SearchOperation $searchOperation,
     ): void {
-        $cookieValue = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        $cookieValue = $this->filterPayloadService->resolveCookiePayload(
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+        );
         if (is_null($cookieValue)) {
             return;
         }
