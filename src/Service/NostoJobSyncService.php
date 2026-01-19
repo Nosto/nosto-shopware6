@@ -6,10 +6,10 @@ namespace Nosto\NostoIntegration\Service;
 
 use Doctrine\DBAL\Connection;
 use Exception;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -49,7 +49,7 @@ class NostoJobSyncService
     private function getAllRunningFullProductSyncJobIds(Context $context, string $handlerCode): array
     {
         // 1. Find parent jobs: parent_id IS NULL AND status IN ('running', 'pending')
-        $parentCriteria = new Criteria();
+        $parentCriteria = NostoCriteriaFactory::create();
         $parentCriteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $handlerCode),
@@ -63,7 +63,7 @@ class NostoJobSyncService
         // 2. Find child jobs: parent_id IN (parentJobIds)
         $childJobIds = [];
         if (!empty($parentJobIds)) {
-            $childCriteria = new Criteria();
+            $childCriteria = NostoCriteriaFactory::create();
             $childCriteria->addFilter(
                 new AndFilter([
                     new EqualsFilter('type', $handlerCode),

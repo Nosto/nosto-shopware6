@@ -1,3 +1,14 @@
+# 5.2.0
+* New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data
+* New: Add Nosto criteria titles for product synchronization queries to improve debugging
+* Fix: Stop loading child product data during product sync twice
+
+# 5.1.20
+* Fix: Additional logging added for product sync flow under the feature flag
+
+# 5.1.19
+* Fix: Job Scheduler Update - Improved error handling in JobExecutionHandler and Introduced job existence checks
+
 # 5.1.18
 * New: Ability to set default image url, will be used if image is not set for the product
 * Fix: Do not send no result analytics for search if redirect is enabled

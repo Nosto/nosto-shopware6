@@ -6,9 +6,9 @@ namespace Nosto\NostoIntegration\Api\Controller;
 
 use GuzzleHttp\Client;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +43,7 @@ class NostoCategoriesController extends AbstractController
     )]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('children');
         $criteria->getAssociation('parent');
         $criteria->getAssociation('seoUrls');
