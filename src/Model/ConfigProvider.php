@@ -252,24 +252,6 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledProductLabellingSync($channelId = null, $languageId = null): bool
-    {
-        return $this->configService->getBool(
-            NostoConfigService::ENABLE_PRODUCT_LABELLING_SYNC,
-            $channelId,
-            $languageId,
-        );
-    }
-
-    public function isEnabledStoreAbandonedCartData($channelId = null, $languageId = null): bool
-    {
-        return $this->configService->getBool(
-            NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
-            $channelId,
-            $languageId,
-        );
-    }
-
     public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(
@@ -283,6 +265,24 @@ class ConfigProvider
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_SYNC_FIRST_AVAILABLE_VARIANT,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledProductLabellingSync($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_PRODUCT_LABELLING_SYNC,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledStoreAbandonedCartData($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_STORE_ABANDONED_CART_DATA,
             $channelId,
             $languageId,
         );

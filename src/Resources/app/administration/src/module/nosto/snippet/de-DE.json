@@ -135,17 +135,17 @@
                     "label": "Aktivieren Sie die Bereinigung alter Jobs",
                     "helpText": "Ermöglicht das Bereinigen alter Jobs in der Nosto Task-Übersicht"
                 },
-                "enableProductVisibility": {
-                    "label": "Produkt-Sichtbarkeit aktivieren",
-                    "helpText": "Bitte führen Sie eine vollständige Produktsynchronisierung durch und indexieren Sie die Felder \"showCategory\" und \"showSearch\" im Nosto-Konto, bevor Sie dies aktivieren"
-                },
                 "enableTaggingForAllSkus": {
-                    "label": "Aktiviere Tagging für alle SKUs",
-                    "helpText": "Produkt- und SKU-Tagging hilft Nosto dabei, zu erkennen, welches Produkt angesehen wird. Es wird außerdem vom Crawler verwendet, um Ihre Produktdaten auf Nosto aktuell zu halten.\nFalls Sie eine langsame Performance Ihrer Produktseiten bemerken, deaktivieren Sie bitte diese Funktion und stellen Sie sicher, dass der Crawler im Nosto-Admin deaktiviert ist."
+                  "label": "Aktiviere Tagging für alle SKUs",
+                  "helpText": "Produkt- und SKU-Tagging hilft Nosto dabei, zu erkennen, welches Produkt angesehen wird. Es wird außerdem vom Crawler verwendet, um Ihre Produktdaten auf Nosto aktuell zu halten.\nFalls Sie eine langsame Performance Ihrer Produktseiten bemerken, deaktivieren Sie bitte diese Funktion und stellen Sie sicher, dass der Crawler im Nosto-Admin deaktiviert ist."
                 },
                 "enableFallbackMechanism": {
                   "label": "Fallback-Mechanismus aktivieren",
                   "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
+                },
+                "productSyncExtraLogging": {
+                  "label": "Zusätzliche Produktsync-Protokollierung",
+                  "helpText": "Schreibt detaillierte Zeitmessungen für jeden Produktsync-Schritt in den Log-Kanal nosto_integration. Nur zur Fehlersuche bei langsamen Synchronisationen aktivieren."
                 },
                 "enableProductVisibility": {
                   "label": "Produkt-Sichtbarkeit aktivieren",
