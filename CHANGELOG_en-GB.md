@@ -1,5 +1,5 @@
 # 5.2.1
-* Keep filter cookies smaller by storing their data in cache
+* Fix: Keep filter cookies smaller by storing their data in cache
 
 # 5.2.0
 * New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data
