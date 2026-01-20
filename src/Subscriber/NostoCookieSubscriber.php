@@ -134,5 +134,4 @@ class NostoCookieSubscriber implements EventSubscriberInterface
 
         $response->headers->setCookie($nostoAbCookie);
     }
-
 }
