@@ -82,6 +82,7 @@ class ProductHelper
     public static function convertJsonToFilter(string $filters): FiltersExtension
     {
         $filtersExtension = new FiltersExtension();
+        $jsonString = $filters;
 
         if (function_exists('gzuncompress')) {
             $compressed = base64_decode($filters);
