@@ -92,6 +92,7 @@
         <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration" />
             <argument key="$categoryRepository" type="service" id="category.repository" />
+            <argument key="$filterPayloadService" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadService" />
         </service>
 
         <service
@@ -105,6 +106,8 @@
         <service id="Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService"  autowire="true">
             <argument type="service" key="$sortingRepository" id="product_sorting.repository" />
         </service>
-        <service id="Nosto\NostoIntegration\Search\Request\Handler\FilterHandler" />
+        <service id="Nosto\NostoIntegration\Search\Request\Handler\FilterHandler">
+            <argument key="$filterPayloadService" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadService" />
+        </service>
     </services>
 </container>
