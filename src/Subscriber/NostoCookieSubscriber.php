@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Subscriber;
 
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +24,7 @@ class NostoCookieSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly FilterPayloadStore $filterPayloadStore,
+        private readonly FilterPayloadService $filterPayloadService,
     ) {
     }
 
@@ -47,33 +50,44 @@ class NostoCookieSubscriber implements EventSubscriberInterface
 
         $nostoApiResultValue = $request->attributes->get('nostoAPIResult');
         $encodedPayload = $this->encodePayload($nostoApiResultValue);
-        $cookieValue = $this->wrapToken(
-            $this->filterPayloadStore->store(
+        $existingFilterPayload = $this->filterPayloadService->resolveCookiePayload(
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+        );
+        if ($existingFilterPayload !== $encodedPayload) {
+            $cookieValue = $this->wrapToken(
+                $this->filterPayloadStore->store(
+                    $encodedPayload,
+                    self::TOKEN_TTL_SECONDS,
+                ),
                 $encodedPayload,
-                self::TOKEN_TTL_SECONDS,
-            ),
-            $encodedPayload,
-        );
-        $nostoCookieFilter = new Cookie(
-            'nostoCookieFilter',
-            $cookieValue,
-            strtotime('+1 day'),
-            '/',
-            $request->getHost(),
-            $request->isSecure(),
-            false,
-            false,
-            Cookie::SAMESITE_LAX,
-        );
+            );
+            $nostoCookieFilter = new Cookie(
+                NostoCookieProvider::NOSTO_FILTERS_KEY,
+                $cookieValue,
+                strtotime('+1 day'),
+                '/',
+                $request->getHost(),
+                $request->isSecure(),
+                false,
+                false,
+                Cookie::SAMESITE_LAX,
+            );
 
-        $response->headers->setCookie($nostoCookieFilter);
+            $response->headers->setCookie($nostoCookieFilter);
+        }
 
         if (!$request->attributes->has('setNostoCookie')) {
             return;
         }
         $nostoCookieValue = $request->attributes->get('setNostoCookie');
+        $existingMappingPayload = $this->filterPayloadService->resolveCookiePayload(
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY),
+        );
+        if ($existingMappingPayload === $nostoCookieValue) {
+            return;
+        }
         $nostoCookieFilterMapping = new Cookie(
-            'nostoCookieFilterMapping',
+            NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY,
             $this->wrapToken(
                 $this->filterPayloadStore->store((string) $nostoCookieValue, self::TOKEN_TTL_SECONDS),
                 (string) $nostoCookieValue,

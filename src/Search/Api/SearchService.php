@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Search\Api;
 
 use Composer\InstalledVersions;
 use Monolog\Logger;
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
@@ -96,7 +97,7 @@ class SearchService
 
         $fetchedFilters = false;
         $filterCookie = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get('nostoCookieFilter'),
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
         );
         if (empty($filterCookie) && count($request->query->all()) !== 1) {
             $fetchedFilters = true;

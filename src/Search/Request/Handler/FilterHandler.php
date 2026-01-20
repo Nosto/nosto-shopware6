@@ -76,7 +76,7 @@ class FilterHandler
         SearchOperation $searchOperation,
     ): void {
         $cookieValue = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY),
         );
         if (is_null($cookieValue)) {
             return;

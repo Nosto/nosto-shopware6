@@ -97,9 +97,9 @@ abstract class AbstractRequestHandler
         SearchResult $response,
         GraphQLResponseParser $responseParser,
     ): void {
-        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY));
         $filterMappingCookie = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY),
         );
         $isInitialSearch = $request->attributes->get('isInitialSearch');
 
@@ -193,7 +193,7 @@ abstract class AbstractRequestHandler
 
     private function shouldHandleAsNewRequest(Request $request, Criteria $criteria): bool
     {
-        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get('nostoCookieFilter'));
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload($request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY));
 
         return empty($filterCookie) && $criteria->hasExtension('nostoFilters');
     }
