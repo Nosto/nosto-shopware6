@@ -1,3 +1,6 @@
+# 5.2.1
+* Fix: Keep filter cookies smaller by storing their data in cache
+
 # 5.2.0
 * New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data
 * New: Add Nosto criteria titles for product synchronization queries to improve debugging

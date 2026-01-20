@@ -1,3 +1,6 @@
+# 5.2.1
+* Fix: Filter-Cookies klein halten, indem ihre Daten im Cache gespeichert werden
+
 # 5.2.0
 * New: Produktsynchronisierung pro Verkaufskanal aufteilen, damit mehrere Consumer parallel schneller laufen, mit zusätzlichem Caching für wiederverwendete Daten
 * New: Nosto-Kriterien-Titel für Produktsynchronisierungsabfragen hinzufügen, um das Debugging zu verbessern
