@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class NostoCookieSubscriber implements EventSubscriberInterface
 {
-    private const TOKEN_PREFIX = 't:';
-
     private const TOKEN_TTL_SECONDS = 86400;
 
     public function __construct(
@@ -49,21 +47,27 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         }
 
         $nostoApiResultValue = $request->attributes->get('nostoAPIResult');
-        $encodedPayload = $this->encodePayload($nostoApiResultValue);
+        $apiFilterPayload = $nostoApiResultValue;
+        if (function_exists('gzcompress')) {
+            $compressed = gzcompress($nostoApiResultValue, 9);
+            $apiFilterPayload = base64_encode($compressed);
+        }
+
         $existingFilterPayload = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_KEY,
         );
-        if ($existingFilterPayload !== $encodedPayload) {
-            $cookieValue = $this->wrapToken(
-                $this->filterPayloadStore->store(
-                    $encodedPayload,
-                    self::TOKEN_TTL_SECONDS,
-                ),
-                $encodedPayload,
+        if ($existingFilterPayload !== $apiFilterPayload) {
+            $token = $this->filterPayloadStore->store(
+                $apiFilterPayload,
+                self::TOKEN_TTL_SECONDS,
             );
+            if (!$token) {
+                return;
+            }
             $nostoCookieFilter = new Cookie(
                 NostoCookieProvider::NOSTO_FILTERS_KEY,
-                $cookieValue,
+                $token,
                 strtotime('+1 day'),
                 '/',
                 $request->getHost(),
@@ -81,17 +85,22 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         }
         $nostoCookieValue = $request->attributes->get('setNostoCookie');
         $existingMappingPayload = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY),
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY,
         );
         if ($existingMappingPayload === $nostoCookieValue) {
             return;
         }
+        $token = $this->filterPayloadStore->store(
+            (string) $nostoCookieValue,
+            self::TOKEN_TTL_SECONDS,
+        );
+        if (!$token) {
+            return;
+        }
         $nostoCookieFilterMapping = new Cookie(
             NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY,
-            $this->wrapToken(
-                $this->filterPayloadStore->store((string) $nostoCookieValue, self::TOKEN_TTL_SECONDS),
-                (string) $nostoCookieValue,
-            ),
+            $token,
             strtotime('+1 day'),
             '/',
             $request->getHost(),
@@ -126,31 +135,4 @@ class NostoCookieSubscriber implements EventSubscriberInterface
         $response->headers->setCookie($nostoAbCookie);
     }
 
-    private function encodePayload(string $payload): string
-    {
-        if (function_exists('zstd_compress')) {
-            $compressed = zstd_compress($payload, 11);
-            if ($compressed !== false) {
-                return base64_encode($compressed);
-            }
-        }
-
-        if (function_exists('gzcompress')) {
-            $compressed = gzcompress($payload, 9);
-            if ($compressed !== false) {
-                return base64_encode($compressed);
-            }
-        }
-
-        return $payload;
-    }
-
-    private function wrapToken(?string $token, string $fallback): string
-    {
-        if ($token) {
-            return self::TOKEN_PREFIX . $token;
-        }
-
-        return $fallback;
-    }
 }

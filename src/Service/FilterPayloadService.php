@@ -4,26 +4,22 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Service;
 
+use Symfony\Component\HttpFoundation\Request;
+
 class FilterPayloadService
 {
-    private const TOKEN_PREFIX = 't:';
-
     public function __construct(
         private readonly FilterPayloadStore $filterPayloadStore,
     ) {
     }
 
-    public function resolveCookiePayload(?string $cookieValue): ?string
+    public function resolveCookiePayload(Request $request, string $cookieName): ?string
     {
+        $cookieValue = $request->cookies->get($cookieName);
         if (!$cookieValue) {
             return null;
         }
 
-        if (str_starts_with($cookieValue, self::TOKEN_PREFIX)) {
-            $token = substr($cookieValue, strlen(self::TOKEN_PREFIX));
-            return $this->filterPayloadStore->fetch($token);
-        }
-
-        return $cookieValue;
+        return $this->filterPayloadStore->fetch($cookieValue);
     }
 }

@@ -83,7 +83,10 @@ class ProductHelper
     {
         $filtersExtension = new FiltersExtension();
 
-        $jsonString = self::decodeFiltersPayload($filters);
+        if (function_exists('gzuncompress')) {
+            $compressed = base64_decode($filters);
+            $jsonString = gzuncompress($compressed);
+        }
 
         $parsed = json_decode($jsonString, true);
 
@@ -423,29 +426,5 @@ class ProductHelper
         }
 
         return $properties;
-    }
-
-    private static function decodeFiltersPayload(string $filters): string
-    {
-        $binary = base64_decode($filters, true);
-        if ($binary === false) {
-            return $filters;
-        }
-
-        if (function_exists('zstd_uncompress')) {
-            $decoded = zstd_uncompress($binary);
-            if ($decoded !== false) {
-                return $decoded;
-            }
-        }
-
-        if (function_exists('gzuncompress')) {
-            $decoded = gzuncompress($binary);
-            if ($decoded !== false) {
-                return $decoded;
-            }
-        }
-
-        return $filters;
     }
 }

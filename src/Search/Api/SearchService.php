@@ -97,7 +97,8 @@ class SearchService
 
         $fetchedFilters = false;
         $filterCookie = $this->filterPayloadService->resolveCookiePayload(
-            $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY),
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_KEY,
         );
         if (empty($filterCookie) && count($request->query->all()) !== 1) {
             $fetchedFilters = true;
