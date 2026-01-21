@@ -1,3 +1,11 @@
+# 6.1.0
+* Fix: Keep filter cookies smaller by storing their data in cache
+* New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data
+* New: Add Nosto criteria titles for product synchronization queries to improve debugging
+* Fix: Stop loading child product data during product sync twice
+* Fix: Additional logging added for product sync flow under the feature flag
+* Fix: Job Scheduler Update - Improved error handling in JobExecutionHandler and Introduced job existence checks
+
 # 6.0.15
 * Fix: support SearchPageLoader injection in Shopware version 6.7.2.0
 
