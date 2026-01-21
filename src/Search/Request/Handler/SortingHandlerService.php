@@ -15,6 +15,7 @@ use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\ScoreSortingHandl
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\SortingHandlerInterface;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\StockSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\TopSellerSortingHandler;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Operation\Search\SearchOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -76,14 +77,14 @@ class SortingHandlerService
             return $id;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = NostoCriteriaFactory::createWithIds([$id]);
 
         return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
     }
 
     public function getNostoSortingPriority(SalesChannelContext $context): ?int
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
         $criteria->setLimit(1);
         $sorting = $this->sortingRepository->search($criteria, $context->getContext())->first();

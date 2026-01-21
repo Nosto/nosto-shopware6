@@ -7,13 +7,13 @@ namespace Nosto\NostoIntegration\Api\Route;
 use Exception;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Service\NostoJobSyncService;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -69,7 +69,7 @@ class NostoSyncRoute
 
     private function checkJobStatus(Context $context, string $type): void
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create('product_sync.nosto_sync_route.checkJobStatus');
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),
@@ -88,7 +88,9 @@ class NostoSyncRoute
 
     private function checkCancelRunningFullProductSyncJobStatus(Context $context, string $type): void
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create(
+            'product_sync.nosto_sync_route.checkCancelRunningFullProductSyncJobStatus',
+        );
         $criteria->addFilter(
             new AndFilter([
                 new EqualsFilter('type', $type),

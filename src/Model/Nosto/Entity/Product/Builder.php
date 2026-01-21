@@ -17,7 +17,9 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\NostoProductBuiltEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Types\Product\ProductInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -30,15 +32,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Builder
@@ -68,8 +69,24 @@ class Builder
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
         private readonly SalesChannelRepository $categoryRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $loggingCache = [];
+
+    /**
+     * @var array<string, CategoryCollection>
+     */
+    private array $dynamicGroupCategoriesCache = [];
+
+    /**
+     * @var array<string, array<string, TagEntity>>
+     */
+    private array $tagCache = [];
 
     /**
      * @throws NostoException
@@ -117,7 +134,7 @@ class Builder
             $stockStatus = ProductInterface::IN_STOCK;
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -377,6 +394,8 @@ class Builder
         NostoProduct $nostoProduct,
         SalesChannelContext $context,
     ): void {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
@@ -394,7 +413,7 @@ class Builder
             $tagIdsToLoad = [];
         }
 
-        $tags = $this->loadTagsByIds($tagIdsToLoad, $context->getContext());
+        $tags = $this->loadTagsByIds($tagIdsToLoad, $context);
 
         $nostoProduct->setTag1($this->getTagValues(
             $productEntity,
@@ -411,6 +430,18 @@ class Builder
             $this->configProvider->getTagFieldKey(3, $channelId, $languageId),
             $tags,
         ));
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.builder.initTags',
+                $startedAt,
+                [
+                    'loaded_tags' => $tags->count(),
+                    'product_id' => $productEntity->getId(),
+                ],
+            );
+        }
     }
 
     /**
@@ -431,16 +462,38 @@ class Builder
         return $result;
     }
 
-    private function loadTagsByIds(array $tagIds, Context $context): TagCollection
+    private function loadTagsByIds(array $tagIds, SalesChannelContext $context): TagCollection
     {
         if ($tagIds === []) {
             return new TagCollection();
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', array_values($tagIds)));
+        $cacheKey = $this->buildCacheKey($context);
+        if (!isset($this->tagCache[$cacheKey])) {
+            $this->tagCache[$cacheKey] = [];
+        }
 
-        return $this->tagRepository->search($criteria, $context)->getEntities();
+        $cachedTags = &$this->tagCache[$cacheKey];
+        $missingIds = array_diff($tagIds, array_keys($cachedTags));
+
+        if ($missingIds !== []) {
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.loadTagsByIds');
+            $criteria->addFilter(new EqualsAnyFilter('id', array_values($missingIds)));
+            $fetched = $this->tagRepository->search($criteria, $context->getContext())->getEntities();
+
+            foreach ($fetched as $tag) {
+                $cachedTags[$tag->getId()] = $tag;
+            }
+        }
+
+        $collection = new TagCollection();
+        foreach ($tagIds as $tagId) {
+            if (isset($cachedTags[$tagId])) {
+                $collection->add($cachedTags[$tagId]);
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -476,6 +529,8 @@ class Builder
         ?SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): void {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $categories = $this->getCategoriesWithDynamicProductGroups($context);
         $productCategoryRoIds = $product->getCategoriesRo()->getIds();
         $dynamicGroupCategoryIds = $dynamicGroupCategoryPaths = [];
@@ -508,20 +563,42 @@ class Builder
             throw new Exception(
                 'Cannot clear a product from categories associated with a dynamic group: ' . $e->getMessage(),
             );
+        } finally {
+            if ($shouldLog && $startedAt !== null) {
+                $this->logDuration(
+                    $context,
+                    'product_sync.builder.makeActualProductCategories',
+                    $startedAt,
+                    [
+                        'product_id' => $product?->getId(),
+                        'initial_category_count' => count($productCategoryRoIds),
+                        'dynamic_category_count' => count($dynamicGroupCategoryIds),
+                    ],
+                );
+            }
         }
     }
 
     private function getCategoriesWithDynamicProductGroups(SalesChannelContext $context): CategoryCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter(
-                self::PRODUCT_ASSIGNMENT_TYPE,
-                CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-            ),
-        );
+        $cacheKey = $this->buildCacheKey($context);
 
-        return $this->categoryRepository->search($criteria, $context)->getEntities();
+        if (!isset($this->dynamicGroupCategoriesCache[$cacheKey])) {
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.dynamicGroupCategories');
+            $criteria->addFilter(
+                new EqualsFilter(
+                    self::PRODUCT_ASSIGNMENT_TYPE,
+                    CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ),
+            );
+
+            $this->dynamicGroupCategoriesCache[$cacheKey] = $this->categoryRepository->search(
+                $criteria,
+                $context,
+            )->getEntities();
+        }
+
+        return $this->dynamicGroupCategoriesCache[$cacheKey];
     }
 
     private function addCategoriesByDynamicGroupsAssigned(
@@ -559,7 +636,7 @@ class Builder
     {
         $categoriesPaths = array_filter(array_unique(explode('|', $allProductCategoryPaths)));
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.categoriesTreeCollection');
         $criteria->addFilter(
             new EqualsAnyFilter('id', $categoriesPaths),
         );
@@ -567,22 +644,60 @@ class Builder
         return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
+    private function shouldLogExtra(SalesChannelContext $context): bool
+    {
+        $cacheKey = sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
+        if (!array_key_exists($cacheKey, $this->loggingCache)) {
+            $this->loggingCache[$cacheKey] = $this->configProvider->isEnabledProductSyncExtraLogging(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+        }
+
+        return $this->loggingCache[$cacheKey];
+    }
+
+    private function buildCacheKey(SalesChannelContext $context): string
+    {
+        return sprintf('%s-%s', $context->getSalesChannelId(), $context->getLanguageId());
+    }
+
+    private function logDuration(
+        SalesChannelContext $context,
+        string $message,
+        float $startedAt,
+        array $additionalContext = [],
+    ): void {
+        $durationMs = (microtime(true) - $startedAt) * 1000;
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+            ],
+        ));
+    }
+
     private function preparingChildrenSkuCollection(
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): SkuCollection {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
             $salesChannelId = $context->getSalesChannelId();
             $languageId = $context->getLanguageId();
 
-            $criteria = new Criteria();
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.childrenSku');
             $criteria->addAssociation('media');
             $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');
             $criteria->addAssociation('properties.group');
             $criteria->addAssociation('manufacturer');
+            $criteria->addAssociation('manufacturer.media');
             $criteria->addAssociation('categoriesRo');
             $criteria->addAssociation('visibilities');
             $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
@@ -610,6 +725,18 @@ class Builder
                     $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
                 }
             }
+        }
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.builder.preparingChildrenSkuCollection',
+                $startedAt,
+                [
+                    'product_id' => $product->getId(),
+                    'children_count' => $product->getChildren()->count(),
+                ],
+            );
         }
 
         return $skuCollection;

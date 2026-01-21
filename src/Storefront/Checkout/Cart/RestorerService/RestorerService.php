@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestorerService;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -15,7 +16,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Throwable;
 
@@ -52,7 +52,7 @@ class RestorerService
 
     protected function loadMapping(string $mappingId, Context $context): ?CheckoutMappingEntity
     {
-        return $this->mappingRepository->search(new Criteria([$mappingId]), $context)->first();
+        return $this->mappingRepository->search(NostoCriteriaFactory::createWithIds([$mappingId]), $context)->first();
     }
 
     protected function restoreCart(string $token, SalesChannelContext $context): void
@@ -88,7 +88,7 @@ class RestorerService
 
     private function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
-        $criteria = (new Criteria([$orderId]))
+        $criteria = (NostoCriteriaFactory::createWithIds([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('deliveries')

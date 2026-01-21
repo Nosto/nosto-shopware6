@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Traits;
 
 use Nosto\NostoIntegration\Struct\Pagination;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -138,7 +139,7 @@ trait SearchResultHelper
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
     ): void {
-        $productCriteria = new Criteria();
+        $productCriteria = NostoCriteriaFactory::create();
         $productCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('productNumber', $query),
             new EqualsFilter('ean', $query),

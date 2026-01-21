@@ -10,11 +10,11 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -31,11 +31,13 @@ class Builder
         ProductHelper $productHelper,
         ProductProviderInterface $productProvider,
     ): NostoLineItem {
-        $criteria = new Criteria([$item->getProductId()]);
+        $criteria = NostoCriteriaFactory::createWithIds([$item->getProductId()]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $product */
         $product = $productRepository->search($criteria, $context->getContext())->first();
-        $criteria = new Criteria([$product->getParentId() != null ? $product->getParentId() : $product->getId()]);
+        $criteria = NostoCriteriaFactory::createWithIds([
+            $product->getParentId() != null ? $product->getParentId() : $product->getId(),
+        ]);
         $criteria->addAssociation('children');
         /** @var ProductEntity|null $parentProduct */
         $parentProduct = $productRepository->search($criteria, $context->getContext())->first();
