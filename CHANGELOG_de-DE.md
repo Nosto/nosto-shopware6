@@ -1,3 +1,11 @@
+# 3.6.0
+* Fix: Filter-Cookies klein halten, indem ihre Daten im Cache gespeichert werden
+* New: Produktsynchronisierung pro Verkaufskanal aufteilen, damit mehrere Consumer parallel schneller laufen, mit zusätzlichem Caching für wiederverwendete Daten
+* New: Nosto-Kriterien-Titel für Produktsynchronisierungsabfragen hinzufügen, um das Debugging zu verbessern
+* Fix: Doppelte Laden der Kindproduktdaten während der Produktsynchronisierung verhindern
+* Fix: Zusätzliches Logging für den Produktsynchronisierungsablauf unter dem Feature-Flag hinzugefügt
+* Fix: Job Scheduler Update - Verbesserte Fehlerbehandlung im JobExecutionHandler und Einführung von Prüfungen auf das Vorhandensein von Jobs
+
 # 3.5.20
 * Neu: Möglichkeit, eine Standard-Bild-URL festzulegen, die verwendet wird, wenn für das Produkt kein Bild festgelegt ist.
 * Fix: Keine Ergebnisanalyse für die Suche senden, wenn die Weiterleitung aktiviert ist.
