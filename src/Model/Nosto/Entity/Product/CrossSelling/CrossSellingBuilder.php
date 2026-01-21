@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling;
 
 use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -41,8 +42,8 @@ class CrossSellingBuilder
         foreach ($crossSellings as $crossSelling) {
             $result[$this->createKeyFromName($crossSelling->getTranslation('name'))] = [
                 'productIds' => $this->useProductStream($crossSelling)
-                    ? $this->loadByStream($crossSelling, $context, new Criteria())
-                    : $this->loadByIds($crossSelling, $context, new Criteria()),
+                    ? $this->loadByStream($crossSelling, $context, NostoCriteriaFactory::create())
+                    : $this->loadByIds($crossSelling, $context, NostoCriteriaFactory::create()),
                 'position' => $crossSelling->getPosition(),
                 'sortBy' => $crossSelling->getSortBy(),
                 'sortDirection' => $crossSelling->getSortDirection(),
@@ -62,7 +63,7 @@ class CrossSellingBuilder
         if ($syncConfig === CrossSellingSyncOptions::NO_SYNC) {
             return new ProductCrossSellingCollection();
         }
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria
             ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))

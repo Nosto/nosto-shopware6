@@ -10,12 +10,12 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Builder as OrderBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Status\Builder as OrderStatusBuilder;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeOrderCreatedEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository, Search\Filter\EqualsFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -98,7 +98,7 @@ class OrderSyncHandler implements JobHandlerInterface
                 $ids[] = $entityId;
             }
         }
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('orderCustomer');
         $criteria->addAssociation('currency');

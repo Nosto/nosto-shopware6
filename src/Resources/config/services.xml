@@ -18,6 +18,8 @@
 
             <argument key="$productRepository" type="service" id="product.repository"/>
             <argument key="$categoryRepository" type="service" id="category.repository"/>
+            <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\ProductSyncHandler">
@@ -28,6 +30,7 @@
             <argument key="$productProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\CategorySyncHandler">
@@ -52,6 +55,8 @@
 
             <argument key="$entityChangelogRepository" type="service"
                       id="nosto_integration_entity_changelog.repository"/>
+            <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
@@ -105,12 +110,19 @@
             <argument key="$productRoute" type="service"
                       id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument key="$reviewRepository" type="service" id="product_review.repository"/>
+            <argument key="$eventDispatcher" type="service" id="event_dispatcher"/>
+            <argument key="$configProvider" type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
+            <argument key="$seoUrlReplacer" type="service"
+                      id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument key="$salesChannelProductRepository" type="service" id="sales_channel.product.repository"/>
+            <argument key="$router" type="service" id="router.default"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder">
             <argument key="$tagRepository" type="service" id="tag.repository"/>
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder"/>
@@ -174,6 +186,13 @@
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Customer\Builder">
             <argument key="$newsletterRecipientRepository" type="service" id="newsletter_recipient.repository"/>
+        </service>
+        <service id="Nosto\NostoIntegration\Service\FilterPayloadStore">
+            <argument key="$cache" type="service" id="cache.object"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
+        <service id="Nosto\NostoIntegration\Service\FilterPayloadService">
+            <argument key="$filterPayloadStore" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadStore"/>
         </service>
         <!-- /Services -->
 
@@ -321,6 +340,7 @@
             <argument key="$productProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
 
