@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
@@ -219,7 +220,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $languageId,
         );
         $domain = parse_url($domainUrl, PHP_URL_HOST);
-        $operation = new UpsertProduct($account->getNostoAccount(), $domain);
         $shouldLogExtra = $this->shouldLogExtra($context);
 
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
@@ -234,12 +234,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->productHelper,
         );
 
-        $hasProducts = false;
+        // up to 2MB payload!
+        $maxPayloadBytes = 2 * 1024 * 1024;
+        $operationPayloadBytes = 2;
+        $operationProductCount = 0;
+        $operationProducts = [];
 
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             try {
-                // TODO: up to 2MB payload!
                 $nostoProducts = [];
 
                 $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
@@ -343,8 +346,31 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         continue;
                     }
 
-                    $operation->addProduct($preparedProductForSync);
-                    $hasProducts = true;
+                    $productPayloadJson = SerializationHelper::serialize($preparedProductForSync);
+                    $productPayloadSize = strlen($productPayloadJson);
+                    $nextPayloadBytes = $operationPayloadBytes
+                        + ($operationProductCount > 0 ? 1 : 0)
+                        + $productPayloadSize;
+                    if ($operationProductCount > 0 && $nextPayloadBytes > $maxPayloadBytes) {
+                        $this->flushUpsertOperation(
+                            $operationProducts,
+                            $operationPayloadBytes,
+                            $operationProductCount,
+                            $account,
+                            $context,
+                            $domain,
+                            $shouldLogExtra,
+                            $maxPayloadBytes,
+                        );
+                        $nextPayloadBytes = 2 + $productPayloadSize;
+                    }
+
+                    $operationProducts[] = [
+                        'product' => $preparedProductForSync,
+                        'json' => $productPayloadJson,
+                    ];
+                    $operationPayloadBytes = $nextPayloadBytes;
+                    $operationProductCount++;
                 }
             } catch (\Throwable $e) {
                 $productId = $product->getId();
@@ -361,29 +387,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
-        if (!$hasProducts) {
-            return;
-        }
-
-        $dispatchStartedAt = $shouldLogExtra ? microtime(true) : null;
-        $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
-        if ($shouldLogExtra && $dispatchStartedAt !== null) {
-            $this->logDuration(
-                $context,
-                'product_sync.beforeUpsertProductsEvent',
-                $dispatchStartedAt,
-            );
-        }
-
-        $upsertStartedAt = $shouldLogExtra ? microtime(true) : null;
-        $operation->upsert();
-        if ($shouldLogExtra && $upsertStartedAt !== null) {
-            $this->logDuration(
-                $context,
-                'product_sync.upsert',
-                $upsertStartedAt,
-            );
-        }
+        $this->flushUpsertOperation(
+            $operationProducts,
+            $operationPayloadBytes,
+            $operationProductCount,
+            $account,
+            $context,
+            $domain,
+            $shouldLogExtra,
+            $maxPayloadBytes,
+        );
     }
 
     protected function handleProduct(
@@ -409,6 +422,142 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $this->productProvider->get($product, $context);
+    }
+
+    /**
+     * @param array<int, array{product: NostoProduct, json: string}> $operationProducts
+     */
+    private function flushUpsertOperation(
+        array &$operationProducts,
+        int &$operationPayloadBytes,
+        int &$operationProductCount,
+        Account $account,
+        SalesChannelContext $context,
+        string $domain,
+        bool $shouldLogExtra,
+        int $maxPayloadBytes,
+    ): void {
+        if (!$operationProducts) {
+            return;
+        }
+
+        $this->sendUpsertBatch(
+            $operationProducts,
+            $account,
+            $context,
+            $domain,
+            $shouldLogExtra,
+            $maxPayloadBytes,
+        );
+        $operationProducts = [];
+        $operationPayloadBytes = 2;
+        $operationProductCount = 0;
+    }
+
+    /**
+     * @param array<int, array{product: NostoProduct, json: string}> $products
+     */
+    private function sendUpsertBatch(
+        array $products,
+        Account $account,
+        SalesChannelContext $context,
+        string $domain,
+        bool $shouldLogExtra,
+        int $maxPayloadBytes,
+    ): void {
+        if (!$products) {
+            return;
+        }
+
+        $operation = new UpsertProduct($account->getNostoAccount(), $domain);
+        $operationProductIds = [];
+        $payloadChunks = [];
+
+        foreach ($products as $entry) {
+            $product = $entry['product'];
+            $operation->addProduct($product);
+            $operationProductIds[] = $product->getProductId();
+            $payloadChunks[] = $entry['json'];
+        }
+
+        $payloadJson = '[' . implode(',', $payloadChunks) . ']';
+        $payloadSize = strlen($payloadJson);
+        if ($payloadSize > $maxPayloadBytes && count($products) > 1) {
+            $splitIndex = intdiv(count($products), 2);
+            $this->sendUpsertBatch(
+                array_slice($products, 0, $splitIndex),
+                $account,
+                $context,
+                $domain,
+                $shouldLogExtra,
+                $maxPayloadBytes,
+            );
+            $this->sendUpsertBatch(
+                array_slice($products, $splitIndex),
+                $account,
+                $context,
+                $domain,
+                $shouldLogExtra,
+                $maxPayloadBytes,
+            );
+            return;
+        }
+
+        $dispatchStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $this->eventDispatcher->dispatch(new BeforeUpsertProductsEvent($operation, $context->getContext()));
+        if ($shouldLogExtra && $dispatchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.beforeUpsertProductsEvent',
+                $dispatchStartedAt,
+            );
+        }
+
+        if ($shouldLogExtra) {
+            $this->logger->info('product_sync.upsert.request', [
+                'product_count' => count($operationProductIds),
+                'product_ids' => $operationProductIds,
+                'payload_size_bytes' => $payloadSize,
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+                'domain' => $domain,
+            ]);
+        }
+
+        $upsertStartedAt = $shouldLogExtra ? microtime(true) : null;
+        try {
+            $upsertResult = $operation->upsert();
+        } catch (\Throwable $e) {
+            if ($shouldLogExtra) {
+                $this->logger->error('product_sync.upsert.response', [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'product_count' => count($operationProductIds),
+                    'sales_channel_id' => $context->getSalesChannelId(),
+                    'language_id' => $context->getLanguageId(),
+                    'domain' => $domain,
+                    'payload' => $payloadJson,
+                    'payload_size_bytes' => $payloadSize,
+                ]);
+            }
+            throw $e;
+        }
+        if ($shouldLogExtra) {
+            $this->logger->info('product_sync.upsert.response', [
+                'success' => $upsertResult,
+                'product_count' => count($operationProductIds),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+                'domain' => $domain,
+            ]);
+        }
+        if ($shouldLogExtra && $upsertStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.upsert',
+                $upsertStartedAt,
+            );
+        }
     }
 
     private function shouldLogExtra(SalesChannelContext $context): bool
