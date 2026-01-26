@@ -81,6 +81,8 @@
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
             <argument type="service" key="$categoryRepository" id="category.repository" />
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
+            <argument type="service" key="$productStreamBuilder"
+                      id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
         </service>
 
         <service
