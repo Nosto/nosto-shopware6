@@ -1,3 +1,8 @@
+# 3.6.1
+* Fix: Duplikatsprüfung vor dem Einfügen von Produkten in das Änderungsprotokoll hinzufügen
+* Fix: Fehlendes ProductListingResultEvent in ProductSearchRoute senden
+* Fix: Zusätzliche Logging für die Produktsynchronisierung
+
 # 3.6.0
 * Fix: Filter-Cookies klein halten, indem ihre Daten im Cache gespeichert werden
 * New: Produktsynchronisierung pro Verkaufskanal aufteilen, damit mehrere Consumer parallel schneller laufen, mit zusätzlichem Caching für wiederverwendete Daten
