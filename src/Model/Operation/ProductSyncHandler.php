@@ -540,6 +540,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     'sales_channel_id' => $context->getSalesChannelId(),
                     'language_id' => $context->getLanguageId(),
                     'domain' => $domain,
+                    'payload' => $payloadJson,
+                    'payload_size_bytes' => $payloadSize,
                 ]);
             }
             throw $e;
@@ -551,6 +553,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 'sales_channel_id' => $context->getSalesChannelId(),
                 'language_id' => $context->getLanguageId(),
                 'domain' => $domain,
+                'payload' => $payloadJson,
+                'payload_size_bytes' => $payloadSize,
             ]);
         }
         if ($shouldLogExtra && $upsertStartedAt !== null) {

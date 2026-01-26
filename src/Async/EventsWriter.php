@@ -29,9 +29,9 @@ class EventsWriter
     public function writeEvent(string $name, string $id, Context $context, ?string $productNumber = null): void
     {
         $criteria = NostoCriteriaFactory::create('events_writer.find_existing_event')
-            ->addFilter(new EqualsFilter('entityType', $name))
             ->addFilter(new EqualsFilter('entityId', $id))
             ->addFilter(new EqualsFilter('productNumber', $productNumber))
+            ->addFilter(new EqualsFilter('entityType', $name))
             ->setLimit(1);
 
         if ($this->changelogRepository->searchIds($criteria, $context)->firstId()) {
