@@ -90,6 +90,7 @@
             <argument type="service" key="$categoryRepository" id="category.repository"/>
             <argument type="service" key="$productStreamBuilder"
                       id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" key="$eventDispatcher" id="event_dispatcher"/>
         </service>
 
 
