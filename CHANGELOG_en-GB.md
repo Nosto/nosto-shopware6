@@ -1,3 +1,8 @@
+# 6.1.1
+* Fix: Add duplicate check before inserting products into changelog
+* Fix: Dispatch missing ProductListingResultEvent in ProductSearchRoute
+* Fix: Extra logging for product sync requests
+
 # 6.1.0
 * Fix: Keep filter cookies smaller by storing their data in cache
 * New: Split product sync per sales channel so multiple consumers can run in parallel faster, with additional caching for reused data
