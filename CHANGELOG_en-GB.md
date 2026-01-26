@@ -1,3 +1,8 @@
+# 5.2.2
+* Fix: Add duplicate check before inserting products into changelog
+* Fix: Dispatch missing ProductListingResultEvent in ProductSearchRoute
+* Fix: Extra logging for product sync requests
+
 # 5.2.1
 * Fix: Keep filter cookies smaller by storing their data in cache
 

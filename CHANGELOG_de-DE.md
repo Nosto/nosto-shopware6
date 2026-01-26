@@ -1,3 +1,8 @@
+# 5.2.2
+* Fix: Duplikatsprüfung vor dem Einfügen von Produkten in das Änderungsprotokoll hinzufügen
+* Fix: Fehlendes ProductListingResultEvent in ProductSearchRoute senden
+* Fix: Zusätzliche Logging für die Produktsynchronisierung
+
 # 5.2.1
 * Fix: Filter-Cookies klein halten, indem ihre Daten im Cache gespeichert werden
 
