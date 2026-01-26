@@ -16,8 +16,8 @@ use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
@@ -129,7 +129,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             $this->eventDispatcher->dispatch(
-                new ProductListingResultEvent($request, $productListing, $context)
+                new ProductListingResultEvent($request, $productListing, $context),
             );
 
             $this->sendImpressionAnalytics($context, $productListing, $category, $request);

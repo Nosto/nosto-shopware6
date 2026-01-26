@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Throwable;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Throwable;
 
 class Migration1769413546AddChangelogLookupIndex extends MigrationStep
 {
@@ -37,7 +37,7 @@ class Migration1769413546AddChangelogLookupIndex extends MigrationStep
         } catch (Throwable) {
             $connection->executeStatement(
                 'CREATE INDEX `idx_nosto_entity_changelog_lookup` ' .
-                'ON `nosto_integration_entity_changelog` (`entity_id`, `product_number`, `entity_type`)'
+                'ON `nosto_integration_entity_changelog` (`entity_id`, `product_number`, `entity_type`)',
             );
         }
     }
