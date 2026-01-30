@@ -253,6 +253,10 @@ class ProductTaggingHelper
             }
         }
 
+        if (!$mainProduct) {
+            $mainProduct = $this->handleFirstAvailableVariant($product, $context);
+        }
+
         if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
             $mainProduct->setChildren($variants);
         }
