@@ -240,11 +240,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operationProductCount = 0;
         $operationProducts = [];
 
+        // === Pass 1: Collect handled products (in-memory, no DB calls) ===
+        /** @var array<string, ProductCollection> */
+        $handledMap = [];
+        $allUniqueIds = [];
+        $failedProductIds = [];
+        $collectStartedAt = $shouldLogExtra ? microtime(true) : null;
+
         /** @var ProductEntity $product */
         foreach ($productCollection as $product) {
             try {
-                $nostoProducts = [];
-
                 $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
                 $handledProducts = $productTaggingHelper->findProductId(
                     $context,
@@ -266,6 +271,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     );
                 }
 
+                $handledMap[$product->getId()] = $handledProducts;
+
                 if (!$handledProducts->count()) {
                     $this->deleteVariantProducts($product, $context, $account, $ids);
                     $this->doDeleteOperation(
@@ -274,26 +281,70 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         [$product->getId(), $product->getParentId()],
                         $ids,
                     );
+                } else {
+                    foreach ($handledProducts->getIds() as $id) {
+                        $allUniqueIds[$id] = true;
+                    }
                 }
+            } catch (\Throwable $e) {
+                $failedProductIds[$product->getId()] = true;
+                $productId = $product->getId();
+                $productNumber = method_exists($product, 'getProductNumber') ? $product->getProductNumber() : 'unknown';
+                $message = sprintf(
+                    'Error while processing product ID: %s (Product Number: %s): %s',
+                    $productId,
+                    $productNumber,
+                    $e->getMessage(),
+                );
 
-                $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
-                $shopwareProducts = $handledProducts->count()
-                    ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
-                    : new ProductCollection();
-                if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
-                    $this->logDuration(
-                        $context,
-                        'product_sync.getShopwareProducts',
-                        $shopwareProductsFetchStartedAt,
-                        [
-                            'handled_count' => $handledProducts->count(),
-                            'loaded_count' => $shopwareProducts->count(),
-                        ],
-                    );
-                }
+                $wrappedException = new \RuntimeException($message, 0, $e);
+                $result->addError($wrappedException);
+            }
+        }
+
+        if ($shouldLogExtra && $collectStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.collectHandledProducts',
+                $collectStartedAt,
+                [
+                    'product_count' => $productCollection->count(),
+                    'unique_handled_ids' => count($allUniqueIds),
+                    'failed_count' => count($failedProductIds),
+                ],
+            );
+        }
+
+        // === Pass 2: Single batched DB query ===
+        $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $allShopwareProducts = !empty($allUniqueIds)
+            ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context)
+            : new ProductCollection();
+        if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.getShopwareProducts.batch',
+                $shopwareProductsFetchStartedAt,
+                [
+                    'requested_count' => count($allUniqueIds),
+                    'loaded_count' => $allShopwareProducts->count(),
+                ],
+            );
+        }
+
+        // === Pass 3: Process using pre-loaded data ===
+        /** @var ProductEntity $product */
+        foreach ($productCollection as $product) {
+            if (isset($failedProductIds[$product->getId()])) {
+                continue;
+            }
+
+            try {
+                $nostoProducts = [];
+                $handledProducts = $handledMap[$product->getId()];
 
                 foreach ($handledProducts as $handledProduct) {
-                    $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
+                    $shopwareProduct = $allShopwareProducts->get($handledProduct->getId());
                     $productStartedAt = $shouldLogExtra ? microtime(true) : null;
                     $handledResult = 'skipped';
 
