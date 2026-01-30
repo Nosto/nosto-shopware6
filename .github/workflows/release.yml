@@ -30,6 +30,16 @@ jobs:
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Setup Shopware Shop
+        uses: ./nosto-shopware6/.github/action/setup_shop
+        with:
+          shopware-version: '6.5.7.3'
+
+      - name: Build admin + storefront assets
+        run: |
+          cd shopware
+          ./bin/build-js.sh      
+
       - name: Set minimum requirement
         working-directory: nosto-shopware6
         run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
