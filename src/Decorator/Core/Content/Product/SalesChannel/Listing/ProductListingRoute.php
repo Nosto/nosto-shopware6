@@ -226,7 +226,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
             $page = $productListing->getPage();
             $metadata = new AnalyticsCategoryMetadata(
-            //Either category or categoryId are needed
+                //Either category or categoryId are needed
                 $fullCategoryPath,
                 $category->getId() ?? null,
             );
