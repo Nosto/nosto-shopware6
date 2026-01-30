@@ -69,10 +69,17 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
         $this->processor->prepare($request, $criteria, $context);
 
+        $filterCountBefore = \count($criteria->getFilters());
+        $postFilterCountBefore = \count($criteria->getPostFilters());
         $this->eventDispatcher->dispatch(
             new ProductSearchCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SEARCH_CRITERIA,
         );
+        if (\count($criteria->getFilters()) > $filterCountBefore
+            || \count($criteria->getPostFilters()) > $postFilterCountBefore
+        ) {
+            $criteria->addState('nosto.external-filters');
+        }
 
         $response = $this->getDecorated()->load($request, $context, $criteria);
 
