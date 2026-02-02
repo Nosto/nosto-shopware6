@@ -16,6 +16,7 @@ use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -90,6 +91,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $context->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
+            $hasExternalFilters = $criteria->hasState('nosto.external-filters')
+                || \count($criteria->getFilters()) > 0
+                || \count($criteria->getPostFilters()) > 0;
             $criteria->addFilter(
                 new ProductAvailableFilter(
                     $context->getSalesChannel()->getId(),
@@ -97,6 +101,16 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 ),
             );
             $criteria->addAssociation('options.group');
+
+            $filterCountBefore = \count($criteria->getFilters());
+            $postFilterCountBefore = \count($criteria->getPostFilters());
+            $this->eventDispatcher->dispatch(
+                new ProductSearchCriteriaEvent($request, $criteria, $context),
+                ProductEvents::PRODUCT_SEARCH_CRITERIA,
+            );
+            $hasExternalFilters = $hasExternalFilters
+                || \count($criteria->getFilters()) > $filterCountBefore
+                || \count($criteria->getPostFilters()) > $postFilterCountBefore;
 
             $this->searchBuilder->build($request, $criteria, $context);
 
@@ -110,6 +124,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $this->sendImpressionAnalytics($context, $productListing, $request);
 
             if (!$result->getElements()
+                && !$hasExternalFilters
                 && $this->configProvider->isEnabledFallbackMechanism(
                     $context->getSalesChannelId(),
                     $context->getLanguageId(),
