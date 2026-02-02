@@ -1,3 +1,9 @@
+# 5.2.3
+* Fix: Handle fallback to first available variant when main product is not set
+* Fix: Handle external filters in product listing and search routes
+* Fix: Improve product sync performance and error handling
+* Fix: Update compiled assets
+
 # 5.2.2
 * Fix: Add duplicate check before inserting products into changelog
 * Fix: Dispatch missing ProductListingResultEvent in ProductSearchRoute

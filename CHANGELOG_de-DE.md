@@ -1,3 +1,9 @@
+# 5.2.3
+* Fix: Fallback auf erste verfügbare Variante, wenn Hauptprodukt nicht festgelegt ist
+* Fix: Externe Filter in Produktlisten und Suchrouten verarbeiten
+* Fix: Produktsynchronisierungsleistung und Fehlerbehandlung verbessern
+* Fix: Kompilierte Assets aktualisieren
+
 # 5.2.2
 * Fix: Duplikatsprüfung vor dem Einfügen von Produkten in das Änderungsprotokoll hinzufügen
 * Fix: Fehlendes ProductListingResultEvent in ProductSearchRoute senden
