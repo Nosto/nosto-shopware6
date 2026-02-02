@@ -28,6 +28,16 @@ jobs:
       - name: Setup Plugin
         uses: ./nosto-shopware6/.github/action/setup_plugin
 
+      - name: Setup Shopware Shop
+        uses: ./nosto-shopware6/.github/action/setup_shop
+        with:
+          shopware-version: '6.7.4.0'
+
+      - name: Build admin + storefront assets
+        run: |
+          cd shopware
+          ./bin/build-js.sh
+
       - name: Set minimum requirement
         working-directory: nosto-shopware6
         run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
@@ -52,7 +62,7 @@ jobs:
       - name: Prepare clean build directory
         run: |
             mkdir clean
-            rsync -a nosto-shopware6/ clean/ \
+            rsync -a shopware/custom/plugins/nosto-shopware6/ clean/ \
             --exclude .git \
             --exclude .github \
             --exclude node_modules \
