@@ -1,3 +1,6 @@
+# 6.1.3
+* Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
+
 # 6.1.2
 * Fix: Fallback auf erste verfügbare Variante, wenn Hauptprodukt nicht festgelegt ist
 * Fix: Externe Filter in Produktlisten und Suchrouten verarbeiten
