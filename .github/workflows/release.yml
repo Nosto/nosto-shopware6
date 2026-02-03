@@ -62,7 +62,7 @@ jobs:
       - name: Prepare clean build directory
         run: |
             mkdir clean
-            rsync -a shopware/custom/plugins/nosto-shopware6/ clean/ \
+            rsync -a nosto-shopware6/ clean/ \
             --exclude .git \
             --exclude .github \
             --exclude node_modules \
