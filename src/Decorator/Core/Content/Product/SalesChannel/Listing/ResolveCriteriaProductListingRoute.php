@@ -58,16 +58,9 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 
         $this->processor->prepare($request, $criteria, $context);
 
-        $filterCountBefore = \count($criteria->getFilters());
-        $postFilterCountBefore = \count($criteria->getPostFilters());
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $context),
         );
-        if (\count($criteria->getFilters()) > $filterCountBefore
-            || \count($criteria->getPostFilters()) > $postFilterCountBefore
-        ) {
-            $criteria->addState('nosto.external-filters');
-        }
 
         $response = $this->getDecorated()->load($categoryId, $request, $context, $criteria);
 
