@@ -1,3 +1,6 @@
+# 5.2.4
+* Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
+
 # 5.2.3
 * Fix: Fallback auf erste verfügbare Variante, wenn Hauptprodukt nicht festgelegt ist
 * Fix: Externe Filter in Produktlisten und Suchrouten verarbeiten
