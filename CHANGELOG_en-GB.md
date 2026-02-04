@@ -1,3 +1,6 @@
+# 6.1.4
+* Fix: Revert handle external filters in product listing and search routes
+
 # 6.1.3
 * Fix: Updated GitHub Actions release workflow. No runtime or behavior changes.
 

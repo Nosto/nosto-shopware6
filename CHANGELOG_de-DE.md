@@ -1,3 +1,6 @@
+# 6.1.4
+* Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
+
 # 6.1.3
 * Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
 
