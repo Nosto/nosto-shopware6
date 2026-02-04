@@ -1,3 +1,6 @@
+# 3.6.4
+* Fix: Abrufen von bis zu 500 benutzerdefinierten Feldern, statt das Limit zu überschreiten
+
 # 3.6.3
 * Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
 

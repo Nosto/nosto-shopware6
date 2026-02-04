@@ -1,3 +1,6 @@
+# 3.6.4
+* Fix: Pulling up-to 500 custom fields, instead of going out of limit
+
 # 3.6.3
 * Fix: Revert handle external filters in product listing and search routes
 

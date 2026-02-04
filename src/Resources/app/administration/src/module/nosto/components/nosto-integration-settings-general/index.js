@@ -129,7 +129,7 @@ Component.register('nosto-integration-settings-general', {
             this.initLanguageCode().then(() => {
                 const me = this;
                 const customFieldsCriteria = new Criteria();
-                customFieldsCriteria.setLimit(50000);
+                customFieldsCriteria.setLimit(500);
                 customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
                     .addAssociation('customFields')
                     .addAssociation('relations');
