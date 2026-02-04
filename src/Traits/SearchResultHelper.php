@@ -59,7 +59,7 @@ trait SearchResultHelper
         $productCriteria = clone $criteria;
         $productCriteria->setOffset(0);
         $productCriteria->resetQueries();
-        //$productCriteria->resetFilters(); /* Keep filters so other plugins can affect listings even when Nosto handles the request. */
+        $productCriteria->resetFilters();
         $productCriteria->resetSorting();
         $productCriteria->resetAggregations();
         $productCriteria->setTerm('');
