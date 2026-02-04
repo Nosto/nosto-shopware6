@@ -1,3 +1,6 @@
+# 5.2.4
+* Fix: Revert handle external filters in product listing and search routes
+
 # 5.2.3
 * Fix: Handle fallback to first available variant when main product is not set
 * Fix: Handle external filters in product listing and search routes
