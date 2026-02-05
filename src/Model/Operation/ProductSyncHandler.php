@@ -13,6 +13,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -43,6 +44,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
@@ -236,6 +238,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->configProvider,
             $this->productProvider,
             $this->productHelper,
+            $this->partialProductProvider,
         );
 
         // up to 2MB payload!
@@ -321,8 +324,17 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         // === Pass 2: Single batched DB query ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $useFullForProperties = $this->configProvider->isEnabledProductProperties(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+//        $allShopwareProducts = !empty($allUniqueIds)
+//            ? ($useFullForProperties
+//                ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context, true)
+//                : $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context))
+//            : new ProductCollection();
         $allShopwareProducts = !empty($allUniqueIds)
-            ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context)
+            ? ($this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context))
             : new ProductCollection();
         if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
             $this->logDuration(
@@ -353,7 +365,26 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $handledResult = 'skipped';
 
                     if ($shopwareProduct) {
-                        $shopwareProduct->setChildren($handledProduct->getChildren());
+                        $handledChildren = $handledProduct->getChildren();
+                        if ($handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
+//                            $childrenLoaded = $useFullForProperties
+//                                ? $this->productHelper->getShopwareProducts(
+//                                    $handledChildren->getIds(),
+//                                    $context,
+//                                    true,
+//                                )
+//                                : $this->productHelper->getShopwareProductsPartial(
+//                                    $handledChildren->getIds(),
+//                                    $context,
+//                                    false,
+//                                );
+                            $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
+                                $handledChildren->getIds(),
+                                $context,
+                                false,
+                            );
+                            $shopwareProduct->set('children', $childrenLoaded);
+                        }
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
@@ -455,28 +486,45 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     protected function handleProduct(
-        SalesChannelProductEntity $product,
+        object $product,
         SalesChannelContext $context,
         Account $account,
         bool $hideProductsAfterClearance,
         array $mapping,
     ): ?NostoProduct {
-        $stock = $this->productHelper->getProductStock($product, $context);
+        $stock = $this->productHelper->getProductStock($this->toProductEntity($product), $context);
 
-        if ($product->getChildren()?->count()) {
+        if ($product instanceof SalesChannelProductEntity && $product->getChildren()?->count()) {
             $this->deleteVariantProducts($product, $context, $account, $mapping);
         }
 
-        if ($product->getParentId()) {
-            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
+        $parentId = $product instanceof SalesChannelProductEntity ? $product->getParentId() : ($product->get('parentId') ?? null);
+        if ($parentId) {
+            $this->doDeleteOperation($account, $context, [$parentId], $mapping);
         }
 
-        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
-            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
+        $isCloseout = $product instanceof SalesChannelProductEntity ? $product->getIsCloseout() : (bool) ($product->get('isCloseout') ?? false);
+        $productId = $product instanceof SalesChannelProductEntity ? $product->getId() : (string) $product->get('id');
+        if ($hideProductsAfterClearance && $isCloseout && $stock < 1) {
+            $this->doDeleteOperation($account, $context, [$productId], $mapping);
             return null;
         }
 
-        return $this->productProvider->get($product, $context);
+        return $this->partialProductProvider->get($product, $context);
+    }
+
+    private function toProductEntity(object $product): SalesChannelProductEntity
+    {
+        if ($product instanceof SalesChannelProductEntity) {
+            return $product;
+        }
+        $entity = new SalesChannelProductEntity();
+        $entity->setId((string) $product->get('id'));
+        $entity->setParentId($product->get('parentId'));
+        $entity->setStock((int) ($product->get('stock') ?? 0));
+        $entity->setAvailableStock((int) ($product->get('availableStock') ?? 0));
+        $entity->setIsCloseout((bool) ($product->get('isCloseout') ?? false));
+        return $entity;
     }
 
     /**

@@ -11,6 +11,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -31,6 +32,7 @@ class NostoExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
         private readonly LoggerInterface $logger,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -126,6 +128,7 @@ class NostoExtension extends AbstractExtension
             $this->configProvider,
             $this->productProvider,
             $this->productHelper,
+            $this->partialProductProvider,
         );
 
         return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
