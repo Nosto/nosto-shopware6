@@ -66,6 +66,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     public function execute(object $message): Job\JobResult
     {
         $operationResult = new Job\JobResult();
+        $shouldLogExtra = null;
+        $jobStartedAt = null;
 
         $accounts = $this->resolveAccounts($message);
 
@@ -79,24 +81,27 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             );
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
-            $shouldLogExtra = $this->shouldLogExtra($channelContext);
-            $accountStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
-            if ($shouldLogExtra && $accountStartedAt !== null) {
-                $this->logDuration(
-                    $channelContext,
-                    'product_sync.execute.account',
-                    $accountStartedAt,
-                    [
-                        'product_count' => count($message->getProductIds()),
-                        'account_id' => $account->getId(),
-                    ],
-                );
+            if ($shouldLogExtra === null) {
+                $shouldLogExtra = $this->shouldLogExtra($channelContext);
+                $jobStartedAt = $shouldLogExtra ? microtime(true) : null;
             }
+            $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
 
             foreach ($accountOperationResult->getMessages() as $error) {
                 $operationResult->addMessage($error);
             }
+        }
+
+        if ($shouldLogExtra && $jobStartedAt !== null && $accounts !== []) {
+            $this->logDuration(
+                $channelContext,
+                'product_sync.execute.job',
+                $jobStartedAt,
+                [
+                    'account_count' => count($accounts),
+                    'product_count' => count($message->getProductIds()),
+                ],
+            );
         }
 
         return $operationResult;
