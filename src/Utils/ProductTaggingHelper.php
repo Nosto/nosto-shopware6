@@ -50,20 +50,6 @@ class ProductTaggingHelper
             if (!$isProductTagging) {
                 return $this->getIdOrProductNumber($context, $product);
             } elseif (!$isProductSync) {
-                $useFullForProperties = $this->configProvider->isEnabledProductProperties(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                );
-//                $shopwareProduct = $useFullForProperties
-//                    ? $this->productHelper->getShopwareProducts(
-//                        [$product->getId()],
-//                        $context,
-//                        true,
-//                    )->first()
-//                    : $this->productHelper->getShopwareProductsPartial(
-//                        [$product->getId()],
-//                        $context,
-//                    )->first();
                 $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
                     [$product->getId()],
                     $context,
@@ -77,17 +63,6 @@ class ProductTaggingHelper
                     $handledChildren = $product->getChildren();
                 }
                 if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
-//                    $childrenLoaded = $useFullForProperties
-//                        ? $this->productHelper->getShopwareProducts(
-//                            $handledChildren->getIds(),
-//                            $context,
-//                            true,
-//                        )
-//                        : $this->productHelper->getShopwareProductsPartial(
-//                            $handledChildren->getIds(),
-//                            $context,
-//                            false,
-//                        );
                     $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
                         $handledChildren->getIds(),
                         $context,
@@ -138,20 +113,6 @@ class ProductTaggingHelper
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
             $productId = $productToReturn?->getId() ?? $product->getId();
-            $useFullForProperties = $this->configProvider->isEnabledProductProperties(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-//            $shopwareProduct = $useFullForProperties
-//                ? $this->productHelper->getShopwareProducts(
-//                    [$productId],
-//                    $context,
-//                    true,
-//                )->first()
-//                : $this->productHelper->getShopwareProductsPartial(
-//                    [$productId],
-//                    $context,
-//                )->first();
             $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
                 [$productId],
                 $context,
@@ -165,17 +126,6 @@ class ProductTaggingHelper
                 $handledChildren = $product->getChildren();
             }
             if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
-//                $childrenLoaded = $useFullForProperties
-//                    ? $this->productHelper->getShopwareProducts(
-//                        $handledChildren->getIds(),
-//                        $context,
-//                        true,
-//                    )
-//                    : $this->productHelper->getShopwareProductsPartial(
-//                        $handledChildren->getIds(),
-//                        $context,
-//                        false,
-//                    );
                 $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
                     $handledChildren->getIds(),
                     $context,
