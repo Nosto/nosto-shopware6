@@ -128,8 +128,10 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialBuilder">
+            <argument key="$skuBuilder" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
             <argument key="$tagRepository" type="service" id="tag.repository"/>
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
+            <argument key="$builder" type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder"/>

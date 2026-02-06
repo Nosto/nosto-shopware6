@@ -79,7 +79,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             );
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
+            $shouldLogExtra = $this->shouldLogExtra($channelContext);
+            $accountStartedAt = $shouldLogExtra ? microtime(true) : null;
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
+            if ($shouldLogExtra && $accountStartedAt !== null) {
+                $this->logDuration(
+                    $channelContext,
+                    'product_sync.execute.account',
+                    $accountStartedAt,
+                    [
+                        'product_count' => count($message->getProductIds()),
+                        'account_id' => $account->getId(),
+                    ],
+                );
+            }
 
             foreach ($accountOperationResult->getMessages() as $error) {
                 $operationResult->addMessage($error);

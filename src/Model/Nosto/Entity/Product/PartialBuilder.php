@@ -26,6 +26,9 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -55,384 +58,113 @@ class PartialBuilder
         private readonly ProductHelper $productHelper,
         private readonly NetPriceCalculator $calculator,
         private readonly CashRounding $priceRounding,
+        private readonly SkuBuilder $skuBuilder,
         private readonly TreeBuilder $treeBuilder,
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $tagRepository,
         private readonly SalesChannelRepository $categoryRepository,
+        private readonly Builder $builder,
     ) {
     }
 
     public function build(object $product, SalesChannelContext $context): NostoProduct
     {
-        $nostoProduct = new NostoProduct();
-        $channelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
-
         $productId = $this->getValue($product, 'id');
-        $productNumber = $this->getValue($product, 'productNumber');
-
         if ($productId === null) {
+            return new NostoProduct();
+        }
+
+        $loadedProduct = $this->productHelper->reloadProduct((string) $productId, $context);
+        if ($loadedProduct instanceof SalesChannelProductEntity) {
+            $nostoProduct = $this->builder->build($loadedProduct, $context);
+            $this->maybeOverrideSkus($nostoProduct, $product, $context);
             return $nostoProduct;
         }
 
-        $url = $this->productHelper->getProductUrlById($productId, $context);
-        if (!empty($url)) {
-            $nostoProduct->setUrl($url);
+        if ($product instanceof SalesChannelProductEntity) {
+            $nostoProduct = $this->builder->build($product, $context);
+            $this->maybeOverrideSkus($nostoProduct, $product, $context);
+            return $nostoProduct;
         }
 
-        $nostoProduct->setProductId(
-            $this->configProvider->getProductIdentifier($channelId, $languageId) === ProductIdentifierOptions::PRODUCT_NUMBER
-                ? $productNumber
-                : $productId,
-        );
-        $nostoProduct->addCustomField(Builder::PRODUCT_NUMBER_KEY, $productNumber);
-        $nostoProduct->addCustomField(Builder::PRODUCT_ID_KEY, $productId);
+        return new NostoProduct();
+    }
 
-        $name = $this->getTranslation($product, 'name');
-        if (!empty($name)) {
-            $nostoProduct->setName($name);
+    private function maybeOverrideSkus(NostoProduct $nostoProduct, object $product, SalesChannelContext $context): void
+    {
+        if ($nostoProduct->getSkus() !== null && $nostoProduct->getSkus()->count()) {
+            return;
         }
 
-        $nostoProduct->setPriceCurrencyCode($context->getCurrency()->getIsoCode());
-
-        $stock = $this->getStock($product, $context);
-        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
-        if (!$this->getBool($product, 'isCloseout') && $stock < 1) {
-            $stockStatus = ProductInterface::IN_STOCK;
-        }
-
-        $nostoProduct->setAvailability($stockStatus);
-
-        $this->applyCategories($nostoProduct, $product, $context);
-
-        $ratingAvg = $this->getValue($product, 'ratingAverage');
-        if ($ratingAvg && $this->configProvider->getRatingReviews() === RatingOptions::SHOPWARE_RATINGS) {
-            $nostoProduct->setRatingValue(round((float) $ratingAvg, 1));
-            $nostoProduct->setReviewCount($this->productHelper->getReviewsCount($this->toSalesChannelEntity($product), $context));
-        }
-
-        $purchaseUnit = $this->getValue($product, 'purchaseUnit');
-        if ($purchaseUnit !== null) {
-            $nostoProduct->setUnitPricingMeasure((string) $purchaseUnit);
-        }
-
-        $referenceUnit = $this->getValue($product, 'referenceUnit');
-        if ($referenceUnit !== null) {
-            $nostoProduct->setUnitPricingBaseMeasure((string) $referenceUnit);
-        }
-
-        $unit = $this->getValue($product, 'unit');
-        if ($unit && method_exists($unit, 'getTranslation')) {
-            $unitName = $unit->getTranslation('name') ?: $unit->getName();
-            if (!empty($unitName)) {
-                $nostoProduct->setUnitPricingUnit($unitName);
-            }
-        }
-
-        $children = $this->getValue($product, 'children');
-        if ($children instanceof EntityCollection && $children->count()) {
-            $skuCollection = new SkuCollection();
-            foreach ($children as $child) {
-                $skuCollection->append($this->buildSku($child, $context));
-            }
+        $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
+        if ($skuCollection !== null && $skuCollection->count()) {
             $nostoProduct->setSkus($skuCollection);
         }
+    }
 
-        if ($this->getBool($product, 'shippingFree')) {
-            $nostoProduct->addCustomField(Builder::SHIPPING_FREE_ATTR_NAME, 'true');
+    private function preparingChildrenSkuCollection(object $product, SalesChannelContext $context): ?SkuCollection
+    {
+        $children = $this->getValue($product, 'children');
+        if (!$children instanceof EntityCollection || !$children->count()) {
+            return null;
         }
 
-        if ($this->configProvider->isEnabledProductProperties($channelId, $languageId)) {
-            $options = $this->getValue($product, 'options');
-            if ($options instanceof \Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection) {
-                $prepared = $this->productHelper->preparePropertiesOrOptions($options);
-                foreach ($prepared as $n => $o) {
-                    $nostoProduct->addCustomField($n, $o);
-                }
-            } elseif (is_iterable($options)) {
-                $prepared = $this->productHelper->preparePropertiesOrOptionsGeneric($options);
-                foreach ($prepared as $n => $o) {
-                    $nostoProduct->addCustomField($n, $o);
-                }
-            }
+        $salesChannelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
 
-            $properties = $this->getValue($product, 'properties');
-            if ($properties instanceof \Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection) {
-                $prepared = $this->productHelper->preparePropertiesOrOptions($properties);
-                foreach ($prepared as $n => $o) {
-                    $nostoProduct->addCustomField($n, $o);
-                }
-            } elseif (is_iterable($properties)) {
-                $prepared = $this->productHelper->preparePropertiesOrOptionsGeneric($properties);
-                foreach ($prepared as $n => $o) {
-                    $nostoProduct->addCustomField($n, $o);
-                }
-            }
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.childrenSku.partial');
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('cover');
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('properties.group');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
+        $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
+        $criteria->addFilter(new EqualsAnyFilter('id', $children->getIds()));
 
-            $this->initTags($product, $nostoProduct, $context);
-
-            $selected = $this->configProvider->getSelectedCustomFields($channelId, $languageId);
-            $customFields = $this->getTranslation($product, 'customFields');
-            if (is_array($customFields)) {
-                foreach ($customFields as $fieldName => $fieldValue) {
-                    if (in_array($fieldName, $selected, true) && $fieldValue !== null) {
-                        $nostoProduct->addCustomField(mb_strtolower((string) $fieldName), $fieldValue);
-                    }
-                }
-            }
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
+            $criteria->addFilter(new EqualsFilter('active', true));
         }
 
-        $cover = $this->getValue($product, 'cover');
-        $imageUrl = $this->extractMediaUrl($cover);
-        if ($imageUrl) {
-//            $nostoProduct->setImageUrl($imageUrl);
-//            $nostoProduct->setThumbUrl($imageUrl);
-            $nostoProduct->setImageUrl('https://placehold.co/800');
-            $nostoProduct->setThumbUrl('https://placehold.co/400');
-        } else {
-            $placeholder = $this->productHelper->getFallbackImageUrl($context);
-            $nostoProduct->setImageUrl($placeholder);
-            $nostoProduct->setThumbUrl($placeholder);
-        }
-
-        if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
-            $media = $this->getValue($product, 'media');
-            if ($media instanceof EntityCollection) {
-                $media->sort(static fn ($a, $b): int => ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0));
-                $urls = array_values(array_filter(
-                    $media->map(fn ($m) => $this->extractMediaUrl($m)),
-                ));
-                $nostoProduct->setAlternateImageUrls($urls);
-            }
-        }
-
-        $manufacturer = $this->getValue($product, 'manufacturer');
-        if ($manufacturer && method_exists($manufacturer, 'getTranslation')) {
-            $nostoProduct->setBrand($manufacturer->getTranslation('name'));
-            $brandMediaUrl = $this->extractMediaUrl($this->getValue($manufacturer, 'media'));
-            if ($brandMediaUrl) {
-                $nostoProduct->addCustomField('brand-image-url', $brandMediaUrl);
-            }
-        }
-
-        $description = $this->getTranslation($product, 'description');
-        if (!empty($description)) {
-            $nostoProduct->setDescription($description);
-        }
-
-        if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
-            $nostoProduct->setInventoryLevel($stock);
-        }
-
-        if ($this->configProvider->isEnabledProductPublishedDateTagging($channelId, $languageId)) {
-            $createdAt = $this->getValue($product, 'createdAt');
-            if ($createdAt instanceof \DateTimeInterface) {
-                $nostoProduct->setDatePublished($createdAt->format('Y-m-d'));
-            }
-        }
-
-        $this->setPrices($nostoProduct, $product, $context);
-
-        $crossSellings = $this->crossSellingBuilder->build($productId, $context);
-        if (!empty($crossSellings)) {
-            $nostoProduct->addCustomField('cross-sellings', json_encode($crossSellings));
-        }
-
-        if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
-            $releaseDate = $this->getValue($product, 'releaseDate');
-            $nostoProduct->addCustomField(
-                'product-labels_release-date',
-                $releaseDate instanceof \DateTimeInterface ? $releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+        if (count($categoryBlocklist)) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                ),
             );
-            $nostoProduct->addCustomField('product-labels_mfg-part-number', $this->getValue($product, 'manufacturerNumber'));
-            $nostoProduct->addCustomField('product-labels_gtin-ean', $this->getValue($product, 'ean'));
         }
 
-        $variantListingConfig = $this->getValue($product, 'variantListingConfig');
-        if ($variantListingConfig) {
-            $nostoProduct->addCustomField('variant-listing-config', json_encode($variantListingConfig));
-        }
-
-        $visibilities = $this->getValue($product, 'visibilities');
-        if (is_iterable($visibilities)) {
-            foreach ($visibilities as $visibility) {
-                $visibilityChannelId = method_exists($visibility, 'getSalesChannelId')
-                    ? $visibility->getSalesChannelId()
-                    : (method_exists($visibility, 'get') ? $visibility->get('salesChannelId') : null);
-                $visibilityValue = method_exists($visibility, 'getVisibility')
-                    ? $visibility->getVisibility()
-                    : (method_exists($visibility, 'get') ? $visibility->get('visibility') : null);
-
-                if ($channelId === $visibilityChannelId) {
-                    switch ($visibilityValue) {
-                        case ProductVisibilityDefinition::VISIBILITY_ALL:
-                            $showSearch = 'true';
-                            $showCategory = 'true';
-                            break;
-                        case ProductVisibilityDefinition::VISIBILITY_SEARCH:
-                            $showSearch = 'true';
-                            $showCategory = 'false';
-                            break;
-                        default:
-                            $showSearch = 'false';
-                            $showCategory = 'false';
-                    }
-                    $nostoProduct->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
-                    $nostoProduct->addCustomField(Builder::SHOW_SEARCH, $showSearch);
-                    break;
-                }
+        $skuCollection = new SkuCollection();
+        $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
+        while (($fetched = $iterator->fetch()) !== null) {
+            $shopwareProducts = $this->productHelper->getShopwareProducts($fetched->getIds(), $context);
+            foreach ($fetched as $variationProduct) {
+                $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
+                $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
             }
         }
 
-        $keywords = $this->getValue($product, 'customSearchKeywords');
-        if (is_array($keywords) && $keywords !== []) {
-            $nostoProduct->addCustomField(Builder::SEARCH_KEYWORDS, implode(', ', $keywords));
-        }
-
-        return $nostoProduct;
+        return $skuCollection;
     }
 
     private function buildSku(object $product, SalesChannelContext $context): NostoSku
     {
-        $sku = new NostoSku();
-        $channelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
+        if ($product instanceof \Shopware\Core\Content\Product\ProductEntity) {
+            return $this->skuBuilder->build($product, $context);
+        }
+
         $productId = $this->getValue($product, 'id');
-        $productNumber = $this->getValue($product, 'productNumber');
-
-        $url = $productId ? $this->productHelper->getProductUrlById($productId, $context) : null;
-        if (!empty($url)) {
-            $sku->setUrl($url);
-        }
-
-        $sku->setId(
-            $this->configProvider->getProductIdentifier($channelId, $languageId) === ProductIdentifierOptions::PRODUCT_NUMBER
-                ? $productNumber
-                : $productId,
-        );
-        $sku->addCustomField(Builder::PRODUCT_NUMBER_KEY, $productNumber);
-        $sku->addCustomField(Builder::PRODUCT_ID_KEY, $productId);
-
-        if ($this->getBool($product, 'shippingFree')) {
-            $sku->addCustomField(Builder::SHIPPING_FREE_ATTR_NAME, 'true');
-        }
-
-        $manufacturer = $this->getValue($product, 'manufacturer');
-        if ($manufacturer && method_exists($manufacturer, 'getMedia')) {
-            $brandMediaUrl = $this->extractMediaUrl($this->getValue($manufacturer, 'media'));
-            if ($brandMediaUrl) {
-                $sku->addCustomField('brand-image-url', $brandMediaUrl);
+        if ($productId !== null) {
+            $loadedProduct = $this->productHelper->reloadProduct((string) $productId, $context);
+            if ($loadedProduct instanceof \Shopware\Core\Content\Product\ProductEntity) {
+                return $this->skuBuilder->build($loadedProduct, $context);
             }
         }
 
-        $crossSellings = $productId ? $this->crossSellingBuilder->build($productId, $context) : [];
-        if (!empty($crossSellings)) {
-            $sku->addCustomField('cross-sellings', json_encode($crossSellings));
-        }
-
-        $name = $this->getTranslation($product, 'name');
-        if (!empty($name)) {
-            $sku->setName($name);
-        }
-
-        $stock = $this->getStock($product, $context);
-        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
-        $sku->setAvailability($stockStatus);
-
-        $cover = $this->getValue($product, 'cover');
-        $imageUrl = $this->extractMediaUrl($cover);
-        if ($imageUrl) {
-            $sku->setImageUrl($imageUrl);
-        } else {
-            $sku->setImageUrl($this->productHelper->getFallbackImageUrl($context));
-        }
-
-        $this->setSkuPrices($sku, $product, $context);
-
-        if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
-            $sku->setInventoryLevel($stock);
-        }
-
-        if ($this->configProvider->isEnabledProductProperties($channelId, $languageId)) {
-            $options = $this->getValue($product, 'options');
-            if ($options instanceof \Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection) {
-                $prepared = $this->productHelper->preparePropertiesOrOptions($options);
-                foreach ($prepared as $n => $o) {
-                    $sku->addCustomField($n, $o);
-                }
-            } elseif (is_iterable($options)) {
-                $prepared = $this->productHelper->preparePropertiesOrOptionsGeneric($options);
-                foreach ($prepared as $n => $o) {
-                    $sku->addCustomField($n, $o);
-                }
-            }
-
-            $properties = $this->getValue($product, 'properties');
-            if ($properties instanceof \Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection) {
-                $prepared = $this->productHelper->preparePropertiesOrOptions($properties);
-                foreach ($prepared as $n => $o) {
-                    $sku->addCustomField($n, $o);
-                }
-            } elseif (is_iterable($properties)) {
-                $prepared = $this->productHelper->preparePropertiesOrOptionsGeneric($properties);
-                foreach ($prepared as $n => $o) {
-                    $sku->addCustomField($n, $o);
-                }
-            }
-        }
-
-        if ($this->configProvider->isEnabledProductLabellingSync($channelId, $languageId)) {
-            $releaseDate = $this->getValue($product, 'releaseDate');
-            $sku->addCustomField(
-                'product-labels_release-date',
-                $releaseDate instanceof \DateTimeInterface ? $releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-            );
-            $sku->addCustomField('product-labels_mfg-part-number', $this->getValue($product, 'manufacturerNumber'));
-            $sku->addCustomField('product-labels_gtin-ean', $this->getValue($product, 'ean'));
-        }
-
-        $variantListingConfig = $this->getValue($product, 'variantListingConfig');
-        if ($variantListingConfig) {
-            $sku->addCustomField('variant-listing-config', json_encode($variantListingConfig));
-        }
-
-        $visibilities = $this->getValue($product, 'visibilities');
-        if (is_iterable($visibilities)) {
-            foreach ($visibilities as $visibility) {
-                $visibilityChannelId = method_exists($visibility, 'getSalesChannelId')
-                    ? $visibility->getSalesChannelId()
-                    : (method_exists($visibility, 'get') ? $visibility->get('salesChannelId') : null);
-                $visibilityValue = method_exists($visibility, 'getVisibility')
-                    ? $visibility->getVisibility()
-                    : (method_exists($visibility, 'get') ? $visibility->get('visibility') : null);
-
-                if ($channelId === $visibilityChannelId) {
-                    switch ($visibilityValue) {
-                        case ProductVisibilityDefinition::VISIBILITY_ALL:
-                            $showSearch = 'true';
-                            $showCategory = 'true';
-                            break;
-                        case ProductVisibilityDefinition::VISIBILITY_SEARCH:
-                            $showSearch = 'true';
-                            $showCategory = 'false';
-                            break;
-                        default:
-                            $showSearch = 'false';
-                            $showCategory = 'false';
-                    }
-                    $sku->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
-                    $sku->addCustomField(Builder::SHOW_SEARCH, $showSearch);
-                    break;
-                }
-            }
-        }
-
-        $keywords = $this->getValue($product, 'customSearchKeywords');
-        if (is_array($keywords) && $keywords !== []) {
-            $sku->addCustomField(Builder::SEARCH_KEYWORDS, implode(', ', $keywords));
-        }
-
-        return $sku;
+        return new NostoSku();
     }
 
     private function setPrices(NostoProduct $nostoProduct, object $product, SalesChannelContext $context): void
