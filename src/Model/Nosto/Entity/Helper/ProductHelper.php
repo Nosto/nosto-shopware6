@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -123,8 +125,15 @@ class ProductHelper
         return $filtersExtension;
     }
 
-    public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
+    public function getReviewsCount(
+        SalesChannelProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): int
     {
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = new PartialProduct($product);
+        }
+
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
@@ -300,8 +309,12 @@ class ProductHelper
         return $orderNumberMapping;
     }
 
-    public function getProductUrl(ProductEntity $product, SalesChannelContext $context): ?string
+    public function getProductUrl(ProductEntity|PartialEntity|PartialProduct $product, SalesChannelContext $context): ?string
     {
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = new PartialProduct($product);
+        }
+
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = (string) $this->configProvider->getDomainId(
                 $context->getSalesChannelId(),
@@ -426,8 +439,6 @@ class ProductHelper
         $criteria->addAssociation('manufacturer.media');
         $criteria->addAssociation('categoriesRo');
         $criteria->addAssociation('visibilities');
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('properties.group');
         $criteria->addAssociation('media');
 
 //        $loadFull = $this->configProvider->isEnabledProductProperties(
@@ -460,6 +471,8 @@ class ProductHelper
             'customSearchKeywords',
             'tagIds',
             'streamIds',
+            'optionIds',
+            'propertyIds',
             'unitId',
             'taxId',
             'price',
@@ -503,10 +516,7 @@ class ProductHelper
         $childrenCriteria->addAssociation('manufacturer');
         $childrenCriteria->addAssociation('manufacturer.media');
         $childrenCriteria->addAssociation('visibilities');
-        $childrenCriteria->addAssociation('options');
-        $childrenCriteria->addAssociation('properties');
-        $childrenCriteria->addAssociation('options.group');
-        $childrenCriteria->addAssociation('properties.group');
+        // Options/properties associations intentionally omitted for partial loads.
 //        if ($this->configProvider->isEnabledProductProperties(
 //            $context->getSalesChannelId(),
 //            $context->getLanguageId(),
@@ -532,6 +542,8 @@ class ProductHelper
             'prices',
             'name',
             'customFields',
+            'optionIds',
+            'propertyIds',
         ]);
         $childrenCriteria->addFields([
             'cover.id',
@@ -594,7 +606,7 @@ class ProductHelper
     }
 
     public function getProductStock(
-        ProductEntity|SalesChannelProductEntity $product,
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
         SalesChannelContext $context,
     ): int {
         return $this->configProvider->getStockField(

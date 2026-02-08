@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
@@ -20,6 +21,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,10 +62,24 @@ class NostoExtension extends AbstractExtension
         ];
     }
 
-    public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
+    public function getNostoProduct(
+        SalesChannelProductEntity|PartialProduct|PartialEntity|null $product,
+        SalesChannelContext $context,
+    ): ?NostoProduct
     {
         try {
-            $result = $product === null ? null : $this->productProvider->get($product, $context);
+            if ($product === null) {
+                return null;
+            }
+
+            if ($product instanceof SalesChannelProductEntity) {
+                $result = $this->productProvider->get($product, $context);
+            } else {
+                if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+                    $product = new PartialProduct($product);
+                }
+                $result = $this->partialProductProvider->get($product, $context);
+            }
 
             if ($product) {
                 $variationStatus = $this->resolveVariations($product);

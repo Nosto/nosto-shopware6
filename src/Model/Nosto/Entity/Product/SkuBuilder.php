@@ -13,6 +13,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingB
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -25,12 +26,15 @@ class SkuBuilder
     ) {
     }
 
-    public function build(ProductEntity $product, SalesChannelContext $context): NostoSku
+    public function build(ProductEntity|PartialEntity|PartialProduct $product, SalesChannelContext $context): NostoSku
     {
         $nostoSku = new NostoSku();
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = new PartialProduct($product);
+        }
         $url = $this->productHelper->getProductUrl($product, $context);
         if (!empty($url)) {
             $nostoSku->setUrl($url);
@@ -83,34 +87,48 @@ class SkuBuilder
         }
 
         if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
-            $nostoSku->setPrice($price->getGross());
-        }
+                $nostoSku->setPrice($price->getGross());
+            }
 
         if ($price->getListPrice() !== null) {
-            $nostoSku->setListPrice($price->getListPrice()->getGross());
+                $nostoSku->setListPrice($price->getListPrice()->getGross());
         }
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
             $nostoSku->setInventoryLevel($stock);
         }
 
-        if (
-            $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
-            $product->getOptions() !== null
-        ) {
-            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
-            foreach ($options as $name => $option) {
-                $nostoSku->addCustomField(
-                    $name,
-                    $option,
-                );
+        if ($this->configProvider->isEnabledProductProperties($channelId, $languageId)) {
+            $options = $product->getOptions();
+            if ($options !== null) {
+                $options = $this->productHelper->preparePropertiesOrOptionsGeneric($options);
+                foreach ($options as $name => $option) {
+                    $nostoSku->addCustomField(
+                        $name,
+                        $option,
+                    );
+                }
             }
-            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
-            foreach ($properties as $name => $property) {
-                $nostoSku->addCustomField(
-                    $name,
-                    $property,
-                );
+
+            $optionIds = method_exists($product, 'getOptionIds') ? $product->getOptionIds() : null;
+            if (is_array($optionIds) && !empty($optionIds)) {
+                $nostoSku->addCustomField('optionids', implode(', ', $optionIds));
+            }
+
+            $properties = $product->getProperties();
+            if ($properties !== null) {
+                $properties = $this->productHelper->preparePropertiesOrOptionsGeneric($properties);
+                foreach ($properties as $name => $property) {
+                    $nostoSku->addCustomField(
+                        $name,
+                        $property,
+                    );
+                }
+            }
+
+            $propertyIds = method_exists($product, 'getPropertyIds') ? $product->getPropertyIds() : null;
+            if (is_array($propertyIds) && !empty($propertyIds)) {
+                $nostoSku->addCustomField('propertyids', implode(', ', $propertyIds));
             }
         }
 

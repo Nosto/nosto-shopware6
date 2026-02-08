@@ -205,14 +205,16 @@ class Builder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            $options = $this->productHelper->preparePropertiesOrOptions($product->getOptions());
+            //todo preparePropertiesOrOptions
+            $options = $this->productHelper->preparePropertiesOrOptionsGeneric($product->getOptions());
             foreach ($options as $name => $option) {
                 $nostoProduct->addCustomField(
                     $name,
                     $option,
                 );
             }
-            $properties = $this->productHelper->preparePropertiesOrOptions($product->getProperties());
+            //todo preparePropertiesOrOptions
+            $properties = $this->productHelper->preparePropertiesOrOptionsGeneric($product->getProperties());
             foreach ($properties as $name => $property) {
                 $nostoProduct->addCustomField(
                     $name,
@@ -231,6 +233,16 @@ class Builder
                 if (in_array($fieldName, $selectedCustomFieldsCustomFields) && $fieldValue !== null) {
                     $nostoProduct->addCustomField(mb_strtolower($fieldName), $fieldValue);
                 }
+            }
+
+            $optionIds = method_exists($product, 'getOptionIds') ? $product->getOptionIds() : null;
+            if (is_array($optionIds) && !empty($optionIds)) {
+                $nostoProduct->addCustomField('optionids', implode(', ', $optionIds));
+            }
+
+            $propertyIds = method_exists($product, 'getPropertyIds') ? $product->getPropertyIds() : null;
+            if (is_array($propertyIds) && !empty($propertyIds)) {
+                $nostoProduct->addCustomField('propertyids', implode(', ', $propertyIds));
             }
         }
 
