@@ -110,11 +110,6 @@ class SkuBuilder
                 }
             }
 
-            $optionIds = method_exists($product, 'getOptionIds') ? $product->getOptionIds() : null;
-            if (is_array($optionIds) && !empty($optionIds)) {
-                $nostoSku->addCustomField('optionids', implode(', ', $optionIds));
-            }
-
             $properties = $product->getProperties();
             if ($properties !== null) {
                 $properties = $this->productHelper->preparePropertiesOrOptionsGeneric($properties);
@@ -124,11 +119,6 @@ class SkuBuilder
                         $property,
                     );
                 }
-            }
-
-            $propertyIds = method_exists($product, 'getPropertyIds') ? $product->getPropertyIds() : null;
-            if (is_array($propertyIds) && !empty($propertyIds)) {
-                $nostoSku->addCustomField('propertyids', implode(', ', $propertyIds));
             }
         }
 

@@ -27,16 +27,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -59,6 +55,7 @@ class PartialBuilder
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
         private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $propertyGroupOptionRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -77,6 +74,11 @@ class PartialBuilder
      * @var array<string, array<string, TagEntity>>
      */
     private array $tagCache = [];
+
+    /**
+     * @var array<string, array<string, string>>
+     */
+    private array $propertyOptionsCache = [];
 
     /**
      * @throws NostoException
@@ -249,13 +251,21 @@ class PartialBuilder
                 }
             }
 
+            if ($properties === null) {
+                $propertyIds = $this->getValue($partialProduct, 'propertyIds');
+                $propertiesByGroup = $this->getPropertyOptionsByIds($propertyIds, $context);
+                foreach ($propertiesByGroup as $groupName => $values) {
+                    $nostoProduct->addCustomField($groupName, $values);
+                }
+            }
+
             $optionIds = $this->getValue($partialProduct, 'optionIds');
-            if (is_array($optionIds) && !empty($optionIds)) {
+            if ($options === null && is_array($optionIds) && !empty($optionIds)) {
                 $nostoProduct->addCustomField('optionids', implode(', ', $optionIds));
             }
 
             $propertyIds = $this->getValue($partialProduct, 'propertyIds');
-            if (is_array($propertyIds) && !empty($propertyIds)) {
+            if (empty($propertiesByGroup) && is_array($propertyIds) && !empty($propertyIds)) {
                 $nostoProduct->addCustomField('propertyids', implode(', ', $propertyIds));
             }
         }
@@ -803,6 +813,32 @@ class PartialBuilder
         }
 
         return $this->getValue($entity, $field);
+    }
+
+    /**
+     * @param array<int, string>|null $propertyIds
+     * @return array<string, string>
+     */
+    private function getPropertyOptionsByIds(?array $propertyIds, SalesChannelContext $context): array
+    {
+        if (empty($propertyIds)) {
+            return [];
+        }
+
+        $cacheKey = md5(implode(',', $propertyIds) . '|' . $context->getLanguageId());
+        if (isset($this->propertyOptionsCache[$cacheKey])) {
+            return $this->propertyOptionsCache[$cacheKey];
+        }
+
+        $criteria = new Criteria($propertyIds);
+        $criteria->addAssociation('group');
+        $criteria->setTitle('nosto.partial.property_options');
+
+        $options = $this->propertyGroupOptionRepository->search($criteria, $context->getContext())->getEntities();
+        $properties = $this->productHelper->preparePropertiesOrOptions($options);
+        $this->propertyOptionsCache[$cacheKey] = $properties;
+
+        return $properties;
     }
 
     private function getId(object $product): ?string

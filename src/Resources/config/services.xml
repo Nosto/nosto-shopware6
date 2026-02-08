@@ -130,6 +130,7 @@
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialBuilder">
             <argument key="$tagRepository" type="service" id="tag.repository"/>
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
+            <argument key="$propertyGroupOptionRepository" type="service" id="property_group_option.repository"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
