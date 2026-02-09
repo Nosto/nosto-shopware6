@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SkuBuilder
@@ -232,6 +233,7 @@ class SkuBuilder
 
         $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.sku.property_options');
         $criteria->addAssociation('group');
+        $criteria->addFilter(new EqualsAnyFilter('id', $propertyIds));
 
         $options = $this->propertyGroupOptionRepository->search($criteria, $context->getContext())->getEntities();
         $properties = $this->productHelper->preparePropertiesOrOptions($options);

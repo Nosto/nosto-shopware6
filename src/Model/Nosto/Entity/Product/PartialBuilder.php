@@ -222,6 +222,12 @@ class PartialBuilder
                         $option,
                     );
                 }
+            } else {
+                $optionIds = $this->getValue($partialProduct, 'optionIds');
+                $optionsByGroup = $this->getPropertyOptionsByIds($optionIds, $context);
+                foreach ($optionsByGroup as $groupName => $values) {
+                    $nostoProduct->addCustomField($groupName, $values);
+                }
             }
 
             $properties = $partialProduct->getProperties();
@@ -232,6 +238,12 @@ class PartialBuilder
                         $name,
                         $property,
                     );
+                }
+            } else {
+                $propertyIds = $this->getValue($partialProduct, 'propertyIds');
+                $propertiesByGroup = $this->getPropertyOptionsByIds($propertyIds, $context);
+                foreach ($propertiesByGroup as $groupName => $values) {
+                    $nostoProduct->addCustomField($groupName, $values);
                 }
             }
 
@@ -249,24 +261,6 @@ class PartialBuilder
                         $nostoProduct->addCustomField(mb_strtolower($fieldName), $fieldValue);
                     }
                 }
-            }
-
-            if ($properties === null) {
-                $propertyIds = $this->getValue($partialProduct, 'propertyIds');
-                $propertiesByGroup = $this->getPropertyOptionsByIds($propertyIds, $context);
-                foreach ($propertiesByGroup as $groupName => $values) {
-                    $nostoProduct->addCustomField($groupName, $values);
-                }
-            }
-
-            $optionIds = $this->getValue($partialProduct, 'optionIds');
-            if ($options === null && is_array($optionIds) && !empty($optionIds)) {
-                $nostoProduct->addCustomField('optionids', implode(', ', $optionIds));
-            }
-
-            $propertyIds = $this->getValue($partialProduct, 'propertyIds');
-            if (empty($propertiesByGroup) && is_array($propertyIds) && !empty($propertyIds)) {
-                $nostoProduct->addCustomField('propertyids', implode(', ', $propertyIds));
             }
         }
 
@@ -832,6 +826,7 @@ class PartialBuilder
 
         $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.property_options');
         $criteria->addAssociation('group');
+        $criteria->addFilter(new EqualsAnyFilter('id', $propertyIds));
 
         $options = $this->propertyGroupOptionRepository->search($criteria, $context->getContext())->getEntities();
         $properties = $this->productHelper->preparePropertiesOrOptions($options);
