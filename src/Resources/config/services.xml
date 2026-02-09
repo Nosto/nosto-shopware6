@@ -105,7 +105,9 @@
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
+            <argument key="$propertyGroupOptionRepository" type="service" id="property_group_option.repository"/>
+        </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument key="$productRepository" type="service" id="product.repository"/>

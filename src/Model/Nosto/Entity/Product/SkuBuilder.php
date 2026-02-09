@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityE
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -27,8 +29,14 @@ class SkuBuilder
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
         private readonly CrossSellingBuilder $crossSellingBuilder,
+        private readonly EntityRepository $propertyGroupOptionRepository,
     ) {
     }
+
+    /**
+     * @var array<string, array<string, string>>
+     */
+    private array $propertyOptionsCache = [];
 
     public function build(ProductEntity|PartialEntity|PartialProduct $product, SalesChannelContext $context): NostoSku
     {
@@ -117,6 +125,12 @@ class SkuBuilder
                         $option,
                     );
                 }
+            } else {
+                $optionIds = $this->getValue($product, 'optionIds');
+                $optionsByGroup = $this->getPropertyOptionsByIds($optionIds, $context);
+                foreach ($optionsByGroup as $groupName => $values) {
+                    $nostoSku->addCustomField($groupName, $values);
+                }
             }
 
             $properties = $product->getProperties();
@@ -127,6 +141,12 @@ class SkuBuilder
                         $name,
                         $property,
                     );
+                }
+            } else {
+                $propertyIds = $this->getValue($product, 'propertyIds');
+                $propertiesByGroup = $this->getPropertyOptionsByIds($propertyIds, $context);
+                foreach ($propertiesByGroup as $groupName => $values) {
+                    $nostoSku->addCustomField($groupName, $values);
                 }
             }
         }
@@ -193,5 +213,30 @@ class SkuBuilder
         }
 
         return null;
+    }
+
+    /**
+     * @param array<int, string>|null $propertyIds
+     * @return array<string, string>
+     */
+    private function getPropertyOptionsByIds(?array $propertyIds, SalesChannelContext $context): array
+    {
+        if (empty($propertyIds)) {
+            return [];
+        }
+
+        $cacheKey = md5(implode(',', $propertyIds) . '|' . $context->getLanguageId());
+        if (isset($this->propertyOptionsCache[$cacheKey])) {
+            return $this->propertyOptionsCache[$cacheKey];
+        }
+
+        $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.sku.property_options');
+        $criteria->addAssociation('group');
+
+        $options = $this->propertyGroupOptionRepository->search($criteria, $context->getContext())->getEntities();
+        $properties = $this->productHelper->preparePropertiesOrOptions($options);
+        $this->propertyOptionsCache[$cacheKey] = $properties;
+
+        return $properties;
     }
 }

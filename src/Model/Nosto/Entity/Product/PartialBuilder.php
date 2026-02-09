@@ -830,9 +830,8 @@ class PartialBuilder
             return $this->propertyOptionsCache[$cacheKey];
         }
 
-        $criteria = new Criteria($propertyIds);
+        $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.property_options');
         $criteria->addAssociation('group');
-        $criteria->setTitle('nosto.partial.property_options');
 
         $options = $this->propertyGroupOptionRepository->search($criteria, $context->getContext())->getEntities();
         $properties = $this->productHelper->preparePropertiesOrOptions($options);
