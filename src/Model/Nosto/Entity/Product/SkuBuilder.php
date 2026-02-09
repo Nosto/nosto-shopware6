@@ -11,6 +11,10 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\Types\Product\ProductInterface;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -56,7 +60,9 @@ class SkuBuilder
         }
 
         if ($manufacturer = $product->getManufacturer()) {
-            if ($brandMediaUrl = $manufacturer->getMedia()?->getUrl()) {
+            $media = $manufacturer instanceof ProductManufacturerEntity ? $manufacturer->getMedia() : (is_object($manufacturer) ? $this->getValue($manufacturer, 'media') : null);
+            $brandMediaUrl = $media instanceof MediaEntity ? $media->getUrl() : (is_object($media) ? $this->getValue($media, 'url') : null);
+            if (!empty($brandMediaUrl)) {
                 $nostoSku->addCustomField('brand-image-url', $brandMediaUrl);
             }
         }
@@ -78,8 +84,11 @@ class SkuBuilder
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
         $nostoSku->setAvailability($stockStatus);
 
-        if ($product->getCover() && $product->getCover()->getMedia()) {
-//            $nostoSku->setImageUrl($product->getCover()->getMedia()->getUrl());
+        $cover = $product->getCover();
+        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue($cover, 'media') : null);
+        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object($coverMedia) ? $this->getValue($coverMedia, 'url') : null);
+        if (!empty($coverMediaUrl)) {
+//            $nostoSku->setImageUrl($coverMediaUrl);
             $nostoSku->setImageUrl('https://placehold.co/800');
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
@@ -136,8 +145,15 @@ class SkuBuilder
         }
 
         foreach ($product->getVisibilities() as $visibility) {
-            if ($channelId === $visibility->getSalesChannelId()) {
-                switch ($visibility->getVisibility()) {
+            $visibilitySalesChannelId = $visibility instanceof ProductVisibilityEntity
+                ? $visibility->getSalesChannelId()
+                : (is_object($visibility) ? $this->getValue($visibility, 'salesChannelId') : null);
+            $visibilityValue = $visibility instanceof ProductVisibilityEntity
+                ? $visibility->getVisibility()
+                : (is_object($visibility) ? $this->getValue($visibility, 'visibility') : null);
+
+            if ($channelId === $visibilitySalesChannelId) {
+                switch ($visibilityValue) {
                     case ProductVisibilityDefinition::VISIBILITY_ALL:
                         $showSearch = 'true';
                         $showCategory = 'true';
@@ -161,5 +177,21 @@ class SkuBuilder
         }
 
         return $nostoSku;
+    }
+
+    private function getValue(object $entity, string $field): mixed
+    {
+        if (method_exists($entity, 'get' . ucfirst($field))) {
+            $method = 'get' . ucfirst($field);
+            return $entity->$method();
+        }
+        if (method_exists($entity, 'get')) {
+            return $entity->get($field);
+        }
+        if (property_exists($entity, $field)) {
+            return $entity->$field;
+        }
+
+        return null;
     }
 }

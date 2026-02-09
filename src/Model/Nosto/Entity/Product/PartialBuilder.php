@@ -142,7 +142,7 @@ class PartialBuilder
             $stockStatus = ProductInterface::IN_STOCK;
         }
 
-        $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
+        $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -760,12 +760,12 @@ class PartialBuilder
         $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
 
             while (($children = $iterator->fetch()) !== null) {
-                $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
+                $shopwareProducts = $this->productHelper->getShopwareProductsPartial($children->getIds(), $context);
                 foreach ($children as $variationProduct) {
-                $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
-                $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
+                    $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
+                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
+                }
             }
-        }
         }
 
         if ($shouldLog && $startedAt !== null) {

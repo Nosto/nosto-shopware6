@@ -168,6 +168,19 @@ class PartialProduct
         return null;
     }
 
+    public function getCurrencyPrice(string $currencyId): ?Price
+    {
+        $prices = $this->getPrice();
+        if ($prices instanceof PriceCollection) {
+            return $prices->getCurrencyPrice($currencyId);
+        }
+        if ($prices instanceof Price) {
+            return $prices->getCurrencyId() === $currencyId ? $prices : null;
+        }
+
+        return null;
+    }
+
     public function getChildren(): ?EntityCollection
     {
         $value = $this->entity->get('children');
