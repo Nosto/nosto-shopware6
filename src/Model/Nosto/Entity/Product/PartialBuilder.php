@@ -27,12 +27,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -98,12 +99,6 @@ class PartialBuilder
 
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
-
-        //todo
-        //$url = $this->productHelper->getProductUrlById($productId, $context);
-        //if (!empty($url)) {
-        //    $nostoProduct->setUrl($url);
-        //}
 
         if ($product->getCategoriesRo() === null) {
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
@@ -201,7 +196,7 @@ class PartialBuilder
                     $channelId,
                     $languageId,
                 ) && $product->getChildren()->count()) {
-            $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
+                $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
 
                 $nostoProduct->setSkus($skuCollection);
             }
@@ -264,9 +259,12 @@ class PartialBuilder
             }
         }
 
-        if ($product->getCover()) {
-            $nostoProduct->setImageUrl($product->getCover()->getMedia()->getUrl());
-            $nostoProduct->setThumbUrl($product->getCover()->getMedia()->getUrl());
+        $cover = $product->getCover();
+        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue($cover, 'media') : null);
+        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object($coverMedia) ? $this->getValue($coverMedia, 'url') : null);
+        if (!empty($coverMediaUrl)) {
+            $nostoProduct->setImageUrl($coverMediaUrl);
+            $nostoProduct->setThumbUrl($coverMediaUrl);
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoProduct->setImageUrl($placeholderImageUrl);
