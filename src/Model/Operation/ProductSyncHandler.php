@@ -346,11 +346,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-//        $allShopwareProducts = !empty($allUniqueIds)
-//            ? ($useFullForProperties
-//                ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context, true)
-//                : $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context))
-//            : new ProductCollection();
         $allShopwareProducts = !empty($allUniqueIds)
             ? ($this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context))
             : new ProductCollection();
@@ -385,17 +380,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     if ($shopwareProduct) {
                         $handledChildren = $handledProduct->getChildren();
                         if ($handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
-//                            $childrenLoaded = $useFullForProperties
-//                                ? $this->productHelper->getShopwareProducts(
-//                                    $handledChildren->getIds(),
-//                                    $context,
-//                                    true,
-//                                )
-//                                : $this->productHelper->getShopwareProductsPartial(
-//                                    $handledChildren->getIds(),
-//                                    $context,
-//                                    false,
-//                                );
                             $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
                                 $handledChildren->getIds(),
                                 $context,

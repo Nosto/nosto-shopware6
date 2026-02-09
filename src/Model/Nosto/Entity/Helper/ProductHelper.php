@@ -330,23 +330,6 @@ class ProductHelper
         return null;
     }
 
-    public function getProductUrlById(string $productId, SalesChannelContext $context): ?string
-    {
-        if ($domains = $context->getSalesChannel()->getDomains()) {
-            $domainId = (string) $this->configProvider->getDomainId(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
-            $domain = $domains->has($domainId) ? $domains->get($domainId) : $domains->first();
-            $raw = $this->seoUrlReplacer->generate('frontend.detail.page', [
-                'productId' => $productId,
-            ]);
-            return $this->seoUrlReplacer->replace($raw, $domain?->getUrl() ?? '', $context);
-        }
-
-        return null;
-    }
-
     public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
     {
         return new RepositoryIterator($this->productRepository, $context, $criteria);
@@ -441,14 +424,6 @@ class ProductHelper
         $criteria->addAssociation('visibilities');
         $criteria->addAssociation('media');
 
-//        $loadFull = $this->configProvider->isEnabledProductProperties(
-//            $context->getSalesChannelId(),
-//            $context->getLanguageId(),
-//        );
-//        if ($loadFull) {
-//            return $criteria;
-//        }
-
         $criteria->addFields([
             'id',
             'parentId',
@@ -516,13 +491,7 @@ class ProductHelper
         $childrenCriteria->addAssociation('manufacturer');
         $childrenCriteria->addAssociation('manufacturer.media');
         $childrenCriteria->addAssociation('visibilities');
-        // Options/properties associations intentionally omitted for partial loads.
-//        if ($this->configProvider->isEnabledProductProperties(
-//            $context->getSalesChannelId(),
-//            $context->getLanguageId(),
-//        )) {
-//            return;
-//        }
+
         $childrenCriteria->addFields([
             'id',
             'parentId',
