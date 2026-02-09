@@ -15,12 +15,12 @@ use Nosto\Types\Product\ProductInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -69,8 +69,16 @@ class SkuBuilder
         }
 
         if ($manufacturer = $product->getManufacturer()) {
-            $media = $manufacturer instanceof ProductManufacturerEntity ? $manufacturer->getMedia() : (is_object($manufacturer) ? $this->getValue($manufacturer, 'media') : null);
-            $brandMediaUrl = $media instanceof MediaEntity ? $media->getUrl() : (is_object($media) ? $this->getValue($media, 'url') : null);
+            $media = $manufacturer instanceof ProductManufacturerEntity ? $manufacturer->getMedia() : (is_object(
+                $manufacturer,
+            ) ? $this->getValue(
+                $manufacturer,
+                'media',
+            ) : null);
+            $brandMediaUrl = $media instanceof MediaEntity ? $media->getUrl() : (is_object($media) ? $this->getValue(
+                $media,
+                'url',
+            ) : null);
             if (!empty($brandMediaUrl)) {
                 $nostoSku->addCustomField('brand-image-url', $brandMediaUrl);
             }
@@ -94,8 +102,16 @@ class SkuBuilder
         $nostoSku->setAvailability($stockStatus);
 
         $cover = $product->getCover();
-        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue($cover, 'media') : null);
-        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object($coverMedia) ? $this->getValue($coverMedia, 'url') : null);
+        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue(
+            $cover,
+            'media',
+        ) : null);
+        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object(
+            $coverMedia,
+        ) ? $this->getValue(
+            $coverMedia,
+            'url',
+        ) : null);
         if (!empty($coverMediaUrl)) {
             $nostoSku->setImageUrl($coverMediaUrl);
         } else {
@@ -104,11 +120,11 @@ class SkuBuilder
         }
 
         if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
-                $nostoSku->setPrice($price->getGross());
-            }
+            $nostoSku->setPrice($price->getGross());
+        }
 
         if ($price->getListPrice() !== null) {
-                $nostoSku->setListPrice($price->getListPrice()->getGross());
+            $nostoSku->setListPrice($price->getListPrice()->getGross());
         }
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {

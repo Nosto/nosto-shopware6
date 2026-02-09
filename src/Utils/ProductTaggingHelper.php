@@ -9,8 +9,8 @@ use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\V
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -62,7 +62,10 @@ class ProductTaggingHelper
                 ) {
                     $handledChildren = $product->getChildren();
                 }
-                if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
+                if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists(
+                    $shopwareProduct,
+                    'set',
+                )) {
                     $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
                         $handledChildren->getIds(),
                         $context,
@@ -125,7 +128,10 @@ class ProductTaggingHelper
             ) {
                 $handledChildren = $product->getChildren();
             }
-            if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
+            if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists(
+                $shopwareProduct,
+                'set',
+            )) {
                 $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
                     $handledChildren->getIds(),
                     $context,
@@ -301,9 +307,9 @@ class ProductTaggingHelper
         ProductEntity $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            ) === ProductIdentifierOptions::PRODUCT_NUMBER;
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === ProductIdentifierOptions::PRODUCT_NUMBER;
         if ($useProductNumber) {
             return $product->getProductNumber();
         } else {
@@ -346,8 +352,8 @@ class ProductTaggingHelper
             $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
 
             if ((is_null(
-                        $lowestPrice,
-                    ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
+                $lowestPrice,
+            ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
                 $lowestPrice = $variantPrice;
                 $cheapestVariant = $child;
             }

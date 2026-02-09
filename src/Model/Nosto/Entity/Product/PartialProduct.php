@@ -134,6 +134,9 @@ class PartialProduct
         return is_object($value) ? $value : null;
     }
 
+    /**
+     * @return iterable<int, mixed>|null
+     */
     public function getMedia(): ?iterable
     {
         $value = $this->entity->get('media');
@@ -146,12 +149,18 @@ class PartialProduct
         return is_object($value) ? $value : null;
     }
 
+    /**
+     * @return iterable<int, mixed>|null
+     */
     public function getOptions(): ?iterable
     {
         $value = $this->entity->get('options');
         return is_iterable($value) ? $value : null;
     }
 
+    /**
+     * @return iterable<int, mixed>|null
+     */
     public function getProperties(): ?iterable
     {
         $value = $this->entity->get('properties');

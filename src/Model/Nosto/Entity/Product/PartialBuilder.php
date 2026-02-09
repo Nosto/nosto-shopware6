@@ -193,9 +193,9 @@ class PartialBuilder
 
         if ($product->getChildren()) {
             if ($this->configProvider->isEnabledVariations(
-                    $channelId,
-                    $languageId,
-                ) && $product->getChildren()->count()) {
+                $channelId,
+                $languageId,
+            ) && $product->getChildren()->count()) {
                 $skuCollection = $this->preparingChildrenSkuCollection($product, $context);
 
                 $nostoProduct->setSkus($skuCollection);
@@ -260,8 +260,16 @@ class PartialBuilder
         }
 
         $cover = $product->getCover();
-        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue($cover, 'media') : null);
-        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object($coverMedia) ? $this->getValue($coverMedia, 'url') : null);
+        $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue(
+            $cover,
+            'media',
+        ) : null);
+        $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object(
+            $coverMedia,
+        ) ? $this->getValue(
+            $coverMedia,
+            'url',
+        ) : null);
         if (!empty($coverMediaUrl)) {
             $nostoProduct->setImageUrl($coverMediaUrl);
             $nostoProduct->setThumbUrl($coverMediaUrl);
@@ -276,7 +284,10 @@ class PartialBuilder
             $alternateMedia = $product->getMedia();
             if ($alternateMedia instanceof EntityCollection) {
                 $alternateMedia->sort(
-                    fn ($a, $b): int => (int) ($this->getValue($a, 'position') ?? 0) <=> (int) ($this->getValue($b, 'position') ?? 0),
+                    fn ($a, $b): int => (int) ($this->getValue($a, 'position') ?? 0) <=> (int) ($this->getValue(
+                        $b,
+                        'position',
+                    ) ?? 0),
                 );
                 $alternateMediaUrls = array_values(
                     array_filter(
@@ -356,7 +367,7 @@ class PartialBuilder
             $nostoProduct->addCustomField(Builder::SEARCH_KEYWORDS, implode(', ', $keywords));
         }
 
-            $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
+        $this->eventDispatcher->dispatch(new NostoProductBuiltEvent($product, $nostoProduct, $context));
 
         return $nostoProduct;
     }
@@ -374,8 +385,6 @@ class PartialBuilder
 
         return $reloaded ?: $product;
     }
-
-
 
     public function setPrices(
         NostoProduct $nostoProdcut,
@@ -641,21 +650,21 @@ class PartialBuilder
 
         // Preparing categories for dynamic group products
         if (!empty($dynamicGroupCategoryPaths) && $product->getStreamIds()) {
-        $allProductCategoryPaths = '';
+            $allProductCategoryPaths = '';
 
             foreach ($product->getStreamIds() as $streamId) {
-            if (array_key_exists($streamId, $dynamicGroupCategoryPaths)) {
-                $allProductCategoryPaths .= implode('|', $dynamicGroupCategoryPaths[$streamId]);
+                if (array_key_exists($streamId, $dynamicGroupCategoryPaths)) {
+                    $allProductCategoryPaths .= implode('|', $dynamicGroupCategoryPaths[$streamId]);
+                }
             }
-        }
 
             if ($productCategoriesRo && $productCategoriesRo->count()) {
                 foreach ($productCategoriesRo as $category) {
-                $allProductCategoryPaths .= '|' . $category->getId();
+                    $allProductCategoryPaths .= '|' . $category->getId();
+                }
             }
-        }
 
-        $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
+            $productCategoriesCollection = $this->getCategoriesTreeCollection($allProductCategoryPaths, $context);
 
             if ($productCategoriesCollection->count() > 0) {
                 $product->setCategoriesRo($productCategoriesCollection);
@@ -719,35 +728,35 @@ class PartialBuilder
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
-        $salesChannelId = $context->getSalesChannelId();
-        $languageId = $context->getLanguageId();
+            $salesChannelId = $context->getSalesChannelId();
+            $languageId = $context->getLanguageId();
 
-        $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.childrenSku');
-        $criteria->addAssociation('media');
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('properties.group');
-        $criteria->addAssociation('manufacturer');
-        $criteria->addAssociation('manufacturer.media');
-        $criteria->addAssociation('categoriesRo');
-        $criteria->addAssociation('visibilities');
+            $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.childrenSku');
+            $criteria->addAssociation('media');
+            $criteria->addAssociation('cover');
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('properties.group');
+            $criteria->addAssociation('manufacturer');
+            $criteria->addAssociation('manufacturer.media');
+            $criteria->addAssociation('categoriesRo');
+            $criteria->addAssociation('visibilities');
             $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
 
-        if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
-            $criteria->addFilter(new EqualsFilter('active', true));
-        }
+            if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
+                $criteria->addFilter(new EqualsFilter('active', true));
+            }
 
-        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
-        if (count($categoryBlocklist)) {
-            $criteria->addFilter(
-                new NotFilter(
-                    NotFilter::CONNECTION_AND,
-                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
-                ),
-            );
-        }
+            $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+            if (count($categoryBlocklist)) {
+                $criteria->addFilter(
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                    ),
+                );
+            }
 
-        $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
+            $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
 
             while (($children = $iterator->fetch()) !== null) {
                 $shopwareProducts = $this->productHelper->getShopwareProductsPartial($children->getIds(), $context);
@@ -773,7 +782,7 @@ class PartialBuilder
         return $skuCollection;
     }
 
-    private function getValue(object $product, string $field)
+    private function getValue(object $product, string $field): mixed
     {
         if (method_exists($product, 'get' . ucfirst($field))) {
             $method = 'get' . ucfirst($field);

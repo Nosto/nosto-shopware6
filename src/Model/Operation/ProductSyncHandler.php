@@ -12,8 +12,8 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -500,12 +500,16 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->deleteVariantProducts($product, $context, $account, $mapping);
         }
 
-        $parentId = $product instanceof SalesChannelProductEntity ? $product->getParentId() : ($product->get('parentId') ?? null);
+        $parentId = $product instanceof SalesChannelProductEntity ? $product->getParentId() : ($product->get(
+            'parentId',
+        ) ?? null);
         if ($parentId) {
             $this->doDeleteOperation($account, $context, [$parentId], $mapping);
         }
 
-        $isCloseout = $product instanceof SalesChannelProductEntity ? $product->getIsCloseout() : (bool) ($product->get('isCloseout') ?? false);
+        $isCloseout = $product instanceof SalesChannelProductEntity ? $product->getIsCloseout() : (bool) ($product->get(
+            'isCloseout',
+        ) ?? false);
         $productId = $product instanceof SalesChannelProductEntity ? $product->getId() : (string) $product->get('id');
         if ($hideProductsAfterClearance && $isCloseout && $stock < 1) {
             $this->doDeleteOperation($account, $context, [$productId], $mapping);

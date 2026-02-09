@@ -11,8 +11,8 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -65,8 +65,7 @@ class NostoExtension extends AbstractExtension
     public function getNostoProduct(
         SalesChannelProductEntity|PartialProduct|PartialEntity|null $product,
         SalesChannelContext $context,
-    ): ?NostoProduct
-    {
+    ): ?NostoProduct {
         try {
             if ($product === null) {
                 return null;

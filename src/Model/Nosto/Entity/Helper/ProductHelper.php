@@ -128,8 +128,7 @@ class ProductHelper
     public function getReviewsCount(
         SalesChannelProductEntity|PartialEntity|PartialProduct $product,
         SalesChannelContext $context,
-    ): int
-    {
+    ): int {
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
             $product = new PartialProduct($product);
         }
@@ -309,8 +308,10 @@ class ProductHelper
         return $orderNumberMapping;
     }
 
-    public function getProductUrl(ProductEntity|PartialEntity|PartialProduct $product, SalesChannelContext $context): ?string
-    {
+    public function getProductUrl(
+        ProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): ?string {
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
             $product = new PartialProduct($product);
         }
