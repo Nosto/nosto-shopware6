@@ -97,8 +97,7 @@ class SkuBuilder
         $coverMedia = $cover instanceof ProductMediaEntity ? $cover->getMedia() : (is_object($cover) ? $this->getValue($cover, 'media') : null);
         $coverMediaUrl = $coverMedia instanceof MediaEntity ? $coverMedia->getUrl() : (is_object($coverMedia) ? $this->getValue($coverMedia, 'url') : null);
         if (!empty($coverMediaUrl)) {
-//            $nostoSku->setImageUrl($coverMediaUrl);
-            $nostoSku->setImageUrl('https://placehold.co/800');
+            $nostoSku->setImageUrl($coverMediaUrl);
         } else {
             $placeholderImageUrl = $this->productHelper->getFallbackImageUrl($context);
             $nostoSku->setImageUrl($placeholderImageUrl);
