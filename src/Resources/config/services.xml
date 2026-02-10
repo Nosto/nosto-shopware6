@@ -28,7 +28,7 @@
             <argument key="$channelContextFactory" type="service"
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>

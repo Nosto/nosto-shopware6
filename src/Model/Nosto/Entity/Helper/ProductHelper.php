@@ -18,6 +18,7 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -306,9 +307,15 @@ class ProductHelper
         return null;
     }
 
-    public function createRepositoryIterator(Criteria $criteria, Context $context): RepositoryIterator
+    /**
+     * @return iterable<iterable<ProductCollection>>
+     */
+    public function createRepositoryIterator(Criteria $criteria, Context $context): iterable
     {
-        return new RepositoryIterator($this->productRepository, $context, $criteria);
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        while (($result = $iterator->fetch()) !== null) {
+            yield $result;
+        }
     }
 
     private function shouldLogExtra(SalesChannelContext $context): bool
