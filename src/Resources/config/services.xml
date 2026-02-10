@@ -16,7 +16,7 @@
         <service id="Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-full-catalog-sync"/>
 
-            <argument key="$productRepository" type="service" id="product.repository"/>
+            <argument key="$connection" type="service" id="Doctrine\DBAL\Connection"/>
             <argument key="$categoryRepository" type="service" id="category.repository"/>
             <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
@@ -53,8 +53,6 @@
         <service id="Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler">
             <tag name="nosto.job_handler" code="nosto-integration-entity-changelog-sync"/>
 
-            <argument key="$entityChangelogRepository" type="service"
-                      id="nosto_integration_entity_changelog.repository"/>
             <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
@@ -108,8 +106,6 @@
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument key="$productRepository" type="service" id="product.repository"/>
-            <argument key="$productRoute" type="service"
-                      id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument key="$reviewRepository" type="service" id="product_review.repository"/>
             <argument key="$eventDispatcher" type="service" id="event_dispatcher"/>
             <argument key="$configProvider" type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>

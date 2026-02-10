@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\NostoIntegration\Async\EventsWriter;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
+use Nosto\NostoIntegration\Entity\Changelog\ChangelogDefinition;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
@@ -19,8 +21,6 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,7 +32,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private const BATCH_SIZE = 100;
 
     public function __construct(
-        private readonly EntityRepository $entityChangelogRepository,
+        private readonly Connection $connection,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
         private readonly AccountProvider $accountProvider,
@@ -92,39 +92,70 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): void {
+        $query = $this->connection->createQueryBuilder()
+            ->select(
+                'LOWER(HEX(entity_id)) as entityId',
+                'MIN(product_number) as productNumber',
+            )
+            ->from(ChangelogDefinition::ENTITY_NAME)
+            ->where('entity_type = :entityType')
+            ->setParameter('entityType', $entityType)
+            ->orderBy('created_at', 'ASC')
+            ->groupBy('entity_id')
+            ->setMaxResults(self::BATCH_SIZE);
+
         $criteria = NostoCriteriaFactory::create($metricPrefix . '.delete');
         $criteria->addFilter(new EqualsFilter('entityType', $entityType));
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(self::BATCH_SIZE);
 
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
         $shouldLogExtra = $this->shouldLogExtra();
         $batchIndex = 0;
         $eventCount = 0;
         $payloadCount = 0;
         $iteratorStartedAt = $shouldLogExtra ? microtime(true) : null;
 
-        while (($events = $iterator->fetch()) !== null) {
+        do {
             ++$batchIndex;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $entityType === ProductDefinition::ENTITY_NAME || $entityType === 'order_placed' ?
-                $events->reduce(static function (array $result, ChangelogEntity $event): array {
-                    $result[$event->getEntityId()] = $event->getProductNumber();
-                    return $result;
-                }, []) :
-                $events->map(static fn (ChangelogEntity $event): string => $event->getEntityId());
 
-            $batchEventCount = $events->count();
+            $ids = [];
+
+            $rows = $query->executeQuery()->fetchAllAssociative();
+
+            foreach ($rows as $row) {
+                $entityId = $row['entityId'] ?? null;
+                if (!is_string($entityId)) {
+                    continue;
+                }
+
+                if ($entityType !== ProductDefinition::ENTITY_NAME && $entityType !== 'order_placed') {
+                    $ids[$entityId] = $entityId;
+                    continue;
+                }
+
+                $ids[$entityId] = $row['productNumber'] ?? $entityId;
+            }
+
+            $batchEventCount = count($rows);
             $batchPayloadCount = count($ids);
             $eventCount += $batchEventCount;
             $payloadCount += $batchPayloadCount;
 
+            if (empty($ids)) {
+                continue;
+            }
+
             $processCallback($ids);
-            $deleteDataSet = array_map(static fn ($id): array => [
-                'id' => $id,
-            ], array_values($events->getIds()));
+
             $deleteStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
+            $this->connection->createQueryBuilder()
+                ->delete(ChangelogDefinition::ENTITY_NAME)
+                ->where('entity_type = :entityType')
+                ->andWhere('entity_id IN (:ids)')
+                ->setParameter('entityType', $entityType)
+                ->setParameter('ids', Uuid::fromHexToBytesList(array_keys($ids)), ArrayParameterType::BINARY)
+                ->executeStatement();
 
             if ($shouldLogExtra && $deleteStartedAt !== null) {
                 $this->logDuration(
@@ -150,7 +181,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
                     ],
                 );
             }
-        }
+        } while (!empty($ids));
 
         if ($shouldLogExtra && $iteratorStartedAt !== null && $batchIndex > 0) {
             $this->logDuration(
