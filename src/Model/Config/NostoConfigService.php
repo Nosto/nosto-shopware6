@@ -34,6 +34,8 @@ class NostoConfigService
 
     public const SEARCH_TOKEN = 'searchToken';
 
+    public const RATES_TOKEN = 'ratesToken';
+
     public const ENABLE_SEARCH = 'enableSearch';
 
     public const ENABLE_NAVIGATION = 'enableNavigation';

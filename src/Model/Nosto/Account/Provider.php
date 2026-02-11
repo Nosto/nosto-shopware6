@@ -70,6 +70,7 @@ class Provider
                         new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channelId, $languageId)),
                         new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channelId, $languageId)),
                         new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
+                        new Token(Token::API_EXCHANGE_RATES, $this->configProvider->getRatesToken($channelId, $languageId)),
                     ]);
                     $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
                 } catch (Throwable $throwable) {

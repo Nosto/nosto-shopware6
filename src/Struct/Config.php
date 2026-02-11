@@ -22,6 +22,8 @@ class Config extends Struct
 
     public ?string $searchToken = null;
 
+    public ?string $ratesToken = null;
+
     public ?bool $enableSearch = null;
 
     public ?bool $enableNavigation = null;

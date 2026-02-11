@@ -53,6 +53,11 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::SEARCH_TOKEN, $channelId, $languageId);
     }
 
+    public function getRatesToken(?string $channelId = null, ?string $languageId = null): string
+    {
+        return $this->configService->getString(NostoConfigService::RATES_TOKEN, $channelId, $languageId);
+    }
+
     public function isSearchEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
