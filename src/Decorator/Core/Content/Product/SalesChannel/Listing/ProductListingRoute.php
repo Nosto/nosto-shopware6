@@ -109,7 +109,11 @@ class ProductListingRoute extends AbstractProductListingRoute
             $criteria = $this->extensionDispatcher->publish(
                 ProductListingCriteriaExtension::NAME,
                 new ProductListingCriteriaExtension($criteria, $context, $categoryId),
-                function (Criteria $criteria, SalesChannelContext $context, string $categoryId) use ($category, &$streamId): Criteria {
+                function (
+                    Criteria $criteria,
+                    SalesChannelContext $context,
+                    string $categoryId,
+                ) use ($category, &$streamId): Criteria {
                     $streamId = $this->extendCriteria($context, $criteria, $category);
 
                     return $criteria;
