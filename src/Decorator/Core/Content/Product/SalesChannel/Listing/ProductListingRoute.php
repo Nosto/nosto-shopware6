@@ -17,7 +17,8 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
+use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
@@ -30,11 +31,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingRoute extends AbstractProductListingRoute
 {
@@ -49,7 +50,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
         private readonly Account\Provider $accountProvider,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionDispatcher $extensionDispatcher,
     ) {
     }
 
@@ -64,6 +65,10 @@ class ProductListingRoute extends AbstractProductListingRoute
         SalesChannelContext $context,
         Criteria $criteria = null,
     ): ProductListingRouteResponse {
+        if ($criteria === null) {
+            $criteria = NostoCriteriaFactory::create();
+        }
+
         $originalRequest = Request::create(
             $request->getUri(),
             $request->getMethod(),
@@ -91,49 +96,69 @@ class ProductListingRoute extends AbstractProductListingRoute
                     ProductVisibilityDefinition::VISIBILITY_ALL,
                 ),
             );
-            /** @var CategoryEntity $category */
-            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
-            $criteria->addAssociation('seoUrls');
-            $criteria->addAssociation('options.group');
 
-            /** @var CategoryEntity $category */
-            $category = $this->categoryRepository->search(
-                $criteria,
-                $context->getContext(),
-            )->first();
+            $categoryCriteria = $this->buildCategoryCriteria($categoryId);
+            $category = $this->loadCategory($categoryCriteria, $context);
 
-            $streamId = $this->extendCriteria($context, $criteria, $category);
-
-            $this->listingProcessor->prepare($request, $criteria, $context);
-
-            $productListing = ProductListingResult::createFrom(
-                $this->fetchProductsById($criteria, $context),
-            );
-
-            if (!$productListing->getElements()
-                && $this->configProvider->isEnabledFallbackMechanism(
-                    $context->getSalesChannelId(),
-                    $context->getLanguageId(),
-                )
-            ) {
+            if (!$category instanceof CategoryEntity) {
                 return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
             }
 
-            $productListing->addCurrentFilter('navigationId', $categoryId);
-            $productListing->setStreamId($streamId);
+            $streamId = null;
 
-            $this->listingProcessor->process($request, $productListing, $context);
+            $criteria = $this->extensionDispatcher->publish(
+                ProductListingCriteriaExtension::NAME,
+                new ProductListingCriteriaExtension($criteria, $context, $categoryId),
+                function (Criteria $criteria, SalesChannelContext $context, string $categoryId) use ($category, &$streamId): Criteria {
+                    $streamId = $this->extendCriteria($context, $criteria, $category);
 
-            $productListing->getAvailableSortings()->removeByKey(
-                ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+                    return $criteria;
+                },
             );
 
-            $this->eventDispatcher->dispatch(
-                new ProductListingResultEvent($request, $productListing, $context),
+            if (!$criteria instanceof Criteria) {
+                return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+            }
+
+            $response = $this->extensionDispatcher->publish(
+                ResolveListingExtension::NAME,
+                new ResolveListingExtension($criteria, $context),
+                function (Criteria $criteria, SalesChannelContext $context) use (
+                    $categoryId,
+                    $request,
+                    $category,
+                    $streamId,
+                    $originalRequest,
+                    $originalContext,
+                    $originalCriteria,
+                ): ProductListingRouteResponse {
+                    return $this->resolveListingWithNosto(
+                        $categoryId,
+                        $request,
+                        $context,
+                        $criteria,
+                        $category,
+                        $streamId,
+                        $originalRequest,
+                        $originalContext,
+                        $originalCriteria,
+                    );
+                },
             );
 
-            $this->sendImpressionAnalytics($context, $productListing, $category, $request);
-            return new ProductListingRouteResponse($productListing);
+            if ($response instanceof ProductListingRouteResponse) {
+                return $response;
+            }
+
+            if ($response instanceof ProductListingResult) {
+                return new ProductListingRouteResponse($response);
+            }
+
+            if ($response instanceof EntitySearchResult) {
+                return new ProductListingRouteResponse(ProductListingResult::createFrom($response));
+            }
+
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
             return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
@@ -258,6 +283,23 @@ class ProductListingRoute extends AbstractProductListingRoute
         return $path === '' || $path === '/';
     }
 
+    private function buildCategoryCriteria(string $categoryId): Criteria
+    {
+        $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
+        $criteria->addAssociation('seoUrls');
+        $criteria->addAssociation('options.group');
+
+        return $criteria;
+    }
+
+    private function loadCategory(Criteria $criteria, SalesChannelContext $context): ?CategoryEntity
+    {
+        return $this->categoryRepository->search(
+            $criteria,
+            $context->getContext(),
+        )->first();
+    }
+
     private function extendCriteria(
         SalesChannelContext $salesChannelContext,
         Criteria $criteria,
@@ -295,5 +337,55 @@ class ProductListingRoute extends AbstractProductListingRoute
         }
 
         return $this->fetchProducts($criteria, $salesChannelContext);
+    }
+
+    private function resolveListingWithNosto(
+        string $categoryId,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria,
+        CategoryEntity $category,
+        ?string $streamId,
+        Request $originalRequest,
+        SalesChannelContext $originalContext,
+        ?Criteria $originalCriteria,
+    ): ProductListingRouteResponse {
+        try {
+            $this->listingProcessor->prepare($request, $criteria, $context);
+
+            $productListing = ProductListingResult::createFrom(
+                $this->fetchProductsById($criteria, $context),
+            );
+
+            if (!$productListing->getElements()
+                && $this->configProvider->isEnabledFallbackMechanism(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                )
+            ) {
+                return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+            }
+
+            $productListing->addCurrentFilter('navigationId', $categoryId);
+            $productListing->setStreamId($streamId);
+
+            $this->listingProcessor->process($request, $productListing, $context);
+
+            $productListing->getAvailableSortings()->removeByKey(
+                ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+            );
+
+            $this->sendImpressionAnalytics($context, $productListing, $category, $request);
+
+            return new ProductListingRouteResponse($productListing);
+        } catch (RoutingException $e) {
+            $this->logger->error('Routing exception occurred: ' . $e->getMessage());
+
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+        } catch (Exception $e) {
+            $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
+
+            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+        }
     }
 }
