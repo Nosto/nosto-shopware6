@@ -189,7 +189,7 @@ abstract class AbstractRequestHandler
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-        $this->setSelectedVariationId($context, $searchOperation);
+        $this->setCurrency($context, $searchOperation);
         $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
@@ -235,13 +235,13 @@ abstract class AbstractRequestHandler
         $criteria->addExtension('nostoPagination', $pagination);
     }
 
-    protected function setSelectedVariationId(
+    protected function setCurrency(
         SalesChannelContext $context,
         SearchOperation $searchOperation,
     ): void {
         $variationId = $context->getCurrency()?->getIsoCode();
         if ($variationId) {
-            $searchOperation->setVariationId($variationId);
+            $searchOperation->setCurrency($variationId);
         }
     }
 
