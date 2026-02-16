@@ -244,9 +244,9 @@ abstract class AbstractRequestHandler
         SalesChannelContext $context,
         SearchOperation $searchOperation,
     ): void {
-        $variationId = $context->getCurrency()?->getIsoCode();
-        if ($variationId) {
-            $searchOperation->setCurrency($variationId);
+        $currency = $context->getCurrency()?->getIsoCode();
+        if ($currency) {
+            $searchOperation->setCurrency($currency);
         }
     }
 
