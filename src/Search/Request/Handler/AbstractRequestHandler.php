@@ -189,7 +189,12 @@ abstract class AbstractRequestHandler
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
-        $this->setCurrency($context, $searchOperation);
+        if ($this->configProvider->isEnabledMultiCurrency(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $this->setCurrency($context, $searchOperation);
+        }
         $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);

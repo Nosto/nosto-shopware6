@@ -170,7 +170,9 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
-        $this->scheduleExchangeRateSync($message, $result);
+        if ($this->configProvider->isEnabledMultiCurrency()) {
+            $this->scheduleExchangeRateSync($message, $result);
+        }
 
         if ($shouldLogExtra && $syncStartedAt !== null) {
             $this->logDuration(

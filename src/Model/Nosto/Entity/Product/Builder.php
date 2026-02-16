@@ -128,7 +128,9 @@ class Builder
 
         $currencyIsoCode = $context->getCurrency()->getIsoCode();
         $nostoProduct->setPriceCurrencyCode($currencyIsoCode);
-        $nostoProduct->setVariationId($currencyIsoCode);
+        if ($this->configProvider->isEnabledMultiCurrency($channelId, $languageId)) {
+            $nostoProduct->setVariationId($currencyIsoCode);
+        }
         $stock = $this->productHelper->getProductStock($product, $context);
         $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
 

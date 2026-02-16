@@ -74,6 +74,8 @@ class Config extends Struct
 
     public mixed $dailySynchronizationTime = null;
 
+    public ?bool $enableMultiCurrency = null;
+
     public function __construct(array $config)
     {
         foreach ($config as $key => $value) {

@@ -108,6 +108,8 @@ class NostoConfigService
 
     public const ENABLE_FALLBACK_MECHANISM = 'enableFallbackMechanism';
 
+    public const ENABLE_MULTI_CURRENCY = 'enableMultiCurrency';
+
     public const SYNC_BATCH_SIZE = 'syncBatchSize';
 
     public const FALLBACK_PRODUCT_IMAGE_URL = 'fallbackImageUrl';

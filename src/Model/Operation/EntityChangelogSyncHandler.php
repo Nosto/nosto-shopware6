@@ -54,7 +54,9 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $this->processUpdatedOrderEvents($message->getContext(), $result, $message->getJobId());
         $this->processProductEvents($message->getContext(), $result, $message->getJobId());
         $this->processCategoryEvents($message->getContext(), $result, $message->getJobId());
-        $this->processExchangeRateEvents($message->getContext(), $result, $message->getJobId());
+        if ($this->configProvider->isEnabledMultiCurrency()) {
+            $this->processExchangeRateEvents($message->getContext(), $result, $message->getJobId());
+        }
 
         if ($shouldLogExtra && $syncStartedAt !== null) {
             $this->logDuration(

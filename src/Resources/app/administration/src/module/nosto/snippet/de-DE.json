@@ -145,6 +145,10 @@
                   "label": "Fallback-Mechanismus aktivieren",
                   "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
                 },
+                "enableMultiCurrency": {
+                    "label": "Mehrere Währungen aktivieren",
+                    "helpText": "Wenn aktiviert, werden Wechselkurssynchronisierung und währungsspezifische Suchanfragen verarbeitet. Stellen Sie sicher, dass Wechselkurse in Nosto aktiviert sind und mindestens einmal zu Nosto synchronisiert wurden."
+                },
                 "productSyncExtraLogging": {
                     "label": "Zusätzliche Produktsync-Protokollierung",
                     "helpText": "Schreibt detaillierte Zeitmessungen für jeden Produktsync-Schritt in den Log-Kanal nosto_integration. Nur zur Fehlersuche bei langsamen Synchronisationen aktivieren."

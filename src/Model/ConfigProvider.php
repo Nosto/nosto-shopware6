@@ -386,6 +386,15 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledMultiCurrency($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_MULTI_CURRENCY,
+            $channelId,
+            $languageId,
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */
