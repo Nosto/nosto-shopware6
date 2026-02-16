@@ -16,9 +16,8 @@ use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Search\AnalyticsSearchTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -28,12 +27,12 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @see \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute
@@ -44,7 +43,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly CompositeListingProcessor $listingProcessor,
@@ -52,6 +50,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly LoggerInterface $logger,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Account\Provider $accountProvider,
+        private readonly ExtensionDispatcher $extensionDispatcher,
     ) {
     }
 
@@ -102,14 +101,20 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $result = $this->fetchProductsById($criteria, $context, $query);
+            $entities = $this->extensionDispatcher->publish(
+                ResolveListingExtension::NAME,
+                new ResolveListingExtension($criteria, $context),
+                function (Criteria $criteria, SalesChannelContext $context) use ($query): EntitySearchResult {
+                    return $this->fetchProductsById($criteria, $context, $query);
+                },
+            );
 
-            $productListing = ProductListingResult::createFrom($result);
+            $productListing = ProductListingResult::createFrom($entities);
             $productListing->addCurrentFilter('search', $query);
 
             $this->sendImpressionAnalytics($context, $productListing, $request);
 
-            if (!$result->getElements()
+            if (!$productListing->getElements()
                 && $this->configProvider->isEnabledFallbackMechanism(
                     $context->getSalesChannelId(),
                     $context->getLanguageId(),
@@ -146,11 +151,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                     RecommendationSortingHandler::MERCHANDISING_SORTING_KEY,
                 );
             }
-
-            $this->eventDispatcher->dispatch(
-                new ProductSearchResultEvent($request, $productListing, $context),
-                ProductEvents::PRODUCT_SEARCH_RESULT,
-            );
 
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
