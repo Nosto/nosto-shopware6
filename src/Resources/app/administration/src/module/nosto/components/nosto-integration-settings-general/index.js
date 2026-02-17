@@ -153,7 +153,7 @@ Component.register('nosto-integration-settings-general', {
         getProductTags() {
             this.initLanguageCode().then(() => {
                 const criteria = new Criteria();
-                criteria.setLimit(50000);
+                criteria.setLimit(600);
                 return this.tagRepository.search(criteria, Shopware.Context.api).then((tags) => {
                     tags.forEach((tag) => {
                         this.productTags.push({
