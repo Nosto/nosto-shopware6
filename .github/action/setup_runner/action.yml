@@ -28,7 +28,7 @@ runs:
 
         echo "Waiting for MySQL to be ready..."
         for i in {1..30}; do
-          if docker exec mysql mysqladmin ping -proot --silent; then
+          if docker exec mysql mysqladmin ping -uroot -proot --silent; then
             break
           fi
           if [ "$i" -eq 30 ]; then
