@@ -17,11 +17,14 @@ runs:
         coverage: xdebug
         tools: composer:v2
 
-    - uses: mirromutth/mysql-action@v1.1
+    - name: Setup MySQL
+      uses: shogo82148/actions-setup-mysql@v1
       with:
-        mysql version: 8.0.36
-        mysql database: shopware_test
-        mysql root password: root
+        mysql-version: '8.0'
+        root-password: root
+        user: shopware
+        password: shopware
+        database: shopware_test
 
     - uses: actions/setup-node@v4
       with:
