@@ -17,6 +17,7 @@ runs:
         coverage: xdebug
         tools: composer:v2
 
+    - name: Start MySQL
       shell: bash
       run: |
         sudo systemctl start mysql
