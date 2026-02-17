@@ -12,34 +12,16 @@ runs:
     - name: Setup PHP with Composer 2
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ inputs.php-version }}
+        php-version: ${{ inputs.php-version }}"
         extensions: dom, gd, mbstring, pdo_mysql, zip
         coverage: xdebug
         tools: composer:v2
 
-    - name: Start MySQL container
-      shell: bash
-      run: |
-        docker run -d --name mysql \
-          -e MYSQL_ROOT_PASSWORD=root \
-          -e MYSQL_DATABASE=shopware_test \
-          -p 3306:3306 \
-          mysql:8.0
-
-        echo "Waiting for MySQL to be ready..."
-        for i in {1..30}; do
-          if docker exec mysql mysqladmin ping -proot --silent; then
-            break
-          fi
-          if [ "$i" -eq 30 ]; then
-            echo "MySQL failed to start" >&2
-            exit 1
-          fi
-          sleep 2
-        done
-
-        docker exec mysql mysql -uroot -proot -e "CREATE USER IF NOT EXISTS 'shopware'@'%' IDENTIFIED BY 'shopware';"
-        docker exec mysql mysql -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'shopware'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+    - uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql version: 8.0.36
+        mysql database: shopware_test
+        mysql root password: root
 
     - uses: actions/setup-node@v4
       with:
