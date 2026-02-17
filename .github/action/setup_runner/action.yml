@@ -18,14 +18,10 @@ runs:
         tools: composer:v2
 
     - name: Start MySQL
-      uses: shogo82148/actions-setup-mysql@v1
-      with:
-        mysql-version: '8.0'
-        root-password: root
-
-    - name: Create test database
       shell: bash
-      run: mysql -uroot -proot -e 'CREATE DATABASE IF NOT EXISTS shopware_test;'
+      run: |
+        sudo systemctl start mysql
+        mysql -uroot -proot -e 'CREATE DATABASE IF NOT EXISTS shopware_test;'
 
     - uses: actions/setup-node@v4
       with:
