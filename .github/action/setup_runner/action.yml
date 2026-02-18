@@ -18,11 +18,10 @@ runs:
         tools: composer:v2
 
     - name: Start MySQL
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql version: 8.0.36
-        mysql database: shopware_test
-        mysql root password: root
+      shell: bash
+      run: |
+        sudo systemctl start mysql
+        mysql -uroot -proot -e 'CREATE DATABASE IF NOT EXISTS shopware_test;'
 
     - uses: actions/setup-node@v4
       with:
