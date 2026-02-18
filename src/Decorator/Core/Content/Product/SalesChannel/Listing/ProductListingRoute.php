@@ -29,7 +29,11 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -85,9 +89,6 @@ class ProductListingRoute extends AbstractProductListingRoute
                 return $this->decorated->load($categoryId, $request, $context, $criteria);
             }
 
-            // Preserve post-filters from original criteria (added by other plugins via ProductListingCriteriaEvent)
-            $originalPostFilters = $criteria?->getPostFilters() ?? [];
-
             $criteria->addFilter(
                 new ProductAvailableFilter(
                     $context->getSalesChannel()->getId(),
@@ -95,24 +96,19 @@ class ProductListingRoute extends AbstractProductListingRoute
                 ),
             );
             /** @var CategoryEntity $category */
-            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
-            $criteria->addAssociation('seoUrls');
+            $categoryCriteria = NostoCriteriaFactory::createWithIds([$categoryId]);
+            $categoryCriteria->addAssociation('seoUrls');
             $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
-                $criteria,
+                $categoryCriteria,
                 $context->getContext(),
             )->first();
 
             $streamId = $this->extendCriteria($context, $criteria, $category);
 
             $this->listingProcessor->prepare($request, $criteria, $context);
-
-            // Re-apply post-filters from original criteria to ensure compatibility with other plugins
-            foreach ($originalPostFilters as $postFilter) {
-                $criteria->addPostFilter($postFilter);
-            }
 
             $productListing = ProductListingResult::createFrom(
                 $this->fetchProductsById($criteria, $context),
