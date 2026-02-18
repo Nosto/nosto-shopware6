@@ -109,7 +109,7 @@ class ProductListingRoute extends AbstractProductListingRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            // Re-apply post-filters from original criteria to ensure compatibility with other plugins
+            // Re-apply post-filters from original criteria
             foreach ($originalPostFilters as $postFilter) {
                 $criteria->addPostFilter($postFilter);
             }
