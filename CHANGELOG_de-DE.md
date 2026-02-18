@@ -1,3 +1,7 @@
+# 3.6.5
+* Fix: Abhängigkeit in Aktionen für MySQL ersetzen (nur testing environment)
+* Fix: Abrufen von bis zu 500 Tag-Feldern, statt das Limit zu überschreiten
+
 # 3.6.4
 * Fix: Abrufen von bis zu 500 benutzerdefinierten Feldern, statt das Limit zu überschreiten
 
