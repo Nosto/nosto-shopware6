@@ -21,5 +21,13 @@
         >
             <tag name="kernel.event_subscriber" />
         </service>
+        <service
+                id="Nosto\NostoIntegration\Subscriber\ProductListingResultSubscriber"
+                class="Nosto\NostoIntegration\Subscriber\ProductListingResultSubscriber"
+                public="true"
+                autowire="true"
+        >
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>
