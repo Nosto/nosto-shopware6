@@ -1,3 +1,6 @@
+# 6.1.5
+* Fix: Post-Filter beibehalten
+
 # 6.1.4
 * Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
 

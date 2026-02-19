@@ -1,3 +1,6 @@
+# 6.1.5
+* Fix: Preserve post filters
+
 # 6.1.4
 * Fix: Revert handle external filters in product listing and search routes
 
