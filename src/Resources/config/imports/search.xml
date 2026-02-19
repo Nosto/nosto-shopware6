@@ -42,7 +42,7 @@
             <argument
                 type="service"
                 key="$productSearchRoute"
-                id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
+                id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
                 on-invalid="null"
             />
             <argument
@@ -56,38 +56,23 @@
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-on-invalid="ignore"
-            decoration-priority="-5000"
+            decoration-priority="-1000"
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
-        </service>
-
-        <service id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute.inner"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
-            <argument type="service" id="Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService" />
         </service>
 
         <service
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"
             decoration-on-invalid="ignore"
-            decoration-priority="-5000"
+            decoration-priority="-1000"
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />
             <argument type="service" key="$categoryRepository" id="category.repository" />
             <argument type="service" key="$productStreamBuilder" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" />
             <argument type="service" key="$eventDispatcher" id="event_dispatcher"/>
-        </service>
-
-        <service id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute.inner"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Search\Api\SearchService" autowire="true">
