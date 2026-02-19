@@ -1,3 +1,6 @@
+# 3.6.6
+* Fix: Preserve post filters
+
 # 3.6.5
 * Fix: replace dependency in actions for mysql (only testing environment)
 * Fix: Pulling up-to 500 tag fields, instead of going out of limit
