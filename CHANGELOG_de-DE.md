@@ -1,3 +1,6 @@
+# 5.2.5
+* Fix: Post-Filter beibehalten
+
 # 5.2.4
 * Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
 
