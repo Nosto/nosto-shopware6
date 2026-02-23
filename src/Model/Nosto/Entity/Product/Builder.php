@@ -206,7 +206,6 @@ class Builder
             $this->configProvider->isEnabledProductProperties($channelId, $languageId) &&
             $product->getOptions() !== null
         ) {
-            //todo preparePropertiesOrOptions
             $options = $this->productHelper->preparePropertiesOrOptionsGeneric($product->getOptions());
             foreach ($options as $name => $option) {
                 $nostoProduct->addCustomField(
@@ -214,7 +213,6 @@ class Builder
                     $option,
                 );
             }
-            //todo preparePropertiesOrOptions
             $properties = $this->productHelper->preparePropertiesOrOptionsGeneric($product->getProperties());
             foreach ($properties as $name => $property) {
                 $nostoProduct->addCustomField(

@@ -163,8 +163,6 @@ class ProductHelper
         $criteria = NostoCriteriaFactory::create($title);
         $criteria->addAssociation('media');
         $criteria->addAssociation('cover');
-        //$criteria->addAssociation('options');
-        //$criteria->addAssociation('properties');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('properties.group');
         $criteria->addAssociation('manufacturer');
