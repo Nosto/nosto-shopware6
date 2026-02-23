@@ -9,10 +9,9 @@ use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\V
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -383,5 +382,4 @@ class ProductTaggingHelper
 
         return $cheapestVariant;
     }
-
 }

@@ -13,10 +13,8 @@ class PartialProductCollection extends Collection
 {
     /**
      * @param array-key $key
-     *
-     * @return PartialProduct|null
      */
-    public function get($key)
+    public function get($key): ?PartialProduct
     {
         /** @var PartialProduct|null $product */
         $product = parent::get($key);
