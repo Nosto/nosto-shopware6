@@ -92,13 +92,13 @@ class ProductListingRoute extends AbstractProductListingRoute
                 ),
             );
             /** @var CategoryEntity $category */
-            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
-            $criteria->addAssociation('seoUrls');
+            $categoryCriteria = NostoCriteriaFactory::createWithIds([$categoryId]);
+            $categoryCriteria->addAssociation('seoUrls');
             $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
-                $criteria,
+                $categoryCriteria,
                 $context->getContext(),
             )->first();
 
