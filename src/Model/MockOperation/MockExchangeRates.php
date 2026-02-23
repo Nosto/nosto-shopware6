@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\MockOperation;
 
-use Nosto\Model\ExchangeRateCollection;
 use Nosto\NostoIntegration\Model\MockOperation\Result\MockResultHandler;
 use Nosto\Operation\SyncRates;
-use Nosto\Request\Http\Exception\AbstractHttpException;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Recommendation\ResultSet;
-use Nosto\NostoException;
 
 class MockExchangeRates extends SyncRates
 {
