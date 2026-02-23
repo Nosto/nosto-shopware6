@@ -1,3 +1,6 @@
+# 5.2.5
+* Fix: Preserve post filters
+
 # 5.2.4
 * Fix: Revert handle external filters in product listing and search routes
 
