@@ -12,8 +12,10 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -29,6 +31,8 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -43,7 +47,6 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
-        private readonly ProductProviderInterface $productProvider,
         private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
         private readonly ConfigProvider $configProvider,
@@ -181,9 +184,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $processedParentCount = 0;
 
         while (($products = $parentProductIterator->fetch()) !== null) {
-            $productCollection = $products->getEntities();
-            $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
-            $processedParentCount += $productCollection->count();
+            $partialProductsCollection = PartialProductConverter::toPartialProductCollection($products->getEntities());
+            $this->doUpsertOperation($account, $context, $partialProductsCollection, $result, $ids);
+            $processedParentCount += $partialProductsCollection->count();
         }
 
         if ($shouldLogExtra && $parentFetchStartedAt !== null) {
@@ -232,7 +235,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
-        ProductCollection $productCollection,
+        PartialProductCollection $productCollection,
         Job\JobResult $result,
         array $ids,
     ): void {
@@ -254,9 +257,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
             $this->configProvider,
-            $this->productProvider,
-            $this->productHelper,
             $this->partialProductProvider,
+            $this->productHelper,
         );
 
         // up to 2MB payload!
@@ -266,13 +268,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operationProducts = [];
 
         // === Pass 1: Collect handled products (in-memory, no DB calls) ===
-        /** @var array<string, ProductCollection> */
+        /** @var array<string, PartialProductCollection> */
         $handledMap = [];
         $allUniqueIds = [];
         $failedProductIds = [];
         $collectStartedAt = $shouldLogExtra ? microtime(true) : null;
 
-        /** @var ProductEntity $product */
+        /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
             try {
                 $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
@@ -371,22 +373,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             try {
                 $nostoProducts = [];
                 $handledProducts = $handledMap[$product->getId()];
+                if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof ProductCollection) {
+                    $handledProducts = PartialProductConverter::toPartialProductCollection($handledProducts);
+                }
 
                 foreach ($handledProducts as $handledProduct) {
+                    if ($handledProduct instanceof PartialEntity && !$product instanceof PartialProduct) {
+                        $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
+                    }
+
                     $shopwareProduct = $allShopwareProducts->get($handledProduct->getId());
                     $productStartedAt = $shouldLogExtra ? microtime(true) : null;
                     $handledResult = 'skipped';
 
                     if ($shopwareProduct) {
-                        $handledChildren = $handledProduct->getChildren();
-                        if ($handledChildren && $handledChildren->count() && method_exists($shopwareProduct, 'set')) {
-                            $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
-                                $handledChildren->getIds(),
-                                $context,
-                                false,
-                            );
-                            $shopwareProduct->set('children', $childrenLoaded);
-                        }
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
@@ -701,7 +701,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     protected function deleteVariantProducts(
-        SalesChannelProductEntity|ProductEntity $product,
+        SalesChannelProductEntity|ProductEntity|PartialProduct $product,
         SalesChannelContext $context,
         Account $account,
         array $mapping,

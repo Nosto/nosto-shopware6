@@ -46,7 +46,7 @@ class SkuBuilder
         $languageId = $context->getLanguageId();
 
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-            $product = new PartialProduct($product);
+            $product = PartialProductConverter::toPartialProduct($product);
         }
         $url = $this->productHelper->getProductUrl($product, $context);
         if (!empty($url)) {

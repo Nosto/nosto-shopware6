@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
@@ -18,11 +19,12 @@ use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -72,10 +74,22 @@ class NostoExtension extends AbstractExtension
             }
 
             if ($product instanceof SalesChannelProductEntity) {
-                $result = $this->productProvider->get($product, $context);
+                $partialProduct = $this->productHelper
+                    ->getShopwareProductsPartial([$product->getId()], $context, false)
+                    ->get($product->getId());
+
+                if ($partialProduct instanceof PartialEntity && !$partialProduct instanceof PartialProduct) {
+                    $partialProduct = PartialProductConverter::toPartialProduct($partialProduct);
+                }
+
+                if ($partialProduct instanceof PartialProduct) {
+                    $result = $this->partialProductProvider->get($partialProduct, $context);
+                } else {
+                    $result = $this->productProvider->get($product, $context);
+                }
             } else {
                 if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-                    $product = new PartialProduct($product);
+                    $product = PartialProductConverter::toPartialProduct($product);
                 }
                 $result = $this->partialProductProvider->get($product, $context);
             }
@@ -129,21 +143,197 @@ class NostoExtension extends AbstractExtension
     ): string|NostoProduct {
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
+        $criteria->addFields([
+            'id',
+            'parentId',
+            'productNumber',
+            'active',
+            'childCount',
+            'displayGroup',
+            'isCloseout',
+            'availableStock',
+            'stock',
+            'createdAt',
+            'releaseDate',
+            'ratingAverage',
+            'variantListingConfig',
+            'manufacturerNumber',
+            'ean',
+            'purchaseUnit',
+            'referenceUnit',
+            'shippingFree',
+            'customSearchKeywords',
+            'tagIds',
+            'streamIds',
+            'optionIds',
+            'propertyIds',
+            'unitId',
+            'taxId',
+            'price',
+            'prices',
+            'name',
+            'description',
+            'customFields',
+            'keywords',
+            'packUnit',
+            'packUnitPlural',
+            'metaTitle',
+            'metaDescription',
+        ]);
+
+        $criteria->addFields([
+            'cover.id',
+            'cover.media.id',
+            'cover.media.url',
+            'manufacturer.id',
+            'manufacturer.name',
+            'manufacturer.media.id',
+            'manufacturer.media.url',
+            'categoriesRo.id',
+            'visibilities.id',
+            'visibilities.salesChannelId',
+            'visibilities.visibility',
+            'media.id',
+            'media.position',
+            'media.media.id',
+            'media.media.url',
+        ]);
         $criteria->addAssociation('children');
-        /** @var ProductEntity $mainProduct */
+        $childrenCriteria = $criteria->getAssociation('children');
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $childrenCriteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if (count($categoryBlocklist)) {
+            $childrenCriteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        $criteria->addFields([
+            'children.id',
+            'children.parentId',
+            'children.productNumber',
+            'children.active',
+            'children.displayGroup',
+            'children.isCloseout',
+            'children.availableStock',
+            'children.stock',
+            'children.releaseDate',
+            'children.manufacturerNumber',
+            'children.ean',
+            'children.shippingFree',
+            'children.customSearchKeywords',
+            'children.variantListingConfig',
+            'children.price',
+            'children.prices',
+            'children.name',
+            'children.customFields',
+            'children.optionIds',
+            'children.propertyIds',
+        ]);
+        $criteria->addFields([
+            'children.cover.id',
+            'children.cover.media.id',
+            'children.cover.media.url',
+            'children.manufacturer.id',
+            'children.manufacturer.name',
+            'children.manufacturer.media.id',
+            'children.manufacturer.media.url',
+            'children.visibilities.id',
+            'children.visibilities.salesChannelId',
+            'children.visibilities.visibility',
+        ]);
+
+        /** @var PartialProduct $mainProduct */
         $mainProduct = $this->productRepository
             ->search($criteria, $context->getContext())
             ->first();
-        /** @var ProductEntity $mainProduct */
+        if ($mainProduct instanceof PartialEntity && !$mainProduct instanceof PartialProduct) {
+            $mainProduct = PartialProductConverter::toPartialProduct($mainProduct);
+        }
+
+        /** @var PartialProduct $variantFromDb */
+        $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
+        $criteria->addFields([
+            'id',
+            'parentId',
+            'productNumber',
+            'active',
+            'childCount',
+            'displayGroup',
+            'isCloseout',
+            'availableStock',
+            'stock',
+            'createdAt',
+            'releaseDate',
+            'ratingAverage',
+            'variantListingConfig',
+            'manufacturerNumber',
+            'ean',
+            'purchaseUnit',
+            'referenceUnit',
+            'shippingFree',
+            'customSearchKeywords',
+            'tagIds',
+            'streamIds',
+            'optionIds',
+            'propertyIds',
+            'unitId',
+            'taxId',
+            'price',
+            'prices',
+            'name',
+            'description',
+            'customFields',
+            'keywords',
+            'packUnit',
+            'packUnitPlural',
+            'metaTitle',
+            'metaDescription',
+        ]);
+
+        $criteria->addFields([
+            'cover.id',
+            'cover.media.id',
+            'cover.media.url',
+            'manufacturer.id',
+            'manufacturer.name',
+            'manufacturer.media.id',
+            'manufacturer.media.url',
+            'categoriesRo.id',
+            'visibilities.id',
+            'visibilities.salesChannelId',
+            'visibilities.visibility',
+            'media.id',
+            'media.position',
+            'media.media.id',
+            'media.media.url',
+        ]);
+
         $variantFromDb = $this->productRepository
-            ->search(NostoCriteriaFactory::createWithIds([$variantId]), $context->getContext())
+            ->search($criteria, $context->getContext())
             ->first();
+        if ($variantFromDb instanceof PartialEntity && !$variantFromDb instanceof PartialProduct) {
+            $variantFromDb = PartialProductConverter::toPartialProduct($variantFromDb);
+        }
+
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
             $this->configProvider,
-            $this->productProvider,
-            $this->productHelper,
             $this->partialProductProvider,
+            $this->productHelper,
         );
 
         return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);

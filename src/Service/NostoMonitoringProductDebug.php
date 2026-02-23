@@ -8,7 +8,10 @@ use Nosto\NostoException;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Nosto\Request\Http\Exception\AbstractHttpException;
@@ -16,7 +19,8 @@ use Nosto\Scheduler\Model\Job;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -30,7 +34,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
 
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
-        private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
@@ -78,7 +82,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
     protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
-        ProductCollection $productCollection,
+        PartialProductCollection $productCollection,
         Job\JobResult $result,
         array $ids,
     ): void {
@@ -92,11 +96,11 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
             $this->configProvider,
-            $this->productProvider,
+            $this->partialProductProvider,
             $this->productHelper,
         );
 
-        /** @var ProductEntity $product */
+        /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
             // TODO: up to 2MB payload!
             $nostoProducts = [];
@@ -108,11 +112,18 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
                 true,
                 true,
             );
+            if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof ProductCollection) {
+                $handledProducts = PartialProductConverter::toPartialProductCollection($handledProducts);
+            }
             $shopwareProducts = $handledProducts->count()
-                ? $this->productHelper->getShopwareProducts($handledProducts->getIds(), $context)
-                : new ProductCollection();
+                ? $this->productHelper->getShopwareProductsPartial($handledProducts->getIds(), $context)
+                : new PartialProductCollection();
 
             foreach ($handledProducts as $handledProduct) {
+                if ($handledProduct instanceof PartialEntity && !$product instanceof PartialProduct) {
+                    $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
+                }
+
                 $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
 
                 if ($shopwareProduct) {

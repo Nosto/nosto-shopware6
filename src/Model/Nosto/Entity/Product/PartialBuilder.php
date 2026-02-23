@@ -36,7 +36,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
@@ -102,7 +101,6 @@ class PartialBuilder
 
         if ($product->getCategoriesRo() === null) {
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
-            $product = $this->wrapPartialProduct($product);
         }
 
         // Removes categories from products in which the product is included through manual addition,
@@ -728,42 +726,9 @@ class PartialBuilder
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
-            $salesChannelId = $context->getSalesChannelId();
-            $languageId = $context->getLanguageId();
-
-            $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.childrenSku');
-            $criteria->addAssociation('media');
-            $criteria->addAssociation('cover');
-            $criteria->addAssociation('options.group');
-            $criteria->addAssociation('properties.group');
-            $criteria->addAssociation('manufacturer');
-            $criteria->addAssociation('manufacturer.media');
-            $criteria->addAssociation('categoriesRo');
-            $criteria->addAssociation('visibilities');
-            $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
-
-            if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
-                $criteria->addFilter(new EqualsFilter('active', true));
-            }
-
-            $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
-            if (count($categoryBlocklist)) {
-                $criteria->addFilter(
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
-                    ),
-                );
-            }
-
-            $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
-
-            while (($children = $iterator->fetch()) !== null) {
-                $shopwareProducts = $this->productHelper->getShopwareProductsPartial($children->getIds(), $context);
-                foreach ($children as $variationProduct) {
-                    $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
-                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
-                }
+            //children are already loaded so we only append them to $skuCollection
+            foreach ($product->getChildren() as $variationProduct) {
+                $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
             }
         }
 
@@ -853,7 +818,7 @@ class PartialBuilder
     private function wrapPartialProduct(object $product): object
     {
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-            return new PartialProduct($product);
+            return PartialProductConverter::toPartialProduct($product);
         }
 
         return $product;

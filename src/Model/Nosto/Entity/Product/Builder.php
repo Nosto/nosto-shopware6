@@ -33,6 +33,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -519,7 +520,7 @@ class Builder
     }
 
     private function makeActualProductCategories(
-        ?SalesChannelProductEntity $product,
+        SalesChannelProductEntity|PartialEntity|null $product,
         SalesChannelContext $context,
     ): void {
         $shouldLog = $this->shouldLogExtra($context);

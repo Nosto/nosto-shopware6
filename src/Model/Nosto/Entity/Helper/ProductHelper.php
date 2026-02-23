@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
@@ -130,7 +131,7 @@ class ProductHelper
         SalesChannelContext $context,
     ): int {
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-            $product = new PartialProduct($product);
+            $product = PartialProductConverter::toPartialProduct($product);
         }
 
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
@@ -148,6 +149,7 @@ class ProductHelper
 
     public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
     {
+        //todo it should use getShopwareProductsPartial instead of getShopwareProducts
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
@@ -225,7 +227,19 @@ class ProductHelper
         $languageId = $context->getLanguageId();
 
         $criteria = $this->getCommonCriteria('product_sync.productHelper.loadExistingParentProducts');
-        $criteria->addAssociation('children');
+        // Here we are loading only parents, children will be added in next steps
+        $criteria->addFields([
+            'id',
+            'parentId',
+            'productNumber',
+            'active',
+            'childCount',
+            'displayGroup',
+            'isCloseout',
+            'availableStock',
+            'stock',
+            'variantListingConfig',
+        ]);
         $criteria->setLimit(100);
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
@@ -313,7 +327,7 @@ class ProductHelper
         SalesChannelContext $context,
     ): ?string {
         if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-            $product = new PartialProduct($product);
+            $product = PartialProductConverter::toPartialProduct($product);
         }
 
         if ($domains = $context->getSalesChannel()->getDomains()) {
@@ -373,7 +387,7 @@ class ProductHelper
     ): SalesChannelProductCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
-        $criteria = $this->getSyncCriteria('product_sync.productHelper.getShopwareProducts', $context);
+        $criteria = $this->getSyncPartialCriteria('product_sync.productHelper.getShopwareProducts', $context);
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
         }
@@ -403,16 +417,31 @@ class ProductHelper
         SalesChannelContext $context,
         bool $includeChildren = true,
     ): EntityCollection {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
         $criteria = $this->getSyncPartialCriteria('product_sync.productHelper.getShopwareProducts.partial', $context);
         if ($includeChildren) {
             $this->addSyncPartialChildren($criteria, $context);
         }
         $criteria->setIds($productIds);
 
-        return $this->salesChannelProductRepository->search(
+        $result = $this->salesChannelProductRepository->search(
             $criteria,
             $context,
         )->getEntities();
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.productHelper.getShopwareProducts.partial',
+                $startedAt,
+                [
+                    'product_count' => count($productIds),
+                ],
+            );
+        }
+
+        return $result;
     }
 
     private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
@@ -488,44 +517,60 @@ class ProductHelper
     {
         $criteria->addAssociation('children');
         $childrenCriteria = $criteria->getAssociation('children');
-        $childrenCriteria->addAssociation('cover');
-        $childrenCriteria->addAssociation('manufacturer');
-        $childrenCriteria->addAssociation('manufacturer.media');
-        $childrenCriteria->addAssociation('visibilities');
 
-        $childrenCriteria->addFields([
-            'id',
-            'parentId',
-            'productNumber',
-            'active',
-            'displayGroup',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'releaseDate',
-            'manufacturerNumber',
-            'ean',
-            'shippingFree',
-            'customSearchKeywords',
-            'variantListingConfig',
-            'price',
-            'prices',
-            'name',
-            'customFields',
-            'optionIds',
-            'propertyIds',
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $childrenCriteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if (count($categoryBlocklist)) {
+            $childrenCriteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        $criteria->addFields([
+            'children.id',
+            'children.parentId',
+            'children.productNumber',
+            'children.active',
+            'children.displayGroup',
+            'children.isCloseout',
+            'children.availableStock',
+            'children.stock',
+            'children.releaseDate',
+            'children.manufacturerNumber',
+            'children.ean',
+            'children.shippingFree',
+            'children.customSearchKeywords',
+            'children.variantListingConfig',
+            'children.price',
+            'children.prices',
+            'children.name',
+            'children.customFields',
+            'children.optionIds',
+            'children.propertyIds',
         ]);
-        $childrenCriteria->addFields([
-            'cover.id',
-            'cover.media.id',
-            'cover.media.url',
-            'manufacturer.id',
-            'manufacturer.name',
-            'manufacturer.media.id',
-            'manufacturer.media.url',
-            'visibilities.id',
-            'visibilities.salesChannelId',
-            'visibilities.visibility',
+        $criteria->addFields([
+            'children.cover.id',
+            'children.cover.media.id',
+            'children.cover.media.url',
+            'children.manufacturer.id',
+            'children.manufacturer.name',
+            'children.manufacturer.media.id',
+            'children.manufacturer.media.url',
+            'children.visibilities.id',
+            'children.visibilities.salesChannelId',
+            'children.visibilities.visibility',
         ]);
     }
 

@@ -27,8 +27,6 @@
 
             <argument key="$channelContextFactory" type="service"
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
             <argument key="$partialProductProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
@@ -185,8 +183,8 @@
             <argument key="$buyerBuilder" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$partialProductProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
@@ -351,8 +349,8 @@
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringProductDebug">
             <argument key="$channelContextFactory" type="service"
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$partialProductProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>

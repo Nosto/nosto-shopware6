@@ -123,6 +123,22 @@ class PartialProduct
         return (int) ($this->entity->get('availableStock') ?? 0);
     }
 
+    public function getActive(): bool
+    {
+        return (bool) ($this->entity->get('active') ?? false);
+    }
+
+    public function getIsCloseout(): bool
+    {
+        return (bool) ($this->entity->get('isCloseout') ?? false);
+    }
+
+    public function getDisplayGroup(): ?string
+    {
+        $value = $this->entity->get('displayGroup');
+        return $value !== null ? (string) $value : null;
+    }
+
     public function getShippingFree(): bool
     {
         return (bool) ($this->entity->get('shippingFree') ?? false);
@@ -215,5 +231,24 @@ class PartialProduct
         }
 
         throw new \BadMethodCallException(sprintf('Undefined method %s::%s', self::class, $name));
+    }
+
+    public function getChildCount(): ?int
+    {
+        $value = $this->entity->get('childCount');
+        if ($value === null) {
+            return $this->getChildren()?->count();
+        }
+
+        if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
+            return (int) $value;
+        }
+
+        return null;
+    }
+
+    public function setChildren(?EntityCollection $filter)
+    {
+        //todo
     }
 }

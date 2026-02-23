@@ -9,6 +9,8 @@ use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
@@ -51,6 +53,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $result = new JobResult();
         $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
+        $criteriaProduct->addFields(['id', 'productNumber']);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
             $message->getContext(),
@@ -66,7 +69,8 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         while (($products = $productRepositoryIterator->fetch()) !== null) {
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getProductIdsForMessage($products->getEntities());
+            $partialProducts = PartialProductConverter::toPartialProductCollection($products->getEntities());
+            $ids = $this->getProductIdsForMessage($partialProducts);
             $batchSize = count($ids);
             $productCount += $batchSize;
             foreach ($accounts as $account) {
@@ -187,7 +191,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     /**
      * @return array<string, string>
      */
-    private function getProductIdsForMessage(EntityCollection $products): array
+    private function getProductIdsForMessage(PartialProductCollection $products): array
     {
         $data = [];
         foreach ($products as $product) {
