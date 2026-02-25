@@ -344,13 +344,14 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         // === Pass 2: Single batched DB query ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
-        $useFullForProperties = $this->configProvider->isEnabledProductProperties(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        );
         $allShopwareProducts = !empty($allUniqueIds)
-            ? ($this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context))
-            : new ProductCollection();
+            ? (PartialProductConverter::toPartialProductCollection($this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context)))
+            : new PartialProductCollection();
+        /** @var array<string, PartialProduct> $allShopwareProductsById */
+        $allShopwareProductsById = [];
+        foreach ($allShopwareProducts as $shopwareProduct) {
+            $allShopwareProductsById[$shopwareProduct->getId()] = $shopwareProduct;
+        }
         if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
             $this->logDuration(
                 $context,
@@ -364,7 +365,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         // === Pass 3: Process using pre-loaded data ===
-        /** @var ProductEntity $product */
+        /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
             if (isset($failedProductIds[$product->getId()])) {
                 continue;
@@ -373,7 +374,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             try {
                 $nostoProducts = [];
                 $handledProducts = $handledMap[$product->getId()];
-                if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof ProductCollection) {
+                if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof PartialProductCollection) {
                     $handledProducts = PartialProductConverter::toPartialProductCollection($handledProducts);
                 }
 
@@ -382,7 +383,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
                     }
 
-                    $shopwareProduct = $allShopwareProducts->get($handledProduct->getId());
+                    $shopwareProduct = $allShopwareProductsById[$handledProduct->getId()] ?? null;
                     $productStartedAt = $shouldLogExtra ? microtime(true) : null;
                     $handledResult = 'skipped';
 
@@ -488,49 +489,28 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     protected function handleProduct(
-        object $product,
+        PartialProduct $product,
         SalesChannelContext $context,
         Account $account,
         bool $hideProductsAfterClearance,
         array $mapping,
     ): ?NostoProduct {
-        $stock = $this->productHelper->getProductStock($this->toProductEntity($product), $context);
+        $stock = $this->productHelper->getProductStock($product, $context);
 
-        if ($product instanceof SalesChannelProductEntity && $product->getChildren()?->count()) {
+        if ($product->getChildren()?->count()) {
             $this->deleteVariantProducts($product, $context, $account, $mapping);
         }
 
-        $parentId = $product instanceof SalesChannelProductEntity ? $product->getParentId() : ($product->get(
-            'parentId',
-        ) ?? null);
-        if ($parentId) {
-            $this->doDeleteOperation($account, $context, [$parentId], $mapping);
+        if ($product->getParentId()) {
+            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
         }
 
-        $isCloseout = $product instanceof SalesChannelProductEntity ? $product->getIsCloseout() : (bool) ($product->get(
-            'isCloseout',
-        ) ?? false);
-        $productId = $product instanceof SalesChannelProductEntity ? $product->getId() : (string) $product->get('id');
-        if ($hideProductsAfterClearance && $isCloseout && $stock < 1) {
-            $this->doDeleteOperation($account, $context, [$productId], $mapping);
+        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
             return null;
         }
 
         return $this->partialProductProvider->get($product, $context);
-    }
-
-    private function toProductEntity(object $product): SalesChannelProductEntity
-    {
-        if ($product instanceof SalesChannelProductEntity) {
-            return $product;
-        }
-        $entity = new SalesChannelProductEntity();
-        $entity->setId((string) $product->get('id'));
-        $entity->setParentId($product->get('parentId'));
-        $entity->setStock((int) ($product->get('stock') ?? 0));
-        $entity->setAvailableStock((int) ($product->get('availableStock') ?? 0));
-        $entity->setIsCloseout((bool) ($product->get('isCloseout') ?? false));
-        return $entity;
     }
 
     /**

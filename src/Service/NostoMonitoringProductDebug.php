@@ -112,7 +112,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
                 true,
                 true,
             );
-            if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof ProductCollection) {
+            if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof PartialProductCollection) {
                 $handledProducts = PartialProductConverter::toPartialProductCollection($handledProducts);
             }
             $shopwareProducts = $handledProducts->count()
