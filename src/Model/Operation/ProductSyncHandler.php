@@ -266,6 +266,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operationPayloadBytes = 2;
         $operationProductCount = 0;
         $operationProducts = [];
+        /** @var array<string, bool> */
+        $queuedDeleteIds = [];
 
         // === Pass 1: Collect handled products (in-memory, no DB calls) ===
         /** @var array<string, PartialProductCollection> */
@@ -301,13 +303,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $handledMap[$product->getId()] = $handledProducts;
 
                 if (!$handledProducts->count()) {
-                    $this->deleteVariantProducts($product, $context, $account, $ids);
-                    $this->doDeleteOperation(
-                        $account,
-                        $context,
-                        [$product->getId(), $product->getParentId()],
-                        $ids,
-                    );
+                    $this->deleteVariantProducts($product, $queuedDeleteIds);
+                    $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId(), $product->getParentId()]);
                 } else {
                     foreach ($handledProducts->getIds() as $id) {
                         $allUniqueIds[$id] = true;
@@ -391,9 +388,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
-                            $account,
                             $hideProductsAfterClearance,
-                            $ids,
+                            $queuedDeleteIds,
                         );
 
                         if ($nostoProduct) {
@@ -401,13 +397,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                             $handledResult = 'prepared';
                         }
                     } else {
-                        $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
-                        $this->doDeleteOperation(
-                            $account,
-                            $context,
-                            [$handledProduct->getId(), $handledProduct->getParentId()],
-                            $ids,
-                        );
+                        $this->deleteVariantProducts($handledProduct, $queuedDeleteIds);
+                        $this->queueDeleteProductIds($queuedDeleteIds, [$handledProduct->getId(), $handledProduct->getParentId()]);
                         $handledResult = 'deleted';
                     }
 
@@ -441,6 +432,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         + ($operationProductCount > 0 ? 1 : 0)
                         + $productPayloadSize;
                     if ($operationProductCount > 0 && $nextPayloadBytes > $maxPayloadBytes) {
+                        $this->flushDeleteOperation($queuedDeleteIds, $account, $context, $ids);
                         $this->flushUpsertOperation(
                             $operationProducts,
                             $operationPayloadBytes,
@@ -476,6 +468,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
+        $this->flushDeleteOperation($queuedDeleteIds, $account, $context, $ids);
         $this->flushUpsertOperation(
             $operationProducts,
             $operationPayloadBytes,
@@ -491,26 +484,56 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     protected function handleProduct(
         PartialProduct $product,
         SalesChannelContext $context,
-        Account $account,
         bool $hideProductsAfterClearance,
-        array $mapping,
+        array &$queuedDeleteIds,
     ): ?NostoProduct {
         $stock = $this->productHelper->getProductStock($product, $context);
 
         if ($product->getChildren()?->count()) {
-            $this->deleteVariantProducts($product, $context, $account, $mapping);
+            $this->deleteVariantProducts($product, $queuedDeleteIds);
         }
 
         if ($product->getParentId()) {
-            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
+            $this->queueDeleteProductIds($queuedDeleteIds, [$product->getParentId()]);
         }
 
         if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
-            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
+            $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId()]);
             return null;
         }
 
         return $this->partialProductProvider->get($product, $context);
+    }
+
+    /**
+     * @param array<string, bool> $queuedDeleteIds
+     * @param array<string|null> $productIds
+     */
+    private function queueDeleteProductIds(array &$queuedDeleteIds, array $productIds): void
+    {
+        foreach ($productIds as $productId) {
+            if ($productId) {
+                $queuedDeleteIds[$productId] = true;
+            }
+        }
+    }
+
+    /**
+     * @param array<string, bool> $queuedDeleteIds
+     * @param array<string, string> $mapping
+     */
+    private function flushDeleteOperation(
+        array &$queuedDeleteIds,
+        Account $account,
+        SalesChannelContext $context,
+        array $mapping,
+    ): void {
+        if (!$queuedDeleteIds) {
+            return;
+        }
+
+        $this->doDeleteOperation($account, $context, array_keys($queuedDeleteIds), $mapping);
+        $queuedDeleteIds = [];
     }
 
     /**
@@ -682,17 +705,19 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     protected function deleteVariantProducts(
         SalesChannelProductEntity|ProductEntity|PartialProduct $product,
-        SalesChannelContext $context,
-        Account $account,
-        array $mapping,
+        array &$queuedDeleteIds,
     ): void {
-        $idsToDelete = [];
-
-        foreach ($product->getChildren() as $prod) {
-            $idsToDelete[] = $prod->getId();
+        $children = $product->getChildren();
+        if (!$children || !$children->count()) {
+            return;
         }
 
-        $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
+        foreach ($children as $prod) {
+            $id = $prod->getId();
+            if ($id) {
+                $queuedDeleteIds[$id] = true;
+            }
+        }
     }
 
     protected function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
