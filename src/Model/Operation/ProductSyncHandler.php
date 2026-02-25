@@ -27,7 +27,6 @@ use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -342,7 +341,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         // === Pass 2: Single batched DB query ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $allShopwareProducts = !empty($allUniqueIds)
-            ? (PartialProductConverter::toPartialProductCollection($this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context)))
+            ? (PartialProductConverter::toPartialProductCollection(
+                $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context),
+            ))
             : new PartialProductCollection();
         /** @var array<string, PartialProduct> $allShopwareProductsById */
         $allShopwareProductsById = [];
@@ -398,7 +399,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         }
                     } else {
                         $this->deleteVariantProducts($handledProduct, $queuedDeleteIds);
-                        $this->queueDeleteProductIds($queuedDeleteIds, [$handledProduct->getId(), $handledProduct->getParentId()]);
+                        $this->queueDeleteProductIds(
+                            $queuedDeleteIds,
+                            [$handledProduct->getId(), $handledProduct->getParentId()],
+                        );
                         $handledResult = 'deleted';
                     }
 
