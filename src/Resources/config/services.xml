@@ -27,8 +27,8 @@
 
             <argument key="$channelContextFactory" type="service"
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$partialProductProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
@@ -112,7 +112,9 @@
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder"/>
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\SkuBuilder">
+            <argument key="$propertyGroupOptionRepository" type="service" id="property_group_option.repository"/>
+        </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
             <argument key="$productRepository" type="service" id="product.repository"/>
@@ -134,9 +136,18 @@
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialBuilder">
+            <argument key="$tagRepository" type="service" id="tag.repository"/>
+            <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
+            <argument key="$propertyGroupOptionRepository" type="service" id="property_group_option.repository"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder"/>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\Provider" lazy="true"/>
+
+        <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider" lazy="true"/>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider">
             <argument key="$cache" type="service" id="cache.object"/>
@@ -181,8 +192,8 @@
             <argument key="$buyerBuilder" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$partialProductProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Order\Buyer\Builder"/>
@@ -260,8 +271,9 @@
             <tag name="twig.extension"/>
 
             <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
             <argument type="service" id="monolog.logger.nosto_integration"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument key="$salesChannelProductRepository" type="service" id="sales_channel.product.repository"/>
             <argument key="$nostoConfigService" type="service"
                       id="Nosto\NostoIntegration\Model\Config\NostoConfigService"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
@@ -350,8 +362,8 @@
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringProductDebug">
             <argument key="$channelContextFactory" type="service"
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument key="$productProvider" type="service"
-                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider"/>
+            <argument key="$partialProductProvider" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
