@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Model\Operation;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\NostoIntegration\Async\EventsWriter;
+use Nosto\NostoIntegration\Async\ExchangeRateSyncMessage;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
@@ -53,6 +54,9 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $this->processUpdatedOrderEvents($message->getContext(), $result, $message->getJobId());
         $this->processProductEvents($message->getContext(), $result, $message->getJobId());
         $this->processCategoryEvents($message->getContext(), $result, $message->getJobId());
+        if ($this->configProvider->isEnabledMultiCurrency()) {
+            $this->processExchangeRateEvents($message->getContext(), $result, $message->getJobId());
+        }
 
         if ($shouldLogExtra && $syncStartedAt !== null) {
             $this->logDuration(
@@ -264,6 +268,28 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
             $this->jobScheduler->schedule($jobMessage);
             $result->addMessage(new InfoMessage(
                 sprintf('Job with payload of %s updated categories has been scheduled.', count($categoryIds)),
+            ));
+        });
+    }
+
+    private function processExchangeRateEvents(Context $context, JobResult $result, string $parentJobId): void
+    {
+        $type = EventsWriter::EXCHANGE_RATE_ENTITY_NAME;
+        $this->processEventBatches($context, $type, 'product_sync.changelog.exchange_rate', function (
+            array $exchangeRateIds,
+        ) use (
+            $parentJobId,
+            $result,
+            $context
+        ): void {
+            if (!$exchangeRateIds) {
+                return;
+            }
+
+            $jobMessage = new ExchangeRateSyncMessage(Uuid::randomHex(), $parentJobId, $context);
+            $this->jobScheduler->schedule($jobMessage);
+            $result->addMessage(new InfoMessage(
+                sprintf('Exchange rate sync scheduled due to %s currency change(s).', count($exchangeRateIds)),
             ));
         });
     }
