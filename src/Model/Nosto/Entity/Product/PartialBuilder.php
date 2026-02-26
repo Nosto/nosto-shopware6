@@ -86,14 +86,18 @@ class PartialBuilder
      */
     public function build(object $product, SalesChannelContext $context): NostoProduct
     {
-        $product = $this->wrapPartialProduct($product);
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = PartialProductConverter::toPartialProduct($product);
+        }
         $productId = $this->getId($product);
         if ($productId === null) {
             return new NostoProduct();
         }
 
         $product = $this->ensurePartialProduct($product, $productId, $context);
-        $product = $this->wrapPartialProduct($product);
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = PartialProductConverter::toPartialProduct($product);
+        }
         $nostoProduct = new NostoProduct();
 
         $channelId = $context->getSalesChannelId();
@@ -205,7 +209,9 @@ class PartialBuilder
         }
 
         if ($this->configProvider->isEnabledProductProperties($channelId, $languageId)) {
-            $partialProduct = $this->wrapPartialProduct($product);
+            if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+                $partialProduct = PartialProductConverter::toPartialProduct($product);
+            }
             $options = $partialProduct->getOptions();
             if ($options !== null) {
                 $options = $this->productHelper->preparePropertiesOrOptionsGeneric($options);
@@ -278,7 +284,9 @@ class PartialBuilder
         }
 
         if ($this->configProvider->isEnabledAlternateImages($channelId, $languageId)) {
-            $product = $this->wrapPartialProduct($product);
+            if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+                $product = PartialProductConverter::toPartialProduct($product);
+            }
             $alternateMedia = $product->getMedia();
             if ($alternateMedia instanceof EntityCollection) {
                 $alternateMedia->sort(
@@ -813,14 +821,5 @@ class PartialBuilder
 
         $value = $this->getValue($product, 'id');
         return $value ? (string) $value : null;
-    }
-
-    private function wrapPartialProduct(object $product): object
-    {
-        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
-            return PartialProductConverter::toPartialProduct($product);
-        }
-
-        return $product;
     }
 }

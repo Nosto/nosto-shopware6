@@ -246,9 +246,4 @@ class PartialProduct
 
         return null;
     }
-
-    public function setChildren(?EntityCollection $filter): void
-    {
-        //todo
-    }
 }

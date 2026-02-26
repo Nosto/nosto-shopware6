@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
@@ -149,7 +150,8 @@ class ProductHelper
 
     public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
     {
-        //todo it should use getShopwareProductsPartial instead of getShopwareProducts
+        //todo ADS-5334: it should use getShopwareProductsPartial instead of getShopwareProducts
+        // https://nostosolutions.atlassian.net/browse/ADS-5334
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
@@ -202,17 +204,7 @@ class ProductHelper
 
     private function getCommonCriteriaChildren($criteria): void
     {
-        $criteria->addAssociation('children');
-        $childrenCriteria = $criteria->getAssociation('children');
-        $childrenCriteria->addFields([
-            'id',
-            'parentId',
-            'active',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'displayGroup',
-        ]);
+        $criteria->addFields(ProductFieldSets::COMMON_CHILDREN_FIELDS);
     }
 
     public function loadExistingParentProducts(
@@ -226,18 +218,7 @@ class ProductHelper
 
         $criteria = $this->getCommonCriteria('product_sync.productHelper.loadExistingParentProducts');
         // Here we are loading only parents, children will be added in next steps
-        $criteria->addFields([
-            'id',
-            'parentId',
-            'productNumber',
-            'active',
-            'childCount',
-            'displayGroup',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'variantListingConfig',
-        ]);
+        $criteria->addFields(ProductFieldSets::PARENT_SYNC_FIELDS);
         $criteria->setLimit(100);
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
@@ -445,75 +426,14 @@ class ProductHelper
     private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
     {
         $criteria = NostoCriteriaFactory::create($title);
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('manufacturer');
-        $criteria->addAssociation('manufacturer.media');
-        $criteria->addAssociation('categoriesRo');
-        $criteria->addAssociation('visibilities');
-        $criteria->addAssociation('media');
 
-        $criteria->addFields([
-            'id',
-            'parentId',
-            'productNumber',
-            'active',
-            'childCount',
-            'displayGroup',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'createdAt',
-            'releaseDate',
-            'ratingAverage',
-            'variantListingConfig',
-            'manufacturerNumber',
-            'ean',
-            'purchaseUnit',
-            'referenceUnit',
-            'shippingFree',
-            'customSearchKeywords',
-            'tagIds',
-            'streamIds',
-            'optionIds',
-            'propertyIds',
-            'unitId',
-            'taxId',
-            'price',
-            'prices',
-            'name',
-            'description',
-            'customFields',
-            'keywords',
-            'packUnit',
-            'packUnitPlural',
-            'metaTitle',
-            'metaDescription',
-        ]);
-
-        $criteria->addFields([
-            'cover.id',
-            'cover.media.id',
-            'cover.media.url',
-            'manufacturer.id',
-            'manufacturer.name',
-            'manufacturer.media.id',
-            'manufacturer.media.url',
-            'categoriesRo.id',
-            'visibilities.id',
-            'visibilities.salesChannelId',
-            'visibilities.visibility',
-            'media.id',
-            'media.position',
-            'media.media.id',
-            'media.media.url',
-        ]);
+        $criteria->addFields(ProductFieldSets::productFields());
 
         return $criteria;
     }
 
     private function addSyncPartialChildren(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addAssociation('children');
         $childrenCriteria = $criteria->getAssociation('children');
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
@@ -536,40 +456,7 @@ class ProductHelper
             );
         }
 
-        $criteria->addFields([
-            'children.id',
-            'children.parentId',
-            'children.productNumber',
-            'children.active',
-            'children.displayGroup',
-            'children.isCloseout',
-            'children.availableStock',
-            'children.stock',
-            'children.releaseDate',
-            'children.manufacturerNumber',
-            'children.ean',
-            'children.shippingFree',
-            'children.customSearchKeywords',
-            'children.variantListingConfig',
-            'children.price',
-            'children.prices',
-            'children.name',
-            'children.customFields',
-            'children.optionIds',
-            'children.propertyIds',
-        ]);
-        $criteria->addFields([
-            'children.cover.id',
-            'children.cover.media.id',
-            'children.cover.media.url',
-            'children.manufacturer.id',
-            'children.manufacturer.name',
-            'children.manufacturer.media.id',
-            'children.manufacturer.media.url',
-            'children.visibilities.id',
-            'children.visibilities.salesChannelId',
-            'children.visibilities.visibility',
-        ]);
+        $childrenCriteria->addFields(ProductFieldSets::CHILDREN_FIELDS);
     }
 
     protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string

@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
@@ -143,62 +144,8 @@ class NostoExtension extends AbstractExtension
     ): string|NostoProduct {
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
-        $criteria->addFields([
-            'id',
-            'parentId',
-            'productNumber',
-            'active',
-            'childCount',
-            'displayGroup',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'createdAt',
-            'releaseDate',
-            'ratingAverage',
-            'variantListingConfig',
-            'manufacturerNumber',
-            'ean',
-            'purchaseUnit',
-            'referenceUnit',
-            'shippingFree',
-            'customSearchKeywords',
-            'tagIds',
-            'streamIds',
-            'optionIds',
-            'propertyIds',
-            'unitId',
-            'taxId',
-            'price',
-            'prices',
-            'name',
-            'description',
-            'customFields',
-            'keywords',
-            'packUnit',
-            'packUnitPlural',
-            'metaTitle',
-            'metaDescription',
-        ]);
+        $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
 
-        $criteria->addFields([
-            'cover.id',
-            'cover.media.id',
-            'cover.media.url',
-            'manufacturer.id',
-            'manufacturer.name',
-            'manufacturer.media.id',
-            'manufacturer.media.url',
-            'categoriesRo.id',
-            'visibilities.id',
-            'visibilities.salesChannelId',
-            'visibilities.visibility',
-            'media.id',
-            'media.position',
-            'media.media.id',
-            'media.media.url',
-        ]);
-        $criteria->addAssociation('children');
         $childrenCriteria = $criteria->getAssociation('children');
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
@@ -221,41 +168,6 @@ class NostoExtension extends AbstractExtension
             );
         }
 
-        $criteria->addFields([
-            'children.id',
-            'children.parentId',
-            'children.productNumber',
-            'children.active',
-            'children.displayGroup',
-            'children.isCloseout',
-            'children.availableStock',
-            'children.stock',
-            'children.releaseDate',
-            'children.manufacturerNumber',
-            'children.ean',
-            'children.shippingFree',
-            'children.customSearchKeywords',
-            'children.variantListingConfig',
-            'children.price',
-            'children.prices',
-            'children.name',
-            'children.customFields',
-            'children.optionIds',
-            'children.propertyIds',
-        ]);
-        $criteria->addFields([
-            'children.cover.id',
-            'children.cover.media.id',
-            'children.cover.media.url',
-            'children.manufacturer.id',
-            'children.manufacturer.name',
-            'children.manufacturer.media.id',
-            'children.manufacturer.media.url',
-            'children.visibilities.id',
-            'children.visibilities.salesChannelId',
-            'children.visibilities.visibility',
-        ]);
-
         /** @var PartialProduct $mainProduct */
         $mainProduct = $this->productRepository
             ->search($criteria, $context->getContext())
@@ -266,61 +178,7 @@ class NostoExtension extends AbstractExtension
 
         /** @var PartialProduct $variantFromDb */
         $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
-        $criteria->addFields([
-            'id',
-            'parentId',
-            'productNumber',
-            'active',
-            'childCount',
-            'displayGroup',
-            'isCloseout',
-            'availableStock',
-            'stock',
-            'createdAt',
-            'releaseDate',
-            'ratingAverage',
-            'variantListingConfig',
-            'manufacturerNumber',
-            'ean',
-            'purchaseUnit',
-            'referenceUnit',
-            'shippingFree',
-            'customSearchKeywords',
-            'tagIds',
-            'streamIds',
-            'optionIds',
-            'propertyIds',
-            'unitId',
-            'taxId',
-            'price',
-            'prices',
-            'name',
-            'description',
-            'customFields',
-            'keywords',
-            'packUnit',
-            'packUnitPlural',
-            'metaTitle',
-            'metaDescription',
-        ]);
-
-        $criteria->addFields([
-            'cover.id',
-            'cover.media.id',
-            'cover.media.url',
-            'manufacturer.id',
-            'manufacturer.name',
-            'manufacturer.media.id',
-            'manufacturer.media.url',
-            'categoriesRo.id',
-            'visibilities.id',
-            'visibilities.salesChannelId',
-            'visibilities.visibility',
-            'media.id',
-            'media.position',
-            'media.media.id',
-            'media.media.url',
-        ]);
+        $criteria->addFields(ProductFieldSets::productFields());
 
         $variantFromDb = $this->productRepository
             ->search($criteria, $context->getContext())
