@@ -85,6 +85,15 @@
                     required
                     name="searchToken"
                 />
+                <sw-password-field
+                    :value="currentConfig['ratesToken']"
+                    :label="$tc('nosto.configuration.account.ratesTokenTitle')"
+                    :help-text="$tc('nosto.configuration.account.ratesTokenHelpText')"
+                    :error="hasError(currentConfig['ratesToken'])"
+                    required
+                    name="ratesToken"
+                    @update:value="onUpdateValue('ratesToken', $event)"
+                />
             {% endblock %}
         </template>
         <template v-else>

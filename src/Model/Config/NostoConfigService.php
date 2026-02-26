@@ -34,6 +34,8 @@ class NostoConfigService
 
     public const SEARCH_TOKEN = 'searchToken';
 
+    public const RATES_TOKEN = 'ratesToken';
+
     public const ENABLE_SEARCH = 'enableSearch';
 
     public const ENABLE_NAVIGATION = 'enableNavigation';
@@ -105,6 +107,8 @@ class NostoConfigService
     public const ENABLE_PRODUCT_VISIBILITY = 'enableProductVisibility';
 
     public const ENABLE_FALLBACK_MECHANISM = 'enableFallbackMechanism';
+
+    public const ENABLE_MULTI_CURRENCY = 'enableMultiCurrency';
 
     public const SYNC_BATCH_SIZE = 'syncBatchSize';
 

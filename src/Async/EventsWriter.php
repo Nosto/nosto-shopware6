@@ -21,6 +21,8 @@ class EventsWriter
 
     public const CATEGORY_ENTITY_NAME = 'category';
 
+    public const EXCHANGE_RATE_ENTITY_NAME = 'exchange_rate';
+
     public function __construct(
         private readonly EntityRepository $changelogRepository,
     ) {

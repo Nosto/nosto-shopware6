@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
+use Nosto\NostoIntegration\Async\ExchangeRateSyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -169,6 +170,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
+        if ($this->configProvider->isEnabledMultiCurrency()) {
+            $this->scheduleExchangeRateSync($message, $result);
+        }
+
         if ($shouldLogExtra && $syncStartedAt !== null) {
             $this->logDuration(
                 $context,
@@ -182,6 +187,19 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         }
 
         return $result;
+    }
+
+    private function scheduleExchangeRateSync(FullCatalogSyncMessage $message, JobResult $result): void
+    {
+        $this->jobScheduler->schedule(
+            new ExchangeRateSyncMessage(
+                Uuid::randomHex(),
+                $message->getJobId(),
+                $message->getContext(),
+            ),
+        );
+
+        $result->addMessage(new InfoMessage('Exchange rate sync job has been scheduled.'));
     }
 
     private function getProductIdsForMessage(EntityCollection $products): array

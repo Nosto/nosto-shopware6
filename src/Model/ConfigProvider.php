@@ -53,6 +53,11 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::SEARCH_TOKEN, $channelId, $languageId);
     }
 
+    public function getRatesToken($channelId = null, $languageId = null): string
+    {
+        return $this->configService->getString(NostoConfigService::RATES_TOKEN, $channelId, $languageId);
+    }
+
     public function isSearchEnabled($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
@@ -362,6 +367,15 @@ class ConfigProvider
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_FALLBACK_MECHANISM,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledMultiCurrency($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_MULTI_CURRENCY,
             $channelId,
             $languageId,
         );

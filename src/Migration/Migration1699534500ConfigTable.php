@@ -20,6 +20,7 @@ class Migration1699534500ConfigTable extends MigrationStep
         'emailToken',
         'appToken',
         'searchToken',
+        'ratesToken',
     ];
 
     public function getCreationTimestamp(): int
