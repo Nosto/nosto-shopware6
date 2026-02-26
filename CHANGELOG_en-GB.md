@@ -1,3 +1,7 @@
+# 5.2.6
+* Fix: Improve product sync performance
+* New: Add multi-currency support
+
 # 5.2.5
 * Fix: Preserve post filters
 
