@@ -189,6 +189,12 @@ abstract class AbstractRequestHandler
             $context->getSalesChannelId(),
             $context->getLanguageId(),
         );
+        if ($this->configProvider->isEnabledMultiCurrency(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $this->setCurrency($context, $searchOperation);
+        }
         $this->setAbTests($request, $searchOperation);
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
@@ -232,6 +238,16 @@ abstract class AbstractRequestHandler
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);
+    }
+
+    protected function setCurrency(
+        SalesChannelContext $context,
+        SearchOperation $searchOperation,
+    ): void {
+        $currency = $context->getCurrency()?->getIsoCode();
+        if ($currency) {
+            $searchOperation->setCurrency($currency);
+        }
     }
 
     protected function setAbTests(

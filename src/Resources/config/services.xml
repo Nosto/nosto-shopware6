@@ -59,6 +59,14 @@
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Model\Operation\ExchangeRateSyncHandler">
+            <tag name="nosto.job_handler" code="nosto-integration-exchange-rate-sync"/>
+
+            <argument key="$currencyRepository" type="service" id="currency.repository"/>
+            <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\OldJobCleanupScheduledTaskHandler">
             <tag name="messenger.message_handler"/>
 
@@ -245,6 +253,10 @@
         </service>
 
         <service id="Nosto\NostoIntegration\EventListener\NewsletterEventListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\EventListener\CurrencyWrittenEvent">
             <tag name="kernel.event_subscriber"/>
         </service>
         <!-- /Event Listeners -->
