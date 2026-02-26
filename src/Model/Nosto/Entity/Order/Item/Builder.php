@@ -36,7 +36,6 @@ class Builder
         PartialProvider $partialProductProvider,
     ): NostoLineItem {
         $criteria = NostoCriteriaFactory::createWithIds([$item->getProductId()]);
-        $criteria->addAssociation('children');
         $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
 
         /** @var PartialProduct|null $product */
@@ -48,7 +47,6 @@ class Builder
         $criteria = NostoCriteriaFactory::createWithIds([
             $product->getParentId() != null ? $product->getParentId() : $product->getId(),
         ]);
-        $criteria->addAssociation('children');
         $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
         /** @var PartialProduct|null $parentProduct */
         $parentProduct = $productRepository->search($criteria, $context->getContext())->first();

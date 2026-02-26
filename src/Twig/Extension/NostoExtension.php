@@ -144,7 +144,6 @@ class NostoExtension extends AbstractExtension
     ): string|NostoProduct {
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
-        $criteria->addAssociation('children');
         $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
 
         $childrenCriteria = $criteria->getAssociation('children');

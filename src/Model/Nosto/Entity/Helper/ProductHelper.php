@@ -204,7 +204,6 @@ class ProductHelper
 
     private function getCommonCriteriaChildren($criteria): void
     {
-        $criteria->addAssociation('children');
         $criteria->addFields(ProductFieldSets::COMMON_CHILDREN_FIELDS);
     }
 
@@ -427,12 +426,6 @@ class ProductHelper
     private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
     {
         $criteria = NostoCriteriaFactory::create($title);
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('manufacturer');
-        $criteria->addAssociation('manufacturer.media');
-        $criteria->addAssociation('categoriesRo');
-        $criteria->addAssociation('visibilities');
-        $criteria->addAssociation('media');
 
         $criteria->addFields(ProductFieldSets::productFields());
 
@@ -441,7 +434,6 @@ class ProductHelper
 
     private function addSyncPartialChildren(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addAssociation('children');
         $childrenCriteria = $criteria->getAssociation('children');
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
@@ -464,7 +456,7 @@ class ProductHelper
             );
         }
 
-        $childrenCriteria->addFields(ProductFieldSets::CHILDREN_FIELDS);
+        $criteria->addFields(ProductFieldSets::CHILDREN_FIELDS);
     }
 
     protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
