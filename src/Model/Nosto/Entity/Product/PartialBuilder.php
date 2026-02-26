@@ -211,6 +211,8 @@ class PartialBuilder
         if ($this->configProvider->isEnabledProductProperties($channelId, $languageId)) {
             if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
                 $partialProduct = PartialProductConverter::toPartialProduct($product);
+            } else {
+                $partialProduct = $product;
             }
             $options = $partialProduct->getOptions();
             if ($options !== null) {
