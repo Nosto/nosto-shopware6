@@ -30,7 +30,15 @@ Component.register('nosto-integration-account-general', {
     data() {
         return {
             apiValidationInProgress: false,
-            configurationKeys: ['accountID', 'accountName', 'productToken', 'emailToken', 'appToken', 'searchToken'],
+            configurationKeys: [
+                'accountID',
+                'accountName',
+                'productToken',
+                'emailToken',
+                'appToken',
+                'searchToken',
+                'ratesToken',
+            ],
         };
     },
 
@@ -59,13 +67,15 @@ Component.register('nosto-integration-account-general', {
             const emailToken = this.currentConfig.emailToken;
             const appToken = this.currentConfig.appToken;
             const searchToken = this.currentConfig.searchToken;
+            const ratesToken = this.currentConfig.ratesToken;
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
                 this.credentialsEmptyValidation('productToken', productToken) *
                 this.credentialsEmptyValidation('emailToken', emailToken) *
                 this.credentialsEmptyValidation('appToken', appToken) *
-                this.credentialsEmptyValidation('searchToken', searchToken))) {
+                this.credentialsEmptyValidation('searchToken', searchToken) *
+                this.credentialsEmptyValidation('ratesToken', ratesToken))) {
                 this.apiValidationInProgress = false;
                 return;
             }
@@ -77,6 +87,7 @@ Component.register('nosto-integration-account-general', {
                 emailToken: emailToken,
                 appToken: appToken,
                 searchToken: searchToken,
+                ratesToken: ratesToken,
             }).then((response) => {
                 if (response.status !== 200) {
                     this.createNotificationError({

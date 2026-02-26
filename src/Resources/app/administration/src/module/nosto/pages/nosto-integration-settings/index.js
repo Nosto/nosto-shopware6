@@ -178,6 +178,7 @@ Component.register('nosto-integration-settings', {
                         !this.getInheritedValue(configKey, 'emailToken') ||
                         !this.getInheritedValue(configKey, 'appToken') ||
                         !this.getInheritedValue(configKey, 'searchToken') ||
+                        !this.getInheritedValue(configKey, 'ratesToken') ||
                         !this.getInheritedValue(configKey, 'productIdentifier') ||
                         !this.getInheritedValue(configKey, 'ratingsReviews') ||
                         !this.getInheritedValue(configKey, 'stockField') ||

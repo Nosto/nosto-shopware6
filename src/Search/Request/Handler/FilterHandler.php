@@ -232,8 +232,10 @@ class FilterHandler
     protected function fetchAvailableFilterIds(Criteria $criteria): array
     {
         $availableFilters = [];
-        /** @var FiltersExtension $filtersExtension */
         $filtersExtension = $criteria->getExtension('nostoFilters');
+        if (!$filtersExtension instanceof FiltersExtension) {
+            return $availableFilters;
+        }
 
         $filters = $filtersExtension->getFilters();
         foreach ($filters as $filter) {
@@ -279,10 +281,15 @@ class FilterHandler
      */
     public function handleAvailableFilters(Criteria $criteria): array
     {
-        /** @var FiltersExtension $availableFilters */
         $availableFilters = $criteria->getExtension('nostoAvailableFilters');
-        /** @var FiltersExtension $allFilters */
+        if (!$availableFilters instanceof FiltersExtension) {
+            return [];
+        }
+
         $allFilters = $criteria->getExtension('nostoFilters');
+        if (!$allFilters instanceof FiltersExtension) {
+            $allFilters = $availableFilters;
+        }
 
         return $this->parseNostoFiltersForShopware($availableFilters, $allFilters);
     }
