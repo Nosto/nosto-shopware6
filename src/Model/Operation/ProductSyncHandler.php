@@ -12,7 +12,10 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeDeleteProductsEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeUpsertProductsEvent;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -24,10 +27,11 @@ use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -42,7 +46,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
-        private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
@@ -64,6 +68,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     public function execute(object $message): Job\JobResult
     {
         $operationResult = new Job\JobResult();
+        $shouldLogExtra = null;
+        $jobStartedAt = null;
 
         $accounts = $this->resolveAccounts($message);
 
@@ -77,11 +83,27 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             );
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
+            if ($shouldLogExtra === null) {
+                $shouldLogExtra = $this->shouldLogExtra($channelContext);
+                $jobStartedAt = $shouldLogExtra ? microtime(true) : null;
+            }
             $accountOperationResult = $this->doOperation($account, $channelContext, $message->getProductIds());
 
             foreach ($accountOperationResult->getMessages() as $error) {
                 $operationResult->addMessage($error);
             }
+        }
+
+        if ($shouldLogExtra && $jobStartedAt !== null && $accounts !== []) {
+            $this->logDuration(
+                $channelContext,
+                'product_sync.execute.job',
+                $jobStartedAt,
+                [
+                    'account_count' => count($accounts),
+                    'product_count' => count($message->getProductIds()),
+                ],
+            );
         }
 
         return $operationResult;
@@ -157,9 +179,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $processedParentCount = 0;
 
         while (($products = $parentProductIterator->fetch()) !== null) {
-            $productCollection = $products->getEntities();
-            $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
-            $processedParentCount += $productCollection->count();
+            $partialProductsCollection = PartialProductConverter::toPartialProductCollection($products->getEntities());
+            $this->doUpsertOperation($account, $context, $partialProductsCollection, $result, $ids);
+            $processedParentCount += $partialProductsCollection->count();
         }
 
         if ($shouldLogExtra && $parentFetchStartedAt !== null) {
@@ -208,7 +230,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     protected function doUpsertOperation(
         Account $account,
         SalesChannelContext $context,
-        ProductCollection $productCollection,
+        PartialProductCollection $productCollection,
         Job\JobResult $result,
         array $ids,
     ): void {
@@ -230,7 +252,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
             $this->configProvider,
-            $this->productProvider,
+            $this->partialProductProvider,
             $this->productHelper,
         );
 
@@ -239,15 +261,17 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $operationPayloadBytes = 2;
         $operationProductCount = 0;
         $operationProducts = [];
+        /** @var array<string, bool> */
+        $queuedDeleteIds = [];
 
         // === Pass 1: Collect handled products (in-memory, no DB calls) ===
-        /** @var array<string, ProductCollection> */
+        /** @var array<string, PartialProductCollection> */
         $handledMap = [];
         $allUniqueIds = [];
         $failedProductIds = [];
         $collectStartedAt = $shouldLogExtra ? microtime(true) : null;
 
-        /** @var ProductEntity $product */
+        /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
             try {
                 $findProductIdStartedAt = $shouldLogExtra ? microtime(true) : null;
@@ -274,13 +298,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $handledMap[$product->getId()] = $handledProducts;
 
                 if (!$handledProducts->count()) {
-                    $this->deleteVariantProducts($product, $context, $account, $ids);
-                    $this->doDeleteOperation(
-                        $account,
-                        $context,
-                        [$product->getId(), $product->getParentId()],
-                        $ids,
-                    );
+                    $this->deleteVariantProducts($product, $queuedDeleteIds);
+                    $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId(), $product->getParentId()]);
                 } else {
                     foreach ($handledProducts->getIds() as $id) {
                         $allUniqueIds[$id] = true;
@@ -318,8 +337,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         // === Pass 2: Single batched DB query ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $allShopwareProducts = !empty($allUniqueIds)
-            ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context)
-            : new ProductCollection();
+            ? (PartialProductConverter::toPartialProductCollection(
+                $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context),
+            ))
+            : new PartialProductCollection();
+        /** @var array<string, PartialProduct> $allShopwareProductsById */
+        $allShopwareProductsById = [];
+        foreach ($allShopwareProducts as $shopwareProduct) {
+            $allShopwareProductsById[$shopwareProduct->getId()] = $shopwareProduct;
+        }
         if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
             $this->logDuration(
                 $context,
@@ -333,7 +359,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         // === Pass 3: Process using pre-loaded data ===
-        /** @var ProductEntity $product */
+        /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
             if (isset($failedProductIds[$product->getId()])) {
                 continue;
@@ -342,20 +368,25 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             try {
                 $nostoProducts = [];
                 $handledProducts = $handledMap[$product->getId()];
+                if ($handledProducts instanceof EntityCollection && !$handledProducts instanceof PartialProductCollection) {
+                    $handledProducts = PartialProductConverter::toPartialProductCollection($handledProducts);
+                }
 
                 foreach ($handledProducts as $handledProduct) {
-                    $shopwareProduct = $allShopwareProducts->get($handledProduct->getId());
+                    if ($handledProduct instanceof PartialEntity && !$product instanceof PartialProduct) {
+                        $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
+                    }
+
+                    $shopwareProduct = $allShopwareProductsById[$handledProduct->getId()] ?? null;
                     $productStartedAt = $shouldLogExtra ? microtime(true) : null;
                     $handledResult = 'skipped';
 
                     if ($shopwareProduct) {
-                        $shopwareProduct->setChildren($handledProduct->getChildren());
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
-                            $account,
                             $hideProductsAfterClearance,
-                            $ids,
+                            $queuedDeleteIds,
                         );
 
                         if ($nostoProduct) {
@@ -363,12 +394,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                             $handledResult = 'prepared';
                         }
                     } else {
-                        $this->deleteVariantProducts($handledProduct, $context, $account, $ids);
-                        $this->doDeleteOperation(
-                            $account,
-                            $context,
+                        $this->deleteVariantProducts($handledProduct, $queuedDeleteIds);
+                        $this->queueDeleteProductIds(
+                            $queuedDeleteIds,
                             [$handledProduct->getId(), $handledProduct->getParentId()],
-                            $ids,
                         );
                         $handledResult = 'deleted';
                     }
@@ -403,6 +432,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                         + ($operationProductCount > 0 ? 1 : 0)
                         + $productPayloadSize;
                     if ($operationProductCount > 0 && $nextPayloadBytes > $maxPayloadBytes) {
+                        $this->flushDeleteOperation($queuedDeleteIds, $account, $context, $ids);
                         $this->flushUpsertOperation(
                             $operationProducts,
                             $operationPayloadBytes,
@@ -438,6 +468,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             }
         }
 
+        $this->flushDeleteOperation($queuedDeleteIds, $account, $context, $ids);
         $this->flushUpsertOperation(
             $operationProducts,
             $operationPayloadBytes,
@@ -451,28 +482,58 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     protected function handleProduct(
-        SalesChannelProductEntity $product,
+        PartialProduct $product,
         SalesChannelContext $context,
-        Account $account,
         bool $hideProductsAfterClearance,
-        array $mapping,
+        array &$queuedDeleteIds,
     ): ?NostoProduct {
         $stock = $this->productHelper->getProductStock($product, $context);
 
         if ($product->getChildren()?->count()) {
-            $this->deleteVariantProducts($product, $context, $account, $mapping);
+            $this->deleteVariantProducts($product, $queuedDeleteIds);
         }
 
         if ($product->getParentId()) {
-            $this->doDeleteOperation($account, $context, [$product->getParentId()], $mapping);
+            $this->queueDeleteProductIds($queuedDeleteIds, [$product->getParentId()]);
         }
 
         if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
-            $this->doDeleteOperation($account, $context, [$product->getId()], $mapping);
+            $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId()]);
             return null;
         }
 
-        return $this->productProvider->get($product, $context);
+        return $this->partialProductProvider->get($product, $context);
+    }
+
+    /**
+     * @param array<string, bool> $queuedDeleteIds
+     * @param array<string|null> $productIds
+     */
+    private function queueDeleteProductIds(array &$queuedDeleteIds, array $productIds): void
+    {
+        foreach ($productIds as $productId) {
+            if ($productId) {
+                $queuedDeleteIds[$productId] = true;
+            }
+        }
+    }
+
+    /**
+     * @param array<string, bool> $queuedDeleteIds
+     * @param array<string, string> $mapping
+     */
+    private function flushDeleteOperation(
+        array &$queuedDeleteIds,
+        Account $account,
+        SalesChannelContext $context,
+        array $mapping,
+    ): void {
+        if (!$queuedDeleteIds) {
+            return;
+        }
+
+        $this->doDeleteOperation($account, $context, array_keys($queuedDeleteIds), $mapping);
+        $queuedDeleteIds = [];
     }
 
     /**
@@ -643,18 +704,20 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     }
 
     protected function deleteVariantProducts(
-        SalesChannelProductEntity|ProductEntity $product,
-        SalesChannelContext $context,
-        Account $account,
-        array $mapping,
+        SalesChannelProductEntity|ProductEntity|PartialProduct $product,
+        array &$queuedDeleteIds,
     ): void {
-        $idsToDelete = [];
-
-        foreach ($product->getChildren() as $prod) {
-            $idsToDelete[] = $prod->getId();
+        $children = $product->getChildren();
+        if (!$children || !$children->count()) {
+            return;
         }
 
-        $this->doDeleteOperation($account, $context, $idsToDelete, $mapping);
+        foreach ($children as $prod) {
+            $id = $prod->getId();
+            if ($id) {
+                $queuedDeleteIds[$id] = true;
+            }
+        }
     }
 
     protected function validateProduct(string $productNumber, NostoProduct $product): ?Job\JobRuntimeMessageInterface
