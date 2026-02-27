@@ -1,3 +1,7 @@
+# 5.2.6
+* Fix: Produktsynchronisierungsleistung
+* New: Unterstützung für mehrere Währungen hinzugefügt
+
 # 5.2.5
 * Fix: Post-Filter beibehalten
 
