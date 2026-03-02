@@ -28,6 +28,19 @@ class NostoIntegrationService extends ApiService {
 
         return this.httpClient.post(apiRoute, {}, { headers });
     }
+
+    getJobChildCount(parentJobIds = []) {
+        if (!Array.isArray(parentJobIds) || parentJobIds.length === 0) {
+            return Promise.resolve({ data: [] });
+        }
+
+        const apiRoute = '_action/nosto-integration/job-child-count';
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post(apiRoute, { parentJobIds }, { headers })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }
 
 /** @private */

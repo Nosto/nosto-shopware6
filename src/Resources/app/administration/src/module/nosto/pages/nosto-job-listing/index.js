@@ -1,6 +1,8 @@
 /* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
+import './override/nosto-job-listing-index';
+import './override/nosto-job-sub-jobs';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

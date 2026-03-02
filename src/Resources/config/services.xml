@@ -195,6 +195,9 @@
         <service id="Nosto\NostoIntegration\Service\FilterPayloadService">
             <argument key="$filterPayloadStore" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadStore"/>
         </service>
+        <service id="Nosto\NostoIntegration\Service\NostoJobChildrenCountService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
         <!-- /Services -->
 
         <!-- Decorators -->
@@ -278,6 +281,15 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoJobChildrenCountController" public="true">
+            <argument key="$jobChildrenCountService" type="service"
+                      id="Nosto\NostoIntegration\Service\NostoJobChildrenCountService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
         </service>
 
 
