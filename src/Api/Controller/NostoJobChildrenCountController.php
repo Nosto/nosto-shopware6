@@ -32,11 +32,15 @@ class NostoJobChildrenCountController extends AbstractController
         $parentJobIds = $request->request->all('parentJobIds');
 
         if (!is_array($parentJobIds) || $parentJobIds === []) {
-            return new JsonResponse(['data' => []]);
+            return new JsonResponse([
+                'data' => [],
+            ]);
         }
 
         $data = $this->jobChildrenCountService->getChildCount($parentJobIds);
 
-        return new JsonResponse(['data' => $data]);
+        return new JsonResponse([
+            'data' => $data,
+        ]);
     }
 }

@@ -15,6 +15,19 @@ class NostoJobChildrenCountService
     ) {
     }
 
+    /**
+     * @return array<int, array{
+     *     parentJobId: string,
+     *     childJobs: array{
+     *         total: int,
+     *         byStatus: array{
+     *             success: int,
+     *             pending: int,
+     *             error: int
+     *         }
+     *     }
+     * }>
+     */
     public function getChildCount(array $parentJobIds): array
     {
         if ($parentJobIds === []) {
@@ -42,8 +55,12 @@ class NostoJobChildrenCountService
              FROM nosto_scheduler_job
              WHERE parent_id IN (:parentIds)
              GROUP BY parent_id',
-            ['parentIds' => $parentBytes],
-            ['parentIds' => ArrayParameterType::BINARY],
+            [
+                'parentIds' => $parentBytes,
+            ],
+            [
+                'parentIds' => ArrayParameterType::BINARY,
+            ],
         );
 
         $data = [];
