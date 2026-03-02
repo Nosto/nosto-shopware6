@@ -1,3 +1,6 @@
+# 5.2.7
+* Fix: update php-sdk dependency
+
 # 5.2.6
 * Fix: Improve product sync performance
 * New: Add multi-currency support
