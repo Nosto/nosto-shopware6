@@ -1,3 +1,6 @@
+# 5.2.7
+* Fix: php-sdk Abhängigkeit Aktualisierung
+
 # 5.2.6
 * Fix: Produktsynchronisierungsleistung
 * New: Unterstützung für mehrere Währungen hinzugefügt
