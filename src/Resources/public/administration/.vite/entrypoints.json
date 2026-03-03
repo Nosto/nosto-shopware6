@@ -3,11 +3,11 @@
   "entryPoints": {
     "nosto-integration": {
       "css": [
-        "/bundles/nostointegration/administration/assets/nosto-integration-74BMn369.css"
+        "/bundles/nostointegration/administration/assets/nosto-integration-D9U1jukq.css"
       ],
       "dynamic": [],
       "js": [
-        "/bundles/nostointegration/administration/assets/nosto-integration-D9cJdohm.js"
+        "/bundles/nostointegration/administration/assets/nosto-integration-D3-pdTsU.js"
       ],
       "legacy": false,
       "preload": []

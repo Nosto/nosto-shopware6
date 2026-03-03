@@ -74,7 +74,8 @@
               :columns="columns">
         <template #column-status="{ item }">
           {% block nosto_job_list_grid_job_status_link %}
-            <span class="nosto-job-status-inline" :class="`is-${getStatusTone(item.status)}`">
+            <span class="nosto-job-status-inline"
+                  :class="[ `is-${getStatusTone(item.status)}`, { 'is-running': isRunningStatus(item.status) } ]">
               <span class="nosto-job-status-dot"></span>
               <span>{{ getStatusLabel(item.status) }}</span>
             </span>

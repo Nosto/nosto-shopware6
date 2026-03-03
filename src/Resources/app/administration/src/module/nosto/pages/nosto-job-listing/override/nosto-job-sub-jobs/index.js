@@ -1,6 +1,6 @@
 /* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-job-sub-jobs.html.twig';
-import { getJobStatusLabel, getJobStatusTone } from '../job-status.helper';
+import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../job-status.helper';
 
 const { Component } = Shopware;
 
@@ -14,6 +14,10 @@ Component.override('nosto-job-sub-jobs', {
 
         getStatusLabel(status) {
             return getJobStatusLabel(status, (key) => this.$tc(key));
+        },
+
+        isRunningStatus(status) {
+            return isJobRunningStatus(status);
         },
 
     },

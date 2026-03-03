@@ -12,6 +12,11 @@ const ERROR_STATUSES = Object.freeze(['error', 'failed']);
 const INFO_STATUSES = Object.freeze(['in_progress', 'processing', 'pending']);
 
 /** @private */
+export function isJobRunningStatus(status) {
+    return (status ?? '').toLowerCase() === 'running';
+}
+
+/** @private */
 export function getJobStatusTone(status) {
     const value = (status ?? '').toLowerCase();
 

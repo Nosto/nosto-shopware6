@@ -50,4 +50,24 @@
     .nosto-job-status-inline.is-info .nosto-job-status-dot {
         background: #3498db;
     }
+
+    .nosto-job-status-inline.is-running .nosto-job-status-dot {
+        background: #27ae60;
+        animation: nosto-job-status-running-pulse 1.1s ease-in-out infinite;
+    }
+
+}
+
+@keyframes nosto-job-status-running-pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
