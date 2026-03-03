@@ -50,8 +50,8 @@ class NostoJobChildrenCountService
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(parent_id)) AS parentId,
                     COUNT(*) AS childCount,
-                    SUM(CASE WHEN status IN (\'success\', \'finished\', \'done\', \'completed\') THEN 1 ELSE 0 END) AS successCount,
-                    SUM(CASE WHEN status = \'error\' THEN 1 ELSE 0 END) AS errorCount
+                    SUM(CASE WHEN status IN (\'success\', \'succeed\', \'finished\', \'done\', \'completed\') THEN 1 ELSE 0 END) AS successCount,
+                    SUM(CASE WHEN status IN (\'error\', \'failed\') THEN 1 ELSE 0 END) AS errorCount
              FROM nosto_scheduler_job
              WHERE parent_id IN (:parentIds)
              GROUP BY parent_id',
