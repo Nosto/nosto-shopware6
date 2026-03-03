@@ -15,19 +15,7 @@ class NostoJobChildrenCountService
     ) {
     }
 
-    /**
-     * @return array<int, array{
-     *     parentJobId: string,
-     *     childJobs: array{
-     *         total: int,
-     *         byStatus: array{
-     *             success: int,
-     *             pending: int,
-     *             error: int
-     *         }
-     *     }
-     * }>
-     */
+    // phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
     public function getChildCount(array $parentJobIds): array
     {
         if ($parentJobIds === []) {
