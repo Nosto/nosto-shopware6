@@ -1,3 +1,6 @@
+# 5.2.8
+* Fix: Convert PartialEntity children to PartialProduct to prevent fatal errors on product detail pages
+
 # 5.2.7
 * Fix: update php-sdk dependency
 
