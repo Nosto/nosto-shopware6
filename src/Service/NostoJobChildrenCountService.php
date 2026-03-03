@@ -15,7 +15,9 @@ class NostoJobChildrenCountService
     ) {
     }
 
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification
+    /**
+     * @return mixed[]
+     */
     public function getChildCount(array $parentJobIds): array
     {
         if ($parentJobIds === []) {
