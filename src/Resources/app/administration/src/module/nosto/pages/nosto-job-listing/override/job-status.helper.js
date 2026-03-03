@@ -9,7 +9,7 @@ const STATUS_TONES = Object.freeze({
 
 const SUCCESS_STATUSES = Object.freeze(['success', 'succeed', 'finished', 'done', 'completed', 'running']);
 const ERROR_STATUSES = Object.freeze(['error', 'failed']);
-const INFO_STATUSES = Object.freeze(['in_progress', 'processing', 'pending']);
+const INFO_STATUSES = Object.freeze(['in_progress', 'processing']);
 
 /** @private */
 export function isJobRunningStatus(status) {
