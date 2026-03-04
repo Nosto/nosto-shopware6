@@ -21,12 +21,12 @@
             </mt-button>
         </template>
         <template #content>
-            <nosto-job-listing-index
+            <nosto-integration-job-listing-index
                 ref="jobListing"
                 :filterCriteria="filterCriteria"
                 @job-display-type-changed="onDisplayModeChange"
                 :jobTypes="nostoJobTypes">
-            </nosto-job-listing-index>
+            </nosto-integration-job-listing-index>
         </template>
         <template #sidebar>
             <sw-sidebar ref="nostoSidebar">
