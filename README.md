@@ -166,7 +166,7 @@ Nosto product entity.
 <a name="configuration-features-flags"></a>
 ## Features Flags Overview
 
-![Feature Flags](docs/images/feature-settings.png?raw=true)
+![Feature Flags](docs/images/feature-flags-settings.jpg?raw=true)
 
 This configuration card contains multiple feature toggles which enable/disable what information to send to Nosto with
 product data. Also, there is possibility to enabling/disable ratings and reviews. Nosto supports tagging the rating and
