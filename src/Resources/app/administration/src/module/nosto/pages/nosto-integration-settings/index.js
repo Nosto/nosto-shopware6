@@ -197,7 +197,9 @@ Component.register('nosto-integration-settings', {
                             language => language.id === languageId,
                         )?.name || 'No language selected',
                         message: missingRatesToken
-                            ? `${this.$tc('nosto.configuration.account.ratesTokenTitle')}: ${this.$tc('nosto.messages.blank-field-error')}`
+                            ? `${this.$tc('nosto.configuration.account.ratesTokenTitle')}: ${
+                                this.$tc('nosto.messages.blank-field-error')
+                            }`
                             : this.$tc('nosto.messages.error-message'),
                     });
                 }
