@@ -206,10 +206,26 @@ class PartialProduct
         return null;
     }
 
-    public function getChildren(): ?EntityCollection
+    public function getChildren(): ?PartialProductCollection
     {
         $value = $this->entity->get('children');
-        return $value instanceof EntityCollection ? $value : null;
+        if ($value instanceof PartialProductCollection) {
+            return $value;
+        }
+        if ($value instanceof EntityCollection) {
+            return PartialProductConverter::toPartialProductCollection($value);
+        }
+
+        return null;
+    }
+
+    public function setChildren(EntityCollection|PartialProductCollection|null $children): void
+    {
+        if ($children instanceof EntityCollection) {
+            $children = PartialProductConverter::toPartialProductCollection($children);
+        }
+
+        $this->set('children', $children);
     }
 
     public function getCategoriesRo(): ?EntityCollection
