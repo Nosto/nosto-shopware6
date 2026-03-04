@@ -116,7 +116,9 @@ There are basic configuration fields and control buttons are located in plugin c
 > [!NOTE]
 > The account settings are only available for a specific sales channel and language. There are no global account settings.
 
-![Account Settings](docs/images/account-settings.png?raw=true)
+![Sales Chanels](docs/images/sales-chanels.png?raw=true)
+
+![Account Settings](docs/images/sw-account-settings.png?raw=true)
 
 1. Field which indicates is configured account is enabled for merchandising/product sync.
 2. Api validation button, which will validate the tokens mentioned below and the result will be shown in the
@@ -140,7 +142,7 @@ There are basic configuration fields and control buttons are located in plugin c
 8. Required Field with Search Token API key, (API_SEARCH). Is used for all the search requests, when using the plug-and-play
    solution. The key must be requested from Nosto Technical Support, after which it will appear in authentication tokens
    section in the admin, additional guides can be found [here](https://help.nosto.com/en/articles/613616-settings-authentication-tokens).
-9. Category update button, which will synchronize all the categories for the Category Merchandising.
+9. A token for accessing the Rates API. You can request an API token (API_RATES) by getting in touch with Nosto Technical Support. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.
 
 <a name="configuration-general-settings"></a>
 ## General Settings Overview
@@ -166,7 +168,7 @@ Nosto product entity.
 <a name="configuration-features-flags"></a>
 ## Features Flags Overview
 
-![Feature Flags](docs/images/feature-flags-settings.jpg?raw=true)
+![Feature Flags](docs/images/features-flags-with-mc.png?raw=true)
 
 This configuration card contains multiple feature toggles which enable/disable what information to send to Nosto with
 product data. Also, there is possibility to enabling/disable ratings and reviews. Nosto supports tagging the rating and
