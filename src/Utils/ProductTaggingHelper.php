@@ -187,8 +187,7 @@ class ProductTaggingHelper
     private function handleFirstActiveVariant(
         PartialProduct $product,
         SalesChannelContext $context,
-    ): ?PartialProduct
-    {
+    ): ?PartialProduct {
         $mainProduct = null;
         $variants = new PartialProductCollection([$product]);
         $children = $this->ensureChildrenLoaded($product, $context);

@@ -533,12 +533,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
     ): void {
         $parentIdsNeedingChildren = [];
         $shouldHandleFirstAvailable = $this->systemConfigService->getBool(
-                'core.listing.hideCloseoutProductsWhenOutOfStock',
-                $context->getSalesChannelId(),
-            ) && $this->configProvider->isEnabledSyncFirstAvailableVariant(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            );
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId(),
+        ) && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
 
         /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
@@ -597,15 +597,15 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         if ($shouldLogExtra && $startedAt !== null) {
-                $this->logDuration(
-                    $context,
-                    'product_sync.ensureChildrenLoadedForVariantProducts',
-                    $startedAt,
-                    [
-                        'parent_count' => count($parentIdsNeedingChildren),
-                        'loaded_count' => $productsWithLoadedChildren->count(),
-                    ],
-                );
+            $this->logDuration(
+                $context,
+                'product_sync.ensureChildrenLoadedForVariantProducts',
+                $startedAt,
+                [
+                    'parent_count' => count($parentIdsNeedingChildren),
+                    'loaded_count' => $productsWithLoadedChildren->count(),
+                ],
+            );
         }
     }
 
