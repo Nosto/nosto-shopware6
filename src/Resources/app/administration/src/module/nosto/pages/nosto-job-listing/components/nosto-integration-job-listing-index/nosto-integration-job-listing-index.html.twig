@@ -1,0 +1,245 @@
+{% block nosto_entity_listing_base %}
+  <div class="nosto-entity-listing-wrapper">
+    <div class="nosto-job-listing-actions-bar">
+      <div class="action-item">
+        {% block nosto_scheduler_job_view_mode %}
+          <mt-select
+            :label="$tc('job-listing.page.listing.index.display-mode')"
+            v-model="jobDisplayType"
+            :options="jobDisplayMode"
+          />
+          <mt-select
+            v-if="jobDisplayType !== 'list'"
+            :label="$tc('job-listing.page.listing.index.group-by')"
+            v-model="sortType"
+            :options="jobGroupedBy"
+          />
+
+          <mt-datepicker
+            :label="$tc('job-listing.page.listing.index.date-from')"
+            v-if="jobDisplayType == 'grouped'"
+            v-model="groupCreationDate.fromDate"
+          />
+
+          <mt-datepicker
+            :label="$tc('job-listing.page.listing.index.date-to')"
+            v-if="jobDisplayType == 'grouped'"
+            v-model="groupCreationDate.toDate"
+          />
+
+        {% endblock %}
+      </div>
+      <div class="cation-item">
+        {% block nosto_scheduler_job_auto_load_switcher %}
+          <mt-switch
+            v-model="autoLoadIsActive"
+            class="job-listing-auto-loading-switch"
+            :label="$tc('job-listing.page.listing.index.auto-load')"
+          />
+        {% endblock %}
+      </div>
+    </div>
+
+    {% block nosto_job_charts %}
+      <nosto-scheduler-charts ref="jobCharts"
+                           v-if="jobDisplayType === 'chart'"
+                           :jobTypes="jobTypes"
+                           :sortType="sortType"></nosto-scheduler-charts>
+    {% endblock %}
+
+    {% block nosto_job_grouped_component %}
+
+      <nosto-grouped-view v-if="jobDisplayType === 'grouped'"
+                       ref="jobGroups"
+                       :groupCreationDate="groupCreationDate"
+                       :jobTypes="jobTypes"
+                       :sortType="sortType">
+      </nosto-grouped-view>
+    {% endblock %}
+
+    {% block nosto_job_list_grid %}
+      <nosto-entity-listing
+              v-if="jobItems && jobDisplayType === 'list'"
+              :items="jobItems"
+              :repository="jobRepository"
+              :is-loading="isLoading"
+              :showSelection="true"
+              :allowColumnEdit="false"
+              :allowDelete="true"
+              :allowEdit="false"
+              :jobTypes="jobTypes"
+              :isGroupedView="isGroupedView"
+              sortDirection="DESC"
+              @page-change="pageChange"
+              :columns="columns">
+        <template #column-status="{ item }">
+          {% block nosto_job_list_grid_job_status_link %}
+            <span class="nosto-job-status-inline"
+                  :class="[ `is-${getStatusTone(item.status)}`, { 'is-running': isRunningStatus(item.status) } ]">
+              <span class="nosto-job-status-dot"></span>
+              <span>{{ getStatusLabel(item.status) }}</span>
+            </span>
+          {% endblock %}
+        </template>
+        <template #column-name="{ item }">
+          {% block nosto_job_list_grid_job_name_link %}
+            {{ item.name }}
+          {% endblock %}
+        </template>
+        <template #column-startedAt="{ item }">
+          {% block nosto_job_list_grid_job_started_date %}
+            {{ formatDate(item.startedAt) }}
+          {% endblock %}
+        </template>
+        <template #column-finishedAt="{ item }">
+          {% block nosto_job_list_grid_job_finished_date %}
+            {{ formatDate(item.finishedAt) }}
+          {% endblock %}
+        </template>
+        <template #column-createdAt="{ item }">
+          {% block nosto_job_list_grid_job_created_date %}
+            {{ formatDate(item.createdAt) }}
+          {% endblock %}
+        </template>
+        <template class="sub-jobs-column" #column-subJobs="{ item }">
+          {% block nosto_job_list_grid_job_sub_jobs %}
+            <div :class="getChildrenCount(item) > 0 ? 'has-subjobs' : ''"
+                 class="sub-jobs-counters-container jobs-info-counter">
+              <div class="count-container">
+                <span class="info-counter">
+                    <span class="count" v-html="getChildrenSuccessCount(item)"></span>
+                </span>
+                <nosto-job-status-badge status="succeed"></nosto-job-status-badge>
+              </div>
+              <div class="count-container">
+                <span class="warning-counter">
+                    <span class="count" v-html="getChildrenPendingCount(item)"></span>
+                </span>
+                <nosto-job-status-badge status="pending"></nosto-job-status-badge>
+              </div>
+              <div class="count-container">
+                <span class="error-counter">
+                    <span class="count" v-html="getChildrenErrorCount(item)"></span>
+                </span>
+                <nosto-job-status-badge status="error"></nosto-job-status-badge>
+              </div>
+            </div>
+          {% endblock %}
+          <mt-button v-if="getChildrenCount(item) > 0"
+                     class="sub-job-show-modal"
+                     size="small"
+                     variant="primary"
+                     :disabled="getChildrenCount(item) <= 0"
+                     @click="showSubJobs(item.id)">
+            <mt-icon name="regular-cog" color="#fff" size="16px" :decorative="true"></mt-icon>
+              {{ $tc('job-listing.page.listing.index.show-sub-jobs') }}
+          </mt-button>
+        </template>
+        <template #column-messages="{ item }">
+          {% block nosto_job_list_grid_job_messages %}
+            <div :class="item.messages.length > 0 ? 'has-messages' : ''"
+                 class="message-counters-container jobs-info-counter">
+              <div class="count-container" v-if="item.messages">
+                            <span class="info-counter">
+                                <span class="count" v-html="getMessagesCount(item, 'info')"></span>
+                            </span>
+                <mt-icon size="16px" name="regular-info-circle" color="#3498db" />
+              </div>
+
+              <div class="count-container" v-if="item.messages">
+                            <span class="warning-counter">
+                                <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
+                            </span>
+                <mt-icon size="16px" name="regular-exclamation-triangle" color="#f39c12" />
+              </div>
+
+              <div class="count-container" v-if="item.messages">
+                            <span class="error-counter">
+                                <span class="count" v-html="getMessagesCount(item, 'error')"></span>
+                            </span>
+                <mt-icon size="16px" name="regular-times-hexagon" color="#c0392b" />
+              </div>
+            </div>
+            <mt-button v-if="item.messages.length > 0"
+                       class="job-messages-show-modal"
+                       size="small"
+                       variant="primary"
+                       :disabled="item.messages.length <= 0"
+                       @click="showJobMessages(item)">
+              <mt-icon name="regular-envelope" color="#fff" size="16px" :decorative="true"></mt-icon>
+                {{ $tc('job-listing.page.listing.index.show-job-messages') }}
+            </mt-button>
+          {% endblock %}
+        </template>
+        <template #actions="{ item }">
+          <sw-context-menu-item :disabled="item.status !== 'error'"
+                                @click="rescheduleJob(item.id)">
+            {{ $tc('job-listing.actions.reschedule-job.button.label') }}
+          </sw-context-menu-item>
+          <sw-context-menu-item class="sw-context-menu-item--danger"
+                                :disabled="!canDelete(item)"
+                                @click="onDeleteJob(item.id)">
+            {{ $tc('job-listing.actions.delete-job.button.label') }}
+          </sw-context-menu-item>
+        </template>
+      </nosto-entity-listing>
+    {% endblock %}
+
+    {% block nosto_entity_listing_job_subs_modal %}
+      <sw-modal class="nosto-job-sub-jobs-modal" v-if="showJobSubsModal" :title="$tc('job-listing.page.listing.grid.column.child-jobs')"
+                @modal-close="showJobSubsModal = false">
+        <nosto-integration-job-sub-jobs v-if="currentJobID" :jobId="currentJobID">
+
+        </nosto-integration-job-sub-jobs>
+        <template #modal-footer>
+          <mt-button variant="primary"
+                     @click="showJobSubsModal = false">
+              {{ $tc('job-listing.page.listing.index.close') }}
+          </mt-button>
+        </template>
+      </sw-modal>
+    {% endblock %}
+
+    {% block nosto_entity_listing_job_messages_modal %}
+      <sw-modal class="nosto-job-messages-modal" v-if="showMessagesModal"
+                :title="$tc('job-listing.page.listing.grid.column.messages')"
+                @modal-close="showMessagesModal = false">
+        {% block job_messages_listing %}
+          <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
+            <div class="messages-content" v-for="item in currentJobMessages">
+              <mt-banner class="nosto-alert"
+                        v-if="item.type == 'info-message'"
+                        variant="info"
+                        :showIcon="true"
+                        :closable="false">
+                {{ item.message }}
+              </mt-banner>
+
+              <mt-banner class="nosto-alert"
+                        v-if="item.type == 'error-message'"
+                        variant="critical"
+                        :showIcon="true"
+                        :closable="false">
+                {{ item.message }}
+              </mt-banner>
+
+              <mt-banner class="nosto-alert"
+                        v-if="item.type == 'warning-message'"
+                        variant="attention"
+                        :showIcon="true"
+                        :closable="false">
+                {{ item.message }}
+              </mt-banner>
+            </div>
+          </div>
+        {% endblock %}
+        <template #modal-footer>
+          <mt-button variant="primary"
+                     @click="showMessagesModal = false">
+              {{ $tc('job-listing.page.listing.index.close') }}
+          </mt-button >
+        </template>
+      </sw-modal>
+    {% endblock %}
+  </div>
+{% endblock %}
