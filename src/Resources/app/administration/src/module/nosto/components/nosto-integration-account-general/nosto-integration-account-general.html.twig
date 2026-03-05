@@ -85,14 +85,14 @@
                     required
                     name="searchToken"
                 />
-                <sw-password-field
-                    :value="currentConfig['ratesToken']"
+                <sw-field
+                    v-model="actualConfigData['ratesToken']"
                     :label="$tc('nosto.configuration.account.ratesTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.ratesTokenHelpText')"
-                    :error="isMultiCurrencyEnabled() ? hasError(currentConfig['ratesToken']) : null"
-                    :required="isMultiCurrencyEnabled()"
+                    type="password"
+{#                    :error="isMultiCurrencyEnabled() ? hasError(currentConfig['ratesToken']) : null"#}
+{#                    :required="isMultiCurrencyEnabled()"#}
                     name="ratesToken"
-                    @update:value="onUpdateValue('ratesToken', $event)"
                 />
             {% endblock %}
         </template>

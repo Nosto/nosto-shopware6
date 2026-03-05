@@ -630,19 +630,17 @@
 
         {% block nosto_integration_feature_multi_currency %}
             <sw-inherit-wrapper
-                :value="currentConfig['enableMultiCurrency']"
-                :inheritedValue="configKey === null ? null : configs['null']['enableMultiCurrency']"
-                @update:value="onUpdateValue('enableMultiCurrency', $event)"
+                    v-model="actualConfigData['enableMultiCurrency']"
+                    :inheritedValue="configKey === null ? null : allConfigs['null']['enableMultiCurrency']"
             >
                 <template #content="props">
                     <sw-switch-field
-                        name="enableMultiCurrency"
                         :map-inheritance="props"
                         :label="$tc('nosto.configuration.featuresFlags.enableMultiCurrency.label')"
                         :help-text="$tc('nosto.configuration.featuresFlags.enableMultiCurrency.helpText')"
                         :disabled="props.isInherited"
                         :value="props.currentValue"
-                        @update:value="onUpdateValue('enableMultiCurrency', $event)"
+                        @change="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>
