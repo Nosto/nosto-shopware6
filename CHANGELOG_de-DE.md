@@ -1,5 +1,9 @@
+# 5.2.8
+* Fix: ratesToken sind optional
+* Fix: Produktsynchronisierung für untergeordnete Elemente bei Bedarf mit dem richtigen Typ auflösen
+
 # 5.2.7
-* Fix: php-sdk Abhängigkeit Aktualisierung
+* Fix: Php-sdk Abhängigkeit Aktualisierung
 
 # 5.2.6
 * Fix: Produktsynchronisierungsleistung

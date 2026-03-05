@@ -1,5 +1,9 @@
+# 5.2.8
+* Fix: Make ratesToken optional
+* Fix: Resolve product sync child loading with the proper type when needed
+
 # 5.2.7
-* Fix: update php-sdk dependency
+* Fix: Update php-sdk dependency
 
 # 5.2.6
 * Fix: Improve product sync performance
