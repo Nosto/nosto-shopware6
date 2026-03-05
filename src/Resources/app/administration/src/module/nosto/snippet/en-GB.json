@@ -147,7 +147,7 @@
                 },
                 "enableMultiCurrency": {
                     "label": "Enable multi currency",
-                    "helpText": "When enabled, exchange-rate sync and currency-specific search requests are processed. Make sure you have exchange rates enabled on Nosto, and exchange rates have been synced at least once to Nosto."
+                    "helpText": "Before enabling this feature, set Rates-Token (API_RATES). When enabled, exchange-rate sync and currency-specific search requests are processed. Make sure you have exchange rates enabled on Nosto, and exchange rates have been synced at least once to Nosto."
                 },
                 "productSyncExtraLogging": {
                   "label": "Product sync extra logging",

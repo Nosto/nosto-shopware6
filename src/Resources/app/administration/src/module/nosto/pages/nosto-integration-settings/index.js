@@ -170,6 +170,9 @@ Component.register('nosto-integration-settings', {
             const result = [];
 
             Object.keys(this.configs).forEach(configKey => {
+                const multiCurrencyEnabled = !!this.getInheritedValue(configKey, 'enableMultiCurrency');
+                const missingRatesToken = multiCurrencyEnabled && !this.getInheritedValue(configKey, 'ratesToken');
+
                 if (
                     this.isActive(configKey) &&
                     (!this.getInheritedValue(configKey, 'accountID') ||
@@ -178,7 +181,7 @@ Component.register('nosto-integration-settings', {
                         !this.getInheritedValue(configKey, 'emailToken') ||
                         !this.getInheritedValue(configKey, 'appToken') ||
                         !this.getInheritedValue(configKey, 'searchToken') ||
-                        !this.getInheritedValue(configKey, 'ratesToken') ||
+                        missingRatesToken ||
                         !this.getInheritedValue(configKey, 'productIdentifier') ||
                         !this.getInheritedValue(configKey, 'ratingsReviews') ||
                         !this.getInheritedValue(configKey, 'stockField') ||
@@ -196,6 +199,11 @@ Component.register('nosto-integration-settings', {
                         languageName: this.languages?.find(
                             language => language.id === languageId,
                         )?.name || 'No language selected',
+                        message: missingRatesToken
+                            ? `${this.$tc('nosto.configuration.account.ratesTokenTitle')}: ${
+                                this.$tc('nosto.messages.blank-field-error')
+                            }`
+                            : this.$tc('nosto.messages.error-message'),
                     });
                 }
             });
@@ -227,7 +235,7 @@ Component.register('nosto-integration-settings', {
                 errors.forEach(error => {
                     this.createNotificationError({
                         title: `${error.salesChannelName} - ${error.languageName}`,
-                        message: this.$tc('nosto.messages.error-message'),
+                        message: error.message ?? this.$tc('nosto.messages.error-message'),
                     });
                 });
                 return;
