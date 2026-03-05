@@ -85,6 +85,15 @@ Component.register('nosto-integration-account-general', {
             } : null;
         },
 
+        isMultiCurrencyEnabled() {
+            const configurationKey = 'enableMultiCurrency';
+            const channelConfig = this.configs[this.configKey] || {};
+
+            return typeof channelConfig[configurationKey] === 'boolean'
+                ? channelConfig[configurationKey]
+                : !!this.configs.null?.[configurationKey];
+        },
+
         isActive() {
             const configurationKey = 'isEnabled';
             const channelConfig = this.allConfigs[this.configKey] || {};
@@ -119,6 +128,7 @@ Component.register('nosto-integration-account-general', {
             const appToken = this.actualConfigData.appToken;
             const searchToken = this.actualConfigData.searchToken;
             const ratesToken = this.actualConfigData.ratesToken;
+            const validateRatesToken = this.isMultiCurrencyEnabled();
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -126,20 +136,25 @@ Component.register('nosto-integration-account-general', {
                 this.credentialsEmptyValidation('emailToken', emailToken) *
                 this.credentialsEmptyValidation('appToken', appToken) *
                 this.credentialsEmptyValidation('searchToken', searchToken) *
-                this.credentialsEmptyValidation('ratesToken', ratesToken))) {
+                (!validateRatesToken || this.credentialsEmptyValidation('ratesToken', ratesToken)))) {
                 this.apiValidationInProgress = false;
                 return;
             }
 
-            this.nostoApiKeyValidatorService.validate({
+            const payload = {
                 accountId: accountId,
                 name: accountName,
                 productToken: productToken,
                 emailToken: emailToken,
                 appToken: appToken,
                 searchToken: searchToken,
-                ratesToken: ratesToken,
-            }).then((response) => {
+            };
+
+            if (validateRatesToken) {
+                payload.ratesToken = ratesToken;
+            }
+
+            this.nostoApiKeyValidatorService.validate(payload).then((response) => {
                 if (response.status !== 200) {
                     this.createNotificationError({
                         message: this.$tc('nosto.configuration.account.apiValidation.generalErrorMessage'),

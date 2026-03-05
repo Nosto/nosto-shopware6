@@ -48,6 +48,16 @@ class ExchangeRateSyncHandler implements JobHandlerInterface
         }
 
         foreach ($this->accountProvider->all($context) as $account) {
+            if (!$this->configProvider->isEnabledMultiCurrency($account->getChannelId(), $account->getLanguageId())) {
+                $result->addMessage(new InfoMessage(
+                    sprintf(
+                        'Exchange rate sync skipped for account %s (multi-currency disabled).',
+                        $account->getNostoAccount()->getName(),
+                    ),
+                ));
+                continue;
+            }
+
             try {
                 $operation = new SyncRates($account->getNostoAccount());
                 $operation->update($rates);

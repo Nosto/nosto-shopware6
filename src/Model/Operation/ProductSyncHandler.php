@@ -8,6 +8,7 @@ use Nosto\Helper\SerializationHelper;
 use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoException;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
@@ -254,6 +255,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->configProvider,
             $this->partialProductProvider,
             $this->productHelper,
+            $this->logger,
         );
 
         // up to 2MB payload!
@@ -270,6 +272,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $allUniqueIds = [];
         $failedProductIds = [];
         $collectStartedAt = $shouldLogExtra ? microtime(true) : null;
+
+        $this->ensureChildrenLoadedForVariantProducts($productCollection, $context, $shouldLogExtra);
 
         /** @var PartialProduct $product */
         foreach ($productCollection as $product) {
@@ -516,6 +520,124 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                 $queuedDeleteIds[$productId] = true;
             }
         }
+    }
+
+    private function ensureChildrenLoadedForVariantProducts(
+        PartialProductCollection $productCollection,
+        SalesChannelContext $context,
+        bool $shouldLogExtra,
+    ): void {
+        $parentIdsNeedingChildren = [];
+        $shouldHandleFirstAvailable = $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId(),
+        ) && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+
+        /** @var PartialProduct $product */
+        foreach ($productCollection as $product) {
+            $variantConfig = $product->getVariantListingConfig();
+            if (
+                !$product->getChildCount()
+                || !$variantConfig instanceof VariantListingConfig
+                || $product->getChildren() !== null
+            ) {
+                continue;
+            }
+            if (
+                !$this->requiresChildrenForVariantSelection(
+                    $product,
+                    $variantConfig,
+                    $context,
+                    $shouldHandleFirstAvailable,
+                )
+            ) {
+                continue;
+            }
+
+            $productId = $product->getId();
+            if ($productId !== null) {
+                $parentIdsNeedingChildren[$productId] = true;
+            }
+        }
+
+        if ($parentIdsNeedingChildren === []) {
+            return;
+        }
+
+        $startedAt = $shouldLogExtra ? microtime(true) : null;
+        $productsWithLoadedChildren = PartialProductConverter::toPartialProductCollection(
+            $this->productHelper->getShopwareProductsPartial(
+                array_keys($parentIdsNeedingChildren),
+                $context,
+                true,
+            ),
+        );
+        $productsWithLoadedChildrenById = [];
+        /** @var PartialProduct $productWithLoadedChildren */
+        foreach ($productsWithLoadedChildren as $productWithLoadedChildren) {
+            $productsWithLoadedChildrenById[$productWithLoadedChildren->getId()] = $productWithLoadedChildren;
+        }
+
+        /** @var PartialProduct $product */
+        foreach ($productCollection as $product) {
+            $productId = $product->getId();
+            if (!$productId || !isset($productsWithLoadedChildrenById[$productId])) {
+                continue;
+            }
+
+            $loadedChildren = $productsWithLoadedChildrenById[$productId]->getChildren();
+            $product->setChildren($loadedChildren ?? new PartialProductCollection());
+        }
+
+        if ($shouldLogExtra && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.ensureChildrenLoadedForVariantProducts',
+                $startedAt,
+                [
+                    'parent_count' => count($parentIdsNeedingChildren),
+                    'loaded_count' => $productsWithLoadedChildren->count(),
+                ],
+            );
+        }
+    }
+
+    private function requiresChildrenForVariantSelection(
+        PartialProduct $product,
+        VariantListingConfig $variantConfig,
+        SalesChannelContext $context,
+        bool $shouldHandleFirstAvailable,
+    ): bool {
+        if ($variantConfig->getDisplayCheapestVariant()) {
+            return true;
+        }
+        if ($variantConfig->getMainVariantId()) {
+            return true;
+        }
+
+        $configuratorGroups = array_filter(
+            $variantConfig->getConfiguratorGroupConfig() ?? [],
+            static fn (array $config): bool => !empty($config['expressionForListings']),
+        );
+        if ($configuratorGroups !== []) {
+            return true;
+        }
+
+        if ($variantConfig->getDisplayParent()) {
+            if (!$product->getActive()) {
+                return true;
+            }
+            if (!$shouldHandleFirstAvailable || !$product->getIsCloseout()) {
+                return false;
+            }
+
+            return $this->productHelper->getProductStock($product, $context) < 1;
+        }
+
+        return true;
     }
 
     /**

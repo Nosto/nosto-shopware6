@@ -89,8 +89,8 @@
                     :value="currentConfig['ratesToken']"
                     :label="$tc('nosto.configuration.account.ratesTokenTitle')"
                     :help-text="$tc('nosto.configuration.account.ratesTokenHelpText')"
-                    :error="hasError(currentConfig['ratesToken'])"
-                    required
+                    :error="isMultiCurrencyEnabled() ? hasError(currentConfig['ratesToken']) : null"
+                    :required="isMultiCurrencyEnabled()"
                     name="ratesToken"
                     @update:value="onUpdateValue('ratesToken', $event)"
                 />

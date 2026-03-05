@@ -147,7 +147,7 @@
                 },
                 "enableMultiCurrency": {
                     "label": "Mehrere Währungen aktivieren",
-                    "helpText": "Wenn aktiviert, werden Wechselkurssynchronisierung und währungsspezifische Suchanfragen verarbeitet. Stellen Sie sicher, dass Wechselkurse in Nosto aktiviert sind und mindestens einmal zu Nosto synchronisiert wurden."
+                    "helpText": "Bevor Sie diese Funktion aktivieren, setzen Sie den Rates-Token (API_RATES). Wenn aktiviert, werden Wechselkurssynchronisierung und währungsspezifische Suchanfragen verarbeitet. Stellen Sie sicher, dass Wechselkurse in Nosto aktiviert sind und mindestens einmal zu Nosto synchronisiert wurden."
                 },
                 "productSyncExtraLogging": {
                   "label": "Zusätzliche Produktsync-Protokollierung",
