@@ -90,8 +90,19 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then((jobItems) => {
                 this.jobItems = sortJobMessages(jobItems);
+                this.$emit('job-list-meta-loaded', this.extractFilterMeta(jobItems));
                 return this.loadChildCounts(jobItems.map((job) => job.id));
             });
+        },
+
+        extractFilterMeta(jobItems) {
+            const statuses = [...new Set(jobItems.map((item) => item.status).filter((status) => !!status))];
+            const types = [...new Set(jobItems.map((item) => item.name).filter((name) => !!name))];
+
+            return {
+                statuses,
+                types,
+            };
         },
 
         loadChildCounts(parentJobIds) {
