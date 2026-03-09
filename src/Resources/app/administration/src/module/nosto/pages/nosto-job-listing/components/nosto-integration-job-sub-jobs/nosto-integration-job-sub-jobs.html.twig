@@ -5,3 +5,36 @@
         <span>{{ getStatusLabel(item.status) }}</span>
     </span>
 {% endblock %}
+
+{% block sub_job_show_messages_button %}
+    <div :class="getMessagesTotalCount(item) > 0 ? 'has-messages' : ''" class="message-counters-container jobs-info-counter">
+        <div class="count-container">
+            <span class="info-counter">
+                <span class="count">{{ getMessagesCount(item, 'info') }}</span>
+            </span>
+            <mt-icon size="16px" name="regular-info-circle" color="#3498db"></mt-icon>
+        </div>
+
+        <div class="count-container">
+            <span class="warning-counter">
+                <span class="count">{{ getMessagesCount(item, 'warning') }}</span>
+            </span>
+            <mt-icon size="16px" name="regular-exclamation-triangle" color="#f39c12"></mt-icon>
+        </div>
+
+        <div class="count-container">
+            <span class="error-counter">
+                <span class="count">{{ getMessagesCount(item, 'error') }}</span>
+            </span>
+            <mt-icon size="16px" name="regular-times-hexagon" color="#c0392b"></mt-icon>
+        </div>
+    </div>
+    <mt-button v-if="getMessagesTotalCount(item) > 0"
+               class="job-messages-show-modal"
+               size="small"
+               variant="primary"
+               @click="showMessageModal(item)">
+        <mt-icon name="regular-envelope" color="#fff" size="16px" :decorative="true"></mt-icon>
+        {{ $tc('job-listing.actions.show-messages.button.label') }}
+    </mt-button>
+{% endblock %}

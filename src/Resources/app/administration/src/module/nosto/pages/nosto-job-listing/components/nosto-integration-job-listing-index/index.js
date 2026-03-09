@@ -1,6 +1,7 @@
 /* eslint-disable sw-core-rules/require-package-annotation */
 import template from './nosto-integration-job-listing-index.html.twig';
 import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../job-status.helper';
+import { fetchJobMessages } from '../../utils/job-messages.helper';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -35,20 +36,6 @@ function normalizeMessageType(type) {
     return MESSAGE_COUNT_KEYS.TOTAL;
 }
 
-function sortJobMessages(messages) {
-    return [...messages].sort((a, b) => {
-        if (a.createdAt > b.createdAt) {
-            return 1;
-        }
-
-        if (a.createdAt < b.createdAt) {
-            return -1;
-        }
-
-        return 0;
-    });
-}
-
 Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index', {
     template,
 
@@ -59,8 +46,16 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
         'feature',
     ],
 
+    data() {
+        return {
+            jobCountsCache: {},
+        };
+    },
+
     methods: {
         updateList(filterCriteria) {
+            this.jobCountsCache = {};
+
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
@@ -92,13 +87,18 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
         },
 
         getJobCounts(job) {
+            const cacheKey = job?.id;
+            if (cacheKey && this.jobCountsCache[cacheKey]) {
+                return this.jobCountsCache[cacheKey];
+            }
+
             const extensionCounts = job?.extensions?.jobCounts
                 ?? job?.jobCounts
                 ?? {};
             const childJobs = extensionCounts.childJobs ?? {};
             const messages = extensionCounts.messages ?? {};
 
-            return {
+            const counts = {
                 childJobs: {
                     [CHILD_COUNT_KEYS.TOTAL]: Number(childJobs[CHILD_COUNT_KEYS.TOTAL] ?? 0),
                     [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? 0),
@@ -112,6 +112,12 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
                     [MESSAGE_COUNT_KEYS.ERROR]: Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0),
                 },
             };
+
+            if (cacheKey) {
+                this.jobCountsCache[cacheKey] = counts;
+            }
+
+            return counts;
         },
 
         getChildCountByType(job, type) {
@@ -155,15 +161,17 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
                 return;
             }
 
-            const criteria = new Criteria(1, 500);
-            criteria.addFilter(Criteria.equals('jobId', job.id));
-            criteria.addSorting(Criteria.sort('createdAt', 'ASC', false));
-
             this.currentJobMessages = [];
             this.showMessagesModal = true;
 
-            this.messageRepository.search(criteria, Shopware.Context.api).then((messages) => {
-                this.currentJobMessages = sortJobMessages(messages);
+            const expectedTotal = this.getMessagesTotalCount(job);
+
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId: job.id,
+                expectedTotal,
+            }).then((messages) => {
+                this.currentJobMessages = messages;
             }).catch(() => {
                 this.currentJobMessages = [];
             });
