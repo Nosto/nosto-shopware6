@@ -109,14 +109,21 @@ class NostoController extends AbstractController
         $account->addApiToken(new NostoToken(NostoToken::API_EMAIL, $post->get(self::EMAIL_TOKEN)));
         $account->addApiToken(new NostoToken(NostoToken::API_GRAPHQL, $post->get(self::APP_TOKEN)));
         $account->addApiToken(new NostoToken(NostoToken::API_SEARCH, $post->get(self::SEARCH_TOKEN)));
-        $account->addApiToken(new NostoToken(NostoToken::API_EXCHANGE_RATES, $post->get(self::RATES_TOKEN)));
+        $ratesToken = $post->get(self::RATES_TOKEN);
+        $shouldValidateRatesToken = is_string($ratesToken) && trim($ratesToken) !== '';
+
+        if ($shouldValidateRatesToken) {
+            $account->addApiToken(new NostoToken(NostoToken::API_EXCHANGE_RATES, $ratesToken));
+        }
 
         $result = [];
         $result[self::PRODUCT_TOKEN] = (new MockUpsertProduct($account))->upsert();
         $result[self::EMAIL_TOKEN] = (new MockMarketingPermission($account))->mockUpdate();
         $result[self::APP_TOKEN] = (new MockGraphQLOperation($account))->execute();
         $result[self::SEARCH_TOKEN] = (new MockSearchOperation($post->get(self::ACCOUNT_ID), $account))->execute();
-        $result[self::RATES_TOKEN] = (new MockExchangeRates($account))->mockUpdate();
+        if ($shouldValidateRatesToken) {
+            $result[self::RATES_TOKEN] = (new MockExchangeRates($account))->mockUpdate();
+        }
 
         return new JsonResponse($result, Response::HTTP_OK);
     }
