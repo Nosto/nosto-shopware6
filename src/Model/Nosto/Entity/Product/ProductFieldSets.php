@@ -40,7 +40,7 @@ final class ProductFieldSets
         'children.manufacturer.media.id', 'children.manufacturer.media.url',
         'children.categoriesRo.id',
         'children.visibilities.id', 'children.visibilities.salesChannelId', 'children.visibilities.visibility',
-        'children.media.id', 'children.media.position', 'children.media.media.id', 'children.media.media.url'
+        'children.media.id', 'children.media.position', 'children.media.media.id', 'children.media.media.url',
     ];
 
     public const PARENT_SYNC_FIELDS = [
