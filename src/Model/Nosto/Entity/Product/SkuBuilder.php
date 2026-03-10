@@ -119,12 +119,13 @@ class SkuBuilder
             $nostoSku->setImageUrl($placeholderImageUrl);
         }
 
-        if ($price = $product->getCurrencyPrice($context->getCurrencyId())) {
+        $price = $product->getCurrencyPrice($context->getCurrencyId());
+        if ($price !== null) {
             $nostoSku->setPrice($price->getGross());
-        }
 
-        if ($price->getListPrice() !== null) {
-            $nostoSku->setListPrice($price->getListPrice()->getGross());
+            if ($price->getListPrice() !== null) {
+                $nostoSku->setListPrice($price->getListPrice()->getGross());
+            }
         }
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
@@ -180,31 +181,34 @@ class SkuBuilder
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
-        foreach ($product->getVisibilities() as $visibility) {
-            $visibilitySalesChannelId = $visibility instanceof ProductVisibilityEntity
-                ? $visibility->getSalesChannelId()
-                : (is_object($visibility) ? $this->getValue($visibility, 'salesChannelId') : null);
-            $visibilityValue = $visibility instanceof ProductVisibilityEntity
-                ? $visibility->getVisibility()
-                : (is_object($visibility) ? $this->getValue($visibility, 'visibility') : null);
+        $visibilities = $product->getVisibilities();
+        if (is_iterable($visibilities)) {
+            foreach ($visibilities as $visibility) {
+                $visibilitySalesChannelId = $visibility instanceof ProductVisibilityEntity
+                    ? $visibility->getSalesChannelId()
+                    : (is_object($visibility) ? $this->getValue($visibility, 'salesChannelId') : null);
+                $visibilityValue = $visibility instanceof ProductVisibilityEntity
+                    ? $visibility->getVisibility()
+                    : (is_object($visibility) ? $this->getValue($visibility, 'visibility') : null);
 
-            if ($channelId === $visibilitySalesChannelId) {
-                switch ($visibilityValue) {
-                    case ProductVisibilityDefinition::VISIBILITY_ALL:
-                        $showSearch = 'true';
-                        $showCategory = 'true';
-                        break;
-                    case ProductVisibilityDefinition::VISIBILITY_SEARCH:
-                        $showSearch = 'true';
-                        $showCategory = 'false';
-                        break;
-                    default:
-                        $showSearch = 'false';
-                        $showCategory = 'false';
+                if ($channelId === $visibilitySalesChannelId) {
+                    switch ($visibilityValue) {
+                        case ProductVisibilityDefinition::VISIBILITY_ALL:
+                            $showSearch = 'true';
+                            $showCategory = 'true';
+                            break;
+                        case ProductVisibilityDefinition::VISIBILITY_SEARCH:
+                            $showSearch = 'true';
+                            $showCategory = 'false';
+                            break;
+                        default:
+                            $showSearch = 'false';
+                            $showCategory = 'false';
+                    }
+                    $nostoSku->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
+                    $nostoSku->addCustomField(Builder::SHOW_SEARCH, $showSearch);
+                    break;
                 }
-                $nostoSku->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
-                $nostoSku->addCustomField(Builder::SHOW_SEARCH, $showSearch);
-                break;
             }
         }
 
