@@ -29,7 +29,7 @@ final class ProductFieldSets
         'children.id', 'children.parentId', 'children.productNumber', 'children.active', 'children.displayGroup',
         'children.isCloseout', 'children.availableStock', 'children.stock', 'children.releaseDate',
         'children.manufacturerNumber', 'children.ean', 'children.shippingFree', 'children.customSearchKeywords',
-        'children.variantListingConfig', 'children.price', 'children.prices', 'children.name',
+        'children.variantListingConfig', 'children.taxId', 'children.price', 'children.prices', 'children.name',
         'children.customFields', 'children.optionIds', 'children.propertyIds',
         'children.cover.id', 'children.cover.media.id', 'children.cover.media.url',
         'children.manufacturer.id', 'children.manufacturer.name',
