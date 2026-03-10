@@ -354,24 +354,27 @@ class PartialBuilder
             $nostoProduct->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
-        foreach ($product->getVisibilities() as $visibility) {
-            if ($channelId === $this->getValue($visibility, 'salesChannelId')) {
-                switch ($this->getValue($visibility, 'visibility')) {
-                    case ProductVisibilityDefinition::VISIBILITY_ALL:
-                        $showSearch = 'true';
-                        $showCategory = 'true';
-                        break;
-                    case ProductVisibilityDefinition::VISIBILITY_SEARCH:
-                        $showSearch = 'true';
-                        $showCategory = 'false';
-                        break;
-                    default:
-                        $showSearch = 'false';
-                        $showCategory = 'false';
+        $visibilities = $product->getVisibilities();
+        if (is_iterable($visibilities)) {
+            foreach ($visibilities as $visibility) {
+                if ($channelId === $this->getValue($visibility, 'salesChannelId')) {
+                    switch ($this->getValue($visibility, 'visibility')) {
+                        case ProductVisibilityDefinition::VISIBILITY_ALL:
+                            $showSearch = 'true';
+                            $showCategory = 'true';
+                            break;
+                        case ProductVisibilityDefinition::VISIBILITY_SEARCH:
+                            $showSearch = 'true';
+                            $showCategory = 'false';
+                            break;
+                        default:
+                            $showSearch = 'false';
+                            $showCategory = 'false';
+                    }
+                    $nostoProduct->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
+                    $nostoProduct->addCustomField(Builder::SHOW_SEARCH, $showSearch);
+                    break;
                 }
-                $nostoProduct->addCustomField(Builder::SHOW_CATEGORY, $showCategory);
-                $nostoProduct->addCustomField(Builder::SHOW_SEARCH, $showSearch);
-                break;
             }
         }
 

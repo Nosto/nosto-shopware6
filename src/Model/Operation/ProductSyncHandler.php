@@ -386,6 +386,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $handledResult = 'skipped';
 
                     if ($shopwareProduct) {
+                        $handledChildren = $handledProduct->getChildren();
+                        if ($handledChildren !== null && $handledChildren->count() > 0) {
+                            $shopwareProduct->setChildren($handledChildren);
+                        }
+
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
