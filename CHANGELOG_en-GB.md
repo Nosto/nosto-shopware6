@@ -1,3 +1,7 @@
+# 5.2.9
+* Fix: RatesToken validation
+* Fix: Add some missing fields to product sync
+
 # 5.2.8
 * Fix: Make ratesToken optional
 * Fix: Resolve product sync child loading with the proper type when needed
