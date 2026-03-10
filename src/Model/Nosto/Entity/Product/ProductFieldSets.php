@@ -26,15 +26,21 @@ final class ProductFieldSets
     ];
 
     public const CHILDREN_FIELDS = [
-        'children.id', 'children.parentId', 'children.productNumber', 'children.active', 'children.displayGroup',
-        'children.isCloseout', 'children.availableStock', 'children.stock', 'children.releaseDate',
-        'children.manufacturerNumber', 'children.ean', 'children.shippingFree', 'children.customSearchKeywords',
-        'children.variantListingConfig', 'children.price', 'children.prices', 'children.name',
-        'children.customFields', 'children.optionIds', 'children.propertyIds',
+        'children.id', 'children.parentId', 'children.productNumber', 'children.active', 'children.childCount',
+        'children.displayGroup', 'children.isCloseout', 'children.availableStock', 'children.stock',
+        'children.createdAt', 'children.releaseDate', 'children.ratingAverage', 'children.variantListingConfig',
+        'children.manufacturerNumber', 'children.ean', 'children.purchaseUnit', 'children.referenceUnit',
+        'children.shippingFree', 'children.customSearchKeywords', 'children.tagIds', 'children.streamIds',
+        'children.optionIds', 'children.propertyIds', 'children.unitId', 'children.taxId',
+        'children.price', 'children.prices', 'children.name', 'children.description', 'children.customFields',
+        'children.keywords', 'children.packUnit', 'children.packUnitPlural', 'children.metaTitle',
+        'children.metaDescription',
         'children.cover.id', 'children.cover.media.id', 'children.cover.media.url',
         'children.manufacturer.id', 'children.manufacturer.name',
         'children.manufacturer.media.id', 'children.manufacturer.media.url',
+        'children.categoriesRo.id',
         'children.visibilities.id', 'children.visibilities.salesChannelId', 'children.visibilities.visibility',
+        'children.media.id', 'children.media.position', 'children.media.media.id', 'children.media.media.url',
     ];
 
     public const PARENT_SYNC_FIELDS = [

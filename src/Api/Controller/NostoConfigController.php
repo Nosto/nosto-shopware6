@@ -86,7 +86,30 @@ class NostoConfigController extends AbstractController
 
     private function saveKeyValues(?string $salesChannelId, ?string $languageId, array $config): void
     {
+        $multiCurrencyEnabled = array_key_exists(NostoConfigService::ENABLE_MULTI_CURRENCY, $config)
+            ? filter_var(
+                $config[NostoConfigService::ENABLE_MULTI_CURRENCY],
+                FILTER_VALIDATE_BOOLEAN,
+            )
+            : $this->nostoConfigService->getBool(
+                NostoConfigService::ENABLE_MULTI_CURRENCY,
+                $salesChannelId,
+                $languageId,
+            );
+
         foreach ($config as $key => $value) {
+            if ($key === NostoConfigService::RATES_TOKEN) {
+                $hasRatesToken = is_string($value)
+                    ? trim($value) !== ''
+                    : !empty($value);
+
+                if ($multiCurrencyEnabled && !$hasRatesToken) {
+                    throw new \InvalidArgumentException(
+                        'ratesToken is required when enableMultiCurrency is enabled.',
+                    );
+                }
+            }
+
             $this->nostoConfigService->set($key, $value, $salesChannelId, $languageId);
         }
     }

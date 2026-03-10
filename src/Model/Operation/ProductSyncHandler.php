@@ -309,8 +309,24 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $this->deleteVariantProducts($product, $queuedDeleteIds);
                     $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId(), $product->getParentId()]);
                 } else {
-                    foreach ($handledProducts->getIds() as $id) {
-                        $allUniqueIds[$id] = true;
+                    foreach ($handledProducts as $handledProduct) {
+                        $handledProductId = $handledProduct->getId();
+                        if ($handledProductId !== null) {
+                            $allUniqueIds[$handledProductId] = true;
+                        }
+
+                        if ($handledProduct instanceof PartialEntity && !$handledProduct instanceof PartialProduct) {
+                            $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
+                        }
+
+                        $handledChildren = $handledProduct->getChildren();
+                        if ($handledChildren === null) {
+                            continue;
+                        }
+
+                        foreach ($handledChildren->getIds() as $childId) {
+                            $allUniqueIds[$childId] = true;
+                        }
                     }
                 }
             } catch (\Throwable $e) {
@@ -390,6 +406,24 @@ class ProductSyncHandler implements Job\JobHandlerInterface
                     $handledResult = 'skipped';
 
                     if ($shopwareProduct) {
+                        $handledChildren = $handledProduct->getChildren();
+                        if ($handledChildren !== null) {
+                            if ($handledChildren->count() > 0) {
+                                $hydratedChildren = new PartialProductCollection();
+                                foreach ($handledChildren as $handledChild) {
+                                    $handledChildId = $handledChild->getId();
+                                    $hydratedChildren->add(
+                                        $handledChildId && isset($allShopwareProductsById[$handledChildId])
+                                            ? $allShopwareProductsById[$handledChildId]
+                                            : $handledChild,
+                                    );
+                                }
+                                $shopwareProduct->setChildren($hydratedChildren);
+                            } else {
+                                $shopwareProduct->setChildren(new PartialProductCollection());
+                            }
+                        }
+
                         $nostoProduct = $this->handleProduct(
                             $shopwareProduct,
                             $context,
