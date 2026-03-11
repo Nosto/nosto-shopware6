@@ -18,6 +18,9 @@ class NostoSchedulerJobCountsProvider
     ) {
     }
 
+    /**
+     * @return array<string, array<string, array<string, int>>>
+     */
     public function getCountsByJobIds(array $jobIds): array
     {
         $normalizedJobIds = $this->normalizeJobIds($jobIds);
@@ -69,6 +72,9 @@ class NostoSchedulerJobCountsProvider
         return $countsByJobId;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function fetchChildRows(array $jobIds): array
     {
         return $this->connection->fetchAllAssociative(
@@ -92,6 +98,9 @@ class NostoSchedulerJobCountsProvider
         );
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function fetchMessageRows(array $jobIds): array
     {
         return $this->connection->fetchAllAssociative(
@@ -112,6 +121,9 @@ class NostoSchedulerJobCountsProvider
         );
     }
 
+    /**
+     * @return string[]
+     */
     private function toBinaryIds(array $jobIds): array
     {
         $binaryIds = [];
@@ -129,6 +141,9 @@ class NostoSchedulerJobCountsProvider
         return $binaryIds;
     }
 
+    /**
+     * @return string[]
+     */
     private function normalizeJobIds(array $jobIds): array
     {
         $normalizedIds = [];
@@ -148,6 +163,9 @@ class NostoSchedulerJobCountsProvider
         return array_keys($normalizedIds);
     }
 
+    /**
+     * @return array<string, array<string, int>>
+     */
     public static function createEmptyCounts(): array
     {
         return [
