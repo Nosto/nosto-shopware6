@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
 import './components/nosto-integration-job-listing-index';

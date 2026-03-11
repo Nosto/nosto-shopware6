@@ -1,7 +1,10 @@
-/* eslint-disable sw-core-rules/require-package-annotation */
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-integration-job-sub-jobs.html.twig';
 import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../job-status.helper';
-import { fetchJobMessages } from '../../utils/job-messages.helper';
+import fetchJobMessages from '../../utils/job-messages.helper';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -39,9 +42,13 @@ Component.extend('nosto-integration-job-sub-jobs', 'nosto-job-sub-jobs', {
 
         getMessagesCount(job, type) {
             const counts = this.getMessageCounts(job);
-            const key = type === MESSAGE_COUNT_KEYS.INFO
-                ? MESSAGE_COUNT_KEYS.INFO
-                : (type === MESSAGE_COUNT_KEYS.WARNING ? MESSAGE_COUNT_KEYS.WARNING : MESSAGE_COUNT_KEYS.ERROR);
+            let key = MESSAGE_COUNT_KEYS.ERROR;
+
+            if (type === MESSAGE_COUNT_KEYS.INFO) {
+                key = MESSAGE_COUNT_KEYS.INFO;
+            } else if (type === MESSAGE_COUNT_KEYS.WARNING) {
+                key = MESSAGE_COUNT_KEYS.WARNING;
+            }
 
             return Number(counts[key] ?? 0);
         },

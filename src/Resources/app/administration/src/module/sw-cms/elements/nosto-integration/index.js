@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import './component';
 import './config';
 import './preview';

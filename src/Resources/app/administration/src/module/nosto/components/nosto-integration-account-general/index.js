@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-integration-account-general.html.twig';
 
 const { Component, Mixin } = Shopware;

@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import './pages/nosto-integration-settings';
 import './components/nosto-integration-settings-general';
 import './components/nosto-integration-account-general';

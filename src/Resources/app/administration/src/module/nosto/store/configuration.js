@@ -1,4 +1,5 @@
 /**
+ * @sw-package discovery
  * @private
  */
 export default {

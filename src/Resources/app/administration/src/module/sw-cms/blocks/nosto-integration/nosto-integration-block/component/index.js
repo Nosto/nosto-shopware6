@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './sw-cms-block-nosto-integration.html.twig';
 
 /** @private */

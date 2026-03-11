@@ -1,7 +1,10 @@
-/* eslint-disable sw-core-rules/require-package-annotation */
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-integration-job-listing-index.html.twig';
 import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../job-status.helper';
-import { fetchJobMessages } from '../../utils/job-messages.helper';
+import fetchJobMessages from '../../utils/job-messages.helper';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -38,6 +41,7 @@ function normalizeMessageType(type) {
 
 Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index', {
     template,
+    emits: ['job-list-meta-loaded'],
 
     inject: [
         'NostoRescheduleService',

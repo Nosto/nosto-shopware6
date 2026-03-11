@@ -1,4 +1,6 @@
-/* eslint-disable sw-core-rules/require-package-annotation */
+/**
+ * @sw-package discovery
+ */
 
 const STATUS_TONES = Object.freeze({
     SUCCESS: 'success',
@@ -11,10 +13,16 @@ const SUCCESS_STATUSES = Object.freeze(['success', 'succeed', 'finished', 'done'
 const ERROR_STATUSES = Object.freeze(['error', 'failed']);
 const INFO_STATUSES = Object.freeze(['in_progress', 'processing']);
 
+/**
+ * @private
+ */
 export function isJobRunningStatus(status) {
     return (status ?? '').toLowerCase() === 'running';
 }
 
+/**
+ * @private
+ */
 export function getJobStatusTone(status) {
     const value = (status ?? '').toLowerCase();
 
@@ -33,6 +41,9 @@ export function getJobStatusTone(status) {
     return STATUS_TONES.NEUTRAL;
 }
 
+/**
+ * @private
+ */
 export function getJobStatusLabel(status, translate) {
     const statusValue = String(status ?? '').trim();
     if (!statusValue) {

@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-plugin-settings-icon.html.twig';
 
 const { Component } = Shopware;

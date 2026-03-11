@@ -19,12 +19,7 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @param array<mixed> $jobIds
-     *
-     * @return array<string, array{
-     *     childJobs: array{total: int, success: int, pending: int, error: int},
-     *     messages: array{total: int, info: int, warning: int, error: int}
-     * }>
+     * @return array<string, array{childJobs: array{total: int, success: int, pending: int, error: int}, messages: array{total: int, info: int, warning: int, error: int}}>
      */
     public function getCountsByJobIds(array $jobIds): array
     {
@@ -78,8 +73,6 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @param list<string> $jobIds
-     *
      * @return list<array<string, mixed>>
      */
     private function fetchChildRows(array $jobIds): array
@@ -106,8 +99,6 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @param list<string> $jobIds
-     *
      * @return list<array<string, mixed>>
      */
     private function fetchMessageRows(array $jobIds): array
@@ -131,8 +122,6 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @param list<string> $jobIds
-     *
      * @return list<string>
      */
     private function toBinaryIds(array $jobIds): array
@@ -153,8 +142,6 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @param array<mixed> $jobIds
-     *
      * @return list<string>
      */
     private function normalizeJobIds(array $jobIds): array
@@ -177,10 +164,7 @@ class NostoSchedulerJobCountsProvider
     }
 
     /**
-     * @return array{
-     *     childJobs: array{total: int, success: int, pending: int, error: int},
-     *     messages: array{total: int, info: int, warning: int, error: int}
-     * }
+     * @return array{childJobs: array{total: int, success: int, pending: int, error: int}, messages: array{total: int, info: int, warning: int, error: int}}
      */
     public static function createEmptyCounts(): array
     {

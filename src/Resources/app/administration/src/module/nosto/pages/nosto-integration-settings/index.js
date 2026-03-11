@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './nosto-integration-settings.html.twig';
 import './nosto-integration-settings.scss';
 

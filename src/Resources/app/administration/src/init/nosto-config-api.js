@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import NostoConfigApiService from '../api/nosto-config.api.service';
 
 const { Application } = Shopware;

@@ -1,4 +1,7 @@
-/* eslint-disable sw-core-rules/require-package-annotation */
+/**
+ * @sw-package discovery
+ */
+
 const { Criteria } = Shopware.Data;
 
 function toArray(collection) {
@@ -8,7 +11,10 @@ function toArray(collection) {
     return items;
 }
 
-export function fetchJobMessages({ messageRepository, jobId, expectedTotal = 0, pageSize = 250 }) {
+/**
+ * @private
+ */
+export default function fetchJobMessages({ messageRepository, jobId, expectedTotal = 0, pageSize = 250 }) {
     const loadPage = (page, collected) => {
         const criteria = new Criteria(page, pageSize);
         criteria.addFilter(Criteria.equals('jobId', jobId));

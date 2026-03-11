@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import NostoApiKeyValidatorService from '../services/api/nosto-api-keys-validator-service';
 
 /** @private */
