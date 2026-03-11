@@ -1,8 +1,9 @@
 import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
+import './components/nosto-integration-job-listing-index';
+import './components/nosto-integration-job-sub-jobs';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 /** @private */
 Component.register('nosto-job-listing', {
@@ -101,15 +102,7 @@ Component.register('nosto-job-listing', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.loadFilterValues();
-        },
-
         onScheduleProductSync() {
             this.isLoading = true;
             this.NostoIntegrationProviderService.scheduleFullProductSync().then(() => {
@@ -148,10 +141,10 @@ Component.register('nosto-job-listing', {
 
             if (mode !== 'list') {
                 innerBox.classList.add('no-filter');
-                this.$refs.odSidebar.closeSidebar();
+                this.$refs.nostoSidebar?.closeSidebar();
 
-                if (this.$refs.odFilter.$el.length !== 0) {
-                    this.$refs.odFilter.resetAll();
+                if (this.$refs.nostoFilter?.$el) {
+                    this.$refs.nostoFilter.resetAll();
                 }
 
                 this.hideFilters = true;
@@ -159,12 +152,10 @@ Component.register('nosto-job-listing', {
             }
 
             this.hideFilters = false;
-            this.loadFilterValues();
         },
 
         onRefresh() {
             this.$refs.jobListing.onRefresh(this.filterCriteria);
-            this.loadFilterValues();
         },
 
         updateCriteria(criteria) {
@@ -173,40 +164,22 @@ Component.register('nosto-job-listing', {
             this.activeFilterNumber = criteria.length;
         },
 
-        loadFilterValues() {
-            this.filterLoading = true;
+        onJobListMetaLoaded({ statuses = [], types = [] } = {}) {
+            this.statusFilterOptions = statuses.map((status) => {
+                const key = `job-listing.page.listing.grid.job-status.${status}`;
+                const label = this.$tc(key);
 
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.addFilter(Criteria.equalsAny('type', this.nostoJobTypes));
+                return {
+                    name: label === key ? String(status).replace(/_/g, ' ') : label,
+                    value: status,
+                };
+            });
 
-            return this.jobRepository.search(criteria, Shopware.Context.api).then((items) => {
-                const statuses = [...new Set(items.map(item => item.status))];
-                const types = [...new Set(items.map(item => item.name))];
-
-                this.statusFilterOptions = [];
-                this.typeFilterOptions = [];
-
-                statuses.forEach((status) => {
-                    this.statusFilterOptions.push({
-                        name: this.$tc(`job-listing.page.listing.grid.job-status.${status}`),
-                        value: status,
-                    });
-                });
-
-                types.forEach((type) => {
-                    this.typeFilterOptions.push({
-                        name: type,
-                        value: type,
-                    });
-                });
-
-                this.filterLoading = false;
-
-                return Promise.resolve();
-            }).catch(() => {
-                this.filterLoading = false;
+            this.typeFilterOptions = types.map((type) => {
+                return {
+                    name: type,
+                    value: type,
+                };
             });
         },
     },
