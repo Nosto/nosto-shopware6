@@ -4,7 +4,7 @@ inputs:
   php-version:
     description: 'PHP version for PHP setup'
     required: true
-    default: '8.1'
+    default: '8.2'
 
 runs:
   using: 'composite'

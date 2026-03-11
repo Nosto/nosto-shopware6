@@ -8,9 +8,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create shop (allow failure)
+    - name: Create shop
       shell: bash
-      run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
+      run: shopware-cli project create shopware --version ${{ inputs.shopware-version }} --no-interaction
 
     - name: Configure Composer to bypass audit and update
       shell: bash
