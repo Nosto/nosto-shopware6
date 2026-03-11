@@ -57,25 +57,7 @@ class ProductTaggingHelper
                     [$product->getId()],
                     $context,
                 )->first();
-                $handledChildren = $productToReturn->getChildren();
-                if (
-                    ($handledChildren === null || $handledChildren->count() === 0) &&
-                    $product->getChildren() &&
-                    $product->getChildren()->count() > 0
-                ) {
-                    $handledChildren = $product->getChildren();
-                }
-                if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists(
-                    $shopwareProduct,
-                    'set',
-                )) {
-                    $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
-                        $handledChildren->getIds(),
-                        $context,
-                        false,
-                    );
-                    $shopwareProduct->set('children', $childrenLoaded);
-                }
+                $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
                 return $this->partialProductProvider->get($shopwareProduct, $context);
             } else {
                 return $this->productHelper->getShopwareProductsPartial([$product->getId()], $context);
@@ -123,27 +105,41 @@ class ProductTaggingHelper
                 [$productId],
                 $context,
             )->first();
-            $handledChildren = $productToReturn?->getChildren() ?? $product->getChildren();
-            if (
-                ($handledChildren === null || $handledChildren->count() === 0) &&
-                $product->getChildren() &&
-                $product->getChildren()->count() > 0
-            ) {
-                $handledChildren = $product->getChildren();
-            }
-            if ($shopwareProduct && $handledChildren && $handledChildren->count() && method_exists(
-                $shopwareProduct,
-                'set',
-            )) {
-                $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
-                    $handledChildren->getIds(),
-                    $context,
-                    false,
-                );
-                $shopwareProduct->set('children', $childrenLoaded);
-            }
+            $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
             return $this->partialProductProvider->get($shopwareProduct, $context);
         }
+    }
+
+    private function applyHandledChildrenForTagging(
+        object|null $shopwareProduct,
+        SalesChannelContext $context,
+        ?PartialProduct $handledProduct,
+        PartialProduct $fallbackProduct,
+    ): void {
+        if (!$shopwareProduct || !method_exists($shopwareProduct, 'set')) {
+            return;
+        }
+
+        $handledChildren = $handledProduct?->getChildren();
+        if ($handledChildren === null) {
+            $handledChildren = $fallbackProduct->getChildren();
+        }
+
+        if ($handledChildren === null) {
+            return;
+        }
+
+        if ($handledChildren->count() === 0) {
+            $shopwareProduct->set('children', new PartialProductCollection());
+            return;
+        }
+
+        $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
+            $handledChildren->getIds(),
+            $context,
+            false,
+        );
+        $shopwareProduct->set('children', $childrenLoaded);
     }
 
     private function handleVariant(
@@ -393,7 +389,11 @@ class ProductTaggingHelper
         }
 
         foreach ($children as $child) {
-            $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
+            $currencyPrice = $child->getCurrencyPrice($context->getCurrencyId());
+            if ($currencyPrice === null) {
+                continue;
+            }
+            $variantPrice = $currencyPrice->getNet();
 
             if ((is_null(
                 $lowestPrice,

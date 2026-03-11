@@ -77,6 +77,7 @@ Component.register('nosto-integration-account-general', {
             const searchToken = this.currentConfig.searchToken;
             const ratesToken = this.currentConfig.ratesToken;
             const validateRatesToken = this.isMultiCurrencyEnabled();
+            const hasRatesToken = typeof ratesToken === 'string' && ratesToken.trim() !== '';
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
@@ -98,7 +99,7 @@ Component.register('nosto-integration-account-general', {
                 searchToken: searchToken,
             };
 
-            if (validateRatesToken) {
+            if (validateRatesToken || hasRatesToken) {
                 payload.ratesToken = ratesToken;
             }
 

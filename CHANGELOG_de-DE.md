@@ -1,3 +1,7 @@
+# 5.2.9
+* Fix: RatesToken-Validierung korrigiert
+* Fix: Einige fehlende Felder zur Produktsynchronisierung hinzugefügt
+
 # 5.2.8
 * Fix: RatesToken sind optional
 * Fix: Produktsynchronisierung für untergeordnete Elemente bei Bedarf mit dem richtigen Typ auflösen
