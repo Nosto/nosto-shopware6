@@ -10,7 +10,7 @@ runs:
   steps:
     - name: Create shop
       shell: bash
-      run: shopware-cli project create shopware --version ${{ inputs.shopware-version }} --no-interaction
+      run: shopware-cli project create shopware --version ${{ inputs.shopware-version }} --no-interaction --no-audit
 
     - name: Configure Composer to bypass audit and update
       shell: bash
