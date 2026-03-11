@@ -391,7 +391,7 @@ export default class NostoFilterSliderRange extends FilterRange {
         const totalRange = {
             min: this._normalizePrecision(property.options[0].min),
             max: this._normalizePrecision(property.options[0].max),
-        }
+        };
 
         if (this._isEqual(totalRange.min, totalRange.max)) {
             this.disableFilter();
