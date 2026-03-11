@@ -87,11 +87,11 @@ Component.register('nosto-integration-account-general', {
 
         isMultiCurrencyEnabled() {
             const configurationKey = 'enableMultiCurrency';
-            const channelConfig = this.configs[this.configKey] || {};
+            const channelConfig = this.allConfigs[this.configKey] || {};
 
             return typeof channelConfig[configurationKey] === 'boolean'
                 ? channelConfig[configurationKey]
-                : !!this.configs.null?.[configurationKey];
+                : !!this.allConfigs.null?.[configurationKey];
         },
 
         isActive() {
