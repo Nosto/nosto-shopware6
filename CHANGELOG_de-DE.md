@@ -1,3 +1,7 @@
+# 5.2.10
+* Fix: Abhängigkeit des Job-Schedulers aktualisiert
+* Fix: Positionierung der Paginierung bei Produktlisten
+
 # 5.2.9
 * Fix: RatesToken-Validierung korrigiert
 * Fix: Einige fehlende Felder zur Produktsynchronisierung hinzugefügt
