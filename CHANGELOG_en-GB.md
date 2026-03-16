@@ -1,3 +1,7 @@
+# 5.2.10
+* Fix: Update job-scheduler dependency
+* Fix: Product listing pagination placement
+
 # 5.2.9
 * Fix: RatesToken validation
 * Fix: Add some missing fields to product sync
