@@ -8,6 +8,7 @@ use Composer\Autoload\ClassLoader;
 use Nosto\Scheduler\NostoScheduler;
 use ReflectionClass;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -57,9 +58,9 @@ class NostoIntegration extends Plugin
 
     private function migrateDependencyBundles(): void
     {
-        /** @var AssetService $assetService */
-        /** @var Utils\MigrationHelper $migrationHelper */
-        $migrationHelper = $this->container->get(Utils\MigrationHelper::class);
+        $migrationHelper = new Utils\MigrationHelper(
+            $this->container->get(MigrationCollectionLoader::class),
+        );
 
         foreach ($this->getDependencyBundles() as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
