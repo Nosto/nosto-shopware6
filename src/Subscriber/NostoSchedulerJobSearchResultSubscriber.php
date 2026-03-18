@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Subscriber;
 
 use Nosto\NostoIntegration\Service\NostoSchedulerJobCountsProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NostoSchedulerJobSearchResultSubscriber implements EventSubscriberInterface
@@ -41,10 +40,7 @@ class NostoSchedulerJobSearchResultSubscriber implements EventSubscriberInterfac
             $jobId = strtolower((string) $entity->getUniqueIdentifier());
             $counts = $countsByJobId[$jobId] ?? NostoSchedulerJobCountsProvider::createEmptyCounts();
 
-            $entity->addExtension(
-                'jobCounts',
-                new ArrayStruct($counts, 'nosto_scheduler_job_counts'),
-            );
+            $entity->addArrayExtension('jobCounts', $counts);
         }
     }
 }
