@@ -8,21 +8,19 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create shop (allow failure)
+    - name: Create shop
       shell: bash
-      run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
+      run: shopware-cli project create shopware ${{ inputs.shopware-version }}
 
     - name: Configure Composer to bypass audit and update
       shell: bash
       run: |
-        if [ -d "shopware" ]; then
-          cd shopware
-          echo "Composer version:"
-          composer --version
-          # Disable audit blocking by setting block-insecure to false
-          jq '.config.audit."block-insecure" = false' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
-          composer update --no-interaction
-        fi
+        cd shopware
+        echo "Composer version:"
+        composer --version
+        # Disable audit blocking by setting block-insecure to false
+        jq '.config.audit."block-insecure" = false' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+        composer update --no-interaction
 
     - name: Set minimum stability to dev
       shell: bash
