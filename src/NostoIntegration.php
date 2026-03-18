@@ -82,6 +82,8 @@ class NostoIntegration extends Plugin
      */
     private function getDependencyBundles(): array
     {
+        self::classLoader();
+
         return [
             new NostoScheduler(),
         ];
