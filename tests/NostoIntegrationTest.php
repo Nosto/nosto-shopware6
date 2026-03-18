@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests;
 
 use Nosto\NostoIntegration\NostoIntegration;
-use Nosto\NostoIntegration\Utils\MigrationHelper;
 use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Migration\MigrationCollection;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,13 +22,22 @@ class NostoIntegrationTest extends TestCase
         /** @var NostoIntegration $nostoIntegration */
         $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
 
-        $migrationHelper = $this->getMockBuilder(MigrationHelper::class)
+        $migrationCollection = $this->getMockBuilder(MigrationCollection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $migrationHelper->expects($this->once())
-            ->method('getMigrationCollection')
-            ->with($this->isInstanceOf(NostoScheduler::class));
-        $this->getContainer()->set(MigrationHelper::class, $migrationHelper);
+        $migrationCollection->expects($this->once())
+            ->method('sync');
+
+        $migrationLoader = $this->getMockBuilder(MigrationCollectionLoader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $migrationLoader->expects($this->once())
+            ->method('addSource');
+        $migrationLoader->expects($this->once())
+            ->method('collect')
+            ->with('NostoScheduler')
+            ->willReturn($migrationCollection);
+        $this->getContainer()->set(MigrationCollectionLoader::class, $migrationLoader);
 
         $assetService = $this->getMockBuilder(AssetService::class)
             ->disableOriginalConstructor()
