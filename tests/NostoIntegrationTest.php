@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests;
 
 use Nosto\NostoIntegration\NostoIntegration;
-use Nosto\Scheduler\NostoScheduler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
