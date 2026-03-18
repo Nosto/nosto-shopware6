@@ -31,12 +31,14 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->install($installContext);
         parent::install($installContext);
+        $this->migrateDependencyBundles();
     }
 
     public function update(UpdateContext $updateContext): void
     {
         (new Utils\Lifecycle($this->container, true))->update($updateContext);
         parent::update($updateContext);
+        $this->migrateDependencyBundles();
     }
 
     public function deactivate(DeactivateContext $deactivateContext): void
@@ -49,13 +51,27 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->activate($activateContext);
         parent::activate($activateContext);
+        $this->migrateDependencyBundles();
+        $this->copyDependencyBundleAssets();
+    }
+
+    private function migrateDependencyBundles(): void
+    {
         /** @var AssetService $assetService */
-        $assetService = $this->container->get('nosto.plugin.assetservice.public');
         /** @var Utils\MigrationHelper $migrationHelper */
         $migrationHelper = $this->container->get(Utils\MigrationHelper::class);
 
         foreach ($this->getDependencyBundles() as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
+        }
+    }
+
+    private function copyDependencyBundleAssets(): void
+    {
+        /** @var AssetService $assetService */
+        $assetService = $this->container->get('nosto.plugin.assetservice.public');
+
+        foreach ($this->getDependencyBundles() as $bundle) {
             $assetService->copyAssetsFromBundle((new ReflectionClass($bundle))->getShortName());
         }
     }
