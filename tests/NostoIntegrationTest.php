@@ -20,9 +20,10 @@ class NostoIntegrationTest extends TestCase
 
     public function testNostoSchedulerIsAddedOnActivation(): void
     {
+        $this->mockDependencyMigrationExecution();
+
         /** @var NostoIntegration $nostoIntegration */
         $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
-        $this->mockDependencyMigrationExecution();
 
         $assetService = $this->getMockBuilder(AssetService::class)
             ->disableOriginalConstructor()
@@ -43,9 +44,10 @@ class NostoIntegrationTest extends TestCase
 
     public function testNostoSchedulerMigrationsRunOnInstall(): void
     {
+        $this->mockDependencyMigrationExecution();
+
         /** @var NostoIntegration $nostoIntegration */
         $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
-        $this->mockDependencyMigrationExecution();
 
         $installContext = $this->getMockBuilder(InstallContext::class)
             ->disableOriginalConstructor()
@@ -58,9 +60,10 @@ class NostoIntegrationTest extends TestCase
 
     public function testNostoSchedulerMigrationsRunOnUpdate(): void
     {
+        $this->mockDependencyMigrationExecution();
+
         /** @var NostoIntegration $nostoIntegration */
         $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
-        $this->mockDependencyMigrationExecution();
 
         $updateContext = $this->getMockBuilder(UpdateContext::class)
             ->disableOriginalConstructor()
