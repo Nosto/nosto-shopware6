@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Plugin\Util\AssetService;
 
 class NostoIntegrationTest extends TestCase
 {
@@ -42,11 +43,17 @@ class NostoIntegrationTest extends TestCase
         $plugin->update($updateContext);
     }
 
-    public function testNostoSchedulerIsAddedOnActivation(): void
+    public function testDependencyBundleAssetsAreCopiedOnActivation(): void
     {
-        $plugin = $this->createPluginMock();
-        $plugin->expects($this->once())
-            ->method('copyDependencyBundleAssets');
+        $plugin = $this->createPluginMock(false);
+
+        $assetService = $this->getMockBuilder(AssetService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $assetService->expects($this->once())
+            ->method('copyAssetsFromBundle')
+            ->with('NostoScheduler');
+        $this->getContainer()->set('nosto.plugin.assetservice.public', $assetService);
 
         $activateContext = $this->getMockBuilder(ActivateContext::class)
             ->disableOriginalConstructor()
@@ -57,7 +64,7 @@ class NostoIntegrationTest extends TestCase
         $plugin->activate($activateContext);
     }
 
-    private function createPluginMock(): NostoIntegration
+    private function createPluginMock(bool $mockAssetCopy = true): NostoIntegration
     {
         $migrationCollection = $this->getMockBuilder(MigrationCollection::class)
             ->disableOriginalConstructor()
@@ -80,12 +87,18 @@ class NostoIntegrationTest extends TestCase
                 'custom/plugins/nosto-shopware6',
                 $this->getContainer()->getParameter('kernel.project_dir'),
             ])
-            ->onlyMethods(['createMigrationHelper', 'copyDependencyBundleAssets'])
+            ->onlyMethods($mockAssetCopy ? ['createMigrationHelper', 'copyDependencyBundleAssets'] : ['createMigrationHelper'])
             ->getMock();
 
         $plugin->expects($this->once())
             ->method('createMigrationHelper')
             ->willReturn($migrationHelper);
+
+        if ($mockAssetCopy) {
+            $plugin->expects($this->never())
+                ->method('copyDependencyBundleAssets');
+        }
+
         $plugin->setContainer($this->getContainer());
 
         return $plugin;
