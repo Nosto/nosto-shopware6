@@ -58,16 +58,21 @@ class NostoIntegration extends Plugin
 
     private function migrateDependencyBundles(): void
     {
-        $migrationHelper = new Utils\MigrationHelper(
-            $this->container->get(MigrationCollectionLoader::class),
-        );
+        $migrationHelper = $this->createMigrationHelper();
 
         foreach ($this->getDependencyBundles() as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
         }
     }
 
-    private function copyDependencyBundleAssets(): void
+    protected function createMigrationHelper(): Utils\MigrationHelper
+    {
+        return new Utils\MigrationHelper(
+            $this->container->get(MigrationCollectionLoader::class),
+        );
+    }
+
+    protected function copyDependencyBundleAssets(): void
     {
         /** @var AssetService $assetService */
         $assetService = $this->container->get('nosto.plugin.assetservice.public');
