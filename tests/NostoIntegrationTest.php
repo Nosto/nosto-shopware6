@@ -38,7 +38,7 @@ class NostoIntegrationTest extends TestCase
             ->onlyMethods(['getContext', 'getCurrentPluginVersion'])
             ->getMock();
         $updateContext->method('getContext')->willReturn(Context::createDefaultContext());
-        $updateContext->method('getCurrentPluginVersion')->willReturn('5.2.9');
+        $updateContext->method('getCurrentPluginVersion')->willReturn('1.0.0');
 
         $plugin->update($updateContext);
     }
