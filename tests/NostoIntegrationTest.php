@@ -87,7 +87,9 @@ class NostoIntegrationTest extends TestCase
                 'custom/plugins/nosto-shopware6',
                 $this->getContainer()->getParameter('kernel.project_dir'),
             ])
-            ->onlyMethods($mockAssetCopy ? ['createMigrationHelper', 'copyDependencyBundleAssets'] : ['createMigrationHelper'])
+            ->onlyMethods(
+                $mockAssetCopy ? ['createMigrationHelper', 'copyDependencyBundleAssets'] : ['createMigrationHelper'],
+            )
             ->getMock();
 
         $plugin->expects($this->once())
