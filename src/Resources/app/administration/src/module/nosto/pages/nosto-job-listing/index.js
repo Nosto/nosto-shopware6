@@ -3,6 +3,7 @@ import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /** @private */
 Component.register('nosto-job-listing', {
@@ -101,7 +102,15 @@ Component.register('nosto-job-listing', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.loadFilterValues();
+        },
+
         onScheduleProductSync() {
             this.isLoading = true;
             this.NostoIntegrationProviderService.scheduleFullProductSync().then(() => {
@@ -151,16 +160,36 @@ Component.register('nosto-job-listing', {
             }
 
             this.hideFilters = false;
+            this.loadFilterValues();
         },
 
         onRefresh() {
-            this.$refs.jobListing.onRefresh(this.filterCriteria);
+            return Promise.resolve(this.$refs.jobListing.onRefresh(this.filterCriteria)).finally(() => {
+                return this.loadFilterValues();
+            });
         },
 
         updateCriteria(criteria) {
             this.page = 1;
             this.filterCriteria = criteria;
             this.activeFilterNumber = criteria.length;
+        },
+
+        loadFilterValues() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('parentId', null));
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+            criteria.addFilter(Criteria.equalsAny('type', this.nostoJobTypes));
+
+            return this.jobRepository.search(criteria, Shopware.Context.api).then((items) => {
+                const statuses = [...new Set(items.map((item) => item.status).filter((status) => !!status))];
+                const types = [...new Set(items.map((item) => item.name).filter((name) => !!name))];
+
+                this.onJobListMetaLoaded({ statuses, types });
+            }).catch(() => {
+                this.statusFilterOptions = [];
+                this.typeFilterOptions = [];
+            });
         },
 
         onJobListMetaLoaded({ statuses = [], types = [] } = {}) {
