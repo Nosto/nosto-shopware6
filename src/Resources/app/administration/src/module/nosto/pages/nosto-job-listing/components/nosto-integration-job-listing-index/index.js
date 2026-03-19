@@ -57,37 +57,43 @@ Component.extend('nosto-integration-job-listing-index', 'nosto-job-listing-index
     },
 
     methods: {
-        updateList(filterCriteria) {
-            this.jobCountsCache = {};
-
+        getListCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-
-            if (filterCriteria) {
-                filterCriteria.forEach((filter) => {
-                    criteria.addFilter(filter);
-                });
-            }
 
             if (Array.isArray(this.jobTypes) && this.jobTypes.length > 0) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
 
-            return this.jobRepository.search(criteria, Shopware.Context.api).then((jobItems) => {
-                this.jobItems = jobItems;
-                this.$emit('job-list-meta-loaded', this.extractFilterMeta(jobItems));
-            });
+            criteria.addAggregation(Criteria.terms('statuses', 'status', null, null, null));
+            criteria.addAggregation(Criteria.terms('types', 'name', null, null, null));
+
+            return criteria;
         },
 
-        extractFilterMeta(jobItems) {
-            const statuses = [...new Set(jobItems.map((item) => item.status).filter((status) => !!status))];
-            const types = [...new Set(jobItems.map((item) => item.name).filter((name) => !!name))];
+        updateList(filterCriteria) {
+            this.jobCountsCache = {};
 
-            return {
-                statuses,
-                types,
-            };
+            const criteria = this.getListCriteria();
+
+            if (filterCriteria) {
+                filterCriteria.forEach((filter) => {
+                    criteria.addPostFilter(filter);
+                });
+            }
+
+            return this.jobRepository.search(criteria, Shopware.Context.api).then((jobItems) => {
+                this.jobItems = jobItems;
+                this.$emit('job-list-meta-loaded', {
+                    statuses: jobItems.aggregations?.statuses?.buckets
+                        ?.map(({ key }) => key)
+                        .filter((status) => !!status) ?? [],
+                    types: jobItems.aggregations?.types?.buckets
+                        ?.map(({ key }) => key)
+                        .filter((type) => !!type) ?? [],
+                });
+            });
         },
 
         getJobCounts(job) {
