@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -20,23 +22,7 @@ class NostoIntegrationTest extends TestCase
     {
         /** @var NostoIntegration $nostoIntegration */
         $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
-
-        $migrationCollection = $this->getMockBuilder(MigrationCollection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $migrationCollection->expects($this->once())
-            ->method('sync');
-
-        $migrationLoader = $this->getMockBuilder(MigrationCollectionLoader::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $migrationLoader->expects($this->once())
-            ->method('addSource');
-        $migrationLoader->expects($this->once())
-            ->method('collect')
-            ->with('NostoScheduler')
-            ->willReturn($migrationCollection);
-        $this->getContainer()->set(MigrationCollectionLoader::class, $migrationLoader);
+        $this->mockDependencyMigrationExecution();
 
         $assetService = $this->getMockBuilder(AssetService::class)
             ->disableOriginalConstructor()
@@ -53,5 +39,58 @@ class NostoIntegrationTest extends TestCase
         $activateContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $nostoIntegration->activate($activateContext);
+    }
+
+    public function testNostoSchedulerMigrationsRunOnInstall(): void
+    {
+        /** @var NostoIntegration $nostoIntegration */
+        $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
+        $this->mockDependencyMigrationExecution();
+
+        $installContext = $this->getMockBuilder(InstallContext::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getContext'])
+            ->getMock();
+        $installContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $nostoIntegration->install($installContext);
+    }
+
+    public function testNostoSchedulerMigrationsRunOnUpdate(): void
+    {
+        /** @var NostoIntegration $nostoIntegration */
+        $nostoIntegration = $this->getContainer()->get(NostoIntegration::class);
+        $this->mockDependencyMigrationExecution();
+
+        $updateContext = $this->getMockBuilder(UpdateContext::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getContext', 'getCurrentPluginVersion'])
+            ->getMock();
+        $updateContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $updateContext->method('getCurrentPluginVersion')->willReturn('5.2.9');
+
+        $nostoIntegration->update($updateContext);
+    }
+
+    private function mockDependencyMigrationExecution(): void
+    {
+        $migrationCollection = $this->getMockBuilder(MigrationCollection::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $migrationCollection->expects($this->once())
+            ->method('sync');
+        $migrationCollection->expects($this->once())
+            ->method('migrateInPlace');
+
+        $migrationLoader = $this->getMockBuilder(MigrationCollectionLoader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $migrationLoader->expects($this->once())
+            ->method('addSource');
+        $migrationLoader->expects($this->once())
+            ->method('collect')
+            ->with('NostoScheduler')
+            ->willReturn($migrationCollection);
+        $this->getContainer()->set(MigrationCollectionLoader::class, $migrationLoader);
     }
 }

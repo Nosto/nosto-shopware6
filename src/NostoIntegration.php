@@ -123,8 +123,6 @@ class NostoIntegration extends Plugin
      */
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
-        self::classLoader();
-
         return $this->getDependencyBundles();
     }
 
