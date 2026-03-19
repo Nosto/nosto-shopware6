@@ -45,7 +45,7 @@ class NostoIntegrationTest extends TestCase
 
     public function testDependencyBundleAssetsAreCopiedOnActivation(): void
     {
-        $plugin = $this->createPluginMock(false);
+        $plugin = $this->createPluginMock();
 
         $assetService = $this->getMockBuilder(AssetService::class)
             ->disableOriginalConstructor()
@@ -64,7 +64,7 @@ class NostoIntegrationTest extends TestCase
         $plugin->activate($activateContext);
     }
 
-    private function createPluginMock(bool $mockAssetCopy = true): NostoIntegration
+    private function createPluginMock(): NostoIntegration
     {
         $migrationCollection = $this->getMockBuilder(MigrationCollection::class)
             ->disableOriginalConstructor()
@@ -87,19 +87,12 @@ class NostoIntegrationTest extends TestCase
                 'custom/plugins/nosto-shopware6',
                 $this->getContainer()->getParameter('kernel.project_dir'),
             ])
-            ->onlyMethods(
-                $mockAssetCopy ? ['createMigrationHelper', 'copyDependencyBundleAssets'] : ['createMigrationHelper'],
-            )
+            ->onlyMethods(['createMigrationHelper'])
             ->getMock();
 
         $plugin->expects($this->once())
             ->method('createMigrationHelper')
             ->willReturn($migrationHelper);
-
-        if ($mockAssetCopy) {
-            $plugin->expects($this->never())
-                ->method('copyDependencyBundleAssets');
-        }
 
         $plugin->setContainer($this->getContainer());
 

@@ -32,14 +32,16 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->install($installContext);
         parent::install($installContext);
-        $this->migrateDependencyBundles();
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
     }
 
     public function update(UpdateContext $updateContext): void
     {
         (new Utils\Lifecycle($this->container, true))->update($updateContext);
         parent::update($updateContext);
-        $this->migrateDependencyBundles();
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
     }
 
     public function deactivate(DeactivateContext $deactivateContext): void
@@ -52,15 +54,19 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->activate($activateContext);
         parent::activate($activateContext);
-        $this->migrateDependencyBundles();
-        $this->copyDependencyBundleAssets();
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
+        $this->copyDependencyBundleAssets($bundles);
     }
 
-    private function migrateDependencyBundles(): void
+    /**
+     * @param Bundle[] $bundles
+     */
+    private function migrateDependencyBundles(array $bundles): void
     {
         $migrationHelper = $this->createMigrationHelper();
 
-        foreach ($this->getDependencyBundles() as $bundle) {
+        foreach ($bundles as $bundle) {
             $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
         }
     }
@@ -72,12 +78,15 @@ class NostoIntegration extends Plugin
         );
     }
 
-    protected function copyDependencyBundleAssets(): void
+    /**
+     * @param Bundle[] $bundles
+     */
+    protected function copyDependencyBundleAssets(array $bundles): void
     {
         /** @var AssetService $assetService */
         $assetService = $this->container->get('nosto.plugin.assetservice.public');
 
-        foreach ($this->getDependencyBundles() as $bundle) {
+        foreach ($bundles as $bundle) {
             $assetService->copyAssetsFromBundle((new ReflectionClass($bundle))->getShortName());
         }
     }
