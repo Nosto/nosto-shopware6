@@ -61,22 +61,22 @@
                         </div>
                     {% endblock %}
                 {% endif %}
-
-                {% if not (searchResult.criteria.extensions.nostoPagination) %}
-                    {% set paginationTotal = searchResult.total %}
-                    {% set paginationLimit = searchResult.limit %}
-                {% else %}
-                    {% set paginationTotal = searchResult.criteria.extensions.nostoPagination.total %}
-                    {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
-                {% endif %}
-
-                {% set totalPages = (paginationTotal / paginationLimit)|round(0, 'ceil') %}
-                {% if totalPages > 1 %}
-                    {% block element_product_listing_pagination_nav_bottom %}
-                        {{ parent() }}
-                    {% endblock %}
-                {% endif %}
             </div>
+
+            {% if not (searchResult.criteria.extensions.nostoPagination) %}
+                {% set paginationTotal = searchResult.total %}
+                {% set paginationLimit = searchResult.limit %}
+            {% else %}
+                {% set paginationTotal = searchResult.criteria.extensions.nostoPagination.total %}
+                {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
+            {% endif %}
+
+            {% set totalPages = (paginationTotal / paginationLimit)|round(0, 'ceil') %}
+            {% if totalPages > 1 %}
+                {% block element_product_listing_pagination_nav_bottom %}
+                    {{ parent() }}
+                {% endblock %}
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}
