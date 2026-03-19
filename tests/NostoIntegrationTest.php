@@ -18,6 +18,13 @@ class NostoIntegrationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    protected function tearDown(): void
+    {
+        static::ensureKernelShutdown();
+
+        parent::tearDown();
+    }
+
     public function testNostoSchedulerIsAddedOnActivation(): void
     {
         $this->mockDependencyMigrationExecution();
