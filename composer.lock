@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a877280522dda2cc98757e1a701cbaa",
+    "content-hash": "f302307ca615efc3de6085a484f84efd",
     "packages": [
         {
             "name": "graham-campbell/result-type",
@@ -126,16 +126,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "366573cd6b4eea1bb0f3169b116bedecdf2b805d"
+                "reference": "ee6bd1bb305438739dfa5143f6c4cd4897c693e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/366573cd6b4eea1bb0f3169b116bedecdf2b805d",
-                "reference": "366573cd6b4eea1bb0f3169b116bedecdf2b805d",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/ee6bd1bb305438739dfa5143f6c4cd4897c693e6",
+                "reference": "ee6bd1bb305438739dfa5143f6c4cd4897c693e6",
                 "shasum": ""
             },
             "require": {
@@ -159,9 +159,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.4"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.5"
             },
-            "time": "2026-02-02T11:09:02+00:00"
+            "time": "2026-03-20T13:47:13+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -1415,5 +1415,5 @@
     "platform-overrides": {
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
