@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 /** @private */
 export default (() => {
     const context = require.context('./svg', false, /svg$/);

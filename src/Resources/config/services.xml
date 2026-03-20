@@ -213,6 +213,9 @@
         <service id="Nosto\NostoIntegration\Service\FilterPayloadService">
             <argument key="$filterPayloadStore" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadStore"/>
         </service>
+        <service id="Nosto\NostoIntegration\Service\NostoSchedulerJobCountsProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
         <!-- /Services -->
 
         <!-- Decorators -->
@@ -254,6 +257,14 @@
 
         <service id="Nosto\NostoIntegration\EventListener\NewsletterEventListener">
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Subscriber\NostoSchedulerJobSearchResultSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Extension\NostoSchedulerJobEntityExtension">
+            <tag name="shopware.entity.extension"/>
         </service>
 
         <service id="Nosto\NostoIntegration\EventListener\CurrencyWrittenEvent">

@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import iconComponents from '../app/assets/icons/icons';
 
 const { Component } = Shopware;

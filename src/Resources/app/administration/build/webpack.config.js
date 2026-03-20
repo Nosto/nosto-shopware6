@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 const path = require('path');
 
 function resolve(dir) {

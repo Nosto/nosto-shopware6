@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import template from './sw-cms-el-config-nosto-integration.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -10,4 +14,3 @@ Component.register('sw-cms-el-config-nosto-integration', {
         Mixin.getByName('cms-element'),
     ],
 });
-

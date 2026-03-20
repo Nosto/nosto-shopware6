@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 const { ApiService } = Shopware.Classes;
 
 class NostoApiKeyValidatorService extends ApiService {
