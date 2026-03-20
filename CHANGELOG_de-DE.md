@@ -1,3 +1,7 @@
+# 5.2.11
+* Fix: Optimierung der Stellenanzeigenseite
+* Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen
+
 # 5.2.10
 * Fix: Abhängigkeit des Job-Schedulers aktualisiert
 * Fix: Positionierung der Paginierung bei Produktlisten

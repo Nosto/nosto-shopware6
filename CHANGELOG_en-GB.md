@@ -1,3 +1,7 @@
+# 5.2.11
+* Fix: Optimize job listing page
+* Fix: Run dependency migrations on plugin install/update
+
 # 5.2.10
 * Fix: Update job-scheduler dependency
 * Fix: Product listing pagination placement
