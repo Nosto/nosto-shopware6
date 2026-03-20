@@ -4,8 +4,6 @@
 
 import template from './nosto-job-listing.html.twig';
 import './nosto-job-listing.scss';
-import './components/nosto-integration-job-listing-index';
-import './components/nosto-integration-job-sub-jobs';
 
 const { Component, Mixin } = Shopware;
 
