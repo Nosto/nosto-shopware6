@@ -1,3 +1,7 @@
+# 6.1.6
+* Fix: Optimierung der Stellenanzeigenseite
+* Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen
+
 # 6.1.5
 * Fix: Post-Filter beibehalten
 
