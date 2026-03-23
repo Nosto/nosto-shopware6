@@ -1,3 +1,6 @@
+# 5.2.12
+* Fix: Changelog-Synchronisierungsjobs werden nach der Erstellung von Unterjobs korrekt abgeschlossen
+
 # 5.2.11
 * Fix: Optimierung der Stellenanzeigenseite
 * Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen

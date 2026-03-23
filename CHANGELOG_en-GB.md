@@ -1,3 +1,6 @@
+# 5.2.12
+* Fix: Finalize changelog sync jobs correctly after child job generation
+
 # 5.2.11
 * Fix: Optimize job listing page
 * Fix: Run dependency migrations on plugin install/update
