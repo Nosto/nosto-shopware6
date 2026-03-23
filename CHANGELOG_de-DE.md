@@ -1,3 +1,6 @@
+# 3.6.7
+* Fix: Optimierung der Stellenanzeigenseite
+
 # 3.6.6
 * Fix: Post-Filter beibehalten
 
