@@ -156,12 +156,12 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $deletedProductIds = array_diff($productIds, array_keys($existentProducts));
 
-        $parentProductIterator = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
+        $parentProducts = $this->productHelper->loadExistingParentProducts($existentProducts, $context);
         $parentFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $processedParentCount = 0;
 
-        while (($products = $parentProductIterator->fetch()) !== null) {
-            $productCollection = $products->getEntities();
+        foreach ($parentProducts as $searchResult) {
+            $productCollection = $searchResult->getEntities();
             $this->doUpsertOperation($account, $context, $productCollection, $result, $ids);
             $processedParentCount += $productCollection->count();
         }
@@ -322,7 +322,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         // === Pass 2: Single batched DB query ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $allShopwareProducts = !empty($allUniqueIds)
-            ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context)
+            ? $this->productHelper->getShopwareProducts(array_keys($allUniqueIds), $context, true)
             : new ProductCollection();
         if ($shouldLogExtra && $shopwareProductsFetchStartedAt !== null) {
             $this->logDuration(

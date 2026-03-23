@@ -30,10 +30,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -173,37 +173,27 @@ class ProductHelper
         $criteria->addAssociation('children.properties.group');
     }
 
+    /**
+     * @return iterable<EntitySearchResult<ProductCollection>>
+     */
     public function loadExistingParentProducts(
         array $existentParentProductIds,
         SalesChannelContext $context,
-    ): RepositoryIterator {
+    ): iterable {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
         $salesChannelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
         $criteria = $this->getCommonCriteria('product_sync.productHelper.loadExistingParentProducts');
+        $criteria->setIds(array_unique(array_values($existentParentProductIds)));
         $criteria->addAssociation('children');
-        $criteria->setLimit(100);
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
 
-        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
-        if (count($categoryBlocklist)) {
-            $criteria->addFilter(
-                new NotFilter(
-                    NotFilter::CONNECTION_AND,
-                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
-                ),
-            );
-        }
-
-        $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
-
-        $iterator = new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
 
         if ($shouldLog && $startedAt !== null) {
             $this->logDuration(
@@ -216,7 +206,12 @@ class ProductHelper
             );
         }
 
-        return $iterator;
+        return ProductRepositoryHelper::searchChunked(
+            $criteria,
+            100,
+            $context->getContext(),
+            $this->productRepository,
+        );
     }
 
     public function getProductsIterator(
@@ -233,7 +228,7 @@ class ProductHelper
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
-
+        /*
         $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
         if (count($categoryBlocklist)) {
             $criteria->addFilter(
@@ -243,7 +238,7 @@ class ProductHelper
                 ),
             );
         }
-
+        */
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
         return new RepositoryIterator($this->productRepository, $context->getContext(), $criteria);
