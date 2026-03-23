@@ -1,3 +1,6 @@
+# 3.6.7
+* Fix: Optimize job listing page
+
 # 3.6.6
 * Fix: Preserve post filters
 
