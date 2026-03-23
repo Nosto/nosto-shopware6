@@ -60,13 +60,21 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
         $this->jobHelper->markChildGenerationState($message->getJobId(), 0, false);
 
-        $scheduledChildCount += $this->processMarketingPermissionEvents($message->getContext(), $result, $message->getJobId());
+        $scheduledChildCount += $this->processMarketingPermissionEvents(
+            $message->getContext(),
+            $result,
+            $message->getJobId(),
+        );
         $scheduledChildCount += $this->processNewOrderEvents($message->getContext(), $result, $message->getJobId());
         $scheduledChildCount += $this->processUpdatedOrderEvents($message->getContext(), $result, $message->getJobId());
         $scheduledChildCount += $this->processProductEvents($message->getContext(), $result, $message->getJobId());
         $scheduledChildCount += $this->processCategoryEvents($message->getContext(), $result, $message->getJobId());
         if ($this->configProvider->isEnabledMultiCurrency()) {
-            $scheduledChildCount += $this->processExchangeRateEvents($message->getContext(), $result, $message->getJobId());
+            $scheduledChildCount += $this->processExchangeRateEvents(
+                $message->getContext(),
+                $result,
+                $message->getJobId(),
+            );
         }
 
         $this->jobHelper->markChildGenerationState($message->getJobId(), $scheduledChildCount, true);
