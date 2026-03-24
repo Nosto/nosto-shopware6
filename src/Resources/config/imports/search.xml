@@ -29,34 +29,10 @@
         </service>
 
         <service
-            id="Shopware\Storefront\Page\Search\SearchPageLoader"
-            public="true"
-            autowire="true"
-        >
-            <argument
-                type="service"
-                key="$genericLoader"
-                id="Shopware\Storefront\Page\GenericPageLoader"
-                on-invalid="null"
-            />
-            <argument
-                type="service"
-                key="$productSearchRoute"
-                id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
-                on-invalid="null"
-            />
-            <argument
-                type="service"
-                key="$translator"
-                id="Shopware\Core\Framework\Adapter\Translation\Translator"
-            />
-        </service>
-
-        <service
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-on-invalid="ignore"
-            decoration-priority="-1000"
+            decoration-priority="-100000"
             autowire="true"
         >
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository" />

@@ -32,6 +32,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -69,6 +70,7 @@ class Builder
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $tagRepository,
         private readonly SalesChannelRepository $categoryRepository,
+        private readonly EntityRepository $productRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -683,47 +685,68 @@ class Builder
         SalesChannelProductEntity $product,
         SalesChannelContext $context,
     ): SkuCollection {
+        $children = $product->getChildren();
+        if (empty($children)) {
+            return new SkuCollection();
+        }
+
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
         $skuCollection = new SkuCollection();
 
-        if ($product->getChildren()->count()) {
-            $salesChannelId = $context->getSalesChannelId();
-            $languageId = $context->getLanguageId();
+        $salesChannelId = $context->getSalesChannelId();
+        $languageId = $context->getLanguageId();
 
-            $criteria = NostoCriteriaFactory::create('product_sync.builder.childrenSku');
-            $criteria->addAssociation('media');
-            $criteria->addAssociation('cover');
-            $criteria->addAssociation('options.group');
-            $criteria->addAssociation('properties.group');
-            $criteria->addAssociation('manufacturer');
-            $criteria->addAssociation('manufacturer.media');
-            $criteria->addAssociation('categoriesRo');
-            $criteria->addAssociation('visibilities');
-            $criteria->addFilter(new EqualsAnyFilter('id', $product->getChildren()->getIds()));
+        $criteria = NostoCriteriaFactory::create('product_sync.builder.childrenSku');
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('cover');
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('properties.group');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
+        $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
 
-            if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
-                $criteria->addFilter(new EqualsFilter('active', true));
+        if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
+        if (count($categoryBlocklist)) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        foreach (array_chunk($product->getChildren()->getElements() ?? [], 50) as $children) {
+            $children = is_array($children) ? new EntityCollection($children) : $children;
+
+            $shopwareProducts = $this->productHelper->getShopwareProducts(
+                $children->getIds(),
+                $context,
+                true,
+            );
+
+            // Fetch non-visible products separately
+            $missingChildrenIds = array_diff($children->getIds(), $shopwareProducts->getIds());
+            $missingChildren = null;
+            if (!empty($missingChildrenIds)) {
+                $criteria->setIds($missingChildrenIds);
+                $missingChildren = $this->productRepository->search($criteria, $context->getContext())->getEntities();
             }
 
-            $categoryBlocklist = $this->configProvider->getCategoryBlocklist($salesChannelId, $languageId);
-            if (count($categoryBlocklist)) {
-                $criteria->addFilter(
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('product.categoriesRo.id', $categoryBlocklist)],
-                    ),
+            foreach ($children as $variationProduct) {
+                $shopwareProduct = $shopwareProducts->get($variationProduct->getId()) ?? $missingChildren->get(
+                    $variationProduct->getId(),
                 );
-            }
-
-            $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
-
-            while (($children = $iterator->fetch()) !== null) {
-                $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
-                foreach ($children as $variationProduct) {
-                    $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
-                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
+                if (!$shopwareProduct) {
+                    continue;
                 }
+
+                $skuCollection->append($this->skuBuilder->build($shopwareProduct, $context));
             }
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
@@ -18,7 +19,6 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,7 +30,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     private const BATCH_SIZE = 150;
 
     public function __construct(
-        private readonly EntityRepository $productRepository,
+        private readonly Connection $connection,
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly ConfigProvider $configProvider,
@@ -46,16 +46,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     {
         $context = $message->getContext();
         $size = $this->configProvider->getBatchSize();
+        $size = ($size < 1) ? self::BATCH_SIZE : $size;
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
-        $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
-        $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
-        $productRepositoryIterator = new RepositoryIterator(
-            $this->productRepository,
-            $message->getContext(),
-            $criteriaProduct,
-        );
         $result->addMessage(new InfoMessage('Child job generation started.'));
 
         $productBatchCount = 0;
@@ -63,12 +57,12 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $productsStartedAt = $shouldLogExtra ? microtime(true) : null;
         $accounts = $this->accountProvider->all($context);
 
-        while (($products = $productRepositoryIterator->fetch()) !== null) {
+        foreach ($this->fetchParentProducts($size, $context) as $ids) {
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getProductIdsForMessage($products->getEntities());
             $batchSize = count($ids);
             $productCount += $batchSize;
+
             foreach ($accounts as $account) {
                 $this->jobScheduler->schedule(
                     new ProductSyncMessage(
@@ -103,6 +97,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
                 );
             }
         }
+
         if ($shouldLogExtra && $productsStartedAt !== null && $productBatchCount > 0) {
             $this->logDuration(
                 $context,
@@ -128,10 +123,10 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $categoryBatchCount = 0;
         $categoryCount = 0;
         $categoriesStartedAt = $shouldLogExtra ? microtime(true) : null;
-        while (($categories = $categoryRepositoryIterator->fetch()) !== null) {
+        while (($categoryIds = $categoryRepositoryIterator->fetchIds()) !== null) {
             ++$categoryBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getCategoryIdsForMessage($categories->getEntities());
+            $ids = array_combine($categoryIds, $categoryIds);
             $batchSize = count($ids);
             $categoryCount += $batchSize;
             $this->jobScheduler->schedule(
@@ -185,27 +180,43 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     }
 
     /**
-     * @return array<string, string>
+     * @return iterable<array<string, string>>
      */
-    private function getProductIdsForMessage(EntityCollection $products): array
+    protected function fetchParentProducts(int $batchSize, Context $context): iterable
     {
-        $data = [];
-        foreach ($products as $product) {
-            $data[$product->getId()] = $product->getProductNumber();
-        }
-        return $data;
-    }
+        $query = $this->connection->createQueryBuilder()
+            ->select(
+                'LOWER(HEX(p.id)) AS id',
+                'p.product_number AS productNumber',
+            )
+            ->from('product', 'p')
+            ->where('p.parent_id IS NULL')
+            ->andWhere('p.version_id = :version_id')
+            ->setParameter('version_id', Uuid::fromHexToBytes($context->getVersionId()))
+            ->setMaxResults($batchSize);
 
-    /**
-     * @return array<string, string>
-     */
-    private function getCategoryIdsForMessage(EntityCollection $categories): array
-    {
-        $data = [];
-        foreach ($categories as $category) {
-            $data[$category->getId()] = $category->getId();
-        }
-        return $data;
+        $offset = 0;
+        do {
+            $query->setFirstResult($offset);
+
+            $queryResult = $query->executeQuery();
+            $offset += $queryResult->rowCount();
+
+            $result = [];
+            foreach ($queryResult->fetchAllAssociative() as $row) {
+                $id = $row['id'] ?? null;
+                $productNumber = $row['productNumber'] ?? null;
+                if (!is_string($id) || !is_string($productNumber)) {
+                    continue;
+                }
+
+                $result[$id] = $productNumber;
+            }
+
+            if (!empty($result)) {
+                yield $result;
+            }
+        } while ($queryResult->rowCount() > 0);
     }
 
     private function shouldLogExtra(): bool

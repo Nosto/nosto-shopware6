@@ -84,9 +84,18 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
 
     public function onProductWritten(EntityWrittenEvent $event): void
     {
-        $orderNumberMapping = $this->productHelper->loadOrderNumberMapping($event->getIds(), $event->getContext());
+        $orderNumberMapping = $this->productHelper->loadOrderNumberMapping(
+            $event->getIds(),
+            $event->getContext(),
+            fetchParents: true,
+        );
 
-        $this->writeEvents($event->getIds(), $event->getEntityName(), $event->getContext(), $orderNumberMapping);
+        $this->writeEvents(
+            array_keys($orderNumberMapping),
+            $event->getEntityName(),
+            $event->getContext(),
+            $orderNumberMapping,
+        );
     }
 
     public function beforeDelete(EntityDeleteEvent $event): void

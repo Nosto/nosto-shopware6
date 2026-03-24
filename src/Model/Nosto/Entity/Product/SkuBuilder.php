@@ -142,7 +142,7 @@ class SkuBuilder
             $nostoSku->addCustomField('variant-listing-config', json_encode($product->getVariantListingConfig()));
         }
 
-        foreach ($product->getVisibilities() as $visibility) {
+        foreach ($product->getVisibilities() ?? [] as $visibility) {
             if ($channelId === $visibility->getSalesChannelId()) {
                 switch ($visibility->getVisibility()) {
                     case ProductVisibilityDefinition::VISIBILITY_ALL:
