@@ -8,6 +8,7 @@ use Composer\Autoload\ClassLoader;
 use Nosto\Scheduler\NostoScheduler;
 use ReflectionClass;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -31,12 +32,16 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->install($installContext);
         parent::install($installContext);
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
     }
 
     public function update(UpdateContext $updateContext): void
     {
         (new Utils\Lifecycle($this->container, true))->update($updateContext);
         parent::update($updateContext);
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
     }
 
     public function deactivate(DeactivateContext $deactivateContext): void
@@ -49,13 +54,39 @@ class NostoIntegration extends Plugin
     {
         (new Utils\Lifecycle($this->container, true))->activate($activateContext);
         parent::activate($activateContext);
+        $bundles = $this->getDependencyBundles();
+        $this->migrateDependencyBundles($bundles);
+        $this->copyDependencyBundleAssets($bundles);
+    }
+
+    /**
+     * @param Bundle[] $bundles
+     */
+    private function migrateDependencyBundles(array $bundles): void
+    {
+        $migrationHelper = $this->createMigrationHelper();
+
+        foreach ($bundles as $bundle) {
+            $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
+        }
+    }
+
+    protected function createMigrationHelper(): Utils\MigrationHelper
+    {
+        return new Utils\MigrationHelper(
+            $this->container->get(MigrationCollectionLoader::class),
+        );
+    }
+
+    /**
+     * @param Bundle[] $bundles
+     */
+    protected function copyDependencyBundleAssets(array $bundles): void
+    {
         /** @var AssetService $assetService */
         $assetService = $this->container->get('nosto.plugin.assetservice.public');
-        /** @var Utils\MigrationHelper $migrationHelper */
-        $migrationHelper = $this->container->get(Utils\MigrationHelper::class);
 
-        foreach ($this->getDependencyBundles() as $bundle) {
-            $migrationHelper->getMigrationCollection($bundle)->migrateInPlace();
+        foreach ($bundles as $bundle) {
             $assetService->copyAssetsFromBundle((new ReflectionClass($bundle))->getShortName());
         }
     }
@@ -65,6 +96,8 @@ class NostoIntegration extends Plugin
      */
     private function getDependencyBundles(): array
     {
+        self::classLoader();
+
         return [
             new NostoScheduler(),
         ];
@@ -104,8 +137,6 @@ class NostoIntegration extends Plugin
      */
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
-        self::classLoader();
-
         return $this->getDependencyBundles();
     }
 
