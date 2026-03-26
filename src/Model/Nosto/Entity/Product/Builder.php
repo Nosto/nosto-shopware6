@@ -392,14 +392,20 @@ class Builder
                 new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
                 $context->getItemRounding(),
             );
-            $unitPrice = $listPrice = 0;
+            if (!empty($price->getCalculatedTaxes()->getElements())) {
+                $unitPrice = 0;
 
-            foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
-                $unitPrice += ($tax->getTax() + $tax->getPrice());
+                foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                    $unitPrice += ($tax->getTax() + $tax->getPrice());
+                }
             }
 
-            foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
-                $listPrice += ($tax->getTax() + $tax->getPrice());
+            if (!empty($priceList->getCalculatedTaxes()->getElements())) {
+                $listPrice = 0;
+
+                foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
+                    $listPrice += ($tax->getTax() + $tax->getPrice());
+                }
             }
         }
 
