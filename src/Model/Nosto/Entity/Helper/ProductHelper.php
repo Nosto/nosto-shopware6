@@ -9,6 +9,9 @@ use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingParentCriteriaEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductReloadCriteriaEvent;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
@@ -24,7 +27,9 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -122,8 +127,14 @@ class ProductHelper
         return $filtersExtension;
     }
 
-    public function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
-    {
+    public function getReviewsCount(
+        SalesChannelProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): int {
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = PartialProductConverter::toPartialProduct($product);
+        }
+
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
@@ -139,6 +150,8 @@ class ProductHelper
 
     public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
     {
+        //todo ADS-5334: it should use getShopwareProductsPartial instead of getShopwareProducts
+        // https://nostosolutions.atlassian.net/browse/ADS-5334
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
@@ -162,12 +175,36 @@ class ProductHelper
         return $criteria;
     }
 
+    private function getSyncCriteria(?string $title, SalesChannelContext $context): Criteria
+    {
+        $criteria = NostoCriteriaFactory::create($title);
+        $criteria->addAssociation('cover');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
+        $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
+
+        if ($this->configProvider->isEnabledAlternateImages(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $criteria->addAssociation('media');
+        }
+
+        if ($this->configProvider->isEnabledProductProperties(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('properties.group');
+        }
+
+        return $criteria;
+    }
+
     private function getCommonCriteriaChildren($criteria): void
     {
-        $criteria->addAssociation('children.media');
-        $criteria->addAssociation('children.cover');
-        $criteria->addAssociation('children.options.group');
-        $criteria->addAssociation('children.properties.group');
+        $criteria->addFields(ProductFieldSets::COMMON_CHILDREN_FIELDS);
     }
 
     public function loadExistingParentProducts(
@@ -180,7 +217,8 @@ class ProductHelper
         $languageId = $context->getLanguageId();
 
         $criteria = $this->getCommonCriteria('product_sync.productHelper.loadExistingParentProducts');
-        $criteria->addAssociation('children');
+        // Here we are loading only parents, children will be added in next steps
+        $criteria->addFields(ProductFieldSets::PARENT_SYNC_FIELDS);
         $criteria->setLimit(100);
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts($salesChannelId, $languageId)) {
@@ -263,8 +301,14 @@ class ProductHelper
         return $orderNumberMapping;
     }
 
-    public function getProductUrl(ProductEntity $product, SalesChannelContext $context): ?string
-    {
+    public function getProductUrl(
+        ProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): ?string {
+        if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+            $product = PartialProductConverter::toPartialProduct($product);
+        }
+
         if ($domains = $context->getSalesChannel()->getDomains()) {
             $domainId = (string) $this->configProvider->getDomainId(
                 $context->getSalesChannelId(),
@@ -322,7 +366,7 @@ class ProductHelper
     ): SalesChannelProductCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
-        $criteria = $this->getCommonCriteria('product_sync.productHelper.getShopwareProducts');
+        $criteria = $this->getSyncPartialCriteria('product_sync.productHelper.getShopwareProducts', $context);
         if (!$isProductTagging) {
             $this->getCommonCriteriaChildren($criteria);
         }
@@ -345,6 +389,74 @@ class ProductHelper
         }
 
         return $result;
+    }
+
+    public function getShopwareProductsPartial(
+        array $productIds,
+        SalesChannelContext $context,
+        bool $includeChildren = true,
+    ): EntityCollection {
+        $shouldLog = $this->shouldLogExtra($context);
+        $startedAt = $shouldLog ? microtime(true) : null;
+        $criteria = $this->getSyncPartialCriteria('product_sync.productHelper.getShopwareProducts.partial', $context);
+        if ($includeChildren) {
+            $this->addSyncPartialChildren($criteria, $context);
+        }
+        $criteria->setIds($productIds);
+
+        $result = $this->salesChannelProductRepository->search(
+            $criteria,
+            $context,
+        )->getEntities();
+
+        if ($shouldLog && $startedAt !== null) {
+            $this->logDuration(
+                $context,
+                'product_sync.productHelper.getShopwareProducts.partial',
+                $startedAt,
+                [
+                    'product_count' => count($productIds),
+                ],
+            );
+        }
+
+        return $result;
+    }
+
+    private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
+    {
+        $criteria = NostoCriteriaFactory::create($title);
+
+        $criteria->addFields(ProductFieldSets::productFields());
+
+        return $criteria;
+    }
+
+    private function addSyncPartialChildren(Criteria $criteria, SalesChannelContext $context): void
+    {
+        $childrenCriteria = $criteria->getAssociation('children');
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $childrenCriteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if (count($categoryBlocklist)) {
+            $childrenCriteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        $criteria->addFields(ProductFieldSets::CHILDREN_FIELDS);
     }
 
     protected function buildFallbackImage(SalesChannelContext $context, RequestContext $requestContext): string
@@ -394,7 +506,7 @@ class ProductHelper
     }
 
     public function getProductStock(
-        ProductEntity|SalesChannelProductEntity $product,
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
         SalesChannelContext $context,
     ): int {
         return $this->configProvider->getStockField(
@@ -418,8 +530,11 @@ class ProductHelper
                 continue;
             }
 
-            $groupName = $group->getTranslation('name');
-            $propertyName = $property->getTranslation('name');
+            $groupName = $this->getEntityName($group);
+            $propertyName = $this->getEntityName($property);
+            if (!$groupName || !$propertyName) {
+                continue;
+            }
 
             $properties[$groupName] = isset($properties[$groupName])
                 ? $properties[$groupName] . ', ' . $propertyName
@@ -427,5 +542,74 @@ class ProductHelper
         }
 
         return $properties;
+    }
+
+    /**
+     * @param iterable<object|array> $items
+     * @return array<string, mixed>
+     */
+    public function preparePropertiesOrOptionsGeneric(iterable $items): array
+    {
+        $properties = [];
+
+        foreach ($items as $property) {
+            $group = null;
+            if (is_object($property) && method_exists($property, 'getGroup')) {
+                $group = $property->getGroup();
+            } elseif (is_object($property) && method_exists($property, 'get')) {
+                $group = $property->get('group');
+            } elseif (is_array($property)) {
+                $group = $property['group'] ?? null;
+            }
+
+            if (!$group) {
+                continue;
+            }
+
+            $groupName = $this->getEntityName($group);
+            $propertyName = $this->getEntityName($property);
+            if (!$groupName || !$propertyName) {
+                continue;
+            }
+
+            $properties[$groupName] = isset($properties[$groupName])
+                ? $properties[$groupName] . ', ' . $propertyName
+                : $propertyName;
+        }
+
+        return $properties;
+    }
+
+    private function getEntityName(object|array $entity): ?string
+    {
+        if (method_exists($entity, 'getTranslation')) {
+            $translated = $entity->getTranslation('name');
+            if (!empty($translated)) {
+                return $translated;
+            }
+        }
+        if (method_exists($entity, 'getName')) {
+            $name = $entity->getName();
+            if (!empty($name)) {
+                return $name;
+            }
+        }
+        if (method_exists($entity, 'get')) {
+            $name = $entity->get('name');
+            if (!empty($name)) {
+                return $name;
+            }
+        }
+        if (is_array($entity)) {
+            $translated = $entity['translated']['name'] ?? null;
+            if (!empty($translated)) {
+                return $translated;
+            }
+            $name = $entity['name'] ?? null;
+            if (!empty($name)) {
+                return $name;
+            }
+        }
+        return null;
     }
 }

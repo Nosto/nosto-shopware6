@@ -36,6 +36,8 @@
                 "appTokenHelpText": "A token for accessing the new GraphQL APIs. You can request an API token (API_APPS) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "searchTokenTitle": "Search Token (API_SEARCH)",
                 "searchTokenHelpText": "A token for accessing the GraphQL search API. You can request an API token (API_SEARCH) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
+                "ratesTokenTitle": "Rates-Token (API_RATES)",
+                "ratesTokenHelpText": "A token for accessing the Rates API. You can request an API token (API_RATES) by getting in touch with Nosto support personnel. Once the token has been granted, you will be able to find it listed in the authentication tokens section in the admin.",
                 "apiValidation": {
                     "buttonLabel": "API-key Test",
                     "emptyErrorMessage": "\"{entityName}\" should not be blank!",
@@ -142,6 +144,10 @@
                 "enableFallbackMechanism": {
                   "label": "Enable fallback mechanism",
                   "helpText": "If this checkbox is selected, the system will use the default Shopware search or category when Nosto returns no results."
+                },
+                "enableMultiCurrency": {
+                    "label": "Enable multi currency",
+                    "helpText": "Before enabling this feature, set Rates-Token (API_RATES). When enabled, exchange-rate sync and currency-specific search requests are processed. Make sure you have exchange rates enabled on Nosto, and exchange rates have been synced at least once to Nosto."
                 },
                 "productSyncExtraLogging": {
                   "label": "Product sync extra logging",

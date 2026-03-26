@@ -731,6 +731,29 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_feature_multi_currency %}
+            <sw-inherit-wrapper
+                :value="currentConfig['enableMultiCurrency']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableMultiCurrency']"
+                @update:value="onUpdateValue('enableMultiCurrency', $event)"
+            >
+                <template #content="props">
+                    <mt-switch
+                        name="enableMultiCurrency"
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
+                        :label="$tc('nosto.configuration.featuresFlags.enableMultiCurrency.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.enableMultiCurrency.helpText')"
+                        :disabled="props.isInherited"
+                        :modelValue="props.currentValue"
+                        @update:modelValue="onUpdateValue('enableMultiCurrency', $event)"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_feature_product_sync_extra_logging %}
             <sw-inherit-wrapper
                     :value="currentConfig['productSyncExtraLogging']"
@@ -738,14 +761,17 @@
                     @update:value="onUpdateValue('productSyncExtraLogging', $event)"
             >
                 <template #content="props">
-                    <sw-switch-field
+                    <mt-switch
                             name="productSyncExtraLogging"
-                            :map-inheritance="props"
+                            :is-inheritance-field="props.isInheritField"
+                            :is-inherited="props.isInherited"
                             :label="$tc('nosto.configuration.featuresFlags.productSyncExtraLogging.label')"
                             :help-text="$tc('nosto.configuration.featuresFlags.productSyncExtraLogging.helpText')"
                             :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            @update:value="onUpdateValue('productSyncExtraLogging', $event)"
+                            :modelValue="props.currentValue"
+                            @update:modelValue="onUpdateValue('productSyncExtraLogging', $event)"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
                     />
                 </template>
             </sw-inherit-wrapper>

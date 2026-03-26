@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,13 +16,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class NostoProductBuiltEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(
-        private readonly ProductEntity $product,
+        private readonly ProductEntity|PartialEntity|PartialProduct $product,
         private readonly NostoProduct $nostoProduct,
         private readonly SalesChannelContext $salesChannelContext,
     ) {
     }
 
-    public function getProduct(): ProductEntity
+    public function getProduct(): ProductEntity|PartialProduct
     {
         return $this->product;
     }

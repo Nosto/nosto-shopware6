@@ -10,16 +10,22 @@ use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -31,6 +37,7 @@ class NostoExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
         private readonly LoggerInterface $logger,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -58,10 +65,35 @@ class NostoExtension extends AbstractExtension
         ];
     }
 
-    public function getNostoProduct(?SalesChannelProductEntity $product, SalesChannelContext $context): ?NostoProduct
-    {
+    public function getNostoProduct(
+        SalesChannelProductEntity|PartialProduct|PartialEntity|null $product,
+        SalesChannelContext $context,
+    ): ?NostoProduct {
         try {
-            $result = $product === null ? null : $this->productProvider->get($product, $context);
+            if ($product === null) {
+                return null;
+            }
+
+            if ($product instanceof SalesChannelProductEntity) {
+                $partialProduct = $this->productHelper
+                    ->getShopwareProductsPartial([$product->getId()], $context, false)
+                    ->get($product->getId());
+
+                if ($partialProduct instanceof PartialEntity && !$partialProduct instanceof PartialProduct) {
+                    $partialProduct = PartialProductConverter::toPartialProduct($partialProduct);
+                }
+
+                if ($partialProduct instanceof PartialProduct) {
+                    $result = $this->partialProductProvider->get($partialProduct, $context);
+                } else {
+                    $result = $this->productProvider->get($product, $context);
+                }
+            } else {
+                if ($product instanceof PartialEntity && !$product instanceof PartialProduct) {
+                    $product = PartialProductConverter::toPartialProduct($product);
+                }
+                $result = $this->partialProductProvider->get($product, $context);
+            }
 
             if ($product) {
                 $variationStatus = $this->resolveVariations($product);
@@ -112,19 +144,53 @@ class NostoExtension extends AbstractExtension
     ): string|NostoProduct {
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
-        $criteria->addAssociation('children');
-        /** @var ProductEntity $mainProduct */
+        $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
+
+        $childrenCriteria = $criteria->getAssociation('children');
+
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $childrenCriteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if (count($categoryBlocklist)) {
+            $childrenCriteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        /** @var PartialProduct $mainProduct */
         $mainProduct = $this->productRepository
             ->search($criteria, $context->getContext())
             ->first();
-        /** @var ProductEntity $mainProduct */
+        if ($mainProduct instanceof PartialEntity && !$mainProduct instanceof PartialProduct) {
+            $mainProduct = PartialProductConverter::toPartialProduct($mainProduct);
+        }
+
+        /** @var PartialProduct $variantFromDb */
+        $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
+        $criteria->addFields(ProductFieldSets::productFields());
+
         $variantFromDb = $this->productRepository
-            ->search(NostoCriteriaFactory::createWithIds([$variantId]), $context->getContext())
+            ->search($criteria, $context->getContext())
             ->first();
+        if ($variantFromDb instanceof PartialEntity && !$variantFromDb instanceof PartialProduct) {
+            $variantFromDb = PartialProductConverter::toPartialProduct($variantFromDb);
+        }
+
         $productTaggingHelper = new ProductTaggingHelper(
             $this->systemConfigService,
             $this->configProvider,
-            $this->productProvider,
+            $this->partialProductProvider,
             $this->productHelper,
         );
 

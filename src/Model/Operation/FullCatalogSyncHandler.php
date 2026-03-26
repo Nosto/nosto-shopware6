@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
+use Nosto\NostoIntegration\Async\ExchangeRateSyncMessage;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
+use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\Job\Message\InfoMessage;
 use Nosto\Scheduler\Model\JobScheduler;
@@ -33,6 +37,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly EntityRepository $productRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly JobScheduler $jobScheduler,
+        private readonly JobHelper $jobHelper,
         private readonly ConfigProvider $configProvider,
         private readonly AccountProvider $accountProvider,
         private readonly LoggerInterface $logger,
@@ -49,8 +54,13 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
+        $scheduledChildCount = 0;
+
+        $this->jobHelper->markChildGenerationState($message->getJobId(), 0, false);
+
         $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
         $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
+        $criteriaProduct->addFields(['id', 'productNumber']);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
             $message->getContext(),
@@ -66,7 +76,8 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         while (($products = $productRepositoryIterator->fetch()) !== null) {
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getProductIdsForMessage($products->getEntities());
+            $partialProducts = PartialProductConverter::toPartialProductCollection($products->getEntities());
+            $ids = $this->getProductIdsForMessage($partialProducts);
             $batchSize = count($ids);
             $productCount += $batchSize;
             foreach ($accounts as $account) {
@@ -81,6 +92,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
                         $account->getLanguageId(),
                     ),
                 );
+                ++$scheduledChildCount;
             }
             $result->addMessage(
                 new InfoMessage(
@@ -142,6 +154,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
                     $message->getContext(),
                 ),
             );
+            ++$scheduledChildCount;
             $result->addMessage(
                 new InfoMessage('Job with payload of: ' . count($ids) . ' categories has been scheduled.'),
             );
@@ -169,6 +182,13 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
             );
         }
 
+        if ($this->configProvider->isEnabledMultiCurrency()) {
+            $this->scheduleExchangeRateSync($message, $result);
+            ++$scheduledChildCount;
+        }
+
+        $this->jobHelper->markChildGenerationState($message->getJobId(), $scheduledChildCount, true);
+
         if ($shouldLogExtra && $syncStartedAt !== null) {
             $this->logDuration(
                 $context,
@@ -184,10 +204,23 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         return $result;
     }
 
+    private function scheduleExchangeRateSync(FullCatalogSyncMessage $message, JobResult $result): void
+    {
+        $this->jobScheduler->schedule(
+            new ExchangeRateSyncMessage(
+                Uuid::randomHex(),
+                $message->getJobId(),
+                $message->getContext(),
+            ),
+        );
+
+        $result->addMessage(new InfoMessage('Exchange rate sync job has been scheduled.'));
+    }
+
     /**
      * @return array<string, string>
      */
-    private function getProductIdsForMessage(EntityCollection $products): array
+    private function getProductIdsForMessage(PartialProductCollection $products): array
     {
         $data = [];
         foreach ($products as $product) {
