@@ -1,3 +1,6 @@
+# 5.2.13
+* Fix: Preisberechnungen, wenn keine Steuern vorhanden sind
+
 # 5.2.12
 * Fix: Changelog-Synchronisierungsjobs werden nach der Erstellung von Unterjobs korrekt abgeschlossen
 

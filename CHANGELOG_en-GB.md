@@ -1,3 +1,6 @@
+# 5.2.13
+* Fix: Price calculations when taxes are not present
+
 # 5.2.12
 * Fix: Finalize changelog sync jobs correctly after child job generation
 
