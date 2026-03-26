@@ -1,3 +1,9 @@
+# 6.1.7
+* Fix: Produktsynchronisierungsleistung
+* New: Unterstützung für mehrere Währungen hinzugefügt
+* Fix: Positionierung der Paginierung bei Produktlisten
+* Fix: Preisberechnungen, wenn keine Steuern vorhanden sind
+
 # 6.1.6
 * Fix: Optimierung der Stellenanzeigenseite
 * Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen
