@@ -1,3 +1,7 @@
+# 6.1.6
+* Fix: Optimize job listing page
+* Fix: Run dependency migrations on plugin install/update
+
 # 6.1.5
 * Fix: Preserve post filters
 
