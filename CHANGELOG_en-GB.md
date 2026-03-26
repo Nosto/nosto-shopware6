@@ -1,3 +1,10 @@
+# 3.6.8
+* Fix: Improve product sync performance
+* New: Add multi-currency support
+* Fix: Product listing pagination placement
+* Fix: Run dependency migrations on plugin install/update
+* Fix: Price calculations when taxes are not present
+
 # 3.6.7
 * Fix: Optimize job listing page
 

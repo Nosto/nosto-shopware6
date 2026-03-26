@@ -1,3 +1,10 @@
+# 3.6.8
+* Fix: Produktsynchronisierungsleistung
+* New: Unterstützung für mehrere Währungen hinzugefügt
+* Fix: Positionierung der Paginierung bei Produktlisten
+* Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen
+* Fix: Preisberechnungen, wenn keine Steuern vorhanden sind
+
 # 3.6.7
 * Fix: Optimierung der Stellenanzeigenseite
 
