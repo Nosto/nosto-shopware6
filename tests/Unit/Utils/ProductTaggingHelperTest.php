@@ -242,8 +242,12 @@ final class ProductTaggingHelperTest extends TestCase
                 false,
                 null,
                 [
-                    ['expressionForListings' => true],
-                    ['expressionForListings' => true],
+                    [
+                        'expressionForListings' => true,
+                    ],
+                    [
+                        'expressionForListings' => true,
+                    ],
                 ],
                 false,
                 false,
@@ -296,7 +300,9 @@ final class ProductTaggingHelperTest extends TestCase
                 false,
                 null,
                 [
-                    ['expressionForListings' => true],
+                    [
+                        'expressionForListings' => true,
+                    ],
                 ],
                 false,
                 false,

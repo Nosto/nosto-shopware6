@@ -88,7 +88,9 @@ final class SkuBuilderTest extends TestCase
             manufacturerUrl: 'https://media.example.test/brand.jpg',
             customFields: [
                 'foo' => 'bar',
-                'meta' => ['nested' => 'value'],
+                'meta' => [
+                    'nested' => 'value',
+                ],
                 'ignored' => 'nope',
             ],
         );
@@ -177,7 +179,9 @@ final class SkuBuilderTest extends TestCase
         return PartialProductConverter::toPartialProduct(new PartialEntity([
             'id' => $id,
             'productNumber' => $productNumber,
-            'translated' => ['name' => $name],
+            'translated' => [
+                'name' => $name,
+            ],
             'stock' => $stock,
             'availableStock' => $availableStock,
             'price' => $priceCollection,

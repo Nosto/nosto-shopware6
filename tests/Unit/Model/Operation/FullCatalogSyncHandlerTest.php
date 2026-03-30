@@ -12,6 +12,7 @@ use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler;
 use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
+use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -19,14 +20,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Nosto\Scheduler\Model\JobScheduler;
 
 final class FullCatalogSyncHandlerTest extends TestCase
 {
@@ -129,7 +129,7 @@ final class FullCatalogSyncHandlerTest extends TestCase
 
     private function createDefinition(string $entityName): EntityDefinition
     {
-        $definition = new class ($entityName) extends EntityDefinition {
+        $definition = new class($entityName) extends EntityDefinition {
             public function __construct(
                 private readonly string $entityName,
             ) {
@@ -162,8 +162,9 @@ final class FullCatalogJobHelperRecorder
 
 readonly class FullCatalogRecordingJobHelper extends JobHelper
 {
-    public function __construct(private FullCatalogJobHelperRecorder $recorder)
-    {
+    public function __construct(
+        private FullCatalogJobHelperRecorder $recorder,
+    ) {
     }
 
     public function markChildGenerationState(string $jobId, int $count, bool $done): void

@@ -21,12 +21,12 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 final class EntityChangelogSyncHandlerTest extends TestCase
@@ -42,7 +42,10 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         $productCalls = 0;
         $categoryCalls = 0;
         $repository->method('search')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$productCalls, &$categoryCalls): EntitySearchResult {
+            static function (Criteria $criteria, Context $context) use (
+                &$productCalls,
+                &$categoryCalls
+            ): EntitySearchResult {
                 $entityType = self::extractEntityType($criteria);
 
                 if ($entityType === 'product') {
@@ -114,9 +117,15 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         self::assertCount(2, $scheduledMessages);
         self::assertInstanceOf(ProductSyncMessage::class, $scheduledMessages[0]);
         self::assertInstanceOf(CategorySyncMessage::class, $scheduledMessages[1]);
-        self::assertSame(['product-id-1' => 'SW-DEMO-1'], $scheduledMessages[0]->getProductIds());
-        self::assertSame([['id' => 'product-change-1']], $deletedRows[0]);
-        self::assertSame([['id' => 'category-change-1']], $deletedRows[1]);
+        self::assertSame([
+            'product-id-1' => 'SW-DEMO-1',
+        ], $scheduledMessages[0]->getProductIds());
+        self::assertSame([[
+            'id' => 'product-change-1',
+        ]], $deletedRows[0]);
+        self::assertSame([[
+            'id' => 'category-change-1',
+        ]], $deletedRows[1]);
         self::assertSame(2, $jobHelperRecorder->marks[1][1]);
         self::assertTrue($jobHelperRecorder->marks[1][2]);
     }
@@ -132,8 +141,12 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         return null;
     }
 
-    private static function productResult(Criteria $criteria, Context $context, string $id, string $productNumber): EntitySearchResult
-    {
+    private static function productResult(
+        Criteria $criteria,
+        Context $context,
+        string $id,
+        string $productNumber,
+    ): EntitySearchResult {
         $entity = new ChangelogEntity();
         $entity->setId($id);
         $entity->setEntityType(ProductDefinition::ENTITY_NAME);
@@ -182,7 +195,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
 
     private function createDefinition(string $entityName): EntityDefinition
     {
-        $definition = new class ($entityName) extends EntityDefinition {
+        $definition = new class($entityName) extends EntityDefinition {
             public function __construct(
                 private readonly string $entityName,
             ) {
@@ -215,8 +228,9 @@ final class EntityChangelogJobHelperRecorder
 
 readonly class EntityChangelogRecordingJobHelper extends JobHelper
 {
-    public function __construct(private EntityChangelogJobHelperRecorder $recorder)
-    {
+    public function __construct(
+        private EntityChangelogJobHelperRecorder $recorder,
+    ) {
     }
 
     public function markChildGenerationState(string $jobId, int $count, bool $done): void
