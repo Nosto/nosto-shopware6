@@ -170,7 +170,7 @@ class NostoConfigService
     /**
      * @return array<string, mixed>
      */
-    public function getConfigWithInheritance(string $salesChannelId = null, string $languageId = null): array
+    public function getConfigWithInheritance(?string $salesChannelId = null, ?string $languageId = null): array
     {
         $key = $this->buildConfigKey($salesChannelId, $languageId);
         $this->load($salesChannelId, $languageId);
