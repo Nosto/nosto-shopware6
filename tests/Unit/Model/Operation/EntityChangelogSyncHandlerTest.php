@@ -195,7 +195,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
 
     private function createDefinition(string $entityName): EntityDefinition
     {
-        $definition = new class extends EntityDefinition {
+        $definition = new class() extends EntityDefinition {
             public string $entityName;
 
             public function getEntityName(): string

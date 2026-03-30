@@ -16,7 +16,8 @@ final class EventsWriterTest extends TestCase
     public function testWriteEventCreatesChangelogEntryWhenItDoesNotExistYet(): void
     {
         $repository = $this->createMock(EntityRepository::class);
-        $searchResult = IdSearchResult::fromIds(
+        $searchResult = new IdSearchResult(
+            0,
             [],
             new Criteria(),
             Context::createDefaultContext(),
@@ -47,8 +48,14 @@ final class EventsWriterTest extends TestCase
     public function testWriteEventSkipsDuplicateChangelogEntries(): void
     {
         $repository = $this->createMock(EntityRepository::class);
-        $searchResult = IdSearchResult::fromIds(
-            ['existing-id'],
+        $searchResult = new IdSearchResult(
+            1,
+            [
+                [
+                    'primaryKey' => 'existing-id',
+                    'data' => [],
+                ],
+            ],
             new Criteria(),
             Context::createDefaultContext(),
         );
