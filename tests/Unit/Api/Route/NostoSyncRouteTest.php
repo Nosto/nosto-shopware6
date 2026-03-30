@@ -11,6 +11,7 @@ use Nosto\NostoIntegration\Service\NostoJobSyncService;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
-use Psr\Log\LoggerInterface;
 
 final class NostoSyncRouteTest extends TestCase
 {

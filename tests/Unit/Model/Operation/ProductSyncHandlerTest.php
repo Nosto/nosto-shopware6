@@ -60,6 +60,9 @@ final class ProductSyncHandlerTest extends TestCase
         self::assertNull($handler->validateProductPublic('SWDEMO10002', $product));
     }
 
+    /**
+     * @return iterable<string, array{0: string|null, 1: string|null, 2: string|null, 3: string}>
+     */
     public static function provideValidateProductWarnings(): iterable
     {
         yield 'missing image url' => [

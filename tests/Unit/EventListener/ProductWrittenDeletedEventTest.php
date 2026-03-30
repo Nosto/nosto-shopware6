@@ -79,7 +79,9 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $productHelper->expects($this->once())
             ->method('loadOrderNumberMapping')
             ->with(['product-id-1'], $context)
-            ->willReturn(['product-id-1' => 'SWDEMO10001']);
+            ->willReturn([
+                'product-id-1' => 'SWDEMO10001',
+            ]);
 
         $eventsWriter = $this->createMock(EventsWriter::class);
         $eventsWriter->expects($this->once())
