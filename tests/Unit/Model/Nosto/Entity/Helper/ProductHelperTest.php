@@ -163,11 +163,8 @@ final class ProductHelperTest extends TestCase
 
     private function createDefinition(string $entityName): EntityDefinition
     {
-        $definition = new class($entityName) extends EntityDefinition {
-            public function __construct(
-                private readonly string $entityName,
-            ) {
-            }
+        $definition = new class extends EntityDefinition {
+            public string $entityName;
 
             public function getEntityName(): string
             {
@@ -179,6 +176,7 @@ final class ProductHelperTest extends TestCase
                 return new FieldCollection();
             }
         };
+        $definition->entityName = $entityName;
 
         $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
 
