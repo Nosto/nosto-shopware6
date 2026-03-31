@@ -12,7 +12,6 @@ use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler;
-use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;

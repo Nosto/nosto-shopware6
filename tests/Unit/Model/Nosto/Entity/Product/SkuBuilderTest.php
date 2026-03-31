@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityC
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 final class SkuBuilderTest extends TestCase
