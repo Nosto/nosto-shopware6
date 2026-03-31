@@ -18,3 +18,12 @@ else
 fi
 
 "$phpunit_bin" --configuration="$dir/phpunit.xml.dist" --colors=always "$@"
+exit_code=$?
+
+if [ $exit_code -eq 0 ]; then
+    printf '\033[32m%s\033[0m\n' 'PHPUnit completed successfully'
+else
+    printf '\033[31m%s\033[0m\n' 'PHPUnit failed'
+fi
+
+exit $exit_code
