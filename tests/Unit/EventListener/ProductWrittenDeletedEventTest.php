@@ -12,7 +12,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 
 final class ProductWrittenDeletedEventTest extends TestCase
@@ -64,7 +64,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
     public function testBeforeDeleteWritesChangelogEntriesAfterSuccessfulDelete(): void
     {
         $context = Context::createDefaultContext();
-        $event = $this->createMock(EntityDeleteEvent::class);
+        $event = $this->createMock(BeforeDeleteEvent::class);
         $event->method('getIds')->with(ProductDefinition::ENTITY_NAME)->willReturn(['product-id-1']);
         $event->method('getContext')->willReturn($context);
 
@@ -101,7 +101,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
 
     public function testBeforeDeleteSkipsChangelogLookupWhenNoProductsAreDeleted(): void
     {
-        $event = $this->createMock(EntityDeleteEvent::class);
+        $event = $this->createMock(BeforeDeleteEvent::class);
         $event->method('getIds')->with(ProductDefinition::ENTITY_NAME)->willReturn([]);
 
         $productHelper = $this->createMock(ProductHelper::class);
