@@ -49,4 +49,4 @@ jobs:
       - name: Run PHPUnit test suite
         run: |
           cd shopware/custom/plugins/nosto-shopware6
-          SYMFONY_DEPRECATIONS_HELPER=disabled composer test -- --no-output
+          SYMFONY_DEPRECATIONS_HELPER=disabled composer test
