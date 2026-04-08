@@ -4,6 +4,9 @@
     <div class="nosto_result_id" style="display:none">
         {{ page.listing.extensions["nosto_result_id"] }}
     </div>
+    <div class="nosto_search_type" style="display:none">
+        {{ page.listing.extensions["nosto_search_type"] }}
+    </div>
     {% if not context.context.extensions.nostoService.enabled %}
         {{ parent() }}
     {% else %}
