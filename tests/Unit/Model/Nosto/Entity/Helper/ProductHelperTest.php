@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -123,6 +124,51 @@ final class ProductHelperTest extends TestCase
         self::assertNotEmpty(array_filter(
             $capturedCriteria->getFilters(),
             static fn ($filter): bool => $filter instanceof NotFilter,
+        ));
+    }
+
+    public function testGetProductsIteratorDoesNotFilterInactiveProductsWhenInactiveSyncIsEnabled(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledSyncInactiveProducts')->willReturn(true);
+        $configProvider->method('getCategoryBlocklist')->willReturn([]);
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+
+        $capturedCriteria = null;
+        $productRepository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): EntitySearchResult {
+                $capturedCriteria = $criteria;
+                $product = new ProductEntity();
+                $product->setId(Uuid::randomHex());
+                $product->setProductNumber('SWDEMO10002');
+
+                return new EntitySearchResult(
+                    ProductEntity::class,
+                    1,
+                    new EntityCollection([$product]),
+                    new AggregationResultCollection(),
+                    $criteria,
+                    $context,
+                );
+            },
+        );
+
+        $helper = $this->createHelper(
+            productRepository: $productRepository,
+            configProvider: $configProvider,
+        );
+
+        $context = $this->createContext();
+        $iterator = $helper->getProductsIterator(['product-id-1'], $context);
+        $iterator->fetch();
+
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        self::assertFalse($capturedCriteria->hasEqualsFilter('active'));
+        self::assertEmpty(array_filter(
+            $capturedCriteria->getFilters(),
+            static fn ($filter): bool => $filter instanceof EqualsFilter && $filter->getField() === 'active',
         ));
     }
 
