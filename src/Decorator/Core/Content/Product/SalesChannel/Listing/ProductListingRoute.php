@@ -10,12 +10,14 @@ use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Nosto\Operation\Category\AnalyticsCategoryTrackingGraphql;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
@@ -32,6 +34,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingRoute extends AbstractProductListingRoute
 {
@@ -46,6 +49,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ConfigProvider $configProvider,
         private readonly LoggerInterface $logger,
         private readonly Account\Provider $accountProvider,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -88,13 +92,13 @@ class ProductListingRoute extends AbstractProductListingRoute
                 ),
             );
             /** @var CategoryEntity $category */
-            $criteria = new Criteria([$categoryId]);
-            $criteria->addAssociation('seoUrls');
+            $categoryCriteria = NostoCriteriaFactory::createWithIds([$categoryId]);
+            $categoryCriteria->addAssociation('seoUrls');
             $criteria->addAssociation('options.group');
 
             /** @var CategoryEntity $category */
             $category = $this->categoryRepository->search(
-                $criteria,
+                $categoryCriteria,
                 $context->getContext(),
             )->first();
 
@@ -122,6 +126,10 @@ class ProductListingRoute extends AbstractProductListingRoute
 
             $productListing->getAvailableSortings()->removeByKey(
                 ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT,
+            );
+
+            $this->eventDispatcher->dispatch(
+                new ProductListingResultEvent($request, $productListing, $context),
             );
 
             $this->sendImpressionAnalytics($context, $productListing, $category, $request);

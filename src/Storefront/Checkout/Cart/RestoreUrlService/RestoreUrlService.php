@@ -7,9 +7,9 @@ namespace Nosto\NostoIntegration\Storefront\Checkout\Cart\RestoreUrlService;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingDefinition;
 use Nosto\NostoIntegration\Entity\CheckoutMapping\CheckoutMappingEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,7 +42,7 @@ class RestoreUrlService
 
     protected function fetchFromDb(string $token, Context $context): ?CheckoutMappingEntity
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(
             new EqualsFilter('reference', $token),
             new EqualsFilter('mappingTable', CheckoutMappingDefinition::CART_TABLE),

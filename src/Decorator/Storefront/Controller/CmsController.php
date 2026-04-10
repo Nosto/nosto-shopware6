@@ -7,8 +7,8 @@ namespace Nosto\NostoIntegration\Decorator\Storefront\Controller;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Api\SearchService;
 use Nosto\NostoIntegration\Search\Request\Handler\FilterHandler;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\NostoIntegration\Utils\SearchHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CmsController as ShopwareCmsController;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -94,7 +94,7 @@ class CmsController extends StorefrontController
             return $this->decorated->filter($navigationId, $request, $salesChannelContext);
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $this->searchService->doFilter($request, $criteria, $salesChannelContext);
 
         if (!$criteria->hasExtension('nostoAvailableFilters')) {

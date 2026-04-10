@@ -1,3 +1,41 @@
+# 6.1.7
+* Fix: Produktsynchronisierungsleistung
+* New: Unterstützung für mehrere Währungen hinzugefügt
+* Fix: Positionierung der Paginierung bei Produktlisten
+* Fix: Preisberechnungen, wenn keine Steuern vorhanden sind
+
+# 6.1.6
+* Fix: Optimierung der Stellenanzeigenseite
+* Fix: Abhängigkeitsmigrationen bei der Installation/Aktualisierung von Plugins ausführen
+
+# 6.1.5
+* Fix: Post-Filter beibehalten
+
+# 6.1.4
+* Fix: Zurücksetzten der Verarbeitung von externen Filter in Produktlisten und Suchrouten
+
+# 6.1.3
+* Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
+
+# 6.1.2
+* Fix: Fallback auf erste verfügbare Variante, wenn Hauptprodukt nicht festgelegt ist
+* Fix: Externe Filter in Produktlisten und Suchrouten verarbeiten
+* Fix: Produktsynchronisierungsleistung und Fehlerbehandlung verbessern
+* Fix: Kompilierte Assets aktualisieren
+
+# 6.1.1
+* Fix: Duplikatsprüfung vor dem Einfügen von Produkten in das Änderungsprotokoll hinzufügen
+* Fix: Fehlendes ProductListingResultEvent in ProductSearchRoute senden
+* Fix: Zusätzliche Logging für die Produktsynchronisierung
+
+# 6.1.0
+* Fix: Filter-Cookies klein halten, indem ihre Daten im Cache gespeichert werden
+* New: Produktsynchronisierung pro Verkaufskanal aufteilen, damit mehrere Consumer parallel schneller laufen, mit zusätzlichem Caching für wiederverwendete Daten
+* New: Nosto-Kriterien-Titel für Produktsynchronisierungsabfragen hinzufügen, um das Debugging zu verbessern
+* Fix: Doppelte Laden der Kindproduktdaten während der Produktsynchronisierung verhindern
+* Fix: Zusätzliches Logging für den Produktsynchronisierungsablauf unter dem Feature-Flag hinzugefügt
+* Fix: Job Scheduler Update - Verbesserte Fehlerbehandlung im JobExecutionHandler und Einführung von Prüfungen auf das Vorhandensein von Jobs
+
 # 6.0.15
 * Fix: Unterstützung für SearchPageLoader-Injektion in Shopware version 6.7.2.0
 

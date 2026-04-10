@@ -10,13 +10,13 @@ use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Builder as CategoryBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Category\Event\NostoCategoryCriteriaEvent;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeCategoryUpdateEvent;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Operation\Category\CategoryUpdate;
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository};
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -81,7 +81,7 @@ class CategorySyncHandler implements JobHandlerInterface
 
     private function getCategories(Context $context, array $categoryIds): EntityCollection
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create('product_sync.category_sync.getCategories');
         $criteria->getAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', $categoryIds));
         $this->eventDispatcher->dispatch(new NostoCategoryCriteriaEvent($criteria, $context));

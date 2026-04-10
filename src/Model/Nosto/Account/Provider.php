@@ -7,11 +7,11 @@ namespace Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Request\Api\Token;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Throwable;
@@ -46,7 +46,7 @@ class Provider
             return $this->accounts;
         }
 
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAssociation('languages');
@@ -66,11 +66,20 @@ class Provider
 
                 try {
                     $accountName = $this->configProvider->getAccountName($channelId, $languageId);
-                    $keyChain = new KeyChain([
+                    $tokens = [
                         new Token(Token::API_PRODUCTS, $this->configProvider->getProductToken($channelId, $languageId)),
                         new Token(Token::API_EMAIL, $this->configProvider->getEmailToken($channelId, $languageId)),
                         new Token(Token::API_GRAPHQL, $this->configProvider->getAppToken($channelId, $languageId)),
-                    ]);
+                    ];
+
+                    if ($this->configProvider->isEnabledMultiCurrency($channelId, $languageId)) {
+                        $tokens[] = new Token(Token::API_EXCHANGE_RATES, $this->configProvider->getRatesToken(
+                            $channelId,
+                            $languageId,
+                        ));
+                    }
+
+                    $keyChain = new KeyChain($tokens);
                     $this->accounts[] = new Account($channelId, $languageId, $accountName, $keyChain);
                 } catch (Throwable $throwable) {
                     $this->logger->error(

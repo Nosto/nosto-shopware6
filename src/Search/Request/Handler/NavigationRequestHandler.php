@@ -9,6 +9,8 @@ use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Builder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category\TreeBuilder;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,9 +24,10 @@ class NavigationRequestHandler extends AbstractRequestHandler
         ConfigProvider $configProvider,
         SortingHandlerService $sortingHandlerService,
         Logger $logger,
+        FilterPayloadService $filterPayloadService,
         private readonly EntityRepository $categoryRepository,
     ) {
-        parent::__construct($configProvider, $sortingHandlerService, $logger);
+        parent::__construct($configProvider, $sortingHandlerService, $logger, $filterPayloadService);
     }
 
     public function sendRequest(
@@ -69,7 +72,7 @@ class NavigationRequestHandler extends AbstractRequestHandler
 
     private function fetchCategoryPath(string $categoryId, SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria([$categoryId]);
+        $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
         $criteria->addAssociation('seoUrls');
 
         /** @var ?CategoryEntity $category */

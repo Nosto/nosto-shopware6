@@ -11,6 +11,7 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Struct\Redirect;
@@ -30,8 +31,9 @@ abstract class AbstractRequestHandler
         protected readonly ConfigProvider $configProvider,
         protected readonly SortingHandlerService $sortingHandlerService,
         protected readonly Logger $logger,
+        protected readonly FilterPayloadService $filterPayloadService,
     ) {
-        $this->filterHandler = new FilterHandler();
+        $this->filterHandler = new FilterHandler($this->filterPayloadService);
     }
 
     /**
@@ -95,8 +97,14 @@ abstract class AbstractRequestHandler
         SearchResult $response,
         GraphQLResponseParser $responseParser,
     ): void {
-        $filterCookie = $request->cookies->get('nostoCookieFilter');
-        $filterMappingCookie = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload(
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_KEY,
+        );
+        $filterMappingCookie = $this->filterPayloadService->resolveCookiePayload(
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY,
+        );
         $isInitialSearch = $request->attributes->get('isInitialSearch');
 
         // USE NOSTO RESPONSE FILTERS
@@ -150,8 +158,7 @@ abstract class AbstractRequestHandler
             $request,
             $criteria,
             $limit,
-            $languageId,
-            $channelId,
+            $context,
         );
 
         return $searchOperation;
@@ -173,13 +180,22 @@ abstract class AbstractRequestHandler
         Request $request,
         Criteria $criteria,
         ?int $limit,
-        $languageId,
-        $salesChannelId,
+        SalesChannelContext $context,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies($request, $searchOperation, $salesChannelId, $languageId);
+        $this->setSessionParamsFromCookies(
+            $request,
+            $searchOperation,
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if ($this->configProvider->isEnabledMultiCurrency(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $this->setCurrency($context, $searchOperation);
+        }
         $this->setAbTests($request, $searchOperation);
-
         $this->sortingHandlerService->handle($searchOperation, $criteria);
         $newReq = $this->shouldHandleAsNewRequest($request, $criteria);
         $this->filterHandler->handleFilters($request, $criteria, $searchOperation, $newReq);
@@ -187,7 +203,10 @@ abstract class AbstractRequestHandler
 
     private function shouldHandleAsNewRequest(Request $request, Criteria $criteria): bool
     {
-        $filterCookie = $request->cookies->get('nostoCookieFilter');
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload(
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_KEY,
+        );
 
         return empty($filterCookie) && $criteria->hasExtension('nostoFilters');
     }
@@ -219,6 +238,16 @@ abstract class AbstractRequestHandler
     ): void {
         $pagination = $responseParser->getPaginationExtension($limit, $offset);
         $criteria->addExtension('nostoPagination', $pagination);
+    }
+
+    protected function setCurrency(
+        SalesChannelContext $context,
+        SearchOperation $searchOperation,
+    ): void {
+        $currency = $context->getCurrency()?->getIsoCode();
+        if ($currency) {
+            $searchOperation->setCurrency($currency);
+        }
     }
 
     protected function setAbTests(

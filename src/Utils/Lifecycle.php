@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -90,7 +89,7 @@ class Lifecycle
 
     public function getNostoSorting(Context $context): ?ProductSortingEntity
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY));
 
         return $this->sortingRepository->search($criteria, $context)->first();
@@ -145,7 +144,7 @@ class Lifecycle
 
     public function getDefaultSortingId(Context $context, string $key = null): ?string
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('configurationKey', $key));
         $sorting = $this->systemConfigRepository->search($criteria, $context)->first();
 
@@ -154,7 +153,7 @@ class Lifecycle
 
     public function getHighPrioritySortingId(Context $context): ?string
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('key', RecommendationSortingHandler::MERCHANDISING_SORTING_KEY),
             new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT),
@@ -170,7 +169,7 @@ class Lifecycle
 
     public function getTopResultsSortingId(Context $context): ?string
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('key', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT));
         $sorting = $this->sortingRepository->search($criteria, $context)->first();
 
@@ -240,7 +239,7 @@ class Lifecycle
 
     public function removeOldTags(Context $context): void
     {
-        $channelCriteria = new Criteria();
+        $channelCriteria = NostoCriteriaFactory::create();
         $channelCriteria->addFilter(
             new EqualsAnyFilter('typeId', [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_API]),
         );

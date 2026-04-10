@@ -14,7 +14,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Event\NostoOrderBuiltEvent;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Order\Item\Builder as NostoOrderItemBuilder;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Person\BuilderInterface as NostoBuyerBuilderInterface;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -33,7 +33,7 @@ class Builder
         private readonly ConfigProvider $configProvider,
         private readonly EntityRepository $productRepository,
         private readonly ProductHelper $productHelper,
-        private readonly ProductProviderInterface $productProvider,
+        private readonly PartialProvider $partialProductProvider,
     ) {
     }
 
@@ -75,7 +75,7 @@ class Builder
                     $this->configProvider,
                     $this->systemConfigService,
                     $this->productHelper,
-                    $this->productProvider,
+                    $this->partialProductProvider,
                 );
                 $nostoOrder->addPurchasedItems($nostoItem);
             }

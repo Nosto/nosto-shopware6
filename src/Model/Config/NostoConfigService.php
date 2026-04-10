@@ -34,6 +34,8 @@ class NostoConfigService
 
     public const SEARCH_TOKEN = 'searchToken';
 
+    public const RATES_TOKEN = 'ratesToken';
+
     public const ENABLE_SEARCH = 'enableSearch';
 
     public const ENABLE_NAVIGATION = 'enableNavigation';
@@ -106,9 +108,13 @@ class NostoConfigService
 
     public const ENABLE_FALLBACK_MECHANISM = 'enableFallbackMechanism';
 
+    public const ENABLE_MULTI_CURRENCY = 'enableMultiCurrency';
+
     public const SYNC_BATCH_SIZE = 'syncBatchSize';
 
     public const FALLBACK_PRODUCT_IMAGE_URL = 'fallbackImageUrl';
+
+    public const ENABLE_PRODUCT_SYNC_EXTRA_LOGGING = 'productSyncExtraLogging';
 
     private array $configs = [];
 

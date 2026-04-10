@@ -9,6 +9,8 @@ export default class NostoFilterSliderRange extends FilterRange {
         minInputValue: 0,
         maxInputValue: null,
         unit: '',
+        decimalEpsilon: 0.000001,
+        decimalPlaces: 2,
         shouldExtend: false,
     });
 
@@ -30,15 +32,27 @@ export default class NostoFilterSliderRange extends FilterRange {
         this._sliderContainer = DomAccess.querySelector(this.el, this.options.sliderContainer);
         this._sliderContainer.prepend(this.slider);
 
-        const start = this._inputMin.value.length ? this._inputMin.value : this.options.minInputValue;
-        const end = this._inputMax.value.length ? this._inputMax.value : this.options.maxInputValue;
-        const min = this.options.minInputValue;
-        const max = this.getMax();
+        const start = this._inputMin.value.length
+            ? this._normalizePrecision(this._inputMin.value)
+            : this._normalizePrecision(this.options.minInputValue);
+        const end = this._inputMax.value.length
+            ? this._normalizePrecision(this._inputMax.value)
+            : this._normalizePrecision(this.options.maxInputValue);
+        const min = this._normalizePrecision(this.options.minInputValue);
+        const max = this._normalizePrecision(this.getMax());
+
+        this.options.minInputValue = min;
+        this.options.maxInputValue = max;
 
         noUiSlider.create(this.slider, {
             start: [start, end],
             connect: true,
             range: { min, max },
+            step: this._getSliderStep(),
+            format: {
+                to: this._formatSliderValue.bind(this),
+                from: this._toNumber.bind(this),
+            },
         });
 
         this._registerEvents();
@@ -78,9 +92,10 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @returns {number}
      */
     getMax() {
-        return this.options.maxInputValue === this.options.minInputValue
-            ? this.options.minInputValue + 1
-            : this.options.maxInputValue;
+        const min = this._normalizePrecision(this.options.minInputValue);
+        const max = this._normalizePrecision(this.options.maxInputValue);
+
+        return this._isEqual(max, min) ? min + 1 : max;
     }
 
     /**
@@ -98,11 +113,11 @@ export default class NostoFilterSliderRange extends FilterRange {
         this.validateMaxInput();
 
         if (this.hasMinValueSet()) {
-            values[this.options.minKey] = this._inputMin.value;
+            values[this.options.minKey] = this._getExpandedMinQueryValue(this._inputMin.value);
         }
 
         if (this.hasMaxValueSet()) {
-            values[this.options.maxKey] = this._inputMax.value;
+            values[this.options.maxKey] = this._getExpandedMaxQueryValue(this._inputMax.value);
         }
 
         return values;
@@ -163,12 +178,12 @@ export default class NostoFilterSliderRange extends FilterRange {
         let stateChanged = false;
         Object.keys(params).forEach(key => {
             if (key === this.options.minKey) {
-                this._inputMin.value = params[key];
+                this._inputMin.value = this._normalizePrecision(params[key]);
                 this.validateMinInput();
                 stateChanged = true;
             }
             if (key === this.options.maxKey) {
-                this._inputMax.value = params[key];
+                this._inputMax.value = this._normalizePrecision(params[key]);
                 this.validateMaxInput();
                 stateChanged = true;
             }
@@ -181,15 +196,23 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @param {Array} values
      */
     onUpdateValues(values) {
-        if (values[0] < this.options.minInputValue) {
-            values[0] = this.options.minInputValue;
+        const minValue = this._normalizePrecision(values[0]);
+        const maxValue = this._normalizePrecision(values[1]);
+        const rangeMin = this._normalizePrecision(this.options.minInputValue);
+        const rangeMax = this._normalizePrecision(this.options.maxInputValue);
+
+        let safeMin = minValue;
+        let safeMax = maxValue;
+
+        if (this._isLess(safeMin, rangeMin)) {
+            safeMin = rangeMin;
         }
-        if (values[1] > this.options.maxInputValue) {
-            values[1] = this.options.maxInputValue;
+        if (this._isGreater(safeMax, rangeMax)) {
+            safeMax = rangeMax;
         }
 
-        this._inputMin.value = values[0];
-        this._inputMax.value = values[1];
+        this._inputMin.value = this._normalizePrecision(safeMin);
+        this._inputMax.value = this._normalizePrecision(safeMax);
     }
 
     /**
@@ -228,9 +251,13 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     validateMinInput() {
+        const value = this._toNumber(this._inputMin.value);
+        const min = this._normalizePrecision(this.options.minInputValue);
+        const max = this._normalizePrecision(this.options.maxInputValue);
+
         if (!this._inputMin.value ||
-            this._inputMin.value < this.options.minInputValue ||
-            this._inputMin.value > this.options.maxInputValue
+            this._isLess(value, min) ||
+            this._isGreater(value, max)
         ) {
             this.resetMin();
         } else {
@@ -239,10 +266,14 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     validateMaxInput() {
+        const value = this._toNumber(this._inputMax.value);
+        const min = this._normalizePrecision(this.options.minInputValue);
+        const max = this._normalizePrecision(this.options.maxInputValue);
+
         if (
             !this._inputMax.value ||
-            this._inputMax.value > this.options.maxInputValue ||
-            this._inputMax.value < this.options.minInputValue
+            this._isGreater(value, max) ||
+            this._isLess(value, min)
         ) {
             this.resetMax();
         } else {
@@ -251,12 +282,12 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     resetMin() {
-        this._inputMin.value = this.options.minInputValue;
+        this._inputMin.value = this._normalizePrecision(this.options.minInputValue);
         this.setMinKnobValue();
     }
 
     resetMax() {
-        this._inputMax.value = this.options.maxInputValue;
+        this._inputMax.value = this._normalizePrecision(this.options.maxInputValue);
         this.setMaxKnobValue();
     }
 
@@ -264,6 +295,7 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @private
      */
     _onChangeMin() {
+        this._inputMin.value = this._normalizePrecision(this._inputMin.value);
         this.setMinKnobValue();
         this._onChangeInput();
     }
@@ -272,6 +304,7 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @private
      */
     _onChangeMax() {
+        this._inputMax.value = this._normalizePrecision(this._inputMax.value);
         this.setMaxKnobValue();
         this._onChangeInput();
     }
@@ -282,29 +315,56 @@ export default class NostoFilterSliderRange extends FilterRange {
 
     hasMinValueSet() {
         this.validateMinInput();
-        return this._inputMin.value.length && parseFloat(this._inputMin.value) > this.options.minInputValue;
+        const value = this._toNumber(this._inputMin.value);
+        const min = this._normalizePrecision(this.options.minInputValue);
+
+        return this._inputMin.value.length && this._isGreater(value, min);
     }
 
     hasMaxValueSet() {
         this.validateMaxInput();
-        return this._inputMax.value.length && parseFloat(this._inputMax.value) < this.options.maxInputValue;
+        const value = this._toNumber(this._inputMax.value);
+        const max = this._normalizePrecision(this.options.maxInputValue);
+
+        return this._inputMax.value.length && this._isLess(value, max);
     }
 
     setMinKnobValue() {
         if (this.slider) {
-            this.slider.noUiSlider.set([this._inputMin.value, null]);
+            const min = this._normalizePrecision(this._inputMin.value);
+            if (min === null) {
+                return;
+            }
+
+            this._inputMin.value = min;
+            this.slider.noUiSlider.set([min, null]);
         }
     }
 
     setMaxKnobValue() {
         if (this.slider) {
-            this.slider.noUiSlider.set([null, this._inputMax.value]);
+            const max = this._normalizePrecision(this._inputMax.value);
+            if (max === null) {
+                return;
+            }
+
+            this._inputMax.value = max;
+            this.slider.noUiSlider.set([null, max]);
         }
     }
 
     setBothKnobValues() {
         if (this.slider) {
-            this.slider.noUiSlider.set([this._inputMin.value, this._inputMax.value]);
+            const min = this._normalizePrecision(this._inputMin.value);
+            const max = this._normalizePrecision(this._inputMax.value);
+
+            if (min === null || max === null) {
+                return;
+            }
+
+            this._inputMin.value = min;
+            this._inputMax.value = max;
+            this.slider.noUiSlider.set([min, max]);
         }
     }
 
@@ -327,18 +387,21 @@ export default class NostoFilterSliderRange extends FilterRange {
             return;
         }
 
-        const currentSelectedPrices = this.getValues();
+        const currentSelectedPrices = this._getSelectedDisplayValues();
         const totalRange = {
-            min: property.options[0].min,
-            max: property.options[0].max,
+            min: this._normalizePrecision(property.options[0].min),
+            max: this._normalizePrecision(property.options[0].max),
         };
 
-        if (totalRange.min === totalRange.max) {
+        if (this._isEqual(totalRange.min, totalRange.max)) {
             this.disableFilter();
             return;
         }
 
-        if (this.options.minInputValue !== totalRange.min || this.options.maxInputValue !== totalRange.max) {
+        const currentMin = this._normalizePrecision(this.options.minInputValue);
+        const currentMax = this._normalizePrecision(this.options.maxInputValue);
+
+        if (!this._isEqual(currentMin, totalRange.min) || !this._isEqual(currentMax, totalRange.max)) {
             this.updateMinAndMaxValues(totalRange.min, totalRange.max);
         } else {
             this.enableFilter();
@@ -351,26 +414,34 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     updateMinAndMaxValues(minPrice, maxPrice) {
-        this.options.minInputValue = minPrice;
-        this.options.maxInputValue = maxPrice;
+        const normalizedMin = this._normalizePrecision(minPrice);
+        const normalizedMax = this._normalizePrecision(maxPrice);
+
+        this.options.minInputValue = normalizedMin;
+        this.options.maxInputValue = normalizedMax;
 
         this.slider.noUiSlider.updateOptions({
             range: {
-                'min': minPrice,
-                'max': maxPrice,
+                'min': normalizedMin,
+                'max': normalizedMax,
+            },
+            step: this._getSliderStep(),
+            format: {
+                to: this._formatSliderValue.bind(this),
+                from: this._toNumber.bind(this),
             },
         });
 
-        this.updateInputsAndSliderValues(minPrice, maxPrice);
+        this.updateInputsAndSliderValues(normalizedMin, normalizedMax);
     }
 
     updateInputsAndSliderValues(minPrice, maxPrice) {
         if (minPrice !== null) {
-            this._inputMin.value = minPrice;
+            this._inputMin.value = this._normalizePrecision(minPrice);
         }
 
         if (maxPrice !== null) {
-            this._inputMax.value = maxPrice;
+            this._inputMax.value = this._normalizePrecision(maxPrice);
         }
 
         this.setBothKnobValues();
@@ -381,11 +452,11 @@ export default class NostoFilterSliderRange extends FilterRange {
      * @param {Object} totalRangePrices
      */
     updateSelectedRange(currentSelectedPrices, totalRangePrices) {
-        const currentSelectedPriceMin = currentSelectedPrices[this.options.minKey];
-        const currentSelectedPriceMax = currentSelectedPrices[this.options.maxKey];
+        const currentSelectedPriceMin = this._normalizePrecision(currentSelectedPrices[this.options.minKey]);
+        const currentSelectedPriceMax = this._normalizePrecision(currentSelectedPrices[this.options.maxKey]);
 
-        const updateMin = currentSelectedPriceMin && currentSelectedPriceMin >= totalRangePrices.min;
-        const updateMax = currentSelectedPriceMax && currentSelectedPriceMax <= totalRangePrices.max;
+        const updateMin = currentSelectedPriceMin !== null && !this._isLess(currentSelectedPriceMin, totalRangePrices.min);
+        const updateMax = currentSelectedPriceMax !== null && !this._isGreater(currentSelectedPriceMax, totalRangePrices.max);
 
         const newSelectedMin = updateMin ? currentSelectedPriceMin : null;
         const newSelectedMax = updateMax ? currentSelectedPriceMax : null;
@@ -405,5 +476,110 @@ export default class NostoFilterSliderRange extends FilterRange {
         mainFilterButton.classList.remove('fl-disabled');
         mainFilterButton.removeAttribute('disabled');
         mainFilterButton.removeAttribute('title');
+    }
+
+    _toNumber(value) {
+        const numeric = typeof value === 'number' ? value : parseFloat(value);
+
+        return Number.isFinite(numeric) ? numeric : null;
+    }
+
+    _isEqual(a, b) {
+        if (a === null || b === null) {
+            return false;
+        }
+
+        return Math.abs(a - b) <= this.options.decimalEpsilon;
+    }
+
+    _isLess(a, b) {
+        if (a === null || b === null) {
+            return false;
+        }
+
+        return a < (b - this.options.decimalEpsilon);
+    }
+
+    _isGreater(a, b) {
+        if (a === null || b === null) {
+            return false;
+        }
+
+        return a > (b + this.options.decimalEpsilon);
+    }
+
+    _formatSliderValue(value) {
+        const numeric = this._normalizePrecision(value);
+
+        if (numeric === null) {
+            return '';
+        }
+
+        return `${numeric}`;
+    }
+
+    _getSliderStep() {
+        const precision = Number.isInteger(this.options.decimalPlaces) ? this.options.decimalPlaces : 2;
+        return 1 / Math.pow(10, precision);
+    }
+
+    _getExpandedMinQueryValue(value) {
+        const numeric = this._toNumber(value);
+        if (numeric === null) {
+            return '';
+        }
+
+        const expanded = numeric - this._getHalfStep();
+        return this._normalizeQueryPrecision(expanded);
+    }
+
+    _getExpandedMaxQueryValue(value) {
+        const numeric = this._toNumber(value);
+        if (numeric === null) {
+            return '';
+        }
+
+        const expanded = numeric + this._getHalfStep() - this.options.decimalEpsilon;
+        return this._normalizeQueryPrecision(expanded);
+    }
+
+    _getHalfStep() {
+        return this._getSliderStep() / 2;
+    }
+
+    _getSelectedDisplayValues() {
+        const values = {};
+
+        if (this.hasMinValueSet()) {
+            values[this.options.minKey] = this._normalizePrecision(this._inputMin.value);
+        }
+
+        if (this.hasMaxValueSet()) {
+            values[this.options.maxKey] = this._normalizePrecision(this._inputMax.value);
+        }
+
+        return values;
+    }
+
+    _normalizeQueryPrecision(value) {
+        const numeric = this._toNumber(value);
+        if (numeric === null) {
+            return null;
+        }
+
+        const precision = Number.isInteger(this.options.decimalPlaces) ? this.options.decimalPlaces : 2;
+        const queryPrecision = precision + 4;
+        return Number(numeric.toFixed(queryPrecision));
+    }
+
+    _normalizePrecision(value) {
+        const numeric = this._toNumber(value);
+
+        if (numeric === null) {
+            return null;
+        }
+
+        const precision = Number.isInteger(this.options.decimalPlaces) ? this.options.decimalPlaces : 2;
+        return Number(numeric.toFixed(precision));
     }
 }

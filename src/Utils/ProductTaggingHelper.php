@@ -9,9 +9,13 @@ use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\V
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductProviderInterface;
-use Shopware\Core\Content\Product\ProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -26,18 +30,19 @@ class ProductTaggingHelper
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ConfigProvider $configProvider,
-        private readonly ?ProductProviderInterface $productProvider = null,
+        private readonly PartialProvider|null $partialProductProvider = null,
         private readonly ?ProductHelper $productHelper = null,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
     public function findProductId(
         SalesChannelContext $context,
-        ProductEntity $product,
-        ?ProductEntity $variant,
+        PartialProduct $product,
+        ?PartialProduct $variant,
         bool $isProductTagging = false,
         bool $isProductSync = false,
-    ): string|NostoProduct|ProductCollection {
+    ): string|NostoProduct|EntityCollection|PartialProductCollection {
         $variantConfig = $product->getVariantListingConfig();
         $productToReturn = $product;
         $configuratorGroups = array_filter(
@@ -48,14 +53,14 @@ class ProductTaggingHelper
             if (!$isProductTagging) {
                 return $this->getIdOrProductNumber($context, $product);
             } elseif (!$isProductSync) {
-                $shopwareProduct = $this->productHelper->getShopwareProducts(
+                $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
                     [$product->getId()],
                     $context,
                 )->first();
-                $shopwareProduct->setChildren($productToReturn->getChildren());
-                return $this->productProvider->get($shopwareProduct, $context);
+                $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
+                return $this->partialProductProvider->get($shopwareProduct, $context);
             } else {
-                return new ProductCollection([$product]);
+                return $this->productHelper->getShopwareProductsPartial([$product->getId()], $context);
             }
         }
         $hideProductsAfterClearance = $this->systemConfigService->getBool(
@@ -85,10 +90,10 @@ class ProductTaggingHelper
         }
         //if for whatever reason we don't find the correct product return just main product id
         if ($isProductSync) {
-            if ($productToReturn instanceof ProductCollection) {
+            if ($productToReturn instanceof PartialProductCollection) {
                 $mainProducts = $productToReturn;
             } else {
-                $mainProducts = new ProductCollection();
+                $mainProducts = new PartialProductCollection();
                 $mainProducts->add($productToReturn);
             }
             return $mainProducts;
@@ -96,36 +101,68 @@ class ProductTaggingHelper
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
             $productId = $productToReturn?->getId() ?? $product->getId();
-            $shopwareProduct = $this->productHelper->getShopwareProducts(
+            $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
                 [$productId],
                 $context,
             )->first();
-            $shopwareProduct->setChildren($productToReturn?->getChildren() ?? $product->getChildren());
-            return $this->productProvider->get($shopwareProduct, $context);
+            $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
+            return $this->partialProductProvider->get($shopwareProduct, $context);
         }
     }
 
+    private function applyHandledChildrenForTagging(
+        object|null $shopwareProduct,
+        SalesChannelContext $context,
+        ?PartialProduct $handledProduct,
+        PartialProduct $fallbackProduct,
+    ): void {
+        if (!$shopwareProduct || !method_exists($shopwareProduct, 'set')) {
+            return;
+        }
+
+        $handledChildren = $handledProduct?->getChildren();
+        if ($handledChildren === null) {
+            $handledChildren = $fallbackProduct->getChildren();
+        }
+
+        if ($handledChildren === null) {
+            return;
+        }
+
+        if ($handledChildren->count() === 0) {
+            $shopwareProduct->set('children', new PartialProductCollection());
+            return;
+        }
+
+        $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
+            $handledChildren->getIds(),
+            $context,
+            false,
+        );
+        $shopwareProduct->set('children', $childrenLoaded);
+    }
+
     private function handleVariant(
-        ProductEntity $product,
+        PartialProduct $product,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): ?PartialProduct {
         $mainProduct = null;
         if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
             $mainProduct = $this->handleFirstAvailableVariant($product, $context);
         }
 
         if (!$mainProduct) {
-            $mainProduct = $this->handleFirstActiveVariant($product);
+            $mainProduct = $this->handleFirstActiveVariant($product, $context);
         }
         return $mainProduct;
     }
 
     private function handleMainProduct(
-        ProductEntity $product,
+        PartialProduct $product,
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): ?PartialProduct {
         $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
@@ -138,17 +175,23 @@ class ProductTaggingHelper
         } else {
             $mainProduct = $shouldHandleFirstAvailable
                 ? $this->handleFirstAvailableVariant($product, $salesChannelContext)
-                : $this->handleFirstActiveVariant($product);
+                : $this->handleFirstActiveVariant($product, $salesChannelContext);
         }
         return $mainProduct;
     }
 
-    private function handleFirstActiveVariant(ProductEntity $product): ?ProductEntity
-    {
+    private function handleFirstActiveVariant(
+        PartialProduct $product,
+        SalesChannelContext $context,
+    ): ?PartialProduct {
         $mainProduct = null;
-        $variants = new ProductCollection([$product]);
+        $variants = new PartialProductCollection([$product]);
+        $children = $this->ensureChildrenLoaded($product, $context);
+        if (!$children) {
+            return null;
+        }
 
-        foreach ($product->getChildren() as $child) {
+        foreach ($children as $child) {
             if ($child->getActive() && !$mainProduct) {
                 $mainProduct = $child;
             } else {
@@ -164,13 +207,18 @@ class ProductTaggingHelper
     }
 
     private function handleConfiguratorGroups(
-        ProductEntity $product,
-        ?ProductEntity $variantFromDb,
+        PartialProduct $product,
+        ?PartialProduct $variantFromDb,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): null|ProductEntity|ProductCollection {
+    ): null|PartialProduct|PartialProductCollection {
         $groupedVariants = [];
-        foreach ($product->getChildren() as $child) {
+        $children = $this->ensureChildrenLoaded($product, $context);
+        if (!$children) {
+            return null;
+        }
+
+        foreach ($children as $child) {
             $groupedVariants[$child->getDisplayGroup()][$child->getId()] = $child;
         }
         if ($variantFromDb?->getDisplayGroup() !== null) {
@@ -180,9 +228,8 @@ class ProductTaggingHelper
                 $hideProductsAfterClearance,
             );
         } else {
-            $mainProducts = new ProductCollection();
+            $mainProducts = new PartialProductCollection();
             foreach ($groupedVariants as $variants) {
-                /** @var SalesChannelProductEntity $mainProduct */
                 $mainProduct = $this->handleVariantByProperty($variants, $context, $hideProductsAfterClearance);
                 if ($mainProduct) {
                     $mainProducts->add($mainProduct);
@@ -196,9 +243,9 @@ class ProductTaggingHelper
         array $variants,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): PartialProduct {
         $mainProduct = null;
-        $children = new ProductCollection();
+        $children = new PartialProductCollection();
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
 
@@ -217,25 +264,45 @@ class ProductTaggingHelper
             }
         }
 
-        if ($mainProduct) {
-            $mainProduct->setChildren($children);
+        if (!$mainProduct) {
+            foreach ($variants as $candidate) {
+                $mainProduct = $candidate;
+                break;
+            }
+            if (!$mainProduct instanceof PartialProduct) {
+                throw new \RuntimeException('Expected at least one variant.');
+            }
+
+            $children = new PartialProductCollection();
+            foreach ($variants as $child) {
+                if ($child->getId() !== $mainProduct->getId()) {
+                    $children->add($child);
+                }
+            }
         }
+
+        $mainProduct->setChildren($children);
 
         return $mainProduct;
     }
 
     private function handleMainVariant(
-        ProductEntity $product,
+        PartialProduct $product,
         VariantListingConfig $variantConfig,
         SalesChannelContext $context,
         bool $hideProductsAfterClearance,
-    ): ?ProductEntity {
+    ): ?PartialProduct {
         $mainProduct = null;
-        $variants = new ProductCollection([$product]);
+        $variants = new PartialProductCollection([$product]);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+        $children = $this->ensureChildrenLoaded($product, $context);
 
-        foreach ($product->getChildren() as $child) {
+        if (!$children) {
+            return null;
+        }
+
+        foreach ($children as $child) {
             if ($child->getId() !== $variantConfig->getMainVariantId()) {
                 $variants->add($child);
                 continue;
@@ -249,8 +316,12 @@ class ProductTaggingHelper
             } else {
                 $mainProduct = $shouldHandleFirstAvailable
                     ? $this->handleFirstAvailableVariant($product, $context)
-                    : $this->handleFirstActiveVariant($product);
+                    : $this->handleFirstActiveVariant($product, $context);
             }
+        }
+
+        if (!$mainProduct) {
+            $mainProduct = $this->handleFirstAvailableVariant($product, $context);
         }
 
         if ($mainProduct && $mainProduct->getId() === $variantConfig->getMainVariantId()) {
@@ -262,7 +333,7 @@ class ProductTaggingHelper
 
     private function getIdOrProductNumber(
         SalesChannelContext $context,
-        ProductEntity $product,
+        ProductEntity|PartialProduct $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
             $context->getSalesChannelId(),
@@ -276,13 +347,18 @@ class ProductTaggingHelper
     }
 
     private function handleFirstAvailableVariant(
-        ProductEntity $product,
+        PartialProduct $product,
         SalesChannelContext $context,
-    ): ?ProductEntity {
+    ): ?PartialProduct {
         $mainProduct = null;
-        $variants = new ProductCollection([$product]);
+        $variants = new PartialProductCollection([$product]);
+        $children = $this->ensureChildrenLoaded($product, $context);
 
-        foreach ($product->getChildren() as $child) {
+        if (!$children) {
+            return null;
+        }
+
+        foreach ($children as $child) {
             $stock = $this->productHelper->getProductStock($child, $context);
 
             if (!$mainProduct && $child->getActive() && ($stock > 0 || !$child->getIsCloseout())) {
@@ -300,14 +376,24 @@ class ProductTaggingHelper
     }
 
     private function handleCheapestVariant(
-        ProductEntity $product,
+        PartialProduct $product,
         SalesChannelContext $context,
-    ): ProductEntity {
+    ): PartialProduct {
         $cheapestVariant = $product;
         $lowestPrice = null;
+        $children = $this->ensureChildrenLoaded($product, $context);
 
-        foreach ($product->getChildren() as $child) {
-            $variantPrice = $child->getCurrencyPrice($context->getCurrencyId())->getNet();
+        if (!$children) {
+            $cheapestVariant->setChildren(new PartialProductCollection());
+            return $cheapestVariant;
+        }
+
+        foreach ($children as $child) {
+            $currencyPrice = $child->getCurrencyPrice($context->getCurrencyId());
+            if ($currencyPrice === null) {
+                continue;
+            }
+            $variantPrice = $currencyPrice->getNet();
 
             if ((is_null(
                 $lowestPrice,
@@ -318,11 +404,78 @@ class ProductTaggingHelper
         }
 
         $cheapestVariant->setChildren(
-            $product->getChildren()->filter(
-                static fn (ProductEntity $child): bool => $child->getId() !== $cheapestVariant->getId(),
+            $children->filter(
+                static fn (PartialProduct $child): bool => $child->getId() !== $cheapestVariant->getId(),
             ),
         );
 
         return $cheapestVariant;
+    }
+
+    private function ensureChildrenLoaded(
+        PartialProduct $product,
+        SalesChannelContext $context,
+    ): ?PartialProductCollection {
+        $children = $product->getChildren();
+        if ($children) {
+            return $children;
+        }
+
+        if (($product->getChildCount() ?? 0) < 1 || !$this->productHelper) {
+            return null;
+        }
+
+        $productId = $product->getId();
+        if (!$productId) {
+            return null;
+        }
+
+        $startedAt = microtime(true);
+
+        $loadedProduct = PartialProductConverter::toPartialProductCollection(
+            $this->productHelper->getShopwareProductsPartial([$productId], $context, true),
+        )->first();
+        if (!$loadedProduct instanceof PartialProduct) {
+            return null;
+        }
+
+        $loadedProductChildren = $loadedProduct->getChildren();
+        if ($loadedProductChildren) {
+            $product->setChildren($loadedProductChildren);
+        }
+
+        $this->logDuration(
+            $context,
+            'product_sync.productTaggingHelper.ensureChildrenLoaded',
+            $startedAt,
+            [
+                'product_id' => $productId,
+                'child_count' => $product->getChildCount(),
+                'loaded_count' => $loadedProductChildren?->count() ?? 0,
+            ],
+        );
+
+        return $loadedProductChildren;
+    }
+
+    private function logDuration(
+        SalesChannelContext $context,
+        string $message,
+        float $startTime,
+        array $additionalContext = [],
+    ): void {
+        if (!$this->logger) {
+            return;
+        }
+
+        $durationMs = (microtime(true) - $startTime) * 1000;
+        $this->logger->info($message, array_merge(
+            $additionalContext,
+            [
+                'duration_ms' => round($durationMs, 2),
+                'sales_channel_id' => $context->getSalesChannelId(),
+                'language_id' => $context->getLanguageId(),
+            ],
+        ));
     }
 }

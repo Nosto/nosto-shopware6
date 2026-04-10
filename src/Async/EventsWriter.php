@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Async;
 
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class EventsWriter
 {
@@ -19,6 +21,8 @@ class EventsWriter
 
     public const CATEGORY_ENTITY_NAME = 'category';
 
+    public const EXCHANGE_RATE_ENTITY_NAME = 'exchange_rate';
+
     public function __construct(
         private readonly EntityRepository $changelogRepository,
     ) {
@@ -26,6 +30,16 @@ class EventsWriter
 
     public function writeEvent(string $name, string $id, Context $context, ?string $productNumber = null): void
     {
+        $criteria = NostoCriteriaFactory::create('events_writer.find_existing_event')
+            ->addFilter(new EqualsFilter('entityId', $id))
+            ->addFilter(new EqualsFilter('productNumber', $productNumber))
+            ->addFilter(new EqualsFilter('entityType', $name))
+            ->setLimit(1);
+
+        if ($this->changelogRepository->searchIds($criteria, $context)->firstId()) {
+            return;
+        }
+
         $this->changelogRepository->create([[
             'entityType' => $name,
             'entityId' => $id,

@@ -7,10 +7,10 @@ namespace Nosto\NostoIntegration\Service;
 use Nosto\Model\Signup\Account as NostoSignupAccount;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\MockOperation\MockGraphQLOperation;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Request\Api\Token as NostoToken;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -73,7 +73,7 @@ class NostoMonitoringAuthService
 
     private function validateFromApp(string $accessKey, Context $context): bool
     {
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();

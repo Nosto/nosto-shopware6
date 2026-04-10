@@ -6,8 +6,8 @@ namespace Nosto\NostoIntegration\Api\Controller;
 
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,7 +58,7 @@ class NostoMulticurrencyController extends AbstractController
                 'error' => 'Too many product Ids provided limit is 50',
             ], Response::HTTP_BAD_REQUEST);
         }
-        $criteria = new Criteria();
+        $criteria = NostoCriteriaFactory::create();
         if ($productIdentifier == ProductIdentifierOptions::PRODUCT_NUMBER) {
             $criteria->addFilter(new EqualsAnyFilter('productNumber', $productIdsArray));
         } else {

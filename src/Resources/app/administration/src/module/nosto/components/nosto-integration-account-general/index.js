@@ -30,7 +30,15 @@ Component.register('nosto-integration-account-general', {
     data() {
         return {
             apiValidationInProgress: false,
-            configurationKeys: ['accountID', 'accountName', 'productToken', 'emailToken', 'appToken', 'searchToken'],
+            configurationKeys: [
+                'accountID',
+                'accountName',
+                'productToken',
+                'emailToken',
+                'appToken',
+                'searchToken',
+                'ratesToken',
+            ],
         };
     },
 
@@ -40,6 +48,15 @@ Component.register('nosto-integration-account-general', {
                 code: 1,
                 detail: this.$tc('nosto.messages.blank-field-error'),
             } : null;
+        },
+
+        isMultiCurrencyEnabled() {
+            const configurationKey = 'enableMultiCurrency';
+            const channelConfig = this.configs[this.configKey] || {};
+
+            return typeof channelConfig[configurationKey] === 'boolean'
+                ? channelConfig[configurationKey]
+                : !!this.configs.null?.[configurationKey];
         },
 
         isActive() {
@@ -59,25 +76,35 @@ Component.register('nosto-integration-account-general', {
             const emailToken = this.currentConfig.emailToken;
             const appToken = this.currentConfig.appToken;
             const searchToken = this.currentConfig.searchToken;
+            const ratesToken = this.currentConfig.ratesToken;
+            const validateRatesToken = this.isMultiCurrencyEnabled();
+            const hasRatesToken = typeof ratesToken === 'string' && ratesToken.trim() !== '';
 
             if (!(this.credentialsEmptyValidation('id', accountId) *
                 this.credentialsEmptyValidation('name', accountName) *
                 this.credentialsEmptyValidation('productToken', productToken) *
                 this.credentialsEmptyValidation('emailToken', emailToken) *
                 this.credentialsEmptyValidation('appToken', appToken) *
-                this.credentialsEmptyValidation('searchToken', searchToken))) {
+                this.credentialsEmptyValidation('searchToken', searchToken) *
+                (!validateRatesToken || this.credentialsEmptyValidation('ratesToken', ratesToken)))) {
                 this.apiValidationInProgress = false;
                 return;
             }
 
-            this.nostoApiKeyValidatorService.validate({
+            const payload = {
                 accountId: accountId,
                 name: accountName,
                 productToken: productToken,
                 emailToken: emailToken,
                 appToken: appToken,
                 searchToken: searchToken,
-            }).then((response) => {
+            };
+
+            if (validateRatesToken || hasRatesToken) {
+                payload.ratesToken = ratesToken;
+            }
+
+            this.nostoApiKeyValidatorService.validate(payload).then((response) => {
                 if (response.status !== 200) {
                     this.createNotificationError({
                         message: this.$tc('nosto.configuration.account.apiValidation.generalErrorMessage'),

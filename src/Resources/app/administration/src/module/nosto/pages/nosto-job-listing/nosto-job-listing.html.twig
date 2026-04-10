@@ -25,6 +25,7 @@
                 ref="jobListing"
                 :filterCriteria="filterCriteria"
                 @job-display-type-changed="onDisplayModeChange"
+                @job-list-meta-loaded="onJobListMetaLoaded"
                 :jobTypes="nostoJobTypes">
             </nosto-job-listing-index>
         </template>

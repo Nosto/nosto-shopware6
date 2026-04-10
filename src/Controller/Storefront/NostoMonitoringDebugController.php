@@ -15,10 +15,10 @@ use Nosto\NostoIntegration\Model\Operation\OrderSyncHandler;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\NostoIntegration\Service\NostoMonitoringAuthService;
 use Nosto\NostoIntegration\Service\NostoMonitoringProductDebug;
+use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -72,7 +72,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$productId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$productId]);
             $criteria->addAssociations([
                 'categories',
                 'properties',
@@ -101,6 +101,8 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
                     ],
                     $salesChannelContext->getContext(),
                     'Product Debug',
+                    $salesChannelContext->getSalesChannelId(),
+                    $salesChannelContext->getLanguageId(),
                 ),
             );
 
@@ -171,7 +173,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$categoryId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$categoryId]);
             $criteria->getAssociation('seoUrls');
 
             $category = $this->categoryRepository->search($criteria, $salesChannelContext->getContext())->first();
@@ -234,7 +236,7 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
         }
 
         try {
-            $criteria = new Criteria([$orderId]);
+            $criteria = NostoCriteriaFactory::createWithIds([$orderId]);
             $criteria->addAssociation('stateMachineState');
             $criteria->addAssociation('orderCustomer');
             $criteria->addAssociation('currency');
@@ -308,6 +310,8 @@ class NostoMonitoringDebugController extends AbstractNostoMonitoringController
             ],
             $context->getContext(),
             'Product Debug',
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
         );
 
         $result = $this->productSyncHandler->execute($message);

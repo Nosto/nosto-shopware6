@@ -36,6 +36,8 @@
                 "appTokenHelpText": "Ein Token für den Zugriff auf die neuen GraphQL-APIs. Sie können ein API-Token (API_APPS) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
                 "searchTokenTitle": "Search-Token (API_SEARCH)",
                 "searchTokenHelpText": "Ein Token für den Zugriff auf die GraphQL Search-API. Sie können ein API-Token (API_SEARCH) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgeführt.",
+                "ratesTokenTitle": "Rates-Token (API_RATES)",
+                "ratesTokenHelpText": "Ein Token für den Zugriff auf die Rates-API. Sie können ein API-Token (API_RATES) anfordern, indem Sie sich an das Nosto-Supportpersonal wenden. Sobald das Token gewährt wurde, finden Sie es im Abschnitt Authentifizierungstoken im Adminbereich aufgelistet.",
                 "apiValidation": {
                     "buttonLabel": "API-key Prüfung",
                     "emptyErrorMessage": "\"{entityName}\" darf nicht leer sein!",
@@ -142,6 +144,14 @@
                 "enableFallbackMechanism": {
                   "label": "Fallback-Mechanismus aktivieren",
                   "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
+                },
+                "enableMultiCurrency": {
+                    "label": "Mehrere Währungen aktivieren",
+                    "helpText": "Bevor Sie diese Funktion aktivieren, setzen Sie den Rates-Token (API_RATES). Wenn aktiviert, werden Wechselkurssynchronisierung und währungsspezifische Suchanfragen verarbeitet. Stellen Sie sicher, dass Wechselkurse in Nosto aktiviert sind und mindestens einmal zu Nosto synchronisiert wurden."
+                },
+                "productSyncExtraLogging": {
+                    "label": "Zusätzliche Produktsync-Protokollierung",
+                    "helpText": "Schreibt detaillierte Zeitmessungen für jeden Produktsync-Schritt in den Log-Kanal nosto_integration. Nur zur Fehlersuche bei langsamen Synchronisationen aktivieren."
                 },
                 "enableProductVisibility": {
                     "label": "Produkt-Sichtbarkeit aktivieren",

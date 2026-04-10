@@ -6,11 +6,13 @@ namespace Nosto\NostoIntegration\Search\Api;
 
 use Composer\InstalledVersions;
 use Monolog\Logger;
+use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Search\Request\Handler\AbstractRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\NavigationRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\NostoService;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\Context;
@@ -30,6 +32,7 @@ class SearchService
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Logger $logger,
         private readonly EntityRepository $categoryRepository,
+        private readonly FilterPayloadService $filterPayloadService,
     ) {
     }
 
@@ -93,7 +96,11 @@ class SearchService
         );
 
         $fetchedFilters = false;
-        if (empty($request->cookies->get('nostoCookieFilter')) && count($request->query->all()) !== 1) {
+        $filterCookie = $this->filterPayloadService->resolveCookiePayload(
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_KEY,
+        );
+        if (empty($filterCookie) && count($request->query->all()) !== 1) {
             $fetchedFilters = true;
             $this->fetchFilters($request, $criteria, $context, $requestHandler);
         }
@@ -136,6 +143,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
+            $this->filterPayloadService,
         );
     }
 
@@ -145,6 +153,7 @@ class SearchService
             $this->configProvider,
             $this->sortingHandlerService,
             $this->logger,
+            $this->filterPayloadService,
             $this->categoryRepository,
         );
     }

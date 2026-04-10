@@ -22,6 +22,8 @@ class Config extends Struct
 
     public ?string $searchToken = null;
 
+    public ?string $ratesToken = null;
+
     public ?bool $enableSearch = null;
 
     public ?bool $enableNavigation = null;
@@ -71,6 +73,8 @@ class Config extends Struct
     public ?bool $dailySynchronization = null;
 
     public mixed $dailySynchronizationTime = null;
+
+    public ?bool $enableMultiCurrency = null;
 
     public function __construct(array $config)
     {

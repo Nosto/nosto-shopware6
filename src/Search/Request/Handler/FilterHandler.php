@@ -9,6 +9,7 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Filter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RatingFilter;
+use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\Operation\Search\SearchOperation;
@@ -22,6 +23,11 @@ class FilterHandler
     protected const MIN_PREFIX = 'min-';
 
     protected const MAX_PREFIX = 'max-';
+
+    public function __construct(
+        private readonly FilterPayloadService $filterPayloadService,
+    ) {
+    }
 
     /**
      * Sets all requested filters to the Nosto API request.
@@ -69,7 +75,10 @@ class FilterHandler
         Request $request,
         SearchOperation $searchOperation,
     ): void {
-        $cookieValue = $request->cookies->get(NostoCookieProvider::NOSTO_FILTERS_KEY);
+        $cookieValue = $this->filterPayloadService->resolveCookiePayload(
+            $request,
+            NostoCookieProvider::NOSTO_FILTERS_MAPPING_KEY,
+        );
         if (is_null($cookieValue)) {
             return;
         }
@@ -223,8 +232,10 @@ class FilterHandler
     protected function fetchAvailableFilterIds(Criteria $criteria): array
     {
         $availableFilters = [];
-        /** @var FiltersExtension $filtersExtension */
         $filtersExtension = $criteria->getExtension('nostoFilters');
+        if (!$filtersExtension instanceof FiltersExtension) {
+            return $availableFilters;
+        }
 
         $filters = $filtersExtension->getFilters();
         foreach ($filters as $filter) {
@@ -270,10 +281,15 @@ class FilterHandler
      */
     public function handleAvailableFilters(Criteria $criteria): array
     {
-        /** @var FiltersExtension $availableFilters */
         $availableFilters = $criteria->getExtension('nostoAvailableFilters');
-        /** @var FiltersExtension $allFilters */
+        if (!$availableFilters instanceof FiltersExtension) {
+            return [];
+        }
+
         $allFilters = $criteria->getExtension('nostoFilters');
+        if (!$allFilters instanceof FiltersExtension) {
+            $allFilters = $availableFilters;
+        }
 
         return $this->parseNostoFiltersForShopware($availableFilters, $allFilters);
     }

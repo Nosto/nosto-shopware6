@@ -53,6 +53,11 @@ class ConfigProvider
         return $this->configService->getString(NostoConfigService::SEARCH_TOKEN, $channelId, $languageId);
     }
 
+    public function getRatesToken(?string $channelId = null, ?string $languageId = null): string
+    {
+        return $this->configService->getString(NostoConfigService::RATES_TOKEN, $channelId, $languageId);
+    }
+
     public function isSearchEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
@@ -195,6 +200,17 @@ class ConfigProvider
     {
         $value = $this->configService->get(NostoConfigService::CATEGORY_BLOCKLIST, $channelId, $languageId);
         return is_array($value) ? $value : [];
+    }
+
+    public function isEnabledProductSyncExtraLogging(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_PRODUCT_SYNC_EXTRA_LOGGING,
+            $channelId,
+            $languageId,
+        );
     }
 
     public function isEnabledVariations(?string $channelId = null, ?string $languageId = null): bool
@@ -365,6 +381,15 @@ class ConfigProvider
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_FALLBACK_MECHANISM,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledMultiCurrency($channelId = null, $languageId = null): bool
+    {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_MULTI_CURRENCY,
             $channelId,
             $languageId,
         );
