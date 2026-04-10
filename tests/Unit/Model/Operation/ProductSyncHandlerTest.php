@@ -85,6 +85,13 @@ final class ProductSyncHandlerTest extends TestCase
             'https://cdn.example.test/product/example.jpg',
             'Product name is empty, ignoring upsert for product with number. SWDEMO10002',
         ];
+
+        yield 'missing all mandatory fields' => [
+            null,
+            null,
+            null,
+            'Product image url is empty, Product url is empty, Product name is empty, ignoring upsert for product with number. SWDEMO10002',
+        ];
     }
 
     private function createHandler(): TestableProductSyncHandler
