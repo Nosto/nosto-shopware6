@@ -132,6 +132,28 @@ final class ProductTaggingHelperTest extends TestCase
         self::assertSame('available-child-id', $result->first()?->getId());
     }
 
+    public function testReturnsParentProductWhenCloseoutProductsRemainVisibleEvenIfFirstAvailableSyncIsEnabled(): void
+    {
+        $helper = $this->createHelper(null, null, true, false);
+        $context = $this->createContext();
+        $availableChild = $this->createProduct('available-child-id', 'available-child-number', null, true, false, 0);
+        $parent = $this->createProduct(
+            'parent-id',
+            'parent-number',
+            $this->createVariantConfig(true, null, null, true),
+            true,
+            true,
+            2,
+            new PartialProductCollection([$availableChild]),
+        );
+
+        $result = $helper->findProductId($context, $parent, null, false, true);
+
+        self::assertInstanceOf(PartialProductCollection::class, $result);
+        self::assertCount(1, $result);
+        self::assertSame('parent-id', $result->first()?->getId());
+    }
+
     public function testReturnsCheapestActiveInStockVariantWhenCheapestVariantIsEnabled(): void
     {
         $helper = $this->createHelper();
@@ -202,6 +224,29 @@ final class ProductTaggingHelperTest extends TestCase
         self::assertInstanceOf(PartialProductCollection::class, $result);
         self::assertCount(1, $result);
         self::assertSame('fallback-id', $result->first()?->getId());
+    }
+
+    public function testReturnsFirstAvailableVariantWhenSelectedMainVariantIsInactiveAndFirstAvailableSyncIsEnabled(): void
+    {
+        $helper = $this->createHelper(null, null, true, true);
+        $context = $this->createContext();
+        $selectedVariant = $this->createProduct('selected-id', 'selected-number', null, false, false, 0);
+        $availableVariant = $this->createProduct('available-id', 'available-number', null, true, false, 0);
+        $parent = $this->createProduct(
+            'parent-id',
+            'parent-number',
+            $this->createVariantConfig(false, 'selected-id', null, false),
+            true,
+            false,
+            2,
+            new PartialProductCollection([$selectedVariant, $availableVariant]),
+        );
+
+        $result = $helper->findProductId($context, $parent, $selectedVariant, false, true);
+
+        self::assertInstanceOf(PartialProductCollection::class, $result);
+        self::assertCount(1, $result);
+        self::assertSame('available-id', $result->first()?->getId());
     }
 
     public function testReturnsOneVariantPerConfiguratorGroupWhenNoVariantIsPreselected(): void

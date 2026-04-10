@@ -69,21 +69,21 @@ final class ProductSyncHandlerTest extends TestCase
             'Example product',
             'https://shop.example.test/product/example',
             null,
-            'Product image url is empty, ignoring upsert for product with number. SWDEMO10002',
+            'Product image url is empty, ignoring upsert for product with number. SWDEMO10002 Name = Example product',
         ];
 
         yield 'missing url' => [
             'Example product',
             null,
             'https://cdn.example.test/product/example.jpg',
-            'Product url is empty, ignoring upsert for product with number. SWDEMO10002',
+            'Product url is empty, ignoring upsert for product with number. SWDEMO10002 Name = Example product',
         ];
 
         yield 'missing name' => [
             null,
             'https://shop.example.test/product/example',
             'https://cdn.example.test/product/example.jpg',
-            'Product name is empty, ignoring upsert for product with number. SWDEMO10002',
+            'Product name is empty, ignoring upsert for product with number. SWDEMO10002 Name = ',
         ];
     }
 

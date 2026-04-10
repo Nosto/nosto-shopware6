@@ -79,6 +79,51 @@ final class ProductHelperTest extends TestCase
         self::assertNotEmpty($capturedCriteria->getFilters());
     }
 
+    public function testGetProductsIteratorOmitsInactiveFilterWhenInactiveSyncIsEnabled(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledSyncInactiveProducts')->willReturn(true);
+        $configProvider->method('getCategoryBlocklist')->willReturn([]);
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+
+        $capturedCriteria = null;
+        $productRepository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): EntitySearchResult {
+                $capturedCriteria = $criteria;
+                $product = new ProductEntity();
+                $product->setId(Uuid::randomHex());
+                $product->setProductNumber('SWDEMO10001');
+
+                return new EntitySearchResult(
+                    ProductEntity::class,
+                    1,
+                    new EntityCollection([$product]),
+                    new AggregationResultCollection(),
+                    $criteria,
+                    $context,
+                );
+            },
+        );
+
+        $helper = $this->createHelper(
+            productRepository: $productRepository,
+            configProvider: $configProvider,
+        );
+
+        $context = $this->createContext();
+        $iterator = $helper->getProductsIterator(['product-id-1', 'product-id-2'], $context);
+        $iterator->fetch();
+
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        self::assertFalse($capturedCriteria->hasEqualsFilter('active'));
+        self::assertEmpty(array_filter(
+            $capturedCriteria->getFilters(),
+            static fn ($filter): bool => $filter instanceof NotFilter,
+        ));
+    }
+
     public function testGetShopwareProductsPartialAddsChildrenFiltersWhenInactiveSyncIsDisabled(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
@@ -118,6 +163,50 @@ final class ProductHelperTest extends TestCase
         $childrenCriteria = $capturedCriteria->getAssociation('children');
         self::assertTrue($childrenCriteria->hasEqualsFilter('active'));
         self::assertNotEmpty(array_filter(
+            $childrenCriteria->getFilters(),
+            static fn ($filter): bool => $filter instanceof NotFilter,
+        ));
+    }
+
+    public function testGetShopwareProductsPartialOmitsChildrenActiveFilterWhenInactiveSyncIsEnabled(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledSyncInactiveProducts')->willReturn(true);
+        $configProvider->method('getCategoryBlocklist')->willReturn([]);
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+
+        $capturedCriteria = null;
+        $salesChannelRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelRepository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, mixed $context) use (&$capturedCriteria): EntitySearchResult {
+                $capturedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    ProductEntity::class,
+                    0,
+                    new EntityCollection(),
+                    new AggregationResultCollection(),
+                    $criteria,
+                    Context::createDefaultContext(),
+                );
+            },
+        );
+
+        $helper = $this->createHelper(
+            productRepository: $productRepository,
+            configProvider: $configProvider,
+            salesChannelRepository: $salesChannelRepository,
+        );
+
+        $context = $this->createContext();
+        $helper->getShopwareProductsPartial(['product-id-1'], $context);
+
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        $childrenCriteria = $capturedCriteria->getAssociation('children');
+        self::assertFalse($childrenCriteria->hasEqualsFilter('active'));
+        self::assertEmpty(array_filter(
             $childrenCriteria->getFilters(),
             static fn ($filter): bool => $filter instanceof NotFilter,
         ));
