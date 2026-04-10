@@ -131,7 +131,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['isOrganic'] ?? true,
                     $data['isAutoCorrect'] ?? true,
                     $data['isAutoComplete'] ?? false,
-                    $data['searchType'] ?? (($data['isKeyword'] ?? false) ? 'keyword' : 'vector'),
+                    ($data['searchType'] ?? 'keyword') === 'keyword',
                     $data['isSorted'] ?? true,
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
