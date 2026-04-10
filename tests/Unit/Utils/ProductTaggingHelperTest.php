@@ -130,8 +130,10 @@ final class ProductTaggingHelperTest extends TestCase
         self::assertSame(['child-expensive-in-stock'], $result->getIds());
     }
 
-    private function createHelper(bool $hideCloseoutProductsWhenOutOfStock, bool $syncFirstAvailableVariant): ProductTaggingHelper
-    {
+    private function createHelper(
+        bool $hideCloseoutProductsWhenOutOfStock,
+        bool $syncFirstAvailableVariant,
+    ): ProductTaggingHelper {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('getBool')->willReturn($hideCloseoutProductsWhenOutOfStock);
 
