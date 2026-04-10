@@ -299,8 +299,12 @@ class FilterHandler
      */
     private function parseNostoFiltersForShopware(
         FiltersExtension $availableFilters,
-        FiltersExtension $allFilters,
+        ?FiltersExtension $allFilters,
     ): array {
+        if ($allFilters === null) {
+            $allFilters = $availableFilters;
+        }
+
         $result = [];
 
         foreach ($allFilters->getFilters() as $filterWithAllValues) {

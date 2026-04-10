@@ -219,7 +219,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //autoComplete
                 false,
                 //keyword
-                false,
+                ($request->attributes->get('nostoSearchType') ?: 'keyword') === 'keyword',
                 //sorted
                 $request->get('order') != null,
                 //hasResults
@@ -228,9 +228,13 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 false,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
-            $productListing->setExtensions([
-                "nosto_result_id" => $resultId,
-            ]);
+            $productListing->setExtensions(array_merge(
+                $productListing->getExtensions(),
+                [
+                    'nosto_result_id' => $resultId,
+                    'nosto_search_type' => $request->attributes->get('nostoSearchType') ?: 'keyword',
+                ],
+            ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto

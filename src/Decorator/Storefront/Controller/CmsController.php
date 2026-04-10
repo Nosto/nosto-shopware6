@@ -48,6 +48,20 @@ class CmsController extends StorefrontController
     }
 
     #[Route(
+        path: '/page/cms/{id}',
+        name: 'frontend.cms.page.full',
+        defaults: [
+            'XmlHttpRequest' => true,
+            '_httpCache' => true,
+        ],
+        methods: ['GET', 'POST'],
+    )]
+    public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        return $this->decorated->pageFull($id, $request, $salesChannelContext);
+    }
+
+    #[Route(
         path: '/widgets/cms/navigation/{navigationId}',
         name: 'frontend.cms.navigation.page',
         defaults: [
