@@ -219,8 +219,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 true,
                 //autoComplete
                 false,
-                //searchType
-                $searchType,
+                //keyword
+                ($request->attributes->get('nostoSearchType') ?: 'keyword') === 'keyword',
                 //sorted
                 $request->get('order') != null,
                 //hasResults
@@ -233,7 +233,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $productListing->getExtensions(),
                 [
                     'nosto_result_id' => $resultId,
-                    'nosto_search_type' => $searchType,
+                    'nosto_search_type' => $request->attributes->get('nostoSearchType') ?: 'keyword',
                 ],
             ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
