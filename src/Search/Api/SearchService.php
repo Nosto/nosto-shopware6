@@ -14,11 +14,13 @@ use Nosto\NostoIntegration\Search\Request\Handler\SearchRequestHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\NostoService;
+use Nosto\NostoIntegration\Struct\Pagination;
 use Nosto\NostoIntegration\Utils\SearchHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
@@ -33,6 +35,7 @@ class SearchService
         private readonly Logger $logger,
         private readonly EntityRepository $categoryRepository,
         private readonly FilterPayloadService $filterPayloadService,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -85,6 +88,9 @@ class SearchService
         SalesChannelContext $context,
         AbstractRequestHandler $requestHandler,
     ): void {
+        if ($criteria->getLimit() === null) {
+            $criteria->setLimit($this->resolveLimit($request, $context));
+        }
         $criteria->setOffset($this->paginationService->getRequestOffset($request, $criteria->getLimit()));
 
         // Retrieve the plugin version dynamically from InstalledVersions
@@ -156,6 +162,26 @@ class SearchService
             $this->filterPayloadService,
             $this->categoryRepository,
         );
+    }
+
+    private function resolveLimit(Request $request, SalesChannelContext $context): int
+    {
+        $limit = $request->query->getInt('limit');
+
+        if ($request->isMethod(Request::METHOD_POST)) {
+            $limit = $request->request->getInt('limit', $limit);
+        }
+
+        if ($limit > 0) {
+            return $limit;
+        }
+
+        $limit = $this->systemConfigService->getInt(
+            'core.listing.productsPerPage',
+            $context->getSalesChannelId(),
+        );
+
+        return $limit <= 0 ? Pagination::DEFAULT_LIMIT : $limit;
     }
 
     protected function disableNostoService(Context $context): void
