@@ -1,3 +1,6 @@
+# 6.1.8
+* Fix: Fehlende Funktion „pageFull()" im CMS-Dekorator aktualisiert
+
 # 6.1.7
 * Fix: Produktsynchronisierungsleistung
 * New: Unterstützung für mehrere Währungen hinzugefügt
