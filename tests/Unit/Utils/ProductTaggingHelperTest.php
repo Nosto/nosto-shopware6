@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests\Unit\Utils;
 
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
@@ -320,6 +321,7 @@ final class ProductTaggingHelperTest extends TestCase
         );
 
         $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
         $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailableVariant);
 
         $productHelper = $this->createMock(ProductHelper::class);
