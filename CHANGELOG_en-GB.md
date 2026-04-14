@@ -1,3 +1,6 @@
+# 6.1.8
+* Fix: Update missing pageFull() in CMS decorator
+
 # 6.1.7
 * Fix: Improve product sync performance
 * New: Add multi-currency support
