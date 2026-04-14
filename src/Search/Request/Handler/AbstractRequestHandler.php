@@ -79,6 +79,12 @@ abstract class AbstractRequestHandler
                     $originalCriteria->getOffset(),
                 );
             }
+            $this->logger->info('Nosto pagination debug',
+                [ 'apiTotal' => $response->getProducts()->getTotal(),
+                    'criteriaLimit' => $criteria->getLimit(),
+                    'originalLimit' => $originalCriteria->getLimit(),
+                    'hitsCount' => count($response->getProducts()->getHits() ?? []),
+                ]);
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Error while fetching products: {message}',
