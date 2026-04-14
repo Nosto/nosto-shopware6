@@ -209,7 +209,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
-            $searchType = $request->attributes->get('nostoSearchType') ?: 'keyword';
+            $searchType = $request->attributes->get('nostoSearchType');
             $metadata = new AnalyticsSearchMetadataForGraphql(
                 $request->get('search') ?? null,
                 $resultId,
@@ -220,7 +220,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //autoComplete
                 false,
                 //keyword
-                ($request->attributes->get('nostoSearchType') ?: 'keyword') === 'keyword',
+                $searchType === 'keyword',
                 //sorted
                 $request->get('order') != null,
                 //hasResults
@@ -233,7 +233,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $productListing->getExtensions(),
                 [
                     'nosto_result_id' => $resultId,
-                    'nosto_search_type' => $request->attributes->get('nostoSearchType') ?: 'keyword',
+                    'nosto_search_type' => $searchType,
                 ],
             ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
