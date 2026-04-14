@@ -118,13 +118,12 @@ final class ProductTaggingHelperTest extends TestCase
             active: true,
             stock: 5,
             closeout: false,
+            productNumber: 'product-number',
         );
 
         $result = $helper->findProductId($context, $product, null, false, true);
 
-        self::assertInstanceOf(ProductCollection::class, $result);
-        self::assertCount(1, $result);
-        self::assertSame('product-id', $result->first()?->getId());
+        self::assertSame('product-number', $result);
     }
 
     public function testReturnsConfiguredMainVariantForProductSync(): void
@@ -357,9 +356,11 @@ final class ProductTaggingHelperTest extends TestCase
         ?VariantListingConfig $variantListingConfig = null,
         ?PriceCollection $priceCollection = null,
         ?string $displayGroup = null,
+        ?string $productNumber = null,
     ): ProductEntity {
         $product = new ProductEntity();
         $product->setId($id);
+        $product->setProductNumber($productNumber ?? $id);
         $product->setActive($active);
         $product->setStock($stock);
         $product->setIsCloseout($closeout);
