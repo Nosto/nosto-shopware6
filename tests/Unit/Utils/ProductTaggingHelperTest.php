@@ -130,6 +130,110 @@ final class ProductTaggingHelperTest extends TestCase
         self::assertSame(['child-expensive-in-stock'], $result->getIds());
     }
 
+    public function testFindProductIdUsesConfiguredMainVariantWhenProductSyncIsEnabled(): void
+    {
+        $helper = $this->createHelper(false, false);
+        $context = $this->createContext();
+        $parent = $this->createProduct(
+            'parent-id',
+            true,
+            false,
+            8,
+            8,
+            new VariantListingConfig(false, 'child-main', null, false, false),
+            [
+                $this->createProduct('child-main', true, false, 4, 4, null),
+                $this->createProduct('child-secondary', true, false, 2, 2, null),
+            ],
+        );
+
+        $result = $helper->findProductId($context, $parent, null, false, true);
+
+        self::assertInstanceOf(PartialProductCollection::class, $result);
+        self::assertSame(['child-main'], $result->getIds());
+    }
+
+    public function testFindProductIdSelectsSpecificConfiguratorGroupVariantWhenProductSyncIsEnabled(): void
+    {
+        $helper = $this->createHelper(false, false);
+        $context = $this->createContext();
+        $parent = $this->createProduct(
+            'parent-id',
+            true,
+            false,
+            8,
+            8,
+            new VariantListingConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            [
+                $this->createProduct('color-red', true, false, 4, 4, null, [], null, 'color'),
+                $this->createProduct('color-blue', true, false, 2, 2, null, [], null, 'color'),
+            ],
+        );
+        $selectedVariant = $this->createProduct(
+            'color-red',
+            true,
+            false,
+            4,
+            4,
+            null,
+            [],
+            null,
+            'color',
+        );
+
+        $result = $helper->findProductId($context, $parent, $selectedVariant, false, true);
+
+        self::assertInstanceOf(PartialProductCollection::class, $result);
+        self::assertSame(['color-red'], $result->getIds());
+    }
+
+    public function testFindProductIdReturnsOneVariantPerConfiguratorGroupWhenNoVariantIsPreselected(): void
+    {
+        $helper = $this->createHelper(false, false);
+        $context = $this->createContext();
+        $parent = $this->createProduct(
+            'parent-id',
+            true,
+            false,
+            8,
+            8,
+            new VariantListingConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            [
+                $this->createProduct('group-a-first', true, false, 4, 4, null, [], null, 'group-a'),
+                $this->createProduct('group-a-second', true, false, 2, 2, null, [], null, 'group-a'),
+                $this->createProduct('group-b-first', true, false, 3, 3, null, [], null, 'group-b'),
+            ],
+        );
+
+        $result = $helper->findProductId($context, $parent, null, false, true);
+
+        self::assertInstanceOf(PartialProductCollection::class, $result);
+        self::assertSame(['group-a-first', 'group-b-first'], $result->getIds());
+    }
+
     private function createHelper(
         bool $hideCloseoutProductsWhenOutOfStock,
         bool $syncFirstAvailableVariant,
@@ -177,6 +281,7 @@ final class ProductTaggingHelperTest extends TestCase
         ?VariantListingConfig $variantListingConfig,
         array $children = [],
         ?PriceCollection $priceCollection = null,
+        ?string $displayGroup = null,
     ): PartialProduct {
         $entity = new PartialEntity([
             'id' => $id,
@@ -187,6 +292,7 @@ final class ProductTaggingHelperTest extends TestCase
             'availableStock' => $availableStock,
             'variantListingConfig' => $variantListingConfig,
             'price' => $priceCollection,
+            'displayGroup' => $displayGroup,
         ]);
 
         if ($children !== []) {
