@@ -122,6 +122,8 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $account->getNostoAccount(),
                     $request->getHost(),
                 );
+                $searchType = $data['searchType'] ?? null;
+
                 $metadata = new AnalyticsSearchMetadataForGraphql(
                     $data['query'] ?? null,
                     $data['resultId'] ?? vsprintf(
@@ -131,12 +133,11 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['isOrganic'] ?? true,
                     $data['isAutoCorrect'] ?? true,
                     $data['isAutoComplete'] ?? false,
-                    array_key_exists('searchType', $data)
-                        ? $data['searchType'] === 'keyword'
-                        : ($data['isKeyword'] ?? false),
+                    false,
                     $data['isSorted'] ?? true,
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
+                    $searchType,
                 );
                 $tracker->click($metadata, $productId, $abTests);
             } else {

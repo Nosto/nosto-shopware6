@@ -220,13 +220,14 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //autoComplete
                 false,
                 //keyword
-                $searchType === 'keyword',
+                false,
                 //sorted
                 $request->get('order') != null,
                 //hasResults
                 $productListing->count() > 0,
                 //refined
                 false,
+                $searchType,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
             $productListing->setExtensions(array_merge(
