@@ -11,15 +11,16 @@
         }
     ],
     "require": {
-        "nosto/shopware6-job-scheduler": "4.0.6",
-        "nosto/php-sdk": "7.7.3",
+        "nosto/shopware6-job-scheduler": "^4.0.6",
+        "nosto/php-sdk": "^7.7.3",
         "php": "^8.2"
     },
     "require-dev": {
         "symplify/easy-coding-standard": "^12.0",
         "monolog/monolog": "^3.5",
         "bramus/monolog-colored-line-formatter": "^3.1",
-        "slevomat/coding-standard": "8.22.1"
+        "slevomat/coding-standard": "8.22.1",
+        "phpunit/phpunit": "^11.5"
     },
     "autoload": {
         "psr-4": {
