@@ -15,7 +15,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             || new URLSearchParams(window.location.search).get('search');
         const category = document.querySelector('.nosto_category')?.querySelector('.category_string')?.textContent?.trim() || window.location.pathname;
         const resultId = document.querySelector('.nosto_result_id')?.textContent?.trim() || null;
-        const searchType = document.querySelector('.nosto_search_type')?.textContent?.trim() || 'keyword';
+        const searchType = document.querySelector('.nosto_search_type')?.textContent?.trim() || null;
 
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';
 
@@ -28,7 +28,12 @@ export default class NostoAnalytics extends window.PluginBaseClass {
             sessionId,
             trackingType,
             resultId,
-            ...(trackingType === 'search' ? {query: searchQuery, searchType} : {category}),
+            ...(trackingType === 'search'
+                ? {
+                    query: searchQuery,
+                    ...(searchType ? {searchType} : {}),
+                }
+                : {category}),
         };
 
         const apiRoute = window.router['frontend.nosto.analytics-tracking'];
