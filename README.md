@@ -295,6 +295,8 @@ This setup requires the installation of the [Shopware CLI](https://sw-cli.fos.gg
 1. Follow the local setup above
 2. Shop folder: `composer require symfony/test-pack --dev`
 3. Plugin folder: `composer test`
+   - Run this from `custom/plugins/nosto-shopware6`
+   - It executes the full PHPUnit suite using `phpunit.xml.dist`
    - The tests will fail for this first run
    - This will create the test database and run the migrations
    - The database name will be the configured DB name suffixed with `_test`
@@ -304,3 +306,10 @@ This setup requires the installation of the [Shopware CLI](https://sw-cli.fos.gg
    2. `bin/console plugin:install NostoIntegration --activate --clearCache`
 
 Now you can go back to point 3 and it will run successfully
+
+To run a single test class or method from the plugin folder:
+
+```bash
+./vendor/bin/phpunit --configuration=phpunit.xml.dist --filter DailyProductSyncScheduledTaskHandlerTest tests/Unit/Service/ScheduledTask
+./vendor/bin/phpunit --configuration=phpunit.xml.dist --filter testRunTriggersTheFullCatalogSyncOncePerDay tests/Unit/Service/ScheduledTask/DailyProductSyncScheduledTaskHandlerTest.php
+```
