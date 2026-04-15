@@ -10,7 +10,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,7 +30,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
     {
         return [
             ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
-            EntityDeleteEvent::class => 'beforeDelete',
+            BeforeDeleteEvent::class => 'beforeDelete',
             KernelEvents::RESPONSE => 'onResponse',
         ];
     }
@@ -86,7 +86,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         $this->writeEvents($event->getIds(), $event->getEntityName(), $event->getContext(), $orderNumberMapping);
     }
 
-    public function beforeDelete(EntityDeleteEvent $event): void
+    public function beforeDelete(BeforeDeleteEvent $event): void
     {
         $ids = $event->getIds(ProductDefinition::ENTITY_NAME);
 
