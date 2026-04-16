@@ -219,6 +219,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 true,
                 //autoComplete
                 false,
+                //keyword
                 false,
                 //sorted
                 $request->get('order') != null,
