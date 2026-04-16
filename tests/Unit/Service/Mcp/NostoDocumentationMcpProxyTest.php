@@ -51,7 +51,10 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             self::assertSame('tools/call', $payload['method'] ?? null);
             self::assertSame('technical-documentation-search', $payload['params']['name'] ?? null);
             self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query'] ?? null);
-            self::assertSame('Mcp-Session-Id: session-123', $options['normalized_headers']['mcp-session-id'][0] ?? null);
+            self::assertSame(
+                'Mcp-Session-Id: session-123',
+                $options['normalized_headers']['mcp-session-id'][0] ?? null,
+            );
 
             return new MockResponse(
                 json_encode([
@@ -121,7 +124,10 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             self::assertSame('tools/call', $payload['method'] ?? null);
             self::assertSame('feature-documentation-search', $payload['params']['name'] ?? null);
             self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query'] ?? null);
-            self::assertSame('Mcp-Session-Id: session-456', $options['normalized_headers']['mcp-session-id'][0] ?? null);
+            self::assertSame(
+                'Mcp-Session-Id: session-456',
+                $options['normalized_headers']['mcp-session-id'][0] ?? null,
+            );
 
             return new MockResponse(
                 json_encode([
