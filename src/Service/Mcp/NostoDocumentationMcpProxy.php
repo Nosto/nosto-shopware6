@@ -30,8 +30,6 @@ final class NostoDocumentationMcpProxy
     }
 
     /**
-     * @param array<string, mixed> $payload
-     *
      * @return array<string, mixed>
      */
     public function forward(array $payload): array
@@ -77,6 +75,9 @@ final class NostoDocumentationMcpProxy
         return $sessionId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function callTool(string $sessionId, string $toolName, string $query): array
     {
         return $this->requestJsonRpc('tools/call', [
@@ -88,8 +89,6 @@ final class NostoDocumentationMcpProxy
     }
 
     /**
-     * @param array<string, mixed> $result
-     *
      * @return array<string, mixed>
      */
     private function extractResult(array $result): array
@@ -108,8 +107,6 @@ final class NostoDocumentationMcpProxy
     }
 
     /**
-     * @param array<string, mixed> $params
-     *
      * @return array<string, mixed>
      */
     private function requestJsonRpc(string $method, array $params, ?string $sessionId = null): array
@@ -256,5 +253,4 @@ final class NostoDocumentationMcpProxy
             'isError' => true,
         ];
     }
-
 }
