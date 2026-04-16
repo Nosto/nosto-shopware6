@@ -427,6 +427,27 @@ class ProductHelper
     {
         $criteria = NostoCriteriaFactory::create($title);
 
+        $criteria->addAssociation('cover');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('manufacturer.media');
+        $criteria->addAssociation('categoriesRo');
+        $criteria->addAssociation('visibilities');
+
+        if ($this->configProvider->isEnabledAlternateImages(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $criteria->addAssociation('media');
+        }
+
+        if ($this->configProvider->isEnabledProductProperties(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $criteria->addAssociation('options.group');
+            $criteria->addAssociation('properties.group');
+        }
+
         $criteria->addFields(ProductFieldSets::productFields());
 
         return $criteria;
