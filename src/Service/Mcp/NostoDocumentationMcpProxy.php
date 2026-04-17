@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Service\Mcp;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
 final class NostoDocumentationMcpProxy
 {
-    private const PUBLIC_MCP_URL = 'https://dev.mcp.nosto.com/mcp';
+    private const DEFAULT_PUBLIC_MCP_URL = 'https://dev.mcp.nosto.com/mcp';
 
     private const MCP_PROTOCOL_VERSION = '2024-11-05';
 
@@ -26,6 +27,8 @@ final class NostoDocumentationMcpProxy
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
+        private readonly LoggerInterface $logger,
+        private readonly string $publicMcpUrl = self::DEFAULT_PUBLIC_MCP_URL,
     ) {
     }
 
@@ -34,23 +37,30 @@ final class NostoDocumentationMcpProxy
      */
     public function forward(array $payload): array
     {
-        $tool = $this->resolveLocalTool($payload['tool'] ?? null);
-        $arguments = $payload['arguments'] ?? [];
-
-        if (!\is_array($arguments)) {
-            return $this->errorResult('The "arguments" payload must be an object.');
-        }
-
-        $query = $this->extractQuery($arguments);
-        if ($query === null) {
-            return $this->errorResult('The "query" argument is required.');
-        }
-
         try {
+            $tool = $this->resolveLocalTool($payload['tool'] ?? null);
+            $arguments = $payload['arguments'] ?? [];
+
+            if (!\is_array($arguments)) {
+                return $this->errorResult('The "arguments" payload must be an object.');
+            }
+
+            $query = $this->extractQuery($arguments);
+            if ($query === null) {
+                return $this->errorResult('The "query" argument is required.');
+            }
+
             $sessionId = $this->initializeSession();
             $result = $this->callTool($sessionId, $tool, $query);
-        } catch (Throwable $e) {
+        } catch (\InvalidArgumentException $e) {
             return $this->errorResult($e->getMessage());
+        } catch (Throwable $e) {
+            $this->logger->error('Failed to proxy the Nosto MCP documentation request.', [
+                'exception' => $e,
+                'tool' => $payload['tool'] ?? null,
+            ]);
+
+            return $this->errorResult('Failed to fetch documentation from the Nosto MCP server.');
         }
 
         return $this->extractResult($result);
@@ -118,12 +128,18 @@ final class NostoDocumentationMcpProxy
             'params' => $params,
         ];
 
+        try {
+            $body = json_encode($payload, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new \RuntimeException('Could not encode the Nosto MCP request payload.', 0, $e);
+        }
+
         $options = [
             'headers' => [
                 'Accept' => 'application/json, text/event-stream',
                 'Content-Type' => 'application/json',
             ],
-            'body' => json_encode($payload, \JSON_THROW_ON_ERROR),
+            'body' => $body,
         ];
 
         if ($sessionId !== null) {
@@ -131,7 +147,7 @@ final class NostoDocumentationMcpProxy
         }
 
         try {
-            $response = $this->httpClient->request('POST', self::PUBLIC_MCP_URL, $options);
+            $response = $this->httpClient->request('POST', $this->publicMcpUrl, $options);
             $statusCode = $response->getStatusCode();
             $body = $response->getContent(false);
             $contentType = strtolower($response->getHeaders(false)['content-type'][0] ?? '');

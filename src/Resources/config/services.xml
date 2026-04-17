@@ -374,7 +374,10 @@
         />
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
 
-        <service id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy" autowire="true"/>
+        <service id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy" autowire="true">
+            <argument key="$httpClient" type="service" id="http_client"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
 
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
 

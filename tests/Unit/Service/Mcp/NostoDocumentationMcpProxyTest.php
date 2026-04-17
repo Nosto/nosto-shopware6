@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Tests\Unit\Service\Mcp;
 
 use Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -79,7 +80,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             );
         });
 
-        $proxy = new NostoDocumentationMcpProxy($client);
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger());
         $result = $proxy->forward([
             'tool' => 'nosto-docs-mcp-technical-documentation-search',
             'arguments' => [
@@ -94,8 +95,16 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
     public function testForwardsFeatureDocumentationQueriesToTheRemoteMcpServer(): void
     {
-        $client = new MockHttpClient(function (string $method, string $url, array $options) {
+        $requests = [];
+
+        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
             $payload = json_decode($options['body'] ?? '{}', true, 512, \JSON_THROW_ON_ERROR);
+
+            $requests[] = [
+                'method' => $method,
+                'url' => $url,
+                'options' => $options,
+            ];
 
             if (($payload['method'] ?? null) === 'initialize') {
                 return new MockResponse(
@@ -152,7 +161,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             );
         });
 
-        $proxy = new NostoDocumentationMcpProxy($client);
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger());
         $result = $proxy->forward([
             'tool' => 'nosto-docs-mcp-feature-documentation-search',
             'arguments' => [
@@ -162,5 +171,21 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('Feature docs result.', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
+        self::assertCount(2, $requests);
+    }
+
+    public function testReturnsMcpErrorForInvalidToolPayload(): void
+    {
+        $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger());
+
+        $result = $proxy->forward([
+            'tool' => '',
+            'arguments' => [
+                'query' => 'How do I expose docs MCP?',
+            ],
+        ]);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('The "tool" field is required.', $result['content'][0]['text']);
     }
 }
