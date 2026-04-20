@@ -1,3 +1,7 @@
+# 5.2.14
+* Fix: Autowiring Unterstütztung für den Such-Controller hinzugefügt
+* Neu: Verbesserung der Suchanalysen durch Übermittlung des Suchtyps mit den Anfragen
+
 # 5.2.13
 * Fix: Preisberechnungen, wenn keine Steuern vorhanden sind
 
