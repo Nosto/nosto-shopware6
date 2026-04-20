@@ -135,6 +135,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['isSorted'] ?? true,
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
+                    $data['searchType'] ?? null,
                 );
                 $tracker->click($metadata, $productId, $abTests);
             } else {
