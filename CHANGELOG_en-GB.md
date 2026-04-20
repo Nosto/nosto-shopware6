@@ -1,3 +1,7 @@
+# 6.1.9
+* Fix: Added autowiring support for the search controller
+* New: Improved search analytics by sending the search type with requests
+
 # 6.1.8
 * Fix: Update missing pageFull() in CMS decorator
 
