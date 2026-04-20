@@ -1,3 +1,7 @@
+# 5.2.14
+* Fix: Added autowiring support for the search controller
+* New: Improved search analytics by sending the search type with requests
+
 # 5.2.13
 * Fix: Price calculations when taxes are not present
 
