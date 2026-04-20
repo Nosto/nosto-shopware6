@@ -11,8 +11,6 @@ use Throwable;
 
 final class NostoDocumentationMcpProxy
 {
-    private const DEFAULT_PUBLIC_MCP_URL = 'https://dev.mcp.nosto.com/mcp';
-
     private const MCP_PROTOCOL_VERSION = '2024-11-05';
 
     private const CLIENT_NAME = 'nosto-shopware-docs-proxy';
@@ -28,7 +26,7 @@ final class NostoDocumentationMcpProxy
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
-        private readonly string $publicMcpUrl = self::DEFAULT_PUBLIC_MCP_URL,
+        private readonly string $publicMcpUrl,
     ) {
     }
 
@@ -113,7 +111,7 @@ final class NostoDocumentationMcpProxy
             return $this->errorResult((string) $message);
         }
 
-        return $result;
+        return $this->errorResult('The Nosto MCP server returned an invalid or unexpected JSON-RPC response.');
     }
 
     /**

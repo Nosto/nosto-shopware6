@@ -12,6 +12,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class NostoDocumentationMcpProxyTest extends TestCase
 {
+    private const PUBLIC_MCP_URL = 'https://dev.mcp.nosto.com/mcp';
+
     public function testForwardsTechnicalDocumentationQueriesToTheRemoteMcpServer(): void
     {
         $requests = [];
@@ -80,7 +82,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             );
         });
 
-        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger());
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
         $result = $proxy->forward([
             'tool' => 'nosto-docs-mcp-technical-documentation-search',
             'arguments' => [
@@ -161,7 +163,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             );
         });
 
-        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger());
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
         $result = $proxy->forward([
             'tool' => 'nosto-docs-mcp-feature-documentation-search',
             'arguments' => [
@@ -176,7 +178,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
     public function testReturnsMcpErrorForInvalidToolPayload(): void
     {
-        $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger());
+        $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger(), self::PUBLIC_MCP_URL);
 
         $result = $proxy->forward([
             'tool' => '',
@@ -187,5 +189,60 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertTrue($result['isError']);
         self::assertSame('The "tool" field is required.', $result['content'][0]['text']);
+    }
+
+    public function testReturnsMcpErrorForUnexpectedRemoteResponse(): void
+    {
+        $client = new MockHttpClient(function (string $method, string $url, array $options) {
+            $payload = json_decode($options['body'] ?? '{}', true, 512, \JSON_THROW_ON_ERROR);
+
+            if (($payload['method'] ?? null) === 'initialize') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 1,
+                        'result' => [
+                            'protocolVersion' => '2024-11-05',
+                            'capabilities' => [],
+                            'serverInfo' => [
+                                'name' => 'nosto',
+                                'version' => '1.0.0',
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'mcp-session-id' => 'session-789',
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
+            }
+
+            return new MockResponse(
+                json_encode([], \JSON_THROW_ON_ERROR),
+                [
+                    'http_code' => 200,
+                    'response_headers' => [
+                        'content-type' => 'application/json',
+                    ],
+                ],
+            );
+        });
+
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
+        $result = $proxy->forward([
+            'tool' => 'nosto-docs-mcp-technical-documentation-search',
+            'arguments' => [
+                'query' => 'How do I expose docs MCP?',
+            ],
+        ]);
+
+        self::assertTrue($result['isError']);
+        self::assertSame(
+            'The Nosto MCP server returned an invalid or unexpected JSON-RPC response.',
+            $result['content'][0]['text'],
+        );
     }
 }

@@ -9,6 +9,10 @@
         <import resource="imports/*"/>
     </imports>
 
+    <parameters>
+        <parameter key="nosto.mcp.public_mcp_url">https://dev.mcp.nosto.com/mcp</parameter>
+    </parameters>
+
     <services>
         <defaults autowire="true"/>
 
@@ -377,6 +381,7 @@
         <service id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy" autowire="true">
             <argument key="$httpClient" type="service" id="http_client"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+            <argument key="$publicMcpUrl">%nosto.mcp.public_mcp_url%</argument>
         </service>
 
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>

@@ -15,10 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class NostoMcpControllerTest extends TestCase
 {
+    private const PUBLIC_MCP_URL = 'https://dev.mcp.nosto.com/mcp';
+
     public function testDocumentationReturnsBadRequestForInvalidJson(): void
     {
         $controller = new NostoMcpController(
-            new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger()),
+            new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger(), self::PUBLIC_MCP_URL),
         );
         $request = Request::create(
             '/api/_action/nosto-docs-mcp/documentation',
@@ -106,7 +108,7 @@ final class NostoMcpControllerTest extends TestCase
         });
 
         $controller = new NostoMcpController(
-            new NostoDocumentationMcpProxy($client, new NullLogger()),
+            new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL),
         );
         $request = Request::create(
             '/api/_action/nosto-docs-mcp/documentation',
