@@ -209,6 +209,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             );
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
+            $searchType = $request->attributes->get('nostoSearchType');
             $metadata = new AnalyticsSearchMetadataForGraphql(
                 $request->get('search') ?? null,
                 $resultId,
@@ -226,11 +227,16 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $productListing->count() > 0,
                 //refined
                 false,
+                $searchType,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
-            $productListing->setExtensions([
-                "nosto_result_id" => $resultId,
-            ]);
+            $productListing->setExtensions(array_merge(
+                $productListing->getExtensions(),
+                [
+                    'nosto_result_id' => $resultId,
+                    'nosto_search_type' => $searchType,
+                ],
+            ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
         } catch (\Exception $e) {
             //@ToDo maybe send the the error to the nosto
