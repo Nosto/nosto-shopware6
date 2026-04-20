@@ -11,6 +11,7 @@
             public="true"
             autowire="true"
         >
+            <argument type="service" id="Nosto\NostoIntegration\Decorator\Storefront\Controller\SearchController.inner"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
