@@ -83,7 +83,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->forward([
+        $result = $proxy->handleDocumentationRequest([
             'tool' => 'nosto-docs-mcp-technical-documentation-search',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
@@ -164,7 +164,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->forward([
+        $result = $proxy->handleDocumentationRequest([
             'tool' => 'nosto-docs-mcp-feature-documentation-search',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
@@ -180,7 +180,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
     {
         $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger(), self::PUBLIC_MCP_URL);
 
-        $result = $proxy->forward([
+        $result = $proxy->handleDocumentationRequest([
             'tool' => '',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
@@ -232,7 +232,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->forward([
+        $result = $proxy->handleDocumentationRequest([
             'tool' => 'nosto-docs-mcp-technical-documentation-search',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',

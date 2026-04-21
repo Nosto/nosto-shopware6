@@ -13,100 +13,100 @@ final class NostoDocumentationMcpProxy
 {
     private const MCP_PROTOCOL_VERSION = '2024-11-05';
 
-    private const CLIENT_NAME = 'nosto-shopware-docs-proxy';
+    private const MCP_CLIENT_NAME = 'nosto-shopware-docs-proxy';
 
-    private const CLIENT_VERSION = '1.0.0';
+    private const MCP_CLIENT_VERSION = '1.0.0';
 
-    private const TECHNICAL_TOOL = 'technical-documentation-search';
+    private const TECHNICAL_DOCS = 'technical-documentation-search';
 
-    private const FEATURE_TOOL = 'feature-documentation-search';
+    private const FEATURE_DOCS = 'feature-documentation-search';
 
-    private int $requestId = 0;
+    private int $jsonRpcRequestId = 0;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
-        private readonly string $publicMcpUrl,
+        private readonly string $mcpServerUrl,
     ) {
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function forward(array $payload): array
+    public function handleDocumentationRequest(array $requestPayload): array
     {
         try {
-            $tool = $this->resolveLocalTool($payload['tool'] ?? null);
-            $arguments = $payload['arguments'] ?? [];
+            $resolvedToolName = $this->resolveRequestedDocumentationTool($requestPayload['tool'] ?? null);
+            $requestArguments = $requestPayload['arguments'] ?? [];
 
-            if (!\is_array($arguments)) {
+            if (!\is_array($requestArguments)) {
                 return $this->errorResult('The "arguments" payload must be an object.');
             }
 
-            $query = $this->extractQuery($arguments);
-            if ($query === null) {
+            $documentationQuery = $this->extractDocumentationQuery($requestArguments);
+            if ($documentationQuery === null) {
                 return $this->errorResult('The "query" argument is required.');
             }
 
-            $sessionId = $this->initializeSession();
-            $result = $this->callTool($sessionId, $tool, $query);
+            $mcpSessionId = $this->initializeMcpSession();
+            $response = $this->callMcpTool($mcpSessionId, $resolvedToolName, $documentationQuery);
         } catch (\InvalidArgumentException $e) {
             return $this->errorResult($e->getMessage());
         } catch (Throwable $e) {
             $this->logger->error('Failed to proxy the Nosto MCP documentation request.', [
                 'exception' => $e,
-                'tool' => $payload['tool'] ?? null,
+                'tool' => $requestPayload['tool'] ?? null,
             ]);
 
             return $this->errorResult('Failed to fetch documentation from the Nosto MCP server.');
         }
 
-        return $this->extractResult($result);
+        return $this->normalizeMcpResponse($response);
     }
 
-    private function initializeSession(): string
+    private function initializeMcpSession(): string
     {
-        $response = $this->requestJsonRpc('initialize', [
+        $response = $this->sendJsonRpcRequest('initialize', [
             'protocolVersion' => self::MCP_PROTOCOL_VERSION,
             'capabilities' => (object) [],
             'clientInfo' => [
-                'name' => self::CLIENT_NAME,
-                'version' => self::CLIENT_VERSION,
+                'name' => self::MCP_CLIENT_NAME,
+                'version' => self::MCP_CLIENT_VERSION,
             ],
         ]);
 
-        $sessionId = $response['sessionId'] ?? null;
-        if (!\is_string($sessionId) || $sessionId === '') {
+        $mcpSessionId = $response['sessionId'] ?? null;
+        if (!\is_string($mcpSessionId) || $mcpSessionId === '') {
             throw new \RuntimeException('The Nosto MCP server did not return a session id.');
         }
 
-        return $sessionId;
+        return $mcpSessionId;
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function callTool(string $sessionId, string $toolName, string $query): array
+    private function callMcpTool(string $mcpSessionId, string $toolName, string $query): array
     {
-        return $this->requestJsonRpc('tools/call', [
+        return $this->sendJsonRpcRequest('tools/call', [
             'name' => $toolName,
             'arguments' => [
                 'query' => $query,
             ],
-        ], $sessionId);
+        ], $mcpSessionId);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function extractResult(array $result): array
+    private function normalizeMcpResponse(array $response): array
     {
-        if (isset($result['result']) && \is_array($result['result'])) {
-            return $result['result'];
+        if (isset($response['result']) && \is_array($response['result'])) {
+            return $response['result'];
         }
 
-        if (isset($result['error']) && \is_array($result['error'])) {
-            $message = $result['error']['message'] ?? 'The Nosto MCP server returned an error.';
+        if (isset($response['error']) && \is_array($response['error'])) {
+            $message = $response['error']['message'] ?? 'The Nosto MCP server returned an error.';
 
             return $this->errorResult((string) $message);
         }
@@ -117,17 +117,17 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function requestJsonRpc(string $method, array $params, ?string $sessionId = null): array
+    private function sendJsonRpcRequest(string $method, array $params, ?string $mcpSessionId = null): array
     {
-        $payload = [
+        $jsonRpcPayload = [
             'jsonrpc' => '2.0',
-            'id' => ++$this->requestId,
+            'id' => ++$this->jsonRpcRequestId,
             'method' => $method,
             'params' => $params,
         ];
 
         try {
-            $body = json_encode($payload, \JSON_THROW_ON_ERROR);
+            $body = json_encode($jsonRpcPayload, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new \RuntimeException('Could not encode the Nosto MCP request payload.', 0, $e);
         }
@@ -140,14 +140,14 @@ final class NostoDocumentationMcpProxy
             'body' => $body,
         ];
 
-        if ($sessionId !== null) {
-            $options['headers']['Mcp-Session-Id'] = $sessionId;
+        if ($mcpSessionId !== null) {
+            $options['headers']['Mcp-Session-Id'] = $mcpSessionId;
         }
 
         try {
-            $response = $this->httpClient->request('POST', $this->publicMcpUrl, $options);
+            $response = $this->httpClient->request('POST', $this->mcpServerUrl, $options);
             $statusCode = $response->getStatusCode();
-            $body = $response->getContent(false);
+            $responseBody = $response->getContent(false);
             $contentType = strtolower($response->getHeaders(false)['content-type'][0] ?? '');
         } catch (ExceptionInterface $e) {
             throw new \RuntimeException('Could not contact the Nosto MCP server: ' . $e->getMessage(), 0, $e);
@@ -157,8 +157,8 @@ final class NostoDocumentationMcpProxy
             throw new \RuntimeException(\sprintf('The Nosto MCP server returned HTTP %d.', $statusCode));
         }
 
-        $decoded = $this->decodeResponseBody($body, $contentType);
-        if ($sessionId === null) {
+        $decoded = $this->decodeMcpResponseBody($responseBody, $contentType);
+        if ($mcpSessionId === null) {
             $responseSessionId = $response->getHeaders(false)['mcp-session-id'][0] ?? null;
             if (\is_string($responseSessionId) && $responseSessionId !== '') {
                 $decoded['sessionId'] = $responseSessionId;
@@ -171,15 +171,15 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function decodeResponseBody(string $body, string $contentType): array
+    private function decodeMcpResponseBody(string $responseBody, string $contentType): array
     {
-        $body = trim($body);
-        if ($body === '') {
+        $responseBody = trim($responseBody);
+        if ($responseBody === '') {
             return [];
         }
 
         if (str_contains($contentType, 'text/event-stream')) {
-            $json = $this->extractLastEventData($body);
+            $json = $this->extractLastEventData($responseBody);
             if ($json === null) {
                 return [];
             }
@@ -187,13 +187,13 @@ final class NostoDocumentationMcpProxy
             return $this->decodeJson($json);
         }
 
-        return $this->decodeJson($body);
+        return $this->decodeJson($responseBody);
     }
 
-    private function extractLastEventData(string $body): ?string
+    private function extractLastEventData(string $responseBody): ?string
     {
         $json = null;
-        foreach (preg_split("/\r?\n/", $body) ?: [] as $line) {
+        foreach (preg_split("/\r?\n/", $responseBody) ?: [] as $line) {
             if (str_starts_with($line, 'data:')) {
                 $json = ltrim(substr($line, 5));
             }
@@ -205,10 +205,10 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function decodeJson(string $json): array
+    private function decodeJson(string $jsonPayload): array
     {
         try {
-            $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+            $decoded = json_decode($jsonPayload, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new \RuntimeException('The Nosto MCP server returned invalid JSON.', 0, $e);
         }
@@ -220,9 +220,9 @@ final class NostoDocumentationMcpProxy
         return $decoded;
     }
 
-    private function extractQuery(array $arguments): ?string
+    private function extractDocumentationQuery(array $requestArguments): ?string
     {
-        $query = $arguments['query'] ?? $arguments['text'] ?? $arguments['search'] ?? null;
+        $query = $requestArguments['query'] ?? $requestArguments['text'] ?? $requestArguments['search'] ?? null;
 
         if (!\is_string($query)) {
             return null;
@@ -233,7 +233,7 @@ final class NostoDocumentationMcpProxy
         return $query === '' ? null : $query;
     }
 
-    private function resolveLocalTool(mixed $toolName): string
+    private function resolveRequestedDocumentationTool(mixed $toolName): string
     {
         if (!\is_string($toolName) || trim($toolName) === '') {
             throw new \InvalidArgumentException('The "tool" field is required.');
@@ -241,12 +241,12 @@ final class NostoDocumentationMcpProxy
 
         $toolName = strtolower(trim($toolName));
 
-        if (str_ends_with($toolName, self::FEATURE_TOOL)) {
-            return self::FEATURE_TOOL;
+        if (str_ends_with($toolName, self::FEATURE_DOCS)) {
+            return self::FEATURE_DOCS;
         }
 
-        if (str_ends_with($toolName, self::TECHNICAL_TOOL)) {
-            return self::TECHNICAL_TOOL;
+        if (str_ends_with($toolName, self::TECHNICAL_DOCS)) {
+            return self::TECHNICAL_DOCS;
         }
 
         throw new \InvalidArgumentException('Unsupported documentation tool requested.');

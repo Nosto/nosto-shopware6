@@ -47,6 +47,6 @@ final class NostoMcpController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        return new JsonResponse($this->proxy->forward($payload));
+        return new JsonResponse($this->proxy->handleDocumentationRequest($payload));
     }
 }

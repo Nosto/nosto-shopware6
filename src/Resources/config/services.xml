@@ -381,7 +381,7 @@
         <service id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy" autowire="true">
             <argument key="$httpClient" type="service" id="http_client"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
-            <argument key="$publicMcpUrl">%nosto.mcp.public_mcp_url%</argument>
+            <argument key="$mcpServerUrl">%nosto.mcp.public_mcp_url%</argument>
         </service>
 
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
