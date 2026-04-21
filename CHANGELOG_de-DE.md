@@ -1,3 +1,7 @@
+# 6.1.9
+* Fix: Autowiring Unterstütztung für den Such-Controller hinzugefügt
+* Neu: Verbesserung der Suchanalysen durch Übermittlung des Suchtyps mit den Anfragen
+
 # 6.1.8
 * Fix: Fehlende Funktion „pageFull()" im CMS-Dekorator aktualisiert
 
