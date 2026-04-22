@@ -38,8 +38,7 @@
         },
         "allow-plugins": {
             "symfony/runtime": true,
-            "dealerdirect/phpcodesniffer-composer-installer": false,
-            "php-http/discovery": true
+            "dealerdirect/phpcodesniffer-composer-installer": false
         }
     },
     "extra": {
