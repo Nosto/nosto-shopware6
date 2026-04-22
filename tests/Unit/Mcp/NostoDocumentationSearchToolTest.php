@@ -52,9 +52,22 @@ final class NostoDocumentationSearchToolTest extends TestCase
     /**
      * @param array<int, array{method: string, url: string, options: array<string, mixed>}> $requests
      */
-    private function createProxy(string $expectedToolName, string $responseText, string $sessionId, array &$requests): NostoDocumentationMcpProxy
-    {
-        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests, $expectedToolName, $responseText, $sessionId): MockResponse {
+    private function createProxy(
+        string $expectedToolName,
+        string $responseText,
+        string $sessionId,
+        array &$requests,
+    ): NostoDocumentationMcpProxy {
+        $client = new MockHttpClient(function (
+            string $method,
+            string $url,
+            array $options,
+        ) use (
+            &$requests,
+            $expectedToolName,
+            $responseText,
+            $sessionId,
+        ): MockResponse {
             $requests[] = [
                 'method' => $method,
                 'url' => $url,
@@ -88,7 +101,10 @@ final class NostoDocumentationSearchToolTest extends TestCase
             }
 
             if (($payload['method'] ?? null) === 'notifications/initialized') {
-                self::assertSame("Mcp-Session-Id: {$sessionId}", $options['normalized_headers']['mcp-session-id'][0] ?? null);
+                self::assertSame(
+                    "Mcp-Session-Id: {$sessionId}",
+                    $options['normalized_headers']['mcp-session-id'][0] ?? null,
+                );
 
                 return new MockResponse('', [
                     'http_code' => 200,
@@ -101,7 +117,10 @@ final class NostoDocumentationSearchToolTest extends TestCase
             self::assertSame('tools/call', $payload['method'] ?? null);
             self::assertSame($expectedToolName, $payload['params']['name'] ?? null);
             self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query_input'] ?? null);
-            self::assertSame("Mcp-Session-Id: {$sessionId}", $options['normalized_headers']['mcp-session-id'][0] ?? null);
+            self::assertSame(
+                "Mcp-Session-Id: {$sessionId}",
+                $options['normalized_headers']['mcp-session-id'][0] ?? null,
+            );
 
             return new MockResponse(
                 json_encode([

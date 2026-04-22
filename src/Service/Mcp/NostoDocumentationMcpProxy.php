@@ -123,8 +123,12 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function sendJsonRpcRequest(string $method, array $params, ?string $mcpSessionId = null, bool $isNotification = false): array
-    {
+    private function sendJsonRpcRequest(
+        string $method,
+        array $params,
+        ?string $mcpSessionId = null,
+        bool $isNotification = false,
+    ): array {
         $jsonRpcPayload = [
             'jsonrpc' => '2.0',
             'method' => $method,
