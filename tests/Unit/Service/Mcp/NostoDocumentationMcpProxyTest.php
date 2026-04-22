@@ -216,7 +216,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         ]);
 
         self::assertTrue($result['isError']);
-        self::assertSame('The "tool" field is required.', $result['content'][0]['text']);
+        self::assertSame('The tool field is required.', $result['content'][0]['text']);
     }
 
     public function testReturnsMcpErrorForUnexpectedRemoteResponse(): void
