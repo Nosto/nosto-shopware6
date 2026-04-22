@@ -51,13 +51,21 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                 );
             }
 
+            if (($payload['method'] ?? null) === 'notifications/initialized') {
+                self::assertSame('Mcp-Session-Id: session-123', $options['normalized_headers']['mcp-session-id'][0] ?? null);
+
+                return new MockResponse('', [
+                    'http_code' => 200,
+                    'response_headers' => [
+                        'content-type' => 'application/json',
+                    ],
+                ]);
+            }
+
             self::assertSame('tools/call', $payload['method'] ?? null);
-            self::assertSame('technical-documentation-search', $payload['params']['name'] ?? null);
-            self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query'] ?? null);
-            self::assertSame(
-                'Mcp-Session-Id: session-123',
-                $options['normalized_headers']['mcp-session-id'][0] ?? null,
-            );
+            self::assertSame('get_nosto_tech_docs', $payload['params']['name'] ?? null);
+            self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query_input'] ?? null);
+            self::assertSame('Mcp-Session-Id: session-123', $options['normalized_headers']['mcp-session-id'][0] ?? null);
 
             return new MockResponse(
                 json_encode([
@@ -83,8 +91,8 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->handleDocumentationRequest([
-            'tool' => 'nosto-docs-mcp-technical-documentation-search',
+        $result = $proxy->forwardDocumentationRequest([
+            'tool' => 'get_nosto_tech_docs',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
             ],
@@ -92,7 +100,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('Use the MCP endpoint and a proxy service.', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
-        self::assertCount(2, $requests);
+        self::assertCount(3, $requests);
     }
 
     public function testForwardsFeatureDocumentationQueriesToTheRemoteMcpServer(): void
@@ -132,13 +140,21 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                 );
             }
 
+            if (($payload['method'] ?? null) === 'notifications/initialized') {
+                self::assertSame('Mcp-Session-Id: session-456', $options['normalized_headers']['mcp-session-id'][0] ?? null);
+
+                return new MockResponse('', [
+                    'http_code' => 200,
+                    'response_headers' => [
+                        'content-type' => 'application/json',
+                    ],
+                ]);
+            }
+
             self::assertSame('tools/call', $payload['method'] ?? null);
-            self::assertSame('feature-documentation-search', $payload['params']['name'] ?? null);
-            self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query'] ?? null);
-            self::assertSame(
-                'Mcp-Session-Id: session-456',
-                $options['normalized_headers']['mcp-session-id'][0] ?? null,
-            );
+            self::assertSame('get_nosto_feature_docs', $payload['params']['name'] ?? null);
+            self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query_input'] ?? null);
+            self::assertSame('Mcp-Session-Id: session-456', $options['normalized_headers']['mcp-session-id'][0] ?? null);
 
             return new MockResponse(
                 json_encode([
@@ -164,8 +180,8 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->handleDocumentationRequest([
-            'tool' => 'nosto-docs-mcp-feature-documentation-search',
+        $result = $proxy->forwardDocumentationRequest([
+            'tool' => 'get_nosto_feature_docs',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
             ],
@@ -173,14 +189,14 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('Feature docs result.', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
-        self::assertCount(2, $requests);
+        self::assertCount(3, $requests);
     }
 
     public function testReturnsMcpErrorForInvalidToolPayload(): void
     {
         $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger(), self::PUBLIC_MCP_URL);
 
-        $result = $proxy->handleDocumentationRequest([
+        $result = $proxy->forwardDocumentationRequest([
             'tool' => '',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
@@ -232,8 +248,8 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         });
 
         $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
-        $result = $proxy->handleDocumentationRequest([
-            'tool' => 'nosto-docs-mcp-technical-documentation-search',
+        $result = $proxy->forwardDocumentationRequest([
+            'tool' => 'get_nosto_tech_docs',
             'arguments' => [
                 'query' => 'How do I expose docs MCP?',
             ],

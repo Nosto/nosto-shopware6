@@ -11,15 +11,15 @@ use Throwable;
 
 final class NostoDocumentationMcpProxy
 {
-    private const MCP_PROTOCOL_VERSION = '2024-11-05';
+    private const NOSTO_MCP_PROTOCOL_VERSION = '2024-11-05';
 
-    private const MCP_CLIENT_NAME = 'nosto-shopware-docs-proxy';
+    private const NOSTO_MCP_CLIENT_NAME = 'nosto-shopware-docs-proxy';
 
-    private const MCP_CLIENT_VERSION = '1.0.0';
+    private const NOSTO_MCP_CLIENT_VERSION = '1.0.0';
 
-    private const TECHNICAL_DOCS = 'technical-documentation-search';
+    private const TECHNICAL_DOCUMENTATION = 'get_nosto_tech_docs';
 
-    private const FEATURE_DOCS = 'feature-documentation-search';
+    private const FEATURE_DOCUMENTATION = 'get_nosto_feature_docs';
 
     private int $jsonRpcRequestId = 0;
 
@@ -33,23 +33,24 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    public function handleDocumentationRequest(array $requestPayload): array
+    public function forwardDocumentationRequest(array $requestPayload): array
     {
         try {
-            $resolvedToolName = $this->resolveRequestedDocumentationTool($requestPayload['tool'] ?? null);
+            $resolvedToolName = $this->resolveRemoteDocumentationTool($requestPayload['tool'] ?? null);
             $requestArguments = $requestPayload['arguments'] ?? [];
 
             if (!\is_array($requestArguments)) {
-                return $this->errorResult('The "arguments" payload must be an object.');
+                return $this->errorResult('The arguments payload must be an object.');
             }
 
             $documentationQuery = $this->extractDocumentationQuery($requestArguments);
             if ($documentationQuery === null) {
-                return $this->errorResult('The "query" argument is required.');
+                return $this->errorResult('The query argument is required.');
             }
 
             $mcpSessionId = $this->initializeMcpSession();
-            $response = $this->callMcpTool($mcpSessionId, $resolvedToolName, $documentationQuery);
+            $this->sendInitializedNotification($mcpSessionId);
+            $response = $this->callRemoteDocumentationTool($mcpSessionId, $resolvedToolName, $documentationQuery);
         } catch (\InvalidArgumentException $e) {
             return $this->errorResult($e->getMessage());
         } catch (Throwable $e) {
@@ -67,11 +68,11 @@ final class NostoDocumentationMcpProxy
     private function initializeMcpSession(): string
     {
         $response = $this->sendJsonRpcRequest('initialize', [
-            'protocolVersion' => self::MCP_PROTOCOL_VERSION,
+            'protocolVersion' => self::NOSTO_MCP_PROTOCOL_VERSION,
             'capabilities' => (object) [],
             'clientInfo' => [
-                'name' => self::MCP_CLIENT_NAME,
-                'version' => self::MCP_CLIENT_VERSION,
+                'name' => self::NOSTO_MCP_CLIENT_NAME,
+                'version' => self::NOSTO_MCP_CLIENT_VERSION,
             ],
         ]);
 
@@ -86,14 +87,19 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function callMcpTool(string $mcpSessionId, string $toolName, string $query): array
+    private function callRemoteDocumentationTool(string $mcpSessionId, string $toolName, string $query): array
     {
         return $this->sendJsonRpcRequest('tools/call', [
             'name' => $toolName,
             'arguments' => [
-                'query' => $query,
+                'query_input' => $query,
             ],
         ], $mcpSessionId);
+    }
+
+    private function sendInitializedNotification(string $mcpSessionId): void
+    {
+        $this->sendJsonRpcRequest('notifications/initialized', [], $mcpSessionId, true);
     }
 
     /**
@@ -117,14 +123,17 @@ final class NostoDocumentationMcpProxy
     /**
      * @return array<string, mixed>
      */
-    private function sendJsonRpcRequest(string $method, array $params, ?string $mcpSessionId = null): array
+    private function sendJsonRpcRequest(string $method, array $params, ?string $mcpSessionId = null, bool $isNotification = false): array
     {
         $jsonRpcPayload = [
             'jsonrpc' => '2.0',
-            'id' => ++$this->jsonRpcRequestId,
             'method' => $method,
             'params' => $params,
         ];
+
+        if (!$isNotification) {
+            $jsonRpcPayload['id'] = ++$this->jsonRpcRequestId;
+        }
 
         try {
             $body = json_encode($jsonRpcPayload, \JSON_THROW_ON_ERROR);
@@ -233,20 +242,20 @@ final class NostoDocumentationMcpProxy
         return $query === '' ? null : $query;
     }
 
-    private function resolveRequestedDocumentationTool(mixed $toolName): string
+    private function resolveRemoteDocumentationTool(mixed $toolName): string
     {
         if (!\is_string($toolName) || trim($toolName) === '') {
-            throw new \InvalidArgumentException('The "tool" field is required.');
+            throw new \InvalidArgumentException('The tool field is required.');
         }
 
         $toolName = strtolower(trim($toolName));
 
-        if (str_ends_with($toolName, self::FEATURE_DOCS)) {
-            return self::FEATURE_DOCS;
+        if ($toolName === self::FEATURE_DOCUMENTATION) {
+            return self::FEATURE_DOCUMENTATION;
         }
 
-        if (str_ends_with($toolName, self::TECHNICAL_DOCS)) {
-            return self::TECHNICAL_DOCS;
+        if ($toolName === self::TECHNICAL_DOCUMENTATION) {
+            return self::TECHNICAL_DOCUMENTATION;
         }
 
         throw new \InvalidArgumentException('Unsupported documentation tool requested.');
