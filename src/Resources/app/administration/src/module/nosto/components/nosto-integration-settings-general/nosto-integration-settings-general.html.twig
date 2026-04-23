@@ -17,10 +17,9 @@
                             :label="$tc('nosto.configuration.general.deferredInit.label')"
                             :is-inheritance-field="props.isInheritField"
                             :is-inherited="props.isInherited"
-                            :disabled="props.isInherited"
                             :modelValue="props.currentValue"
                             :helpText="$tc('nosto.configuration.general.deferredInit.helpText')"
-                            @update:modelValue="onUpdateValue('isInitializeNostoAfterInteraction', $event)"
+                            @update:modelValue="props.updateCurrentValue"
                             @inheritance-restore="props.restoreInheritance"
                             @inheritance-remove="props.removeInheritance"
                         />
