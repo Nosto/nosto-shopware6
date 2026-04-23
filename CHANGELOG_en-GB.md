@@ -1,3 +1,6 @@
+# 6.1.11
+* Fix: Nosto settings inheritance adjustments
+
 # 6.1.10
 * Fix: Fixes for inheritance
 

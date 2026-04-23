@@ -1,3 +1,6 @@
+# 6.1.11
+* Fix: Anpassungen der Nosto-Einstellungsvererbung
+
 # 6.1.10
 * Fix: Fix für Vererbungen
 
