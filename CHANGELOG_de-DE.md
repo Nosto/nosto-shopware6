@@ -1,3 +1,6 @@
+# 6.1.11
+* Fix: Fix für das Entfernen der Vererbung
+
 # 6.1.10
 * Fix: Fix für Vererbungen
 
