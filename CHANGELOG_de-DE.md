@@ -1,3 +1,6 @@
+# 6.1.10
+* Fix: Fix für Vererbungen
+
 # 6.1.9
 * Fix: Autowiring Unterstütztung für den Such-Controller hinzugefügt
 * Neu: Verbesserung der Suchanalysen durch Übermittlung des Suchtyps mit den Anfragen
