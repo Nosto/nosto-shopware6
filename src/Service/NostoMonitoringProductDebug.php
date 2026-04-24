@@ -133,7 +133,6 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
                     if ($nostoProduct = $this->handleProduct(
                         $shopwareProduct,
                         $context,
-//                        $account,
                         $hideProductsAfterClearance,
                         $ids,
                     )
