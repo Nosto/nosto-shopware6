@@ -44,7 +44,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
     ) {
         parent::__construct(
             $this->channelContextFactory,
-            $this->productProvider,
+            $this->partialProductProvider,
             $this->accountProvider,
             $this->configProvider,
             $this->ruleLoader,
@@ -119,18 +119,20 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
                 : new PartialProductCollection();
 
             foreach ($handledProducts as $handledProduct) {
-                if ($handledProduct instanceof PartialEntity && !$product instanceof PartialProduct) {
+                if ($handledProduct instanceof PartialEntity && !$handledProduct instanceof PartialProduct) {
                     $handledProduct = PartialProductConverter::toPartialProduct($handledProduct);
                 }
 
                 $shopwareProduct = $shopwareProducts->get($handledProduct->getId());
+                if ($shopwareProduct instanceof PartialEntity && !$shopwareProduct instanceof PartialProduct) {
+                    $shopwareProduct = PartialProductConverter::toPartialProduct($shopwareProduct);
+                }
 
                 if ($shopwareProduct) {
                     $shopwareProduct->setChildren($handledProduct->getChildren());
                     if ($nostoProduct = $this->handleProduct(
                         $shopwareProduct,
                         $context,
-                        $account,
                         $hideProductsAfterClearance,
                         $ids,
                     )
