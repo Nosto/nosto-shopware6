@@ -1,3 +1,6 @@
+# 5.2.15
+* Fix: Verbesserungen von Monitoring und Debugging
+
 # 5.2.14
 * Fix: Autowiring Unterstütztung für den Such-Controller hinzugefügt
 * Neu: Verbesserung der Suchanalysen durch Übermittlung des Suchtyps mit den Anfragen
