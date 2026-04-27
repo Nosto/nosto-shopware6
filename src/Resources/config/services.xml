@@ -10,6 +10,7 @@
     </imports>
 
     <parameters>
+        <!-- Nosto's MCP server is Beta; dev.mcp.nosto.com is the only endpoint documented upstream. -->
         <parameter key="nosto.mcp.public_mcp_url">https://dev.mcp.nosto.com/mcp</parameter>
     </parameters>
 

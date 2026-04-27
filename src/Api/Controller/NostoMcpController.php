@@ -27,7 +27,7 @@ final class NostoMcpController extends AbstractController
         path: '/api/_action/nosto-docs-mcp/documentation',
         name: 'api.action.nosto.docs.mcp.documentation',
         options: [
-            'auth_required' => 'false',
+            'auth_required' => false,
         ],
         methods: ['POST'],
     )]

@@ -205,14 +205,29 @@ final class NostoDocumentationMcpProxy
 
     private function extractLastEventData(string $responseBody): ?string
     {
-        $json = null;
+        $buffer = '';
+        $lastEventData = null;
+
         foreach (preg_split("/\r?\n/", $responseBody) ?: [] as $line) {
+            if ($line === '') {
+                if ($buffer !== '') {
+                    $lastEventData = $buffer;
+                    $buffer = '';
+                }
+
+                continue;
+            }
+
             if (str_starts_with($line, 'data:')) {
-                $json = ltrim(substr($line, 5));
+                $buffer .= ($buffer === '' ? '' : "\n") . ltrim(substr($line, 5));
             }
         }
 
-        return $json;
+        if ($buffer !== '') {
+            $lastEventData = $buffer;
+        }
+
+        return $lastEventData;
     }
 
     /**

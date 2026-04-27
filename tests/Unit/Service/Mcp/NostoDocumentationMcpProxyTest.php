@@ -204,6 +204,77 @@ final class NostoDocumentationMcpProxyTest extends TestCase
         self::assertCount(3, $requests);
     }
 
+    public function testParsesSseToolsCallResponse(): void
+    {
+        $requests = [];
+
+        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $payload = json_decode($options['body'] ?? '{}', true, 512, \JSON_THROW_ON_ERROR);
+
+            $requests[] = [
+                'method' => $method,
+                'url' => $url,
+                'options' => $options,
+            ];
+
+            if (($payload['method'] ?? null) === 'initialize') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 1,
+                        'result' => [
+                            'protocolVersion' => '2024-11-05',
+                            'capabilities' => [],
+                            'serverInfo' => [
+                                'name' => 'nosto',
+                                'version' => '1.0.0',
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'mcp-session-id' => 'session-sse',
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
+            }
+
+            if (($payload['method'] ?? null) === 'notifications/initialized') {
+                return new MockResponse('', [
+                    'http_code' => 200,
+                    'response_headers' => [
+                        'content-type' => 'application/json',
+                    ],
+                ]);
+            }
+
+            return new MockResponse(
+                "event: message\n" .
+                'data: {"jsonrpc":"2.0","id":2,"result":{"content":[{"type":"text","text":"ok"}],"isError":false}}' . "\n",
+                [
+                    'http_code' => 200,
+                    'response_headers' => [
+                        'content-type' => 'text/event-stream',
+                    ],
+                ],
+            );
+        });
+
+        $proxy = new NostoDocumentationMcpProxy($client, new NullLogger(), self::PUBLIC_MCP_URL);
+        $result = $proxy->forwardDocumentationRequest([
+            'tool' => 'get_nosto_tech_docs',
+            'arguments' => [
+                'query' => 'How do I expose docs MCP?',
+            ],
+        ]);
+
+        self::assertSame('ok', $result['content'][0]['text']);
+        self::assertFalse($result['isError']);
+        self::assertCount(3, $requests);
+    }
+
     public function testReturnsMcpErrorForInvalidToolPayload(): void
     {
         $proxy = new NostoDocumentationMcpProxy(new MockHttpClient(), new NullLogger(), self::PUBLIC_MCP_URL);
