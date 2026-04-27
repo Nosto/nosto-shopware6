@@ -1,3 +1,6 @@
+# 6.1.12
+* Fix: Verbesserungen von Monitoring und Debugging
+
 # 6.1.11
 * Fix: Anpassungen der Nosto-Einstellungsvererbung
 

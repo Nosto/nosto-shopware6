@@ -1,3 +1,6 @@
+# 6.1.12
+* Fix: Monitoring/Debug page fixes
+
 # 6.1.11
 * Fix: Nosto settings inheritance adjustments
 
