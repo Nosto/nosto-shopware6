@@ -1,3 +1,9 @@
+# 6.1.11
+* Fix: Nosto settings inheritance adjustments
+
+# 6.1.10
+* Fix: Fixes for inheritance
+
 # 6.1.9
 * Fix: Added autowiring support for the search controller
 * New: Improved search analytics by sending the search type with requests
