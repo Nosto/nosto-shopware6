@@ -214,7 +214,7 @@ class Lifecycle
             $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_scheduler_job`');
 
             $schedulerMigrationClassWildcard = addcslashes('Nosto\Scheduler\Migration', '\\_%') . '%';
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM migration WHERE class LIKE :class',
                 [
                     'class' => $schedulerMigrationClassWildcard,
