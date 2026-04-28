@@ -1,3 +1,6 @@
+# 5.2.16
+* Fix: Migrationskorrekturen
+
 # 5.2.15
 * Fix: Verbesserungen von Monitoring und Debugging
 
