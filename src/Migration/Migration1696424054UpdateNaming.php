@@ -9,6 +9,14 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1696424054UpdateNaming extends MigrationStep
 {
+    private const LEGACY_CHANGELOG_TABLE = 'od_nosto_entity_changelog';
+
+    private const CHANGELOG_TABLE = 'nosto_integration_entity_changelog';
+
+    private const LEGACY_CHECKOUT_MAPPING_TABLE = 'nosto_checkout_mapping';
+
+    private const CHECKOUT_MAPPING_TABLE = 'nosto_integration_checkout_mapping';
+
     public function getCreationTimestamp(): int
     {
         return 1696424054;
@@ -22,6 +30,19 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
     private function updateChangeLogEntityTable(Connection $connection): void
     {
+        $schemaManager = $connection->createSchemaManager();
+        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHANGELOG_TABLE]);
+        $targetExists = $schemaManager->tablesExist([self::CHANGELOG_TABLE]);
+
+        if (!$legacyExists) {
+            return;
+        }
+
+        if ($targetExists) {
+            $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHANGELOG_TABLE . '`');
+            return;
+        }
+
         $sqlIndexesRename = <<<SQL
             ALTER TABLE od_nosto_entity_changelog
               DROP INDEX od_entity_type_idx,
@@ -40,6 +61,19 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
     private function updateCheckoutMappingTable(Connection $connection): void
     {
+        $schemaManager = $connection->createSchemaManager();
+        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHECKOUT_MAPPING_TABLE]);
+        $targetExists = $schemaManager->tablesExist([self::CHECKOUT_MAPPING_TABLE]);
+
+        if (!$legacyExists) {
+            return;
+        }
+
+        if ($targetExists) {
+            $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHECKOUT_MAPPING_TABLE . '`');
+            return;
+        }
+
         $sqlTableRename = <<<SQL
             RENAME TABLE nosto_checkout_mapping TO nosto_integration_checkout_mapping;
         SQL;
