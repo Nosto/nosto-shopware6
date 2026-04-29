@@ -1,3 +1,6 @@
+# 5.2.16
+* Fix: Migration fixes
+
 # 5.2.15
 * Fix: Monitoring/Debug page fixes
 
