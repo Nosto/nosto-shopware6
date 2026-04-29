@@ -1,3 +1,6 @@
+# 6.1.13
+* Fix: Migrationskorrekturen
+
 # 6.1.12
 * Fix: Verbesserungen von Monitoring und Debugging
 

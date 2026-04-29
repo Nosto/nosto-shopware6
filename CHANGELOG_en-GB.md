@@ -1,3 +1,6 @@
+# 6.1.13
+* Fix: Migration fixes
+
 # 6.1.12
 * Fix: Monitoring/Debug page fixes
 
