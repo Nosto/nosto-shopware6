@@ -1,3 +1,6 @@
+# 6.1.14
+* Fix: Add safeguards for config table access during uninstall
+
 # 6.1.13
 * Fix: Migration fixes
 

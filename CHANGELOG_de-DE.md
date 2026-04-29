@@ -1,3 +1,6 @@
+# 6.1.14
+* Fix: Schutz für den Zugriff auf die Konfigurationstabelle während der Deinstallation hinzugefügt
+
 # 6.1.13
 * Fix: Migrationskorrekturen
 
