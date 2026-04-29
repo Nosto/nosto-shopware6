@@ -16,6 +16,10 @@ class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationSt
 
     public function update(Connection $connection): void
     {
+        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
+            return;
+        }
+
         $sql = <<<SQL
             DELETE FROM `nosto_integration_config`
             WHERE `configuration_key` = 'enableSearchImpressions'
