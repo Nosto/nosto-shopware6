@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -18,9 +20,14 @@ class Migration1748349858AddEnableTaggingForAllSkusConfig extends MigrationStep
         return 1748349858;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
-        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
+        try {
+            $connection->createSchemaManager()->introspectTableByUnquotedName('nosto_integration_config');
+        } catch (TableDoesNotExist) {
             return;
         }
 

@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1699264539 extends MigrationStep
@@ -17,6 +18,9 @@ class Migration1699264539 extends MigrationStep
 
     /*
      * Removing the old configuration setting
+     */
+    /**
+     * @throws Exception
      */
     public function update(Connection $connection): void
     {

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Exception;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +29,9 @@ class Migration1699534500ConfigTable extends MigrationStep
         return 1699534500;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
         $sql = <<<SQL
@@ -55,6 +59,9 @@ class Migration1699534500ConfigTable extends MigrationStep
     {
     }
 
+    /**
+     * @throws Exception
+     */
     private function insertPreviousConfigurationIfExists(Connection $connection): void
     {
         $sql = <<<SQL
@@ -93,16 +100,21 @@ class Migration1699534500ConfigTable extends MigrationStep
 
             try {
                 $connection->insert('nosto_integration_config', $data);
-            } catch (Exception) {
+            } catch (UniqueConstraintViolationException) {
                 // Do nothing here as configuration already exists
             }
         }
     }
 
-    private function getDefaultSalesChannelId(Connection $connection): mixed
+    /**
+     * @throws Exception
+     */
+    private function getDefaultSalesChannelId(Connection $connection): ?string
     {
         $sql = 'SELECT LOWER(HEX(`id`)) AS `id` FROM `sales_channel` WHERE `type_id` = UNHEX(?) AND `active` = \'1\'';
 
-        return $connection->fetchOne($sql, [Defaults::SALES_CHANNEL_TYPE_STOREFRONT]);
+        $id = $connection->fetchOne($sql, [Defaults::SALES_CHANNEL_TYPE_STOREFRONT]);
+
+        return $id !== false ? (string) $id : null;
     }
 }

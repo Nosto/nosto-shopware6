@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1696424054UpdateNaming extends MigrationStep
@@ -22,17 +25,23 @@ class Migration1696424054UpdateNaming extends MigrationStep
         return 1696424054;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
         $this->updateChangeLogEntityTable($connection);
         $this->updateCheckoutMappingTable($connection);
     }
 
+    /**
+     * @throws Exception
+     */
     private function updateChangeLogEntityTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
-        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHANGELOG_TABLE]);
-        $targetExists = $schemaManager->tablesExist([self::CHANGELOG_TABLE]);
+        $legacyExists = $this->tableExists($schemaManager, self::LEGACY_CHANGELOG_TABLE);
+        $targetExists = $this->tableExists($schemaManager, self::CHANGELOG_TABLE);
 
         if (!$legacyExists) {
             return;
@@ -40,6 +49,7 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
         if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHANGELOG_TABLE . '`');
+
             return;
         }
 
@@ -59,11 +69,14 @@ class Migration1696424054UpdateNaming extends MigrationStep
         $connection->executeStatement($sqlTableRename);
     }
 
+    /**
+     * @throws Exception
+     */
     private function updateCheckoutMappingTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
-        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHECKOUT_MAPPING_TABLE]);
-        $targetExists = $schemaManager->tablesExist([self::CHECKOUT_MAPPING_TABLE]);
+        $legacyExists = $this->tableExists($schemaManager, self::LEGACY_CHECKOUT_MAPPING_TABLE);
+        $targetExists = $this->tableExists($schemaManager, self::CHECKOUT_MAPPING_TABLE);
 
         if (!$legacyExists) {
             return;
@@ -71,6 +84,7 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
         if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHECKOUT_MAPPING_TABLE . '`');
+
             return;
         }
 
@@ -79,6 +93,20 @@ class Migration1696424054UpdateNaming extends MigrationStep
         SQL;
 
         $connection->executeStatement($sqlTableRename);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function tableExists(AbstractSchemaManager $schemaManager, string $tableName): bool
+    {
+        try {
+            $schemaManager->introspectTableByUnquotedName($tableName);
+
+            return true;
+        } catch (TableDoesNotExist) {
+            return false;
+        }
     }
 
     public function updateDestructive(Connection $connection): void

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Throwable;
 
 class Migration1769413546AddChangelogLookupIndex extends MigrationStep
 {
@@ -15,16 +16,20 @@ class Migration1769413546AddChangelogLookupIndex extends MigrationStep
         return 1769413546;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
 
-        if (!$schemaManager->tablesExist(['nosto_integration_entity_changelog'])) {
+        try {
+            $table = $schemaManager->introspectTableByUnquotedName('nosto_integration_entity_changelog');
+        } catch (TableDoesNotExist) {
             return;
         }
 
-        $indexes = $schemaManager->listTableIndexes('nosto_integration_entity_changelog');
-        if (array_key_exists('idx_nosto_entity_changelog_lookup', $indexes)) {
+        if ($table->hasIndex('idx_nosto_entity_changelog_lookup')) {
             return;
         }
 
@@ -34,7 +39,7 @@ class Migration1769413546AddChangelogLookupIndex extends MigrationStep
 
         try {
             $connection->executeStatement($sql);
-        } catch (Throwable) {
+        } catch (Exception) {
             $connection->executeStatement(
                 'CREATE INDEX `idx_nosto_entity_changelog_lookup` ' .
                 'ON `nosto_integration_entity_changelog` (`entity_id`, `product_number`, `entity_type`)',
