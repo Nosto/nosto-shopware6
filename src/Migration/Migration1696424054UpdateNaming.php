@@ -47,7 +47,6 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
         if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHANGELOG_TABLE . '`');
-
             return;
         }
 
@@ -82,7 +81,6 @@ class Migration1696424054UpdateNaming extends MigrationStep
 
         if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHECKOUT_MAPPING_TABLE . '`');
-
             return;
         }
 
