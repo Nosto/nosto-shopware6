@@ -15,8 +15,10 @@ class Migration1699264539 extends MigrationStep
         return 1699264539;
     }
 
-    /*
-     * Removing the old configuration setting
+    /**
+     * Removing the old configuration setting.
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {

@@ -14,6 +14,9 @@ class Migration1642772960Changelog extends MigrationStep
         return 1642772960;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
         $sql = <<<SQL

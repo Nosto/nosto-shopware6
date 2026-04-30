@@ -14,9 +14,12 @@ class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationSt
         return 1745505195;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
-        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
+        if (!$connection->createSchemaManager()->tableExists('nosto_integration_config')) {
             return;
         }
 

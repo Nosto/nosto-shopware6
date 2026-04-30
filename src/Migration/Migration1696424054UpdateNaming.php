@@ -22,12 +22,18 @@ class Migration1696424054UpdateNaming extends MigrationStep
         return 1696424054;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
         $this->updateChangeLogEntityTable($connection);
         $this->updateCheckoutMappingTable($connection);
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     private function updateChangeLogEntityTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
@@ -59,6 +65,9 @@ class Migration1696424054UpdateNaming extends MigrationStep
         $connection->executeStatement($sqlTableRename);
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     private function updateCheckoutMappingTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();

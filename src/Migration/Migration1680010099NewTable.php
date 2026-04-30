@@ -14,6 +14,9 @@ class Migration1680010099NewTable extends MigrationStep
         return 1680010099;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
         $sql = <<<SQL

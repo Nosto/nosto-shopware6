@@ -18,9 +18,12 @@ class Migration1748349858AddEnableTaggingForAllSkusConfig extends MigrationStep
         return 1748349858;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
-        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
+        if (!$connection->createSchemaManager()->tableExists('nosto_integration_config')) {
             return;
         }
 
