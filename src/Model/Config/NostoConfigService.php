@@ -6,8 +6,8 @@ namespace Nosto\NostoIntegration\Model\Config;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use JsonException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;

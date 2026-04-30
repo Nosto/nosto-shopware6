@@ -6,7 +6,6 @@ namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationStep
@@ -21,9 +20,7 @@ class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationSt
      */
     public function update(Connection $connection): void
     {
-        try {
-            $connection->createSchemaManager()->introspectTableByUnquotedName('nosto_integration_config');
-        } catch (TableDoesNotExist) {
+        if (!$connection->createSchemaManager()->tableExists('nosto_integration_config')) {
             return;
         }
 
