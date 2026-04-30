@@ -1,3 +1,7 @@
+# 6.1.15
+* Fix: Prevent migration failures when expected tables or columns are missing
+* Fix: Improve Job Scheduler migration handling to avoid crashes due to schema inconsistencies
+
 # 6.1.14
 * Fix: Add safeguards for config table access during uninstall
 
