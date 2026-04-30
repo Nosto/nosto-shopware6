@@ -38,29 +38,33 @@ class Migration1696424054UpdateNaming extends MigrationStep
     private function updateChangeLogEntityTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
-        if (!$schemaManager->tableExists(self::LEGACY_CHANGELOG_TABLE)) {
+        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHANGELOG_TABLE]);
+        $targetExists = $schemaManager->tablesExist([self::CHANGELOG_TABLE]);
+
+        if (!$legacyExists) {
             return;
         }
 
-        if ($schemaManager->tableExists(self::CHANGELOG_TABLE)) {
+        if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHANGELOG_TABLE . '`');
 
             return;
         }
 
-        $connection->executeStatement(
-            <<<SQL
-                ALTER TABLE `od_nosto_entity_changelog`
-                  DROP INDEX `od_entity_type_idx`,
-                  DROP INDEX `od_created_at_idx`,
-                  ADD INDEX `nosto_integration_entity_type_idx` (`entity_type`),
-                  ADD INDEX `nosto_integration_created_at_idx` (`created_at`)
-            SQL,
-        );
+        $sqlIndexesRename = <<<SQL
+            ALTER TABLE od_nosto_entity_changelog
+              DROP INDEX od_entity_type_idx,
+              DROP INDEX od_created_at_idx,
+              ADD INDEX nosto_integration_entity_type_idx (entity_type),
+              ADD INDEX nosto_integration_created_at_idx (created_at);
+        SQL;
 
-        $connection->executeStatement(
-            'RENAME TABLE `od_nosto_entity_changelog` TO `nosto_integration_entity_changelog`',
-        );
+        $sqlTableRename = <<<SQL
+            RENAME TABLE od_nosto_entity_changelog TO nosto_integration_entity_changelog;
+        SQL;
+
+        $connection->executeStatement($sqlIndexesRename);
+        $connection->executeStatement($sqlTableRename);
     }
 
     /**
@@ -69,19 +73,24 @@ class Migration1696424054UpdateNaming extends MigrationStep
     private function updateCheckoutMappingTable(Connection $connection): void
     {
         $schemaManager = $connection->createSchemaManager();
-        if (!$schemaManager->tableExists(self::LEGACY_CHECKOUT_MAPPING_TABLE)) {
+        $legacyExists = $schemaManager->tablesExist([self::LEGACY_CHECKOUT_MAPPING_TABLE]);
+        $targetExists = $schemaManager->tablesExist([self::CHECKOUT_MAPPING_TABLE]);
+
+        if (!$legacyExists) {
             return;
         }
 
-        if ($schemaManager->tableExists(self::CHECKOUT_MAPPING_TABLE)) {
+        if ($targetExists) {
             $connection->executeStatement('DROP TABLE IF EXISTS `' . self::LEGACY_CHECKOUT_MAPPING_TABLE . '`');
 
             return;
         }
 
-        $connection->executeStatement(
-            'RENAME TABLE `nosto_checkout_mapping` TO `nosto_integration_checkout_mapping`',
-        );
+        $sqlTableRename = <<<SQL
+            RENAME TABLE nosto_checkout_mapping TO nosto_integration_checkout_mapping;
+        SQL;
+
+        $connection->executeStatement($sqlTableRename);
     }
 
     public function updateDestructive(Connection $connection): void
