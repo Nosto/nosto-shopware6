@@ -7,7 +7,6 @@ namespace Nosto\NostoIntegration\Model\Config;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use JsonException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
@@ -127,11 +126,9 @@ class NostoConfigService
     private function hasConfigTable(): bool
     {
         try {
-            $this->connection->createSchemaManager()->introspectTableByUnquotedName('nosto_integration_config');
+            $this->connection->createSchemaManager()->tableExists('nosto_integration_config');
 
             return true;
-        } catch (TableDoesNotExist) {
-            return false;
         } catch (\Throwable) {
             return false;
         }
