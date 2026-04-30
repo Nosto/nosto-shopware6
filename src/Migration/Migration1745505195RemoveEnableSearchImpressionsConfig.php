@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationStep
@@ -16,7 +15,7 @@ class Migration1745505195RemoveEnableSearchImpressionsConfig extends MigrationSt
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -30,7 +29,7 @@ class Migration1699534500ConfigTable extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {
@@ -60,7 +59,7 @@ class Migration1699534500ConfigTable extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function insertPreviousConfigurationIfExists(Connection $connection): void
     {
@@ -107,7 +106,7 @@ class Migration1699534500ConfigTable extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function getDefaultSalesChannelId(Connection $connection): ?string
     {

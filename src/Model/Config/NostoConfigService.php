@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Config;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use JsonException;
 use Shopware\Core\Defaults;
@@ -125,13 +124,7 @@ class NostoConfigService
 
     private function hasConfigTable(): bool
     {
-        try {
-            $this->connection->createSchemaManager()->tableExists('nosto_integration_config');
-
-            return true;
-        } catch (\Throwable) {
-            return false;
-        }
+        return $this->connection->createSchemaManager()->tableExists('nosto_integration_config');
     }
 
     public function get(string $key, ?string $salesChannelId = null, ?string $languageId = null): mixed
@@ -195,7 +188,7 @@ class NostoConfigService
 
     /**
      * @return array<string, mixed>
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      *
      * @throws JsonException
      */
@@ -236,7 +229,7 @@ class NostoConfigService
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function set(string $key, mixed $value, ?string $salesChannelId = null, ?string $languageId = null): void
     {
@@ -294,7 +287,7 @@ class NostoConfigService
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function delete(string $key, ?string $salesChannelId = null, ?string $languageId = null): void
     {
@@ -316,7 +309,7 @@ class NostoConfigService
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function getId(string $key, ?string $salesChannelId = null, ?string $languageId = null): ?string
     {
