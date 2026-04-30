@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1696424054UpdateNaming extends MigrationStep
@@ -24,7 +23,7 @@ class Migration1696424054UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {
@@ -33,7 +32,7 @@ class Migration1696424054UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function updateChangeLogEntityTable(Connection $connection): void
     {
@@ -67,7 +66,7 @@ class Migration1696424054UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function updateCheckoutMappingTable(Connection $connection): void
     {

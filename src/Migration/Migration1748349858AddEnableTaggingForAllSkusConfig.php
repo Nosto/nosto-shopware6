@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -20,7 +19,7 @@ class Migration1748349858AddEnableTaggingForAllSkusConfig extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {
