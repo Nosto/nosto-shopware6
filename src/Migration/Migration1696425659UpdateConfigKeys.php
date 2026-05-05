@@ -14,6 +14,9 @@ class Migration1696425659UpdateConfigKeys extends MigrationStep
         return 1696425659;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
         $sql = <<<SQL

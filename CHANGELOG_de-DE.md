@@ -1,3 +1,13 @@
+# 6.1.15
+* Fix: Migrationsfehler werden verhindert, wenn erwartete Tabellen oder Spalten fehlen
+* Fix: Die Migrationsverarbeitung im Job Scheduler wurde verbessert, um Abstürze aufgrund von Schema-Inkonsistenzen zu vermeiden
+
+# 6.1.14
+* Fix: Schutz für den Zugriff auf die Konfigurationstabelle während der Deinstallation hinzugefügt
+
+# 6.1.13
+* Fix: Migrationskorrekturen
+
 # 6.1.12
 * Fix: Verbesserungen von Monitoring und Debugging
 
