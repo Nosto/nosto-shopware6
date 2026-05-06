@@ -404,9 +404,29 @@ class ProductHelper
         }
         $criteria->setIds($productIds);
 
-        $result = $this->salesChannelProductRepository->search(
+        if (!$this->configProvider->isEnabledSyncInactiveProducts(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+
+        $categoryBlocklist = $this->configProvider->getCategoryBlocklist(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        );
+        if (count($categoryBlocklist)) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
+                ),
+            );
+        }
+
+        $result = $this->productRepository->search(
             $criteria,
-            $context,
+            $context->getContext(),
         )->getEntities();
 
         if ($shouldLog && $startedAt !== null) {

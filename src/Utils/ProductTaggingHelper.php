@@ -88,7 +88,11 @@ class ProductTaggingHelper
                 $productToReturn = $variant;
             }
         }
-        //if for whatever reason we don't find the correct product return just main product id
+        // If no specific handled product was resolved, fall back to the original product.
+        if (!$productToReturn instanceof PartialProductCollection && !$productToReturn instanceof PartialProduct) {
+            $productToReturn = $product;
+        }
+
         if ($isProductSync) {
             if ($productToReturn instanceof PartialProductCollection) {
                 $mainProducts = $productToReturn;

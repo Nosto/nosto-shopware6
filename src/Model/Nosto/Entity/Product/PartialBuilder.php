@@ -34,6 +34,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -406,47 +407,62 @@ class PartialBuilder
         object $product,
         SalesChannelContext $context,
     ): void {
-        $productPrice = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
-        if (!($productPrice instanceof CalculatedPrice)) {
+        $calculatedPrices = $product->getCalculatedPrices();
+        $productPrice = $calculatedPrices instanceof Collection
+            ? ($calculatedPrices->first() ?: $product->getCalculatedPrice())
+            : $product->getCalculatedPrice();
+        if ($productPrice instanceof CalculatedPrice) {
+            $listPrice = $productPrice->getListPrice() ?
+                $productPrice->getListPrice()->getPrice() :
+                $productPrice->getUnitPrice();
+
+            $unitPrice = $productPrice->getUnitPrice();
+            $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
+
+            if (!$isGross) {
+                $price = $this->calculator->calculate(
+                    new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
+                    $context->getItemRounding(),
+                );
+
+                $priceList = $this->calculator->calculate(
+                    new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
+                    $context->getItemRounding(),
+                );
+                if (!empty($price->getCalculatedTaxes()->getElements())) {
+                    $unitPrice = 0;
+
+                    foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                        $unitPrice += ($tax->getTax() + $tax->getPrice());
+                    }
+                }
+
+                if (!empty($priceList->getCalculatedTaxes()->getElements())) {
+                    $listPrice = 0;
+
+                    foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
+                        $listPrice += ($tax->getTax() + $tax->getPrice());
+                    }
+                }
+            }
+
+            $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
+            $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
             return;
         }
 
-        $listPrice = $productPrice->getListPrice() ?
-            $productPrice->getListPrice()->getPrice() :
-            $productPrice->getUnitPrice();
-
-        $unitPrice = $productPrice->getUnitPrice();
-        $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
-
-        if (!$isGross) {
-            $price = $this->calculator->calculate(
-                new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
-                $context->getItemRounding(),
-            );
-
-            $priceList = $this->calculator->calculate(
-                new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
-                $context->getItemRounding(),
-            );
-            if (!empty($price->getCalculatedTaxes()->getElements())) {
-                $unitPrice = 0;
-
-                foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
-                    $unitPrice += ($tax->getTax() + $tax->getPrice());
-                }
-            }
-
-            if (!empty($priceList->getCalculatedTaxes()->getElements())) {
-                $listPrice = 0;
-
-                foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
-                    $listPrice += ($tax->getTax() + $tax->getPrice());
-                }
-            }
+        $price = $product->getCurrencyPrice($context->getCurrencyId());
+        if ($price === null) {
+            return;
         }
 
-        $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
-        $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
+        $nostoProdcut->setPrice($this->priceRounding->cashRound($price->getGross(), $context->getItemRounding()));
+
+        if ($price->getListPrice() !== null) {
+            $nostoProdcut->setListPrice(
+                $this->priceRounding->cashRound($price->getListPrice()->getGross(), $context->getItemRounding()),
+            );
+        }
     }
 
     private function initTags(
