@@ -10,6 +10,7 @@ use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Utils\Logger\ContextHelper;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -20,11 +21,14 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Throwable;
 
 #[AsMessageHandler(handles: DailyProductSyncScheduledTask::class)]
 class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
     private const LAST_EXECUTION_TIME_CONFIG = 'dailySyncLastTime';
+
+    private const FILTER_PAYLOAD_CLEANUP = 'filterPayloadCleanupLastTime';
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
@@ -32,6 +36,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         private readonly NostoConfigService $configService,
         private readonly NostoSyncRoute $nostoSyncRoute,
         private readonly TagAwareAdapterInterface $cache,
+        private readonly FilterPayloadStore $filterPayloadStore,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct($scheduledTaskRepository, $this->logger);
@@ -39,6 +44,8 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
+        $this->cleanupExpiredFilterPayloads();
+
         if ($this->isTimeToRunJob()) {
             try {
                 $this->cache->clear(CachedProvider::CACHE_PREFIX);
@@ -90,6 +97,48 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
         }
 
         return $lastSyncTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new DateTime())->format(
+            Defaults::STORAGE_DATE_FORMAT,
+        );
+    }
+
+    private function cleanupExpiredFilterPayloads(): void
+    {
+        try {
+            if ($this->isFilterPayloadCleanupAlreadyRunToday()) {
+                return;
+            }
+
+            $this->filterPayloadStore->deleteExpiredPayloads(new Context(new SystemSource()));
+            $this->configService->set(
+                self::FILTER_PAYLOAD_CLEANUP,
+                (new DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            );
+        } catch (Throwable $e) {
+            $this->logger->error(
+                sprintf(
+                    'Unable to clean up expired filter payloads, the reason is: %s',
+                    $e->getMessage(),
+                ),
+                ContextHelper::createContextFromException($e),
+            );
+        }
+    }
+
+    private function isFilterPayloadCleanupAlreadyRunToday(): bool
+    {
+        $lastCleanupTime = $this->configService->get(self::FILTER_PAYLOAD_CLEANUP);
+
+        if (empty($lastCleanupTime)) {
+            return false;
+        }
+
+        try {
+            $lastCleanupTimeObject = new DateTime($lastCleanupTime);
+        } catch (Exception) {
+            return false;
+        }
+
+        return $lastCleanupTimeObject->format(Defaults::STORAGE_DATE_FORMAT) === (new DateTime())->format(
             Defaults::STORAGE_DATE_FORMAT,
         );
     }
