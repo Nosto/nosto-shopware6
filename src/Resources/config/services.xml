@@ -79,6 +79,7 @@
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
             <argument key="$cache" type="service" id="cache.object"/>
+            <argument key="$filterPayloadStore" type="service" id="Nosto\NostoIntegration\Service\FilterPayloadStore"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Operation\MarketingPermissionSyncHandler">
@@ -188,7 +189,7 @@
             <argument key="$newsletterRecipientRepository" type="service" id="newsletter_recipient.repository"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\FilterPayloadStore">
-            <argument key="$cache" type="service" id="cache.object"/>
+            <argument key="$filterPayloadRepository" type="service" id="nosto_filter_payload.repository"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
         <service id="Nosto\NostoIntegration\Service\FilterPayloadService">
@@ -220,6 +221,9 @@
         <!-- Entity Definitions -->
         <service id="Nosto\NostoIntegration\Entity\Changelog\ChangelogDefinition">
             <tag name="shopware.entity.definition" entity="nosto_integration_entity_changelog"/>
+        </service>
+        <service id="Nosto\NostoIntegration\Entity\FilterPayload\FilterPayloadDefinition">
+            <tag name="shopware.entity.definition" entity="nosto_filter_payload"/>
         </service>
         <!-- /Entity Definitions -->
 
