@@ -263,6 +263,7 @@ class Lifecycle
 
     public function removeTables(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_filter_payload`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_checkout_mapping`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_entity_changelog`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `nosto_integration_config`');

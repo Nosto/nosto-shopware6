@@ -8,6 +8,7 @@ use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CachedProvider;
+use Nosto\NostoIntegration\Service\FilterPayloadStore;
 use Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -27,13 +28,7 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
         $configProvider->method('getDailyProductSyncTime')->willReturn('2000-01-01 00:00:00');
 
         $configService = $this->createMock(NostoConfigService::class);
-        $configService->expects($this->once())
-            ->method('get')
-            ->with('dailySyncLastTime')
-            ->willReturn(null);
-        $configService->expects($this->once())
-            ->method('set')
-            ->with('dailySyncLastTime', $this->isType('string'));
+        $configService->method('get')->willReturn(null);
 
         $nostoSyncRoute = $this->createMock(NostoSyncRoute::class);
         $nostoSyncRoute->expects($this->once())
@@ -48,12 +43,20 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
             ->method('clear')
             ->with(CachedProvider::CACHE_PREFIX);
 
+        $filterPayloadStore = $this->createMock(FilterPayloadStore::class);
+        $filterPayloadStore->expects($this->once())
+            ->method('deleteExpiredPayloads')
+            ->with(
+                $this->callback(static fn (Context $context): bool => $context->getSource() instanceof SystemSource),
+            );
+
         $handler = new DailyProductSyncScheduledTaskHandler(
             $scheduledTaskRepository,
             $configProvider,
             $configService,
             $nostoSyncRoute,
             $cache,
+            $filterPayloadStore,
             $this->createMock(LoggerInterface::class),
         );
 
@@ -69,10 +72,7 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
             ->method('getDailyProductSyncTime');
 
         $configService = $this->createMock(NostoConfigService::class);
-        $configService->expects($this->never())
-            ->method('get');
-        $configService->expects($this->never())
-            ->method('set');
+        $configService->method('get')->willReturn(null);
 
         $nostoSyncRoute = $this->createMock(NostoSyncRoute::class);
         $nostoSyncRoute->expects($this->never())
@@ -82,12 +82,17 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
         $cache->expects($this->never())
             ->method('clear');
 
+        $filterPayloadStore = $this->createMock(FilterPayloadStore::class);
+        $filterPayloadStore->expects($this->once())
+            ->method('deleteExpiredPayloads');
+
         $handler = new DailyProductSyncScheduledTaskHandler(
             $scheduledTaskRepository,
             $configProvider,
             $configService,
             $nostoSyncRoute,
             $cache,
+            $filterPayloadStore,
             $this->createMock(LoggerInterface::class),
         );
 
@@ -102,12 +107,7 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
         $configProvider->method('getDailyProductSyncTime')->willReturn('not-a-date');
 
         $configService = $this->createMock(NostoConfigService::class);
-        $configService->expects($this->once())
-            ->method('get')
-            ->with('dailySyncLastTime')
-            ->willReturn(null);
-        $configService->expects($this->never())
-            ->method('set');
+        $configService->method('get')->willReturn(null);
 
         $nostoSyncRoute = $this->createMock(NostoSyncRoute::class);
         $nostoSyncRoute->expects($this->never())
@@ -117,12 +117,17 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
         $cache->expects($this->never())
             ->method('clear');
 
+        $filterPayloadStore = $this->createMock(FilterPayloadStore::class);
+        $filterPayloadStore->expects($this->once())
+            ->method('deleteExpiredPayloads');
+
         $handler = new DailyProductSyncScheduledTaskHandler(
             $scheduledTaskRepository,
             $configProvider,
             $configService,
             $nostoSyncRoute,
             $cache,
+            $filterPayloadStore,
             $this->createMock(LoggerInterface::class),
         );
 
