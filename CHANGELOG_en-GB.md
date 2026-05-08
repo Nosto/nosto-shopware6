@@ -1,3 +1,7 @@
+# 3.6.10
+* Fix: Fixed an issue with syncing inactive products
+* Fix: Fixed an issue with disabling filter values
+
 # 3.6.9
 * Fix: Added autowiring support for the search controller
 * New: Improved search analytics by sending the search type with requests

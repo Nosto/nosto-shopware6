@@ -1,3 +1,7 @@
+# 3.6.10
+* Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
+* Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
+
 # 3.6.9
 * Fix: Autowiring Unterstütztung für den Such-Controller hinzugefügt
 * Neu: Verbesserung der Suchanalysen durch Übermittlung des Suchtyps mit den Anfragen
