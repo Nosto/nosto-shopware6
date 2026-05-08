@@ -46,7 +46,9 @@ final class DailyProductSyncScheduledTaskHandlerTest extends TestCase
         $filterPayloadStore = $this->createMock(FilterPayloadStore::class);
         $filterPayloadStore->expects($this->once())
             ->method('deleteExpiredPayloads')
-            ->with($this->callback(static fn (Context $context): bool => $context->getSource() instanceof SystemSource));
+            ->with(
+                $this->callback(static fn (Context $context): bool => $context->getSource() instanceof SystemSource),
+            );
 
         $handler = new DailyProductSyncScheduledTaskHandler(
             $scheduledTaskRepository,
