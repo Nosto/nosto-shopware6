@@ -1,3 +1,7 @@
+# 5.2.17
+* Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
+* Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
+
 # 5.2.16
 * Fix: Migrationskorrekturen
 
