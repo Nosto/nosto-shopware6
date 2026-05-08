@@ -1,3 +1,7 @@
+# 5.2.17
+* Fix: Fixed an issue with syncing inactive products
+* Fix: Fixed an issue with disabling filter values
+
 # 5.2.16
 * Fix: Migration fixes
 
