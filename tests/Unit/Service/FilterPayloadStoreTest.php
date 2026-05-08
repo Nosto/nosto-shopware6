@@ -94,7 +94,9 @@ final class FilterPayloadStoreTest extends TestCase
             ->expects(self::once())
             ->method('delete')
             ->with(
-                [['id' => '018f8f07686573a4b9e3d34d36906a8a']],
+                [[
+                    'id' => '018f8f07686573a4b9e3d34d36906a8a',
+                ]],
                 self::isInstanceOf(Context::class),
             );
 
@@ -129,7 +131,9 @@ final class FilterPayloadStoreTest extends TestCase
     {
         $data = array_map(static fn (string $id): array => [
             'primaryKey' => $id,
-            'data' => ['id' => $id],
+            'data' => [
+                'id' => $id,
+            ],
         ], $ids);
 
         return new IdSearchResult(

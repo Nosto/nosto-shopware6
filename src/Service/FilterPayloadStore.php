@@ -10,8 +10,8 @@ use Nosto\NostoIntegration\Entity\FilterPayload\FilterPayloadEntity;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -124,7 +124,9 @@ class FilterPayloadStore
             }
 
             $this->filterPayloadRepository->delete(
-                array_map(static fn (string $id): array => ['id' => $id], $ids),
+                array_map(static fn (string $id): array => [
+                    'id' => $id,
+                ], $ids),
                 $context,
             );
 
