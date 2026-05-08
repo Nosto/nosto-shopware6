@@ -13,6 +13,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -118,7 +119,7 @@ final class FilterPayloadStoreTest extends TestCase
             FilterPayloadDefinition::ENTITY_NAME,
             count($entities),
             new FilterPayloadCollection($entities),
-            null,
+            new AggregationResultCollection(),
             $criteria,
             $context,
         );
