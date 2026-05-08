@@ -26,7 +26,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 {
     private const LAST_EXECUTION_TIME_CONFIG = 'dailySyncLastTime';
 
-    private const FILTER_PAYLOAD_CLEANUP_LAST_TIME_CONFIG = 'filterPayloadCleanupLastTime';
+    private const FILTER_PAYLOAD_CLEANUP = 'filterPayloadCleanupLastTime';
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
@@ -113,7 +113,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 
             $this->filterPayloadStore->deleteExpiredPayloads(new Context(new SystemSource()));
             $this->configService->set(
-                self::FILTER_PAYLOAD_CLEANUP_LAST_TIME_CONFIG,
+                self::FILTER_PAYLOAD_CLEANUP,
                 (new DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             );
         } catch (Throwable $e) {
@@ -129,7 +129,7 @@ class DailyProductSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     private function isFilterPayloadCleanupAlreadyRunToday(): bool
     {
-        $lastCleanupTime = $this->configService->get(self::FILTER_PAYLOAD_CLEANUP_LAST_TIME_CONFIG);
+        $lastCleanupTime = $this->configService->get(self::FILTER_PAYLOAD_CLEANUP);
 
         if (empty($lastCleanupTime)) {
             return false;
