@@ -389,6 +389,11 @@
             <argument key="$mcpServerUrl">%nosto.mcp.public_mcp_url%</argument>
         </service>
 
+        <service id="Nosto\NostoIntegration\Mcp\NostoDocumentationSearchTool">
+            <argument key="$proxy" type="service" id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy"/>
+            <tag name="shopware.mcp.tool"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
 
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringProductDebug">
