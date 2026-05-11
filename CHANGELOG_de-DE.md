@@ -1,3 +1,7 @@
+# 6.1.16
+* Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
+* Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
+
 # 6.1.15
 * Fix: Migrationsfehler werden verhindert, wenn erwartete Tabellen oder Spalten fehlen
 * Fix: Die Migrationsverarbeitung im Job Scheduler wurde verbessert, um Abstürze aufgrund von Schema-Inkonsistenzen zu vermeiden
