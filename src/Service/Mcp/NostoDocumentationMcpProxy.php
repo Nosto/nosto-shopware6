@@ -13,7 +13,7 @@ final class NostoDocumentationMcpProxy
 {
     private const NOSTO_MCP_PROTOCOL_VERSION = '2024-11-05';
 
-    private const NOSTO_MCP_CLIENT_NAME = 'nosto-shopware-docs-proxy';
+    private const NOSTO_MCP_CLIENT_NAME = 'nosto-documentation';
 
     private const NOSTO_MCP_CLIENT_VERSION = '1.0.0';
 
