@@ -1,5 +1,5 @@
 # 6.1.17
-* New: Exposed Nosto documentation through an MCP tool for the Shopware MCP server
+* New: (Experimental) Exposing Nosto Documentation MCP tool
 
 # 6.1.16
 * Fix: Fixed an issue with syncing inactive products
