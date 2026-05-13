@@ -1,3 +1,6 @@
+# 6.1.17
+* New: Bereitstellung der Nosto-Dokumentation über ein MCP-Tool für den Shopware-MCP-Server
+
 # 6.1.16
 * Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
 * Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
