@@ -1,3 +1,6 @@
+# 6.1.17
+* Neu: (Experimentell) Bereitstellung des Nosto Documentation MCP-Tools
+
 # 6.1.16
 * Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
 * Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben

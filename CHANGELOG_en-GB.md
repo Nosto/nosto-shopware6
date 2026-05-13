@@ -1,3 +1,6 @@
+# 6.1.17
+* New: (Experimental) Exposing Nosto Documentation MCP tool
+
 # 6.1.16
 * Fix: Fixed an issue with syncing inactive products
 * Fix: Fixed an issue with disabling filter values
