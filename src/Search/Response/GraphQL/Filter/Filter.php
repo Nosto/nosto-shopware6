@@ -75,7 +75,14 @@ abstract class Filter
         $filter = new LabelTextFilter($facet->getId(), $facet->getName(), $facet->getField());
 
         foreach ($facet->getData() as $item) {
-            $filter->addValue(new FilterValue($item->getValue(), $item->getValue()));
+            $filter->addValue(
+                new FilterValue(
+                    $item->getValue(),
+                    $item->getValue(),
+                    $item->getCount(),
+                    $item->getSelected(),
+                ),
+            );
         }
 
         return $filter;

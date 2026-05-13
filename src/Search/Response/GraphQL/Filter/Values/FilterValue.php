@@ -14,6 +14,8 @@ class FilterValue extends Struct
     public function __construct(
         private readonly string $id,
         private readonly string $name,
+        private readonly ?int $count = null,
+        private readonly ?bool $selected = null,
     ) {
         $this->translated = new TranslatedName($name);
     }
@@ -31,5 +33,15 @@ class FilterValue extends Struct
     public function getTranslated(): TranslatedName
     {
         return $this->translated;
+    }
+
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
+
+    public function getSelected(): ?bool
+    {
+        return $this->selected;
     }
 }
