@@ -9,6 +9,11 @@
         <import resource="imports/*"/>
     </imports>
 
+    <parameters>
+        <!-- Nosto's MCP server is Beta; dev.mcp.nosto.com is the only endpoint documented upstream. -->
+        <parameter key="nosto.mcp.public_mcp_url">https://dev.mcp.nosto.com/mcp</parameter>
+    </parameters>
+
     <services>
         <defaults autowire="true"/>
 
@@ -327,6 +332,13 @@
             <argument key="$productRepository" type="service" id="sales_channel.product.repository"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Api\Controller\NostoMcpController" autowire="true" public="true">
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+        </service>
+
         <!-- Routes -->
         <service id="Nosto\NostoIntegration\Api\Route\NostoSyncRoute" public="true">
             <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository"/>
@@ -370,6 +382,17 @@
                 alias="request_stack"
         />
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\NostoMonitoringHelper" />
+
+        <service id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy" autowire="true">
+            <argument key="$httpClient" type="service" id="http_client"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+            <argument key="$mcpServerUrl">%nosto.mcp.public_mcp_url%</argument>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Mcp\NostoDocumentationSearchTool">
+            <argument key="$proxy" type="service" id="Nosto\NostoIntegration\Service\Mcp\NostoDocumentationMcpProxy"/>
+            <tag name="shopware.mcp.tool"/>
+        </service>
 
         <service id="Nosto\NostoIntegration\Service\NostoMonitoringAuthService"/>
 
