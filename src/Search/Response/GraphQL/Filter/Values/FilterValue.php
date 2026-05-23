@@ -16,6 +16,7 @@ class FilterValue extends Struct
         private readonly string $name,
         private readonly ?int $count = null,
         private readonly ?bool $selected = null,
+        private readonly ?FilterVisual $visual = null,
     ) {
         $this->translated = new TranslatedName($name);
     }
@@ -43,5 +44,10 @@ class FilterValue extends Struct
     public function getSelected(): ?bool
     {
         return $this->selected;
+    }
+
+    public function getVisual(): ?FilterVisual
+    {
+        return $this->visual;
     }
 }

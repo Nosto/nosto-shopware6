@@ -15,6 +15,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterVisual;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
@@ -114,7 +115,17 @@ class ProductHelper
 
                 foreach ($facet['data'] as $item) {
                     $value = $item['value'];
-                    $filterValue = new FilterValue($value, $value);
+                    $visual = isset($item['visual']) && is_array($item['visual']) ? $item['visual'] : null;
+                    $filterValue = new FilterValue(
+                        $value,
+                        $value,
+                        isset($item['count']) ? (int) $item['count'] : null,
+                        $item['selected'] ?? null,
+                        $visual ? new FilterVisual(
+                            $visual['type'] ?? null,
+                            $visual['value'] ?? null,
+                        ) : null,
+                    );
                     $filter->addValue($filterValue);
                 }
             } else {
