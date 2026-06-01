@@ -235,7 +235,7 @@ class ProductHelper
             );
         }
 
-        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
 
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
@@ -281,7 +281,7 @@ class ProductHelper
             );
         }
 
-        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
@@ -429,10 +429,11 @@ class ProductHelper
         }
 
         $salesChannelId = $context->getSalesChannelId();
-        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
 
         if ($includeChildren && $criteria->hasAssociation('children')) {
-            $this->addSalesChannelVisibilityFilter($criteria->getAssociation('children'), $salesChannelId);
+            $criteria->getAssociation('children')
+                ->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
         }
 
         $result = $this->productRepository->search(
@@ -452,11 +453,6 @@ class ProductHelper
         }
 
         return $result;
-    }
-
-    private function addSalesChannelVisibilityFilter(Criteria $criteria, string $salesChannelId): void
-    {
-        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
     }
 
     private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
