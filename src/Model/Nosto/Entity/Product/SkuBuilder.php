@@ -12,7 +12,10 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Types\Product\ProductInterface;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -30,6 +33,8 @@ class SkuBuilder
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly ProductHelper $productHelper,
+        private readonly NetPriceCalculator $calculator,
+        private readonly CashRounding $priceRounding,
         private readonly CrossSellingBuilder $crossSellingBuilder,
         private readonly EntityRepository $propertyGroupOptionRepository,
     ) {
@@ -219,14 +224,10 @@ class SkuBuilder
         SalesChannelContext $context,
     ): void {
         if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
-            $productPrice = $this->getSalesChannelCalculatedPrice($product, $context);
+            $productId = $product->getId();
+            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice($productId, $context) : null;
             if ($productPrice instanceof CalculatedPrice) {
-                $nostoSku->setPrice($productPrice->getUnitPrice());
-
-                if ($productPrice->getListPrice() !== null) {
-                    $nostoSku->setListPrice($productPrice->getListPrice()->getPrice());
-                }
-
+                $this->setCalculatedPrice($nostoSku, $productPrice, $context);
                 return;
             }
         }
@@ -243,16 +244,47 @@ class SkuBuilder
         }
     }
 
-    private function getSalesChannelCalculatedPrice(
-        ProductEntity|PartialEntity|PartialProduct $product,
+    private function setCalculatedPrice(
+        NostoSku $nostoSku,
+        CalculatedPrice $productPrice,
         SalesChannelContext $context,
-    ): ?CalculatedPrice {
-        $productId = $product->getId();
-        if (!$productId) {
-            return null;
+    ): void {
+        $listPrice = $productPrice->getListPrice() ?
+            $productPrice->getListPrice()->getPrice() :
+            $productPrice->getUnitPrice();
+
+        $unitPrice = $productPrice->getUnitPrice();
+        $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
+
+        if (!$isGross) {
+            $price = $this->calculator->calculate(
+                new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding(),
+            );
+
+            $priceList = $this->calculator->calculate(
+                new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding(),
+            );
+            if (!empty($price->getCalculatedTaxes()->getElements())) {
+                $unitPrice = 0;
+
+                foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                    $unitPrice += ($tax->getTax() + $tax->getPrice());
+                }
+            }
+
+            if (!empty($priceList->getCalculatedTaxes()->getElements())) {
+                $listPrice = 0;
+
+                foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
+                    $listPrice += ($tax->getTax() + $tax->getPrice());
+                }
+            }
         }
 
-        return $this->productHelper->getSalesChannelCalculatedPrice($productId, $context);
+        $nostoSku->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
+        $nostoSku->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
     }
 
     private function getValue(object $entity, string $field): mixed

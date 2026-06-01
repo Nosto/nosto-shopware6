@@ -408,7 +408,8 @@ class PartialBuilder
         SalesChannelContext $context,
     ): void {
         if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
-            $productPrice = $this->getSalesChannelCalculatedPrice($product, $context);
+            $productId = $product->getId();
+            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice($productId, $context) : null;
             if ($productPrice instanceof CalculatedPrice) {
                 $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
                 return;
@@ -436,16 +437,6 @@ class PartialBuilder
                 $this->priceRounding->cashRound($price->getListPrice()->getGross(), $context->getItemRounding()),
             );
         }
-    }
-
-    private function getSalesChannelCalculatedPrice(object $product, SalesChannelContext $context): ?CalculatedPrice
-    {
-        $productId = $product->getId();
-        if (!$productId) {
-            return null;
-        }
-
-        return $this->productHelper->getSalesChannelCalculatedPrice($productId, $context);
     }
 
     private function setCalculatedPrice(

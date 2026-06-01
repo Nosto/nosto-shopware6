@@ -46,6 +46,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
 {
+    /**
+     * @var array<string, CalculatedPrice|null>
+     */
+    private array $calculatedPriceCache = [];
+
     public function __construct(
         private readonly EntityRepository $productRepository,
         private readonly AbstractProductDetailRoute $productRoute,
@@ -163,6 +168,17 @@ class ProductHelper
 
     public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
     {
+        $cacheKey = implode('|', [
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+            $context->getCurrencyId(),
+            $productId,
+        ]);
+
+        if (array_key_exists($cacheKey, $this->calculatedPriceCache)) {
+            return $this->calculatedPriceCache[$cacheKey];
+        }
+
         $criteria = NostoCriteriaFactory::createWithIds(
             [$productId],
             'product_sync.productHelper.getSalesChannelCalculatedPrice',
@@ -170,12 +186,12 @@ class ProductHelper
 
         $product = $this->salesChannelProductRepository->search($criteria, $context)->get($productId);
         if (!$product instanceof SalesChannelProductEntity) {
-            return null;
+            return $this->calculatedPriceCache[$cacheKey] = null;
         }
 
         $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
 
-        return $price instanceof CalculatedPrice ? $price : null;
+        return $this->calculatedPriceCache[$cacheKey] = $price instanceof CalculatedPrice ? $price : null;
     }
 
     private function getCommonCriteria(?string $title = null): Criteria
