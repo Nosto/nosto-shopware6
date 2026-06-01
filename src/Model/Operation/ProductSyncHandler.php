@@ -362,12 +362,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $allShopwareProducts = !empty($allUniqueIds)
             ? (PartialProductConverter::toPartialProductCollection(
-                $this->productHelper->getShopwareProductsPartial(
-                    array_keys($allUniqueIds),
-                    $context,
-                    true,
-                    true,
-                ),
+                $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context),
             ))
             : new PartialProductCollection();
         /** @var array<string, PartialProduct> $allShopwareProductsById */
@@ -612,12 +607,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $startedAt = $shouldLogExtra ? microtime(true) : null;
         $productsWithLoadedChildren = PartialProductConverter::toPartialProductCollection(
-            $this->productHelper->getShopwareProductsPartial(
-                array_keys($parentIdsNeedingChildren),
-                $context,
-                true,
-                true,
-            ),
+            $this->productHelper->getShopwareProductsPartial(array_keys($parentIdsNeedingChildren), $context),
         );
         $productsWithLoadedChildrenById = [];
         /** @var PartialProduct $productWithLoadedChildren */

@@ -124,6 +124,12 @@ final class ProductHelperTest extends TestCase
             'visibilities.salesChannelId',
             'sales-channel-id',
         ));
+        $childrenCriteria = $capturedCriteria->getAssociation('children');
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $childrenCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
     }
 
     public function testGetShopwareProductsPartialAddsChildrenFiltersWhenInactiveSyncIsDisabled(): void
@@ -171,6 +177,16 @@ final class ProductHelperTest extends TestCase
             $childrenCriteria->getFilters(),
             static fn ($filter): bool => $filter instanceof NotFilter,
         ));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $childrenCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
     }
 
     public function testGetShopwareProductsPartialDoesNotAddChildrenInactiveFilterWhenInactiveSyncIsEnabled(): void
@@ -209,6 +225,16 @@ final class ProductHelperTest extends TestCase
         self::assertFalse($capturedCriteria->hasEqualsFilter('active'));
         $childrenCriteria = $capturedCriteria->getAssociation('children');
         self::assertFalse($childrenCriteria->hasEqualsFilter('active'));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $childrenCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
     }
 
     public function testGetShopwareProductsPartialUsesBaseProductRepositoryInsteadOfSalesChannelRepository(): void
@@ -280,7 +306,7 @@ final class ProductHelperTest extends TestCase
             configProvider: $configProvider,
         );
 
-        $helper->getShopwareProductsPartial(['product-id-1'], $this->createContext(), true, true);
+        $helper->getShopwareProductsPartial(['product-id-1'], $this->createContext());
 
         self::assertInstanceOf(Criteria::class, $capturedCriteria);
         self::assertTrue($this->criteriaHasEqualsFilter(
@@ -329,6 +355,11 @@ final class ProductHelperTest extends TestCase
             static fn ($filter): bool => $filter instanceof NotFilter,
         ));
         self::assertFalse($capturedCriteria->hasAssociation('children'));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
     }
 
     private function createHelper(

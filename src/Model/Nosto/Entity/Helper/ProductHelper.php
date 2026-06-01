@@ -399,7 +399,6 @@ class ProductHelper
         array $productIds,
         SalesChannelContext $context,
         bool $includeChildren = true,
-        bool $requireSalesChannelVisibility = false,
     ): EntityCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
@@ -429,8 +428,11 @@ class ProductHelper
             );
         }
 
-        if ($requireSalesChannelVisibility) {
-            $this->addSalesChannelVisibilityFilter($criteria, $context->getSalesChannelId());
+        $salesChannelId = $context->getSalesChannelId();
+        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
+
+        if ($includeChildren && $criteria->hasAssociation('children')) {
+            $this->addSalesChannelVisibilityFilter($criteria->getAssociation('children'), $salesChannelId);
         }
 
         $result = $this->productRepository->search(
