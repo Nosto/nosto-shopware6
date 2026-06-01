@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -68,6 +69,11 @@ final class ProductHelperTest extends TestCase
 
         self::assertInstanceOf(Criteria::class, $capturedCriteria);
         self::assertTrue($capturedCriteria->hasEqualsFilter('active'));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
         self::assertContainsOnlyInstancesOf(NotFilter::class, array_filter(
             $capturedCriteria->getFilters(),
             static fn ($filter): bool => $filter instanceof NotFilter,
@@ -113,6 +119,11 @@ final class ProductHelperTest extends TestCase
 
         self::assertInstanceOf(Criteria::class, $capturedCriteria);
         self::assertFalse($capturedCriteria->hasEqualsFilter('active'));
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
     }
 
     public function testGetShopwareProductsPartialAddsChildrenFiltersWhenInactiveSyncIsDisabled(): void
@@ -239,6 +250,46 @@ final class ProductHelperTest extends TestCase
         $helper->getShopwareProductsPartial(['product-id-1'], $this->createContext());
     }
 
+    public function testGetShopwareProductsPartialCanRequireSalesChannelVisibility(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledSyncInactiveProducts')->willReturn(true);
+        $configProvider->method('getCategoryBlocklist')->willReturn([]);
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+
+        $capturedCriteria = null;
+        $productRepository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): EntitySearchResult {
+                $capturedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    ProductEntity::class,
+                    0,
+                    new EntityCollection(),
+                    new AggregationResultCollection(),
+                    $criteria,
+                    $context,
+                );
+            },
+        );
+
+        $helper = $this->createHelper(
+            productRepository: $productRepository,
+            configProvider: $configProvider,
+        );
+
+        $helper->getShopwareProductsPartial(['product-id-1'], $this->createContext(), true, true);
+
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        self::assertTrue($this->criteriaHasEqualsFilter(
+            $capturedCriteria,
+            'visibilities.salesChannelId',
+            'sales-channel-id',
+        ));
+    }
+
     public function testGetShopwareProductsPartialSkipsChildrenAssociationFiltersWhenIncludeChildrenIsFalse(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
@@ -316,6 +367,17 @@ final class ProductHelperTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         return $context;
+    }
+
+    private function criteriaHasEqualsFilter(Criteria $criteria, string $field, mixed $value): bool
+    {
+        foreach ($criteria->getFilters() as $filter) {
+            if ($filter instanceof EqualsFilter && $filter->getField() === $field && $filter->getValue() === $value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function createDefinition(string $entityName): EntityDefinition

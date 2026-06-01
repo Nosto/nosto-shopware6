@@ -235,6 +235,8 @@ class ProductHelper
             );
         }
 
+        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
+
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
@@ -278,6 +280,8 @@ class ProductHelper
                 ),
             );
         }
+
+        $this->addSalesChannelVisibilityFilter($criteria, $salesChannelId);
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
@@ -395,6 +399,7 @@ class ProductHelper
         array $productIds,
         SalesChannelContext $context,
         bool $includeChildren = true,
+        bool $requireSalesChannelVisibility = false,
     ): EntityCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
@@ -424,6 +429,10 @@ class ProductHelper
             );
         }
 
+        if ($requireSalesChannelVisibility) {
+            $this->addSalesChannelVisibilityFilter($criteria, $context->getSalesChannelId());
+        }
+
         $result = $this->productRepository->search(
             $criteria,
             $context->getContext(),
@@ -441,6 +450,11 @@ class ProductHelper
         }
 
         return $result;
+    }
+
+    private function addSalesChannelVisibilityFilter(Criteria $criteria, string $salesChannelId): void
+    {
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
     }
 
     private function getSyncPartialCriteria(?string $title, SalesChannelContext $context): Criteria
