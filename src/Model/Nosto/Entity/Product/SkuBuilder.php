@@ -225,7 +225,10 @@ class SkuBuilder
     ): void {
         if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
             $productId = $product->getId();
-            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice($productId, $context) : null;
+            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
+                $productId,
+                $context,
+            ) : null;
             if ($productPrice instanceof CalculatedPrice) {
                 $this->setCalculatedPrice($nostoSku, $productPrice, $context);
                 return;
