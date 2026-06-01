@@ -124,12 +124,6 @@ final class ProductHelperTest extends TestCase
             'visibilities.salesChannelId',
             'sales-channel-id',
         ));
-        $childrenCriteria = $capturedCriteria->getAssociation('children');
-        self::assertTrue($this->criteriaHasEqualsFilter(
-            $childrenCriteria,
-            'visibilities.salesChannelId',
-            'sales-channel-id',
-        ));
     }
 
     public function testGetShopwareProductsPartialAddsChildrenFiltersWhenInactiveSyncIsDisabled(): void

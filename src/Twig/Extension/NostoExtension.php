@@ -177,9 +177,6 @@ class NostoExtension extends AbstractExtension
         if ($mainProduct instanceof PartialEntity && !$mainProduct instanceof PartialProduct) {
             $mainProduct = PartialProductConverter::toPartialProduct($mainProduct);
         }
-        if (!$mainProduct instanceof PartialProduct) {
-            return '';
-        }
 
         /** @var PartialProduct $variantFromDb */
         $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
