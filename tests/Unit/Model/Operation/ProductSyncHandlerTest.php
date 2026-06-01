@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -100,6 +101,7 @@ final class ProductSyncHandlerTest extends TestCase
             $this->createMock(AbstractSalesChannelContextFactory::class),
             $this->createMock(PartialProvider::class),
             $this->createMock(AccountProvider::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ConfigProvider::class),
             $this->createMock(AbstractRuleLoader::class),
             $this->createMock(ProductHelper::class),
