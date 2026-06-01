@@ -19,6 +19,7 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -158,6 +159,23 @@ class ProductHelper
         $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
 
         return $shopwareProduct->get($productId) ?? null;
+    }
+
+    public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
+    {
+        $criteria = NostoCriteriaFactory::createWithIds(
+            [$productId],
+            'product_sync.productHelper.getSalesChannelCalculatedPrice',
+        );
+
+        $product = $this->salesChannelProductRepository->search($criteria, $context)->get($productId);
+        if (!$product instanceof SalesChannelProductEntity) {
+            return null;
+        }
+
+        $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+
+        return $price instanceof CalculatedPrice ? $price : null;
     }
 
     private function getCommonCriteria(?string $title = null): Criteria

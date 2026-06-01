@@ -12,6 +12,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\CrossSelling\CrossSellingBuilder;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Types\Product\ProductInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -119,14 +120,7 @@ class SkuBuilder
             $nostoSku->setImageUrl($placeholderImageUrl);
         }
 
-        $price = $product->getCurrencyPrice($context->getCurrencyId());
-        if ($price !== null) {
-            $nostoSku->setPrice($price->getGross());
-
-            if ($price->getListPrice() !== null) {
-                $nostoSku->setListPrice($price->getListPrice()->getGross());
-            }
-        }
+        $this->setPrices($nostoSku, $product, $context);
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
             $nostoSku->setInventoryLevel($stock);
@@ -217,6 +211,48 @@ class SkuBuilder
         }
 
         return $nostoSku;
+    }
+
+    private function setPrices(
+        NostoSku $nostoSku,
+        ProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): void {
+        if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
+            $productPrice = $this->getSalesChannelCalculatedPrice($product, $context);
+            if ($productPrice instanceof CalculatedPrice) {
+                $nostoSku->setPrice($productPrice->getUnitPrice());
+
+                if ($productPrice->getListPrice() !== null) {
+                    $nostoSku->setListPrice($productPrice->getListPrice()->getPrice());
+                }
+
+                return;
+            }
+        }
+
+        $price = $product->getCurrencyPrice($context->getCurrencyId());
+        if ($price === null) {
+            return;
+        }
+
+        $nostoSku->setPrice($price->getGross());
+
+        if ($price->getListPrice() !== null) {
+            $nostoSku->setListPrice($price->getListPrice()->getGross());
+        }
+    }
+
+    private function getSalesChannelCalculatedPrice(
+        ProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): ?CalculatedPrice {
+        $productId = $product->getId();
+        if (!$productId) {
+            return null;
+        }
+
+        return $this->productHelper->getSalesChannelCalculatedPrice($productId, $context);
     }
 
     private function getValue(object $entity, string $field): mixed

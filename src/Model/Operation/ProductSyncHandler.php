@@ -31,10 +31,14 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,6 +53,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
+        private readonly EntityRepository $domainRepository,
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly ProductHelper $productHelper,
@@ -75,13 +80,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         $accounts = $this->resolveAccounts($message);
 
         foreach ($accounts as $account) {
-            $channelContext = $this->channelContextFactory->create(
-                Uuid::randomHex(),
-                $account->getChannelId(),
-                [
-                    SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
-                ],
-            );
+            $channelContext = $this->createAccountContext($account, $message->getContext());
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
             if ($shouldLogExtra === null) {
@@ -125,6 +124,46 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $this->accountProvider->all($context);
+    }
+
+    protected function createAccountContext(Account $account, Context $context): SalesChannelContext
+    {
+        $channelId = $account->getChannelId();
+        $languageId = $account->getLanguageId();
+
+        $parameters = [
+            SalesChannelContextService::LANGUAGE_ID => $languageId,
+        ];
+
+        if (!$this->configProvider->isEnabledMultiCurrency($channelId, $languageId)) {
+            $domainId = $this->configProvider->getDomainId($channelId, $languageId);
+            if ($domainId !== null && Uuid::isValid($domainId)) {
+                $parameters[SalesChannelContextService::DOMAIN_ID] = $domainId;
+            }
+
+            $currencyId = $this->getDomainCurrencyId($channelId, $languageId, $context);
+            if ($currencyId !== null && Uuid::isValid($currencyId)) {
+                $parameters[SalesChannelContextService::CURRENCY_ID] = $currencyId;
+            }
+        }
+
+        return $this->channelContextFactory->create(
+            Uuid::randomHex(),
+            $channelId,
+            $parameters,
+        );
+    }
+
+    protected function getDomainCurrencyId(?string $channelId, ?string $languageId, Context $context): ?string
+    {
+        $domainId = $this->configProvider->getDomainId($channelId, $languageId);
+        if ($domainId === null || !Uuid::isValid($domainId)) {
+            return null;
+        }
+
+        $domain = $this->domainRepository->search(new Criteria([$domainId]), $context)->first();
+
+        return $domain instanceof SalesChannelDomainEntity ? $domain->getCurrencyId() : null;
     }
 
     /**
