@@ -19,10 +19,9 @@ use Nosto\Scheduler\Model\Job;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,6 +34,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly PartialProvider $partialProductProvider,
         private readonly Account\Provider $accountProvider,
+        private readonly EntityRepository $domainRepository,
         private readonly ConfigProvider $configProvider,
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly ProductHelper $productHelper,
@@ -46,6 +46,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
             $this->channelContextFactory,
             $this->partialProductProvider,
             $this->accountProvider,
+            $this->domainRepository,
             $this->configProvider,
             $this->ruleLoader,
             $this->productHelper,
@@ -58,14 +59,7 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
     public function execute(object $message): Job\JobResult
     {
         foreach ($this->accountProvider->all($message->getContext()) as $account) {
-            $channelContext = $this->channelContextFactory->create(
-                Uuid::randomHex(),
-                $account->getChannelId(),
-                [
-                    SalesChannelContextService::LANGUAGE_ID => $account->getLanguageId(),
-                ],
-            );
-
+            $channelContext = $this->createAccountContext($account, $message->getContext());
             $channelContext->setRuleIds($this->loadRuleIds($channelContext));
 
             $this->doOperation($account, $channelContext, $message->getProductIds());

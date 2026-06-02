@@ -19,6 +19,7 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -45,6 +46,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
 {
+    /**
+     * @var array<string, CalculatedPrice|null>
+     */
+    private array $calculatedPriceCache = [];
+
     public function __construct(
         private readonly EntityRepository $productRepository,
         private readonly AbstractProductDetailRoute $productRoute,
@@ -158,6 +164,34 @@ class ProductHelper
         $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
 
         return $shopwareProduct->get($productId) ?? null;
+    }
+
+    public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
+    {
+        $cacheKey = implode('|', [
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+            $context->getCurrencyId(),
+            $productId,
+        ]);
+
+        if (array_key_exists($cacheKey, $this->calculatedPriceCache)) {
+            return $this->calculatedPriceCache[$cacheKey];
+        }
+
+        $criteria = NostoCriteriaFactory::createWithIds(
+            [$productId],
+            'product_sync.productHelper.getSalesChannelCalculatedPrice',
+        );
+
+        $product = $this->salesChannelProductRepository->search($criteria, $context)->get($productId);
+        if (!$product instanceof SalesChannelProductEntity) {
+            return $this->calculatedPriceCache[$cacheKey] = null;
+        }
+
+        $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+
+        return $this->calculatedPriceCache[$cacheKey] = $price instanceof CalculatedPrice ? $price : null;
     }
 
     private function getCommonCriteria(?string $title = null): Criteria

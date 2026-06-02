@@ -34,6 +34,7 @@
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument key="$partialProductProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
+            <argument key="$domainRepository" type="service" id="sales_channel_domain.repository"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
@@ -401,6 +402,7 @@
                       id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument key="$partialProductProvider" type="service"
                       id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider"/>
+            <argument key="$domainRepository" type="service" id="sales_channel_domain.repository"/>
             <argument key="$ruleLoader" type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
