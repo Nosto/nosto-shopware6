@@ -12,6 +12,13 @@ runs:
       shell: bash
       run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
 
+    - name: Clear Composer GitHub auth
+      shell: bash
+      run: |
+        echo 'COMPOSER_AUTH={}' >> "$GITHUB_ENV"
+        composer config -g --unset github-oauth.github.com || true
+        composer config -g --unset --auth github-oauth.github.com || true
+
     - name: Configure Composer to bypass audit and update
       shell: bash
       run: |
