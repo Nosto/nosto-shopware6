@@ -646,11 +646,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         $startedAt = $shouldLogExtra ? microtime(true) : null;
         $productsWithLoadedChildren = PartialProductConverter::toPartialProductCollection(
-            $this->productHelper->getShopwareProductsPartial(
-                array_keys($parentIdsNeedingChildren),
-                $context,
-                true,
-            ),
+            $this->productHelper->getShopwareProductsPartial(array_keys($parentIdsNeedingChildren), $context),
         );
         $productsWithLoadedChildrenById = [];
         /** @var PartialProduct $productWithLoadedChildren */

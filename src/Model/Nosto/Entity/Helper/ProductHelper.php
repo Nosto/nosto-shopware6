@@ -269,6 +269,8 @@ class ProductHelper
             );
         }
 
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
+
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
@@ -312,6 +314,8 @@ class ProductHelper
                 ),
             );
         }
+
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
@@ -456,6 +460,14 @@ class ProductHelper
                     [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
                 ),
             );
+        }
+
+        $salesChannelId = $context->getSalesChannelId();
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
+
+        if ($includeChildren && $criteria->hasAssociation('children')) {
+            $criteria->getAssociation('children')
+                ->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
         }
 
         $result = $this->productRepository->search(
