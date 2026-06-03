@@ -1,3 +1,8 @@
+# 6.1.18
+* Fix: Use the correct currency for product sync when multi-currency is disabled
+* Fix: Respect sales channel visibility so only assigned products are synced to Nosto
+* Fix: Avoid errors when copying Shopware context or criteria objects with non-serializable values
+
 # 6.1.17
 * New: (Experimental) Exposing Nosto Documentation MCP tool
 

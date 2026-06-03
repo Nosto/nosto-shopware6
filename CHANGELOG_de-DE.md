@@ -1,3 +1,8 @@
+# 6.1.18
+* Fix: Die richtige Währung für den Produkt-Sync verwenden, wenn Multi-Währung deaktiviert ist
+* Fix: Die Sichtbarkeit im Sales Channel berücksichtigen, damit nur zugewiesene Produkte an Nosto synchronisiert werden
+* Fix: Fehler vermeiden, wenn Shopware-Context- oder Criteria-Objekte nicht serialisierbare Werte enthalten
+
 # 6.1.17
 * Neu: (Experimentell) Bereitstellung des Nosto Documentation MCP-Tools
 
