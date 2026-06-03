@@ -123,6 +123,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $request->getHost(),
                 );
                 $searchType = $data['searchType'] ?? null;
+                $searchTypeReason = $data['searchTypeReason'] ?? null;
 
                 $metadata = new AnalyticsSearchMetadataForGraphql(
                     $data['query'] ?? null,
@@ -138,6 +139,7 @@ class NostoAnalyticsTrackingController extends AbstractController
                     $data['hasResults'] ?? true,
                     $data['isRefined'] ?? false,
                     $searchType,
+                    $searchTypeReason,
                 );
                 $tracker->click($metadata, $productId, $abTests);
             } else {
