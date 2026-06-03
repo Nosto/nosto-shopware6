@@ -74,15 +74,16 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $request->server->all(),
             $request->getContent(),
         );
-        $originalContext = unserialize(serialize($context));
-        $originalCriteria = unserialize(serialize($criteria));
         $query = $request->query->get('search');
-        $originalCriteria->setTerm($query);
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider, false, $request)) {
                 $criteria->setTerm($query);
                 return $this->decorated->load($request, $context, $criteria);
             }
+
+            $originalContext = clone $context;
+            $originalCriteria = clone $criteria;
+            $originalCriteria->setTerm($query);
 
             if (!$request->get('search')) {
                 throw RoutingException::missingRequestParameter('search');

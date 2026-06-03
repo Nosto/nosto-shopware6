@@ -144,9 +144,11 @@ class NostoExtension extends AbstractExtension
     ): string|NostoProduct {
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
         $criteria->addFields(ProductFieldSets::productFieldsWithChildren());
 
         $childrenCriteria = $criteria->getAssociation('children');
+        $childrenCriteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
 
         if (!$this->configProvider->isEnabledSyncInactiveProducts(
             $context->getSalesChannelId(),
@@ -178,6 +180,7 @@ class NostoExtension extends AbstractExtension
 
         /** @var PartialProduct $variantFromDb */
         $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
         $criteria->addFields(ProductFieldSets::productFields());
 
         $variantFromDb = $this->productRepository
