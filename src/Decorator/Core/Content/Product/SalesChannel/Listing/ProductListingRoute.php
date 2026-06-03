@@ -73,8 +73,6 @@ class ProductListingRoute extends AbstractProductListingRoute
             $request->server->all(),
             $request->getContent(),
         );
-        $originalContext = unserialize(serialize($context));
-        $originalCriteria = unserialize(serialize($criteria));
         try {
             $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true, $request);
 
@@ -84,6 +82,9 @@ class ProductListingRoute extends AbstractProductListingRoute
 
                 return $this->decorated->load($categoryId, $request, $context, $criteria);
             }
+
+            $originalContext = clone $context;
+            $originalCriteria = $criteria !== null ? clone $criteria : null;
 
             $criteria->addFilter(
                 new ProductAvailableFilter(
