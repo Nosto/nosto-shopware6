@@ -79,8 +79,12 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                         'id' => $payload['id'] ?? 2,
                         'result' => [
                             'tools' => [
-                                ['name' => 'get_nosto_tech_docs'],
-                                ['name' => 'get_nosto_feature_docs'],
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
+                                [
+                                    'name' => 'get_nosto_feature_docs',
+                                ],
                             ],
                         ],
                     ], \JSON_THROW_ON_ERROR),
@@ -202,8 +206,12 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                         'id' => $payload['id'] ?? 2,
                         'result' => [
                             'tools' => [
-                                ['name' => 'get_nosto_tech_docs'],
-                                ['name' => 'get_nosto_feature_docs'],
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
+                                [
+                                    'name' => 'get_nosto_feature_docs',
+                                ],
                             ],
                         ],
                     ], \JSON_THROW_ON_ERROR),
@@ -316,7 +324,9 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                         'id' => $payload['id'] ?? 2,
                         'result' => [
                             'tools' => [
-                                ['name' => 'get_nosto_tech_docs'],
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
                             ],
                         ],
                     ], \JSON_THROW_ON_ERROR),

@@ -89,6 +89,31 @@ final class NostoMcpControllerTest extends TestCase
                 ]);
             }
 
+            if (($payload['method'] ?? null) === 'tools/list') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
+                                [
+                                    'name' => 'get_nosto_feature_docs',
+                                ],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
+            }
+
             if (($payload['method'] ?? null) === 'tools/call') {
                 return new MockResponse(
                     json_encode([

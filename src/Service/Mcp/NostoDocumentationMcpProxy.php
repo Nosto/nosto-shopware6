@@ -40,18 +40,18 @@ final class NostoDocumentationMcpProxy
             $requestArguments = $requestPayload['arguments'] ?? [];
 
             if (!\is_array($requestArguments)) {
-                $this->logger->error('Arguments payload is not an array', ['type' => gettype($requestArguments)]);
                 return $this->errorResult('The arguments payload must be an object.');
             }
 
             $documentationQuery = $this->extractDocumentationQuery($requestArguments);
             if ($documentationQuery === null) {
-                $this->logger->error('No query argument found', ['arguments' => array_keys($requestArguments)]);
                 return $this->errorResult('The query argument is required.');
             }
 
             $mcpSessionId = $this->initializeMcpSession();
-            $this->logger->info('MCP session initialized', ['sessionId' => $mcpSessionId]);
+            $this->logger->info('MCP session initialized', [
+                'sessionId' => $mcpSessionId,
+            ]);
             $this->sendInitializedNotification($mcpSessionId);
             $toolsList = $this->listRemoteTools($mcpSessionId);
             $response = $this->callRemoteDocumentationTool($mcpSessionId, $resolvedToolName, $documentationQuery);
@@ -160,7 +160,6 @@ final class NostoDocumentationMcpProxy
         try {
             $body = json_encode($jsonRpcPayload, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            $this->logger->error('Failed to encode JSON-RPC payload', ['error' => $e->getMessage()]);
             throw new \RuntimeException('Could not encode the Nosto MCP request payload.', 0, $e);
         }
 
