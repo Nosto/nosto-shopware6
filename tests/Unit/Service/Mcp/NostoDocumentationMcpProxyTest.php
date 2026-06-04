@@ -56,6 +56,8 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                     'Mcp-Session-Id: session-123',
                     $options['normalized_headers']['mcp-session-id'][0] ?? null,
                 );
+                self::assertFalse(isset($payload['id']), 'Notifications must not include id field');
+                self::assertIsArray($payload['params'] ?? null, 'Params must be an object (decoded as array)');
 
                 return new MockResponse('', [
                     'http_code' => 200,
@@ -63,6 +65,32 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                         'content-type' => 'application/json',
                     ],
                 ]);
+            }
+
+            if (($payload['method'] ?? null) === 'tools/list') {
+                self::assertSame(
+                    'Mcp-Session-Id: session-123',
+                    $options['normalized_headers']['mcp-session-id'][0] ?? null,
+                );
+
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                ['name' => 'get_nosto_tech_docs'],
+                                ['name' => 'get_nosto_feature_docs'],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
             }
 
             self::assertSame('tools/call', $payload['method'] ?? null);
@@ -106,7 +134,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('Use the MCP endpoint and a proxy service.', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
-        self::assertCount(3, $requests);
+        self::assertCount(4, $requests);
     }
 
     public function testForwardsFeatureDocumentationQueriesToTheRemoteMcpServer(): void
@@ -151,6 +179,8 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                     'Mcp-Session-Id: session-456',
                     $options['normalized_headers']['mcp-session-id'][0] ?? null,
                 );
+                self::assertFalse(isset($payload['id']), 'Notifications must not include id field');
+                self::assertIsArray($payload['params'] ?? null, 'Params must be an object (decoded as array)');
 
                 return new MockResponse('', [
                     'http_code' => 200,
@@ -158,6 +188,32 @@ final class NostoDocumentationMcpProxyTest extends TestCase
                         'content-type' => 'application/json',
                     ],
                 ]);
+            }
+
+            if (($payload['method'] ?? null) === 'tools/list') {
+                self::assertSame(
+                    'Mcp-Session-Id: session-456',
+                    $options['normalized_headers']['mcp-session-id'][0] ?? null,
+                );
+
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                ['name' => 'get_nosto_tech_docs'],
+                                ['name' => 'get_nosto_feature_docs'],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
             }
 
             self::assertSame('tools/call', $payload['method'] ?? null);
@@ -201,7 +257,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('Feature docs result.', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
-        self::assertCount(3, $requests);
+        self::assertCount(4, $requests);
     }
 
     public function testParsesSseToolsCallResponse(): void
@@ -242,12 +298,35 @@ final class NostoDocumentationMcpProxyTest extends TestCase
             }
 
             if (($payload['method'] ?? null) === 'notifications/initialized') {
+                self::assertFalse(isset($payload['id']), 'Notifications must not include id field');
+                self::assertIsArray($payload['params'] ?? null, 'Params must be an object (decoded as array)');
+
                 return new MockResponse('', [
                     'http_code' => 200,
                     'response_headers' => [
                         'content-type' => 'application/json',
                     ],
                 ]);
+            }
+
+            if (($payload['method'] ?? null) === 'tools/list') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                ['name' => 'get_nosto_tech_docs'],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
             }
 
             return new MockResponse(
@@ -272,7 +351,7 @@ final class NostoDocumentationMcpProxyTest extends TestCase
 
         self::assertSame('ok', $result['content'][0]['text']);
         self::assertFalse($result['isError']);
-        self::assertCount(3, $requests);
+        self::assertCount(4, $requests);
     }
 
     public function testReturnsMcpErrorForInvalidToolPayload(): void
