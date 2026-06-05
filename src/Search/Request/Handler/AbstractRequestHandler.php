@@ -59,7 +59,6 @@ abstract class AbstractRequestHandler
         try {
             $response = $this->sendRequest($request, $criteria, $context);
             $request->attributes->set('nostoSearchType', $response->getSearchType());
-            $request->attributes->set('nostoSearchTypeReason', $response->getSearchTypeReason());
             $criteria->addExtension('nostoAvailableFilters', $this->parseFiltersFromResponse($response));
             $responseParser = $this->createResponseParser($response);
 
