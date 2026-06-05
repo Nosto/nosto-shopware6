@@ -59,6 +59,31 @@ final class NostoDocumentationSearchToolTest extends TestCase
                 ]);
             }
 
+            if (($payload['method'] ?? null) === 'tools/list') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
+                                [
+                                    'name' => 'get_nosto_feature_docs',
+                                ],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
+            }
+
             self::assertSame('tools/call', $payload['method'] ?? null);
             self::assertSame('get_nosto_tech_docs', $payload['params']['name'] ?? null);
             self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query_input'] ?? null);
@@ -93,7 +118,7 @@ final class NostoDocumentationSearchToolTest extends TestCase
         $result = $tool('How do I expose docs MCP?');
 
         self::assertSame('Use the MCP endpoint and a proxy service.', $result);
-        self::assertCount(3, $requests);
+        self::assertCount(4, $requests);
     }
 
     public function testUsesFeatureDocumentationWhenRequested(): void
@@ -142,6 +167,31 @@ final class NostoDocumentationSearchToolTest extends TestCase
                 ]);
             }
 
+            if (($payload['method'] ?? null) === 'tools/list') {
+                return new MockResponse(
+                    json_encode([
+                        'jsonrpc' => '2.0',
+                        'id' => $payload['id'] ?? 2,
+                        'result' => [
+                            'tools' => [
+                                [
+                                    'name' => 'get_nosto_tech_docs',
+                                ],
+                                [
+                                    'name' => 'get_nosto_feature_docs',
+                                ],
+                            ],
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    [
+                        'http_code' => 200,
+                        'response_headers' => [
+                            'content-type' => 'application/json',
+                        ],
+                    ],
+                );
+            }
+
             self::assertSame('tools/call', $payload['method'] ?? null);
             self::assertSame('get_nosto_feature_docs', $payload['params']['name'] ?? null);
             self::assertSame('How do I expose docs MCP?', $payload['params']['arguments']['query_input'] ?? null);
@@ -176,6 +226,6 @@ final class NostoDocumentationSearchToolTest extends TestCase
         $result = $tool('How do I expose docs MCP?', 'feature');
 
         self::assertSame('Feature docs result.', $result);
-        self::assertCount(3, $requests);
+        self::assertCount(4, $requests);
     }
 }
