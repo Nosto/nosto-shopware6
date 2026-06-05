@@ -49,9 +49,6 @@ final class NostoDocumentationMcpProxy
             }
 
             $mcpSessionId = $this->initializeMcpSession();
-            $this->logger->info('MCP session initialized', [
-                'sessionId' => $mcpSessionId,
-            ]);
             $this->sendInitializedNotification($mcpSessionId);
             $toolsList = $this->listRemoteTools($mcpSessionId);
             $response = $this->callRemoteDocumentationTool($mcpSessionId, $resolvedToolName, $documentationQuery);
