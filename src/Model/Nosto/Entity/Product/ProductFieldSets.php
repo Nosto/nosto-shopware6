@@ -19,10 +19,14 @@ final class ProductFieldSets
 
     public const ASSOCIATION_FIELDS = [
         'cover.id', 'cover.media.id', 'cover.media.url',
+        'cover.media.path', 'cover.media.private', 'cover.media.updatedAt', 'cover.media.createdAt',
         'manufacturer.id', 'manufacturer.name', 'manufacturer.media.id', 'manufacturer.media.url',
+        'manufacturer.media.path', 'manufacturer.media.private',
+        'manufacturer.media.updatedAt', 'manufacturer.media.createdAt',
         'categoriesRo.id',
         'visibilities.id', 'visibilities.salesChannelId', 'visibilities.visibility',
         'media.id', 'media.position', 'media.media.id', 'media.media.url',
+        'media.media.path', 'media.media.private', 'media.media.updatedAt', 'media.media.createdAt',
     ];
 
     public const CHILDREN_FIELDS = [
@@ -36,11 +40,17 @@ final class ProductFieldSets
         'children.keywords', 'children.packUnit', 'children.packUnitPlural', 'children.metaTitle',
         'children.metaDescription',
         'children.cover.id', 'children.cover.media.id', 'children.cover.media.url',
+        'children.cover.media.path', 'children.cover.media.private',
+        'children.cover.media.updatedAt', 'children.cover.media.createdAt',
         'children.manufacturer.id', 'children.manufacturer.name',
         'children.manufacturer.media.id', 'children.manufacturer.media.url',
+        'children.manufacturer.media.path', 'children.manufacturer.media.private',
+        'children.manufacturer.media.updatedAt', 'children.manufacturer.media.createdAt',
         'children.categoriesRo.id',
         'children.visibilities.id', 'children.visibilities.salesChannelId', 'children.visibilities.visibility',
         'children.media.id', 'children.media.position', 'children.media.media.id', 'children.media.media.url',
+        'children.media.media.path', 'children.media.media.private',
+        'children.media.media.updatedAt', 'children.media.media.createdAt',
     ];
 
     public const PARENT_SYNC_FIELDS = [
