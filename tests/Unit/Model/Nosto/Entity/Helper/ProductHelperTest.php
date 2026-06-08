@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -17,10 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -406,15 +409,123 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
+    public function testGetReviewsCountCountsWholeFamilyWhenSyncingVariant(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        // Simulate the "Expand property values in product listings" case where the synced
+        // product is a child variant rather than the parent.
+        $variant = new SalesChannelProductEntity();
+        $variant->setId($variantId);
+        $variant->setParentId($parentId);
+
+        $capturedCriteria = null;
+        $reviewRepository = $this->createMock(EntityRepository::class);
+        $reviewRepository->method('aggregate')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+                $capturedCriteria = $criteria;
+
+                return new AggregationResultCollection([new CountResult('review-count', 7)]);
+            },
+        );
+
+        $helper = $this->createHelper(reviewRepository: $reviewRepository);
+
+        $count = $helper->getReviewsCount($variant, $this->createContext());
+
+        self::assertSame(7, $count);
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        // The review count must target the family root (parent id), sweeping in the
+        // parent's reviews and all sibling variants - not just the synced variant.
+        self::assertTrue($this->reviewCriteriaTargetsFamilyId($capturedCriteria, $parentId));
+        self::assertFalse($this->reviewCriteriaTargetsFamilyId($capturedCriteria, $variantId));
+    }
+
+    public function testGetReviewsCountUsesOwnIdWhenSyncingParent(): void
+    {
+        $parentId = Uuid::randomHex();
+
+        $parent = new SalesChannelProductEntity();
+        $parent->setId($parentId);
+        $parent->setParentId(null);
+
+        $capturedCriteria = null;
+        $reviewRepository = $this->createMock(EntityRepository::class);
+        $reviewRepository->method('aggregate')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+                $capturedCriteria = $criteria;
+
+                return new AggregationResultCollection([new CountResult('review-count', 3)]);
+            },
+        );
+
+        $helper = $this->createHelper(reviewRepository: $reviewRepository);
+
+        $count = $helper->getReviewsCount($parent, $this->createContext());
+
+        self::assertSame(3, $count);
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        self::assertTrue($this->reviewCriteriaTargetsFamilyId($capturedCriteria, $parentId));
+    }
+
+    public function testGetReviewsCountOnlyCountsApprovedReviews(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setParentId(null);
+
+        $capturedCriteria = null;
+        $reviewRepository = $this->createMock(EntityRepository::class);
+        $reviewRepository->method('aggregate')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+                $capturedCriteria = $criteria;
+
+                return new AggregationResultCollection([new CountResult('review-count', 4)]);
+            },
+        );
+
+        $helper = $this->createHelper(reviewRepository: $reviewRepository);
+
+        $helper->getReviewsCount($product, $this->createContext());
+
+        self::assertInstanceOf(Criteria::class, $capturedCriteria);
+        // Mirrors Shopware's ratingAverage, which only averages reviews with status = 1.
+        self::assertTrue($this->criteriaHasEqualsFilter($capturedCriteria, 'status', true));
+    }
+
+    private function reviewCriteriaTargetsFamilyId(Criteria $criteria, string $expectedId): bool
+    {
+        foreach ($criteria->getFilters() as $filter) {
+            if (!$filter instanceof MultiFilter || $filter->getOperator() !== MultiFilter::CONNECTION_OR) {
+                continue;
+            }
+
+            $matchedFields = [];
+            foreach ($filter->getQueries() as $query) {
+                if ($query instanceof EqualsFilter && $query->getValue() === $expectedId) {
+                    $matchedFields[$query->getField()] = true;
+                }
+            }
+
+            if (isset($matchedFields['product.id'], $matchedFields['product.parentId'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function createHelper(
         ?EntityRepository $productRepository = null,
         ?ConfigProvider $configProvider = null,
         ?SalesChannelRepository $salesChannelRepository = null,
+        ?EntityRepository $reviewRepository = null,
     ): ProductHelper {
         $productRepository ??= $this->createMock(EntityRepository::class);
         $configProvider ??= $this->createMock(ConfigProvider::class);
         $productRoute = $this->createMock(AbstractProductDetailRoute::class);
-        $reviewRepository = $this->createMock(EntityRepository::class);
+        $reviewRepository ??= $this->createMock(EntityRepository::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $seoUrlReplacer = $this->createMock(\Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface::class);
         $salesChannelRepository ??= $this->createMock(SalesChannelRepository::class);
