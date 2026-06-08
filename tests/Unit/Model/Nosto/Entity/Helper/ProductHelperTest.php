@@ -423,7 +423,9 @@ final class ProductHelperTest extends TestCase
         $capturedCriteria = null;
         $reviewRepository = $this->createMock(EntityRepository::class);
         $reviewRepository->method('aggregate')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+            static function (Criteria $criteria, Context $context) use (
+                &$capturedCriteria
+            ): AggregationResultCollection {
                 $capturedCriteria = $criteria;
 
                 return new AggregationResultCollection([new CountResult('review-count', 7)]);
@@ -453,7 +455,9 @@ final class ProductHelperTest extends TestCase
         $capturedCriteria = null;
         $reviewRepository = $this->createMock(EntityRepository::class);
         $reviewRepository->method('aggregate')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+            static function (Criteria $criteria, Context $context) use (
+                &$capturedCriteria
+            ): AggregationResultCollection {
                 $capturedCriteria = $criteria;
 
                 return new AggregationResultCollection([new CountResult('review-count', 3)]);
@@ -478,7 +482,9 @@ final class ProductHelperTest extends TestCase
         $capturedCriteria = null;
         $reviewRepository = $this->createMock(EntityRepository::class);
         $reviewRepository->method('aggregate')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$capturedCriteria): AggregationResultCollection {
+            static function (Criteria $criteria, Context $context) use (
+                &$capturedCriteria
+            ): AggregationResultCollection {
                 $capturedCriteria = $criteria;
 
                 return new AggregationResultCollection([new CountResult('review-count', 4)]);
