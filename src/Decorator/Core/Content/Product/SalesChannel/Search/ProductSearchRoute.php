@@ -211,6 +211,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
             $searchType = $request->attributes->get('nostoSearchType');
+            $searchTypeReason = $request->attributes->get('nostoSearchTypeReason');
             $metadata = new AnalyticsSearchMetadataForGraphql(
                 $request->get('search') ?? null,
                 $resultId,
@@ -229,6 +230,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //refined
                 false,
                 $searchType,
+                $searchTypeReason,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
             $productListing->setExtensions(array_merge(
@@ -236,6 +238,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 [
                     'nosto_result_id' => $resultId,
                     'nosto_search_type' => $searchType,
+                    'nosto_search_type_reason' => $searchTypeReason,
                 ],
             ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
