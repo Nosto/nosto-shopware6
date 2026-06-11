@@ -1,3 +1,7 @@
+# 6.1.20
+* New: Improved search analytics by sending the search type reason with requests
+* Fix: Improvement for review counts
+
 # 6.1.19
 * Fix: (Experimental) Update Nosto Documentation MCP tool
 

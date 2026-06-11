@@ -1,3 +1,7 @@
+# 6.1.20
+* Neu: Verbesserte Suchanalysen durch Übermittlung des Grundes für die Suchart mit den Anfragen
+* Fix: Verbesserung der Anzahl der Bewertungen
+
 # 6.1.19
 * Fix: (Experimentell) Aktualisierung der Nosto-Dokumentation zum MCP-Tool
 
