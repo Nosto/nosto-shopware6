@@ -1,3 +1,7 @@
+# 5.2.19
+* New: Improved search analytics by sending the search type reason with requests
+* Fix: Improvement for review counts
+
 # 5.2.18
 * Fix: Use the correct currency for product sync when multi-currency is disabled
 * Fix: Respect sales channel visibility so only assigned products are synced to Nosto
