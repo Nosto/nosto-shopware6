@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4449544513577b155333717a2b6d6dfe",
+    "content-hash": "15e1119c2f79f7bb20fbeb3b1a7e477b",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -2819,12 +2819,12 @@
             "version": "12.5.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/easy-coding-standard/ecs.git",
+                "url": "https://github.com/ecsphp/ecs.git",
                 "reference": "2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/easy-coding-standard/ecs/zipball/2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
+                "url": "https://api.github.com/repos/ecsphp/ecs/zipball/2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
                 "reference": "2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
                 "shasum": ""
             },
