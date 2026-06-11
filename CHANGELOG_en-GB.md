@@ -1,3 +1,6 @@
+# 6.1.19
+* Fix: (Experimental) Update Nosto Documentation MCP tool
+
 # 6.1.18
 * Fix: Use the correct currency for product sync when multi-currency is disabled
 * Fix: Respect sales channel visibility so only assigned products are synced to Nosto
