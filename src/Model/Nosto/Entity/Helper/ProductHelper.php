@@ -141,13 +141,16 @@ class ProductHelper
             $product = PartialProductConverter::toPartialProduct($product);
         }
 
+
+        $familyId = $product->getParentId() ?? $product->getId();
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $product->getId()),
-                new EqualsFilter('product.parentId', $product->getId()),
+                new EqualsFilter('product.id', $familyId),
+                new EqualsFilter('product.parentId', $familyId),
             ]),
         );
+        $reviewCriteria->addFilter(new EqualsFilter('status', true));
         $reviewCriteria->addAggregation(new CountAggregation('review-count', 'id'));
         $aggregation = $this->reviewRepository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 
