@@ -1,5 +1,7 @@
 {% sw_extends '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' %}
 
+% set nostoFilterId = name %}
+
 {% if dataPluginSelectorOptions is not defined %}
     {% set dataPluginSelectorOptions = {
         name: name,
@@ -41,6 +43,10 @@
         {% endif %}
         {% set name = displayName %}
         {% set id = element.id %}
+        {# Option values can repeat across facets (e.g. "Black" in colour and material),
+           so the DOM id is prefixed with the facet id to stay unique. The raw value lives
+           in the value attribute, which the JS plugin uses for URL params and matching. #}
+        {% set domId = nostoFilterId ~ '-' ~ element.id %}
 
         {% if hasPreviewVisual %}
             {% block component_filter_property_select_preview %}
@@ -55,7 +61,8 @@
                     {% block component_filter_property_select_checkox_input %}
                         <input type="checkbox"
                                class="filter-property-select-checkbox filter-multi-select-checkbox"
-                               id="{{ id }}"
+                               id="{{ domId }}"
+                               value="{{ id }}"
                                data-label="{{ name }}"
                                data-filter-name="{{ element.translated.name }}"
                                {% if color %}
@@ -78,7 +85,7 @@
 
             {% if not hideTitle %}
                 {% block component_filter_property_select_preview_list_item_label_element %}
-                    <label class="filter-multi-select-item-label" for="{{ id }}">
+                    <label class="filter-multi-select-item-label" for="{{ domId }}">
                         {% block component_filter_property_select_preview_list_item_label %}
                             {{ name }}
                             {% if hasCount %}
@@ -100,11 +107,11 @@
                                data-label="{{ name }}"
                                data-filter-name="{{ element.translated.name }}"
                                value="{{ id }}"
-                               id="{{ id }}">
+                               id="{{ domId }}">
                     {% endblock %}
 
                     {% block component_filter_multi_select_list_item_label_element %}
-                        <label class="filter-multi-select-item-label form-check-label" for="{{ id }}">
+                        <label class="filter-multi-select-item-label form-check-label" for="{{ domId }}">
                             {% block component_multi_select_list_item_label %}
                                 {{ name }}
                                 {% if hasCount %}
