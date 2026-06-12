@@ -20,6 +20,7 @@ use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -46,6 +47,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductHelper
 {
+    /**
+     * @var array<string, CalculatedPrice|null>
+     */
+    private array $calculatedPriceCache = [];
+
     public function __construct(
         private readonly EntityRepository $productRepository,
         private readonly AbstractProductDetailRoute $productRoute,
@@ -146,13 +152,16 @@ class ProductHelper
             $product = PartialProductConverter::toPartialProduct($product);
         }
 
+
+        $familyId = $product->getParentId() ?? $product->getId();
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $product->getId()),
-                new EqualsFilter('product.parentId', $product->getId()),
+                new EqualsFilter('product.id', $familyId),
+                new EqualsFilter('product.parentId', $familyId),
             ]),
         );
+        $reviewCriteria->addFilter(new EqualsFilter('status', true));
         $reviewCriteria->addAggregation(new CountAggregation('review-count', 'id'));
         $aggregation = $this->reviewRepository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 
@@ -169,6 +178,34 @@ class ProductHelper
         $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
 
         return $shopwareProduct->get($productId) ?? null;
+    }
+
+    public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
+    {
+        $cacheKey = implode('|', [
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+            $context->getCurrencyId(),
+            $productId,
+        ]);
+
+        if (array_key_exists($cacheKey, $this->calculatedPriceCache)) {
+            return $this->calculatedPriceCache[$cacheKey];
+        }
+
+        $criteria = NostoCriteriaFactory::createWithIds(
+            [$productId],
+            'product_sync.productHelper.getSalesChannelCalculatedPrice',
+        );
+
+        $product = $this->salesChannelProductRepository->search($criteria, $context)->get($productId);
+        if (!$product instanceof SalesChannelProductEntity) {
+            return $this->calculatedPriceCache[$cacheKey] = null;
+        }
+
+        $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+
+        return $this->calculatedPriceCache[$cacheKey] = $price instanceof CalculatedPrice ? $price : null;
     }
 
     private function getCommonCriteria(?string $title = null): Criteria
@@ -246,6 +283,8 @@ class ProductHelper
             );
         }
 
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
+
         $criteria->addFilter(new EqualsAnyFilter('id', array_unique(array_values($existentParentProductIds))));
         $this->eventDispatcher->dispatch(new ProductLoadExistingParentCriteriaEvent($criteria, $context));
 
@@ -289,6 +328,8 @@ class ProductHelper
                 ),
             );
         }
+
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
 
         $this->eventDispatcher->dispatch(new ProductLoadExistingCriteriaEvent($criteria, $context));
 
@@ -433,6 +474,14 @@ class ProductHelper
                     [new EqualsAnyFilter('categoriesRo.id', $categoryBlocklist)],
                 ),
             );
+        }
+
+        $salesChannelId = $context->getSalesChannelId();
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
+
+        if ($includeChildren && $criteria->hasAssociation('children')) {
+            $criteria->getAssociation('children')
+                ->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannelId));
         }
 
         $result = $this->productRepository->search(

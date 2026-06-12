@@ -1,3 +1,12 @@
+# 5.2.19
+* New: Improved search analytics by sending the search type reason with requests
+* Fix: Improvement for review counts
+
+# 5.2.18
+* Fix: Use the correct currency for product sync when multi-currency is disabled
+* Fix: Respect sales channel visibility so only assigned products are synced to Nosto
+* Fix: Avoid errors when copying Shopware context or criteria objects with non-serializable values
+
 # 5.2.17
 * Fix: Fixed an issue with syncing inactive products
 * Fix: Fixed an issue with disabling filter values

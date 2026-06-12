@@ -407,47 +407,24 @@ class PartialBuilder
         object $product,
         SalesChannelContext $context,
     ): void {
+        if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
+            $productId = $product->getId();
+            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
+                $productId,
+                $context,
+            ) : null;
+            if ($productPrice instanceof CalculatedPrice) {
+                $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
+                return;
+            }
+        }
+
         $calculatedPrices = $product->getCalculatedPrices();
         $productPrice = $calculatedPrices instanceof Collection
             ? ($calculatedPrices->first() ?: $product->getCalculatedPrice())
             : $product->getCalculatedPrice();
         if ($productPrice instanceof CalculatedPrice) {
-            $listPrice = $productPrice->getListPrice() ?
-                $productPrice->getListPrice()->getPrice() :
-                $productPrice->getUnitPrice();
-
-            $unitPrice = $productPrice->getUnitPrice();
-            $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
-
-            if (!$isGross) {
-                $price = $this->calculator->calculate(
-                    new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
-                    $context->getItemRounding(),
-                );
-
-                $priceList = $this->calculator->calculate(
-                    new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
-                    $context->getItemRounding(),
-                );
-                if (!empty($price->getCalculatedTaxes()->getElements())) {
-                    $unitPrice = 0;
-
-                    foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
-                        $unitPrice += ($tax->getTax() + $tax->getPrice());
-                    }
-                }
-
-                if (!empty($priceList->getCalculatedTaxes()->getElements())) {
-                    $listPrice = 0;
-
-                    foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
-                        $listPrice += ($tax->getTax() + $tax->getPrice());
-                    }
-                }
-            }
-
-            $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
-            $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
+            $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
             return;
         }
 
@@ -463,6 +440,49 @@ class PartialBuilder
                 $this->priceRounding->cashRound($price->getListPrice()->getGross(), $context->getItemRounding()),
             );
         }
+    }
+
+    private function setCalculatedPrice(
+        NostoProduct $nostoProdcut,
+        CalculatedPrice $productPrice,
+        SalesChannelContext $context,
+    ): void {
+        $listPrice = $productPrice->getListPrice() ?
+            $productPrice->getListPrice()->getPrice() :
+            $productPrice->getUnitPrice();
+
+        $unitPrice = $productPrice->getUnitPrice();
+        $isGross = empty($context->getCurrentCustomerGroup()) || $context->getCurrentCustomerGroup()->getDisplayGross();
+
+        if (!$isGross) {
+            $price = $this->calculator->calculate(
+                new QuantityPriceDefinition($unitPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding(),
+            );
+
+            $priceList = $this->calculator->calculate(
+                new QuantityPriceDefinition($listPrice, $productPrice->getTaxRules(), 1),
+                $context->getItemRounding(),
+            );
+            if (!empty($price->getCalculatedTaxes()->getElements())) {
+                $unitPrice = 0;
+
+                foreach ($price->getCalculatedTaxes()->getElements() as $tax) {
+                    $unitPrice += ($tax->getTax() + $tax->getPrice());
+                }
+            }
+
+            if (!empty($priceList->getCalculatedTaxes()->getElements())) {
+                $listPrice = 0;
+
+                foreach ($priceList->getCalculatedTaxes()->getElements() as $tax) {
+                    $listPrice += ($tax->getTax() + $tax->getPrice());
+                }
+            }
+        }
+
+        $nostoProdcut->setPrice($this->priceRounding->cashRound($unitPrice, $context->getItemRounding()));
+        $nostoProdcut->setListPrice($this->priceRounding->cashRound($listPrice, $context->getItemRounding()));
     }
 
     private function initTags(

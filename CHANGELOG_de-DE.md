@@ -1,3 +1,12 @@
+# 5.2.19
+* Neu: Verbesserte Suchanalysen durch Übermittlung des Grundes für die Suchart mit den Anfragen
+* Fix: Verbesserung der Anzahl der Bewertungen
+
+# 5.2.18
+* Fix: Die richtige Währung für den Produkt-Sync verwenden, wenn Multi-Währung deaktiviert ist
+* Fix: Die Sichtbarkeit im Sales Channel berücksichtigen, damit nur zugewiesene Produkte an Nosto synchronisiert werden
+* Fix: Fehler vermeiden, wenn Shopware-Context- oder Criteria-Objekte nicht serialisierbare Werte enthalten
+
 # 5.2.17
 * Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
 * Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
