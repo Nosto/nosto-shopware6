@@ -21,11 +21,7 @@
 
         {% set count = element.count is defined ? element.count : null %}
         {% set hasCount = count is not null %}
-        {% if hasCount %}
-            {% set displayName = element.translated.name ~ ' (' ~ count ~ ')' %}
-        {% else %}
-            {% set displayName = element.translated.name %}
-        {% endif %}
+        {% set displayName = element.translated.name %}
         {% set visual = element.visual is defined ? element.visual : null %}
         {% set hasVisual = visual and visual.value %}
         {% set isColorVisual = hasVisual and visual.type == 'color' %}
@@ -85,6 +81,9 @@
                     <label class="filter-multi-select-item-label" for="{{ id }}">
                         {% block component_filter_property_select_preview_list_item_label %}
                             {{ name }}
+                            {% if hasCount %}
+                                <span class="filter-option-count">({{ count }})</span>
+                            {% endif %}
                         {% endblock %}
                     </label>
                 {% endblock %}
@@ -108,6 +107,9 @@
                         <label class="filter-multi-select-item-label form-check-label" for="{{ id }}">
                             {% block component_multi_select_list_item_label %}
                                 {{ name }}
+                                {% if hasCount %}
+                                    <span class="filter-option-count">({{ count }})</span>
+                                {% endif %}
                             {% endblock %}
                         </label>
                     {% endblock %}
