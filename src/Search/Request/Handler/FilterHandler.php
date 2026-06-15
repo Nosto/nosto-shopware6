@@ -326,6 +326,8 @@ class FilterHandler
                     foreach ($values as $value) {
                         $filterValues[] = [
                             'id' => $value->getTranslated()->getName(),
+                            'count' => $value->getCount(),
+                            'selected' => $value->getSelected(),
                             'translated' => [
                                 'name' => $value->getTranslated()->getName(),
                             ],
