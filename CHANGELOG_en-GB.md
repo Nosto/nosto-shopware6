@@ -1,3 +1,6 @@
+# 5.2.20
+* New: Added support for filter value frequencies and media
+
 # 5.2.19
 * New: Improved search analytics by sending the search type reason with requests
 * Fix: Improvement for review counts
