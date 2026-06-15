@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Search\Response\GraphQL\Filter;
 
 use InvalidArgumentException;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterVisual;
 use Nosto\Result\Graphql\Search\SearchResult\Products\Facet;
 use Nosto\Result\Graphql\Search\SearchResult\Products\StatsFacet;
 use Nosto\Result\Graphql\Search\SearchResult\Products\TermsFacet;
@@ -75,7 +76,16 @@ abstract class Filter
         $filter = new LabelTextFilter($facet->getId(), $facet->getName(), $facet->getField());
 
         foreach ($facet->getData() as $item) {
-            $filter->addValue(new FilterValue($item->getValue(), $item->getValue()));
+            $visual = $item->getVisual();
+            $filter->addValue(
+                new FilterValue(
+                    $item->getValue(),
+                    $item->getValue(),
+                    $item->getCount(),
+                    $item->getSelected(),
+                    $visual ? new FilterVisual($visual->getType(), $visual->getValue()) : null,
+                ),
+            );
         }
 
         return $filter;

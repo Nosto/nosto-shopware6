@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NostoListingProcessor extends AbstractListingProcessor
 {
+    private const PREPARED_ATTRIBUTE = 'nostoListingPrepared';
+
     public function __construct(
         private readonly SearchService $searchService,
         private readonly ConfigProvider $configProvider,
@@ -28,6 +30,13 @@ class NostoListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        // The composite listing processor runs twice per search request: once from the core
+        // ResolvedCriteriaProductSearchRoute and once from this plugin's route decorators.
+        // Both passes use identical parameters, so the second Nosto API round trip is skipped.
+        if ($request->attributes->get(self::PREPARED_ATTRIBUTE)) {
+            return;
+        }
+
         if (SearchHelper::shouldHandleRequest(
             $context,
             $this->configProvider,
@@ -39,6 +48,8 @@ class NostoListingProcessor extends AbstractListingProcessor
             } elseif (SearchHelper::isNavigationPage($request)) {
                 $this->searchService->doNavigation($request, $criteria, $context);
             }
+
+            $request->attributes->set(self::PREPARED_ATTRIBUTE, true);
         }
     }
 }
