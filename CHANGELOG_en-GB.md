@@ -1,3 +1,6 @@
+# 5.2.21
+* Fix: Updated the administration icon
+
 # 5.2.20
 * New: Added support for filter value frequencies and media
 

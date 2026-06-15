@@ -1,3 +1,6 @@
+# 5.2.21
+* Fix: Administrations-Icon aktualisiert
+
 # 5.2.20
 * Neu: Anzahl der Filterwerte und Medien für Filter hinzugefügt
 
