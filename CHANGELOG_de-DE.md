@@ -1,3 +1,6 @@
+# 5.2.20
+* Neu: Anzahl der Filterwerte und Medien für Filter hinzugefügt
+
 # 5.2.19
 * Neu: Verbesserte Suchanalysen durch Übermittlung des Grundes für die Suchart mit den Anfragen
 * Fix: Verbesserung der Anzahl der Bewertungen
