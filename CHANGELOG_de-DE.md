@@ -1,3 +1,6 @@
+# 6.1.21
+* Neu: Anzahl der Filterwerte und Medien für Filter hinzugefügt
+
 # 6.1.20
 * Neu: Verbesserte Suchanalysen durch Übermittlung des Grundes für die Suchart mit den Anfragen
 * Fix: Verbesserung der Anzahl der Bewertungen
