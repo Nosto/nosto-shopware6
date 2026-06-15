@@ -1,3 +1,6 @@
+# 6.1.22
+* Fix: Administrations-Icon aktualisiert
+
 # 6.1.21
 * Neu: Anzahl der Filterwerte und Medien für Filter hinzugefügt
 
