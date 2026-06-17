@@ -118,14 +118,22 @@ class CategorySyncHandler implements JobHandlerInterface
 
     private function validateCategory(string $categoryId, NostoCategory $category): ?WarningMessage
     {
-        $message = '';
+        $messages = [];
 
         if (!$category->getTitle()) {
-            $message .= 'Category name is empty, ';
+            $messages[] = 'Category name is empty';
         }
 
-        return empty($message) ? null : new WarningMessage(
-            $message . 'ignoring upsert for category with id. ' . $categoryId,
+        if (!$category->getUrl()) {
+            $messages[] = 'Category url is empty';
+        }
+
+        if (!$category->getPath()) {
+            $messages[] = 'Category urlPath is empty';
+        }
+
+        return empty($messages) ? null : new WarningMessage(
+            implode(', ', $messages) . '. Ignoring upsert for category with id ' . $categoryId,
         );
     }
 }
