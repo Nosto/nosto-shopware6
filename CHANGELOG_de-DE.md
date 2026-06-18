@@ -1,3 +1,6 @@
+# 5.2.22
+* Fix: Kategorien werden nur exportiert wenn url und urlPath existieren
+
 # 5.2.21
 * Fix: Administrations-Icon aktualisiert
 
