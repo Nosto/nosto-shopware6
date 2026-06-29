@@ -1,3 +1,6 @@
+# 3.6.12
+* Fix: Updated the administration icon
+
 # 3.6.11
 * Fix: Fixed Nosto filter checkbox Ids
 
