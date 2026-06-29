@@ -26,6 +26,7 @@
                             <input type="checkbox"
                                    class="filter-property-select-checkbox filter-multi-select-checkbox"
                                    id="{{ id }}"
+                                   value="{{ valueId }}"
                                    data-label="{{ name }}"
                                    {% if displayType == 'color' and color %}
                                    data-preview-hex="{{ color }}"
@@ -62,7 +63,7 @@
                         <input type="checkbox"
                                class="form-check-input filter-multi-select-checkbox"
                                data-label="{{ name }}"
-                               value="{{ id }}"
+                               value="{{ valueId }}"
                                id="{{ id }}">
                     {% endblock %}
 
