@@ -1,3 +1,6 @@
+# 3.6.11
+* Fix: Nosto-Filter-Checkbox-Ids korrigiert
+
 # 3.6.10
 * Fix: Ein Problem bei der Synchronisierung inaktiver Produkte wurde behoben
 * Fix: Ein Problem beim Deaktivieren von Filterwerten wurde behoben
