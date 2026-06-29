@@ -1,3 +1,6 @@
+# 3.6.12
+* Fix: Administrations-Icon aktualisiert
+
 # 3.6.11
 * Fix: Nosto-Filter-Checkbox-Ids korrigiert
 
