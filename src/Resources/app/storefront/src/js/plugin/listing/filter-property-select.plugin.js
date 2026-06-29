@@ -33,6 +33,6 @@ export default class NostoFilterPropertySelectPlugin extends PluginManager.getPl
         this.enableFilter();
 
 
-        this._disableInactiveFilterOptions(activeItems.map(entity => entity.id));
+        this._disableInactiveFilterOptions(activeItems.map(entity => `${this.options.name}-${entity.id}`));
     }
 }
