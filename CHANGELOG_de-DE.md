@@ -1,3 +1,6 @@
+# 6.1.24
+* Fix: Optimierung des Scheduler-Ladevorgangs, um Speicherprobleme bei der Aktivierung von Plugins und beim Neuaufbau des Caches zu vermeiden
+
 # 6.1.23
 * Fix: Kategorien werden nur exportiert wenn url und urlPath existieren
 
