@@ -1,3 +1,6 @@
+# 6.1.23
+* Fix: Only export categories if url and urlPath are present
+
 # 6.1.22
 * Fix: Updated the administration icon
 
