@@ -1,3 +1,6 @@
+# 6.1.24
+* Fix: Improved scheduler loading to avoid memory issues during plugin activation and cache rebuild
+
 # 6.1.23
 * Fix: Only export categories if url and urlPath are present
 
