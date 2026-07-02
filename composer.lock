@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24c593311f7b23fe82d8a0c919cf15e3",
+    "content-hash": "4f5f585f1b3deef690e07c2943c04092",
     "packages": [
         {
             "name": "graham-campbell/result-type",
@@ -125,16 +125,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "4.0.7",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "82190689116bc1d0ffceaef126255f833d239137"
+                "reference": "0342456f3bc29e0557afc09ad479df635a592f7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/82190689116bc1d0ffceaef126255f833d239137",
-                "reference": "82190689116bc1d0ffceaef126255f833d239137",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/0342456f3bc29e0557afc09ad479df635a592f7d",
+                "reference": "0342456f3bc29e0557afc09ad479df635a592f7d",
                 "shasum": ""
             },
             "require": {
@@ -158,9 +158,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.7"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.8"
             },
-            "time": "2026-04-30T11:26:19+00:00"
+            "time": "2026-07-02T13:12:37+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
