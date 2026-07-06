@@ -83,6 +83,7 @@
                 id="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
                 class="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
                 decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute"
+                decoration-on-invalid="ignore"
                 decoration-priority="1000"
                 autowire="true"
                 autoconfigure="true"

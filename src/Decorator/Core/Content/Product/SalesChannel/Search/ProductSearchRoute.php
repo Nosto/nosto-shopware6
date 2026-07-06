@@ -75,6 +75,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $request->getContent(),
         );
         $query = $request->query->get('search');
+        $originalContext = null;
+        $originalCriteria = null;
+
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider, false, $request)) {
                 $criteria->setTerm($query);
@@ -156,10 +159,18 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         }
     }
 
