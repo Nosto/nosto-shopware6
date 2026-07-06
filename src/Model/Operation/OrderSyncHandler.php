@@ -54,7 +54,7 @@ class OrderSyncHandler implements JobHandlerInterface
             );
             $accountOperationResult = $this->doOperation($account, $channelContext, $message);
             foreach ($accountOperationResult->getErrors() as $error) {
-                $operationResult->addError($error);
+                $operationResult->addMessage($error);
             }
         }
 
@@ -71,7 +71,8 @@ class OrderSyncHandler implements JobHandlerInterface
         }
 
         if (!empty($newOrderIds)) {
-            foreach ($this->getOrders($context, $newOrderIds) as $order) {
+            $newOrderLookupIds = array_is_list($newOrderIds) ? $newOrderIds : array_keys($newOrderIds);
+            foreach ($this->getOrders($context, $newOrderLookupIds) as $order) {
                 try {
                     $sessionId = $newOrderIds[$order->getId()] ?? null;
                     $this->sendNewOrder($order, $account, $context, $sessionId);
@@ -82,7 +83,10 @@ class OrderSyncHandler implements JobHandlerInterface
         }
 
         if (!empty($updatedOrderIds)) {
-            foreach ($this->getOrders($context, $updatedOrderIds) as $order) {
+            $updatedOrderLookupIds = array_is_list($updatedOrderIds) ? $updatedOrderIds : array_values(
+                $updatedOrderIds,
+            );
+            foreach ($this->getOrders($context, $updatedOrderLookupIds) as $order) {
                 try {
                     $this->sendUpdatedOrder($order, $account);
                 } catch (Throwable $e) {
@@ -97,14 +101,6 @@ class OrderSyncHandler implements JobHandlerInterface
     private function getOrders(SalesChannelContext $salesChannelContext, array $orderIds): EntityCollection
     {
         $context = $salesChannelContext->getContext();
-        $ids = [];
-        if (array_is_list($orderIds)) {
-            $ids = $orderIds;
-        } else {
-            foreach ($orderIds as $entityId => $productId) {
-                $ids[] = $entityId;
-            }
-        }
         $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('orderCustomer');
@@ -113,7 +109,7 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
-        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+        $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
         $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannelId()));
         $this->eventDispatcher->dispatch(new NostoOrderCriteriaEvent($criteria, $context));
