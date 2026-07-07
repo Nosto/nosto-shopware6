@@ -1,3 +1,8 @@
+# 5.2.23
+* Fix: Order sync routing for merchants with multiple sales channels using the same language
+* Fix: Search/listing fallback handling
+* Fix: Made "CachedCategoryRoute" decoration optional when the service is unavailable
+
 # 5.2.22
 * Fix: Only export categories if url and urlPath are present
 

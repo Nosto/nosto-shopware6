@@ -1,3 +1,8 @@
+# 5.2.23
+* Fix: Routing bei der Bestellsynchronisierung bei mehreren Vertriebskanälen, die dieselbe Sprache verwenden
+* Fix: Fallback bei Suche/Angebotsanzeige
+* Fix: "CachedCategoryRoute" optional, wenn der Dienst nicht verfügbar ist
+
 # 5.2.22
 * Fix: Kategorien werden nur exportiert wenn url und urlPath existieren
 
