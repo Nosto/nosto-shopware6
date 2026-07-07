@@ -15,7 +15,6 @@ use Nosto\Operation\AbstractGraphQLOperation;
 use Nosto\Operation\Order\{OrderCreate, OrderStatus};
 use Nosto\Scheduler\Model\Job\{JobHandlerInterface, JobResult};
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\{EntityCollection, EntityRepository, Search\Filter\EqualsFilter};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -55,7 +54,7 @@ class OrderSyncHandler implements JobHandlerInterface
             );
             $accountOperationResult = $this->doOperation($account, $channelContext, $message);
             foreach ($accountOperationResult->getErrors() as $error) {
-                $operationResult->addError($error);
+                $operationResult->addMessage($error);
             }
         }
 
@@ -65,39 +64,43 @@ class OrderSyncHandler implements JobHandlerInterface
     private function doOperation(Account $account, SalesChannelContext $context, object $message): JobResult
     {
         $result = new JobResult();
-        $orderIds = $message->getNewOrderIds();
-        if (empty($orderIds)) {
-            return new JobResult();
+        $newOrderIds = $message->getNewOrderIds();
+        $updatedOrderIds = $message->getUpdatedOrderIds();
+        if (empty($newOrderIds) && empty($updatedOrderIds)) {
+            return $result;
         }
-        foreach ($this->getOrders($context->getContext(), $orderIds) as $order) {
-            try {
-                $sessionId = $orderIds[$order->getId()] ?? null;
-                $this->sendNewOrder($order, $account, $context, $sessionId);
-            } catch (Throwable $e) {
-                $result->addError($e);
-            }
-        }
-        foreach ($this->getOrders($context->getContext(), $message->getUpdatedOrderIds()) as $order) {
-            try {
-                $this->sendUpdatedOrder($order, $account);
-            } catch (Throwable $e) {
-                $result->addError($e);
+
+        if (!empty($newOrderIds)) {
+            $newOrderLookupIds = array_is_list($newOrderIds) ? $newOrderIds : array_keys($newOrderIds);
+            foreach ($this->getOrders($context, $newOrderLookupIds) as $order) {
+                try {
+                    $sessionId = $newOrderIds[$order->getId()] ?? null;
+                    $this->sendNewOrder($order, $account, $context, $sessionId);
+                } catch (Throwable $e) {
+                    $result->addError($e);
+                }
             }
         }
 
-        return new JobResult();
+        if (!empty($updatedOrderIds)) {
+            $updatedOrderLookupIds = array_is_list($updatedOrderIds) ? $updatedOrderIds : array_values(
+                $updatedOrderIds,
+            );
+            foreach ($this->getOrders($context, $updatedOrderLookupIds) as $order) {
+                try {
+                    $this->sendUpdatedOrder($order, $account);
+                } catch (Throwable $e) {
+                    $result->addError($e);
+                }
+            }
+        }
+
+        return $result;
     }
 
-    private function getOrders(Context $context, array $orderIds): EntityCollection
+    private function getOrders(SalesChannelContext $salesChannelContext, array $orderIds): EntityCollection
     {
-        $ids = [];
-        if (array_is_list($orderIds)) {
-            $ids = $orderIds;
-        } else {
-            foreach ($orderIds as $entityId => $productId) {
-                $ids[] = $entityId;
-            }
-        }
+        $context = $salesChannelContext->getContext();
         $criteria = NostoCriteriaFactory::create();
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('orderCustomer');
@@ -106,8 +109,9 @@ class OrderSyncHandler implements JobHandlerInterface
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems.orderLineItem.product');
-        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+        $criteria->addFilter(new EqualsAnyFilter('id', $orderIds));
         $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannelId()));
         $this->eventDispatcher->dispatch(new NostoOrderCriteriaEvent($criteria, $context));
         return $this->orderRepository->search($criteria, $context)->getEntities();
     }
