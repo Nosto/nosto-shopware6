@@ -1,3 +1,8 @@
+# 6.1.25
+* Fix: Routing bei der Bestellsynchronisierung bei mehreren Vertriebskanälen, die dieselbe Sprache verwenden
+* Fix: Fallback bei Suche/Angebotsanzeige
+* Fix: "CachedCategoryRoute" optional, wenn der Dienst nicht verfügbar ist
+
 # 6.1.24
 * Fix: Optimierung des Scheduler-Ladevorgangs, um Speicherprobleme bei der Aktivierung von Plugins und beim Neuaufbau des Caches zu vermeiden
 

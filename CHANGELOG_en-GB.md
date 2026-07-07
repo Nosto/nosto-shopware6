@@ -1,3 +1,8 @@
+# 6.1.25
+* Fix: Order sync routing for merchants with multiple sales channels using the same language
+* Fix: Search/listing fallback handling
+* Fix: Made "CachedCategoryRoute" decoration optional when the service is unavailable
+
 # 6.1.24
 * Fix: Improved scheduler loading to avoid memory issues during plugin activation and cache rebuild
 
