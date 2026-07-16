@@ -11,6 +11,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     static options = {
         nostoInitializedStorageKey: 'nostoInitializedStorageKey',
         cookieWatchInterval: 1000,
+        doNotTrack: false,
     };
 
     init() {
@@ -54,6 +55,12 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
         };
+
+        // Opt out of session tracking before any request is made to Nosto.
+        // Queued first so it runs before the client script issues requests.
+        if (this.options.doNotTrack) {
+            window[name](api => api.visit.setDoNotTrack(true));
+        }
 
         if (this.options.accountID) {
             const script = document.createElement('script');

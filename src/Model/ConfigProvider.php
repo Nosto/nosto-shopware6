@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model;
 
 use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
+use Nosto\NostoIntegration\Enums\CustomerDataMode;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\RatingOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
@@ -233,13 +234,24 @@ class ConfigProvider
         return $this->configService->getBool(NostoConfigService::ENABLE_INVENTORY_LEVELS, $channelId, $languageId);
     }
 
-    public function isEnabledCustomerDataToNosto(?string $channelId = null, ?string $languageId = null): bool
+    public function getCustomerDataMode(?string $channelId = null, ?string $languageId = null): CustomerDataMode
     {
-        return $this->configService->getBool(
-            NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO,
-            $channelId,
-            $languageId,
+        return CustomerDataMode::fromConfigValue(
+            $this->configService->get(NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO, $channelId, $languageId),
         );
+    }
+
+    /**
+     * Whether customer PII may be sent to Nosto from backend sync jobs.
+     *
+     * Backend jobs run without an HTTP request, so the marketing "nosto_track" cookie
+     * cannot be evaluated. Only the explicit "always" mode sends PII from the backend;
+     * "rely-on-cookie" and "never" both suppress it.
+     */
+    public function shouldSendCustomerDataFromBackend(?string $channelId = null, ?string $languageId = null): bool
+    {
+        // Backend jobs have no HTTP request, so the marketing cookie is treated as absent.
+        return $this->getCustomerDataMode($channelId, $languageId)->shouldSendCustomerData(false);
     }
 
     public function isEnabledSyncInactiveProducts(?string $channelId = null, ?string $languageId = null): bool
@@ -400,7 +412,16 @@ class ConfigProvider
      */
     public function toArray(?string $channelId = null, ?string $languageId = null): array
     {
-        return $this->configService->getConfigWithInheritance($channelId, $languageId);
+        $config = $this->configService->getConfigWithInheritance($channelId, $languageId);
+
+        // Normalise the customer-data setting to its mode string. Stored values may still be
+        // legacy booleans (before the select migration ran) which would break the typed
+        // Config struct property; CustomerDataMode::fromConfigValue maps them safely.
+        $config[NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO] = CustomerDataMode::fromConfigValue(
+            $config[NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO] ?? null,
+        )->value;
+
+        return $config;
     }
 
     public function getBatchSize(): int
