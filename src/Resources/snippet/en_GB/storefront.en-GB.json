@@ -2,7 +2,11 @@
     "nosto-integration": {
         "cookie": {
             "value": "Nosto Cookies",
-            "description": "Allow to identify the user when not logged in!"
+            "description": "Allow to identify the user when not logged in!",
+            "marketing": {
+                "value": "Nosto Marketing",
+                "description": "Allow Nosto to use your data for personalized marketing and tracking."
+            }
         }
     },
     "search": {

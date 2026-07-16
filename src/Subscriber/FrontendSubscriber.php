@@ -39,10 +39,21 @@ class FrontendSubscriber implements EventSubscriberInterface
 
     public function onHeaderLoaded(HeaderPageletLoadedEvent $event): void
     {
-        $config = $this->configProvider->toArray(
-            $event->getSalesChannelContext()->getSalesChannelId(),
-            $event->getSalesChannelContext()->getLanguageId(),
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $languageId = $event->getSalesChannelContext()->getLanguageId();
+
+        $config = $this->configProvider->toArray($salesChannelId, $languageId);
+
+        $nostoTrackCookiePresent = (bool) $event->getRequest()->cookies->get(
+            NostoCookieProvider::NOSTO_TRACK_COOKIE_KEY,
         );
+        $sendCustomerData = $this->configProvider
+            ->getCustomerDataMode($salesChannelId, $languageId)
+            ->shouldSendCustomerData($nostoTrackCookiePresent);
+
+        $config['sendCustomerData'] = $sendCustomerData;
+        $config['doNotTrack'] = !$sendCustomerData;
+
         $nostoConfig = new Config($config);
         $event->getContext()->addExtension('nostoConfig', $nostoConfig);
     }
