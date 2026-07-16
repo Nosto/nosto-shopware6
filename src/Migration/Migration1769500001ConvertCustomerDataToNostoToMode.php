@@ -28,7 +28,7 @@ class Migration1769500001ConvertCustomerDataToNostoToMode extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        if (!$connection->createSchemaManager()->tableExists('nosto_integration_config')) {
+        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
             return;
         }
 
