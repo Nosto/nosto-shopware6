@@ -10,7 +10,7 @@ runs:
   steps:
     - name: Create shop (allow failure)
       shell: bash
-      run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
+      run: shopware-cli project create shopware ${{ inputs.shopware-version }} --no-audit || true
 
     - name: Clear Composer GitHub auth
       shell: bash
