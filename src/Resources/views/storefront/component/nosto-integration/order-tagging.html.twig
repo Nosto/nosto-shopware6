@@ -1,14 +1,14 @@
 {% block nosto_integration_order_tagging %}
 
     {% set order = page.order %}
-    {% set customerDataToNosto = context.context.extensions.nostoConfig.sendCustomerData %}
+    {% set sendCustomerData = context.context.extensions.nostoConfig.sendCustomerData %}
     {% set productIdentifier = context.context.extensions.nostoConfig.productIdentifier %}
 
     {% if order %}
         <div class="nosto_purchase_order" style="display:none">
             <span class="order_number" translate="no">{{ order.orderNumber }}</span>
 
-            {% if customerDataToNosto %}
+            {% if sendCustomerData %}
                 <div class="buyer">
                     <span class="email" translate="no">{{ order.orderCustomer.email }}</span>
                     <span class="first_name" translate="no">{{ order.orderCustomer.firstName }}</span>
