@@ -61,9 +61,14 @@ class Builder
             $nostoOrder->setOrderStatus($nostoStatus);
             $nostoOrder->addOrderStatus($nostoStatus);
         }
-        $nostoBuyer = $this->buyerBuilder->fromOrder($order);
-        if ($nostoBuyer instanceof Buyer) {
-            $nostoOrder->setCustomer($nostoBuyer);
+        if ($this->configProvider->shouldSendCustomerDataFromBackend(
+            $context->getSalesChannelId(),
+            $context->getContext()->getLanguageId(),
+        )) {
+            $nostoBuyer = $this->buyerBuilder->fromOrder($order);
+            if ($nostoBuyer instanceof Buyer) {
+                $nostoOrder->setCustomer($nostoBuyer);
+            }
         }
         foreach ($order->getLineItems() as $item) {
             if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {

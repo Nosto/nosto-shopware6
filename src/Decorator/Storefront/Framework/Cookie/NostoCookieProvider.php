@@ -14,6 +14,8 @@ class NostoCookieProvider implements CookieProviderInterface
 
     public const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
 
+    public const NOSTO_TRACK_COOKIE_KEY = 'nosto_track';
+
     public const NOSTO_FILTERS_KEY = 'nostoCookieFilter';
 
     public const NOSTO_FILTERS_MAPPING_KEY = 'nostoCookieFilterMapping';
@@ -35,21 +37,31 @@ class NostoCookieProvider implements CookieProviderInterface
                 continue;
             }
 
-            if (!$this->isRequiredCookieGroup($cookie)) {
-                continue;
-            }
-
             if (!array_key_exists('entries', $cookie)) {
                 continue;
             }
 
-            $cookie['entries'][] = [
-                'snippet_name' => 'nosto-integration.cookie.value',
-                'snippet_description' => 'nosto-integration.cookie.description',
-                'cookie' => self::NOSTO_COOKIE_KEY,
-                'expiration' => '30',
-                'value' => 1,
-            ];
+            if ($this->isRequiredCookieGroup($cookie)) {
+                $cookie['entries'][] = [
+                    'snippet_name' => 'nosto-integration.cookie.value',
+                    'snippet_description' => 'nosto-integration.cookie.description',
+                    'cookie' => self::NOSTO_COOKIE_KEY,
+                    'expiration' => '30',
+                    'value' => 1,
+                ];
+
+                continue;
+            }
+
+            if ($this->isMarketingCookieGroup($cookie)) {
+                $cookie['entries'][] = [
+                    'snippet_name' => 'nosto-integration.cookie.marketing.value',
+                    'snippet_description' => 'nosto-integration.cookie.marketing.description',
+                    'cookie' => self::NOSTO_TRACK_COOKIE_KEY,
+                    'expiration' => '30',
+                    'value' => 1,
+                ];
+            }
         }
 
         return $cookies;
@@ -59,5 +71,10 @@ class NostoCookieProvider implements CookieProviderInterface
     {
         return (array_key_exists('isRequired', $cookie) && $cookie['isRequired'] === true)
             && (array_key_exists('snippet_name', $cookie) && $cookie['snippet_name'] === 'cookie.groupRequired');
+    }
+
+    private function isMarketingCookieGroup(array $cookie): bool
+    {
+        return array_key_exists('snippet_name', $cookie) && $cookie['snippet_name'] === 'cookie.groupMarketing';
     }
 }
