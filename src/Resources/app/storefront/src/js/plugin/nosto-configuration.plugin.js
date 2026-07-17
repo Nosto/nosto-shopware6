@@ -5,7 +5,10 @@ import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
-export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
+export const NOSTO_COOKIE_KEY = 'nosto-integration-allowed';
+
+// Former cookie name; still honored so already-consented shoppers keep working.
+export const LEGACY_NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
 
 export default class NostoConfiguration extends window.PluginBaseClass {
     static options = {
@@ -22,17 +25,21 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         this.watchCookieConsent();
     }
 
+    _hasConsentCookie() {
+        return CookieStorage.getItem(NOSTO_COOKIE_KEY) || CookieStorage.getItem(LEGACY_NOSTO_COOKIE_KEY);
+    }
+
     _registerInitializationEvents() {
         window.addEventListener('scroll', this._prepareForInitialization.bind(this), {once: true});
     }
 
     _prepareForInitialization() {
-        this.storage.setItem(this.options.nostoInitializedStorageKey, '')
+        this.storage.setItem(this.options.nostoInitializedStorageKey, '');
         this._placeClientScript();
     }
 
     _initNosto() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             this.storage = Storage;
 
             if (this.options.initializeAfter) {
@@ -42,7 +49,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
                     return this._registerInitializationEvents();
                 }
             }
-            this._placeClientScript()
+            this._placeClientScript();
         }
     }
 
@@ -69,7 +76,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
             script.src = '//connect.nosto.com/include/' + this.options.accountID;
             script.onload = () => {
                 this.$emitter.publish('scriptLoaded');
-            }
+            };
 
             document.body.appendChild(script);
             this._scriptInjected = true;
@@ -91,7 +98,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     cartWidgetSubscriber() {
-        if(this._cartWidget !== false) {
+        if (this._cartWidget !== false) {
             this._cartWidget.$emitter.subscribe('fetch', () => {
                 window.nostojs(api => {
                     api.resendCartTagging();
@@ -137,7 +144,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     watchCookieConsent() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             return;
         }
 
@@ -146,7 +153,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         }
 
         this._cookieWatcher = window.setInterval(() => {
-            if (!CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+            if (!this._hasConsentCookie()) {
                 return;
             }
 

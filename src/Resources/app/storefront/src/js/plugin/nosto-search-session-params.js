@@ -1,6 +1,6 @@
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import { NOSTO_COOKIE_KEY } from './nosto-configuration.plugin';
+import { NOSTO_COOKIE_KEY, LEGACY_NOSTO_COOKIE_KEY } from './nosto-configuration.plugin';
 
 export default class NostoSearchSessionParams extends window.PluginBaseClass {
     init() {
@@ -12,14 +12,14 @@ export default class NostoSearchSessionParams extends window.PluginBaseClass {
 
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('scriptLoaded', () => {
-                if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+                if (CookieStorage.getItem(NOSTO_COOKIE_KEY) || CookieStorage.getItem(LEGACY_NOSTO_COOKIE_KEY)) {
                     window.nostojs(api => {
                         api.getSearchSessionParams().then(function(response) {
                             CookieStorage.setItem(
                                 'nosto-search-session-params',
                                 encodeURIComponent(JSON.stringify(response)),
                                 30
-                            )
+                            );
                         });
                     });
                 }
