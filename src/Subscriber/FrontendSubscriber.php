@@ -75,6 +75,7 @@ class FrontendSubscriber implements EventSubscriberInterface
     {
         if (
             $request->cookies->has(NostoCookieProvider::LEGACY_COOKIE_KEY) ||
+            $request->cookies->has(NostoCookieProvider::LEGACY_TRACK_ALLOW_COOKIE_KEY) ||
             $this->configProvider->isEnabledIgnoreCookieConsent()
         ) {
             $cookie = Cookie::create(NostoCookieProvider::LEGACY_COOKIE_KEY, '1', strtotime('-1 day'))

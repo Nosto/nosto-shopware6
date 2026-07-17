@@ -6,7 +6,10 @@ import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
-export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
+export const NOSTO_COOKIE_KEY = 'nosto-integration-allowed'
+
+// Former cookie name; still honored so already-consented shoppers keep working.
+export const LEGACY_NOSTO_COOKIE_KEY = 'nosto-integration-track-allow'
 
 export default class NostoConfiguration extends Plugin {
     static options = {
@@ -23,6 +26,10 @@ export default class NostoConfiguration extends Plugin {
         this.watchCookieConsent();
     }
 
+    _hasConsentCookie() {
+        return CookieStorage.getItem(NOSTO_COOKIE_KEY) || CookieStorage.getItem(LEGACY_NOSTO_COOKIE_KEY);
+    }
+
     _registerInitializationEvents() {
         window.addEventListener('scroll', this._prepareForInitialization.bind(this), {once: true});
     }
@@ -33,7 +40,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     _initNosto() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             this.storage = Storage;
 
             if (this.options.initializeAfter) {
@@ -138,7 +145,7 @@ export default class NostoConfiguration extends Plugin {
     }
 
     watchCookieConsent() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             return;
         }
 
@@ -147,7 +154,7 @@ export default class NostoConfiguration extends Plugin {
         }
 
         this._cookieWatcher = window.setInterval(() => {
-            if (!CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+            if (!this._hasConsentCookie()) {
                 return;
             }
 

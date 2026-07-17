@@ -12,9 +12,15 @@ class NostoCookieProvider implements CookieProviderInterface
 
     public const LEGACY_COOKIE_KEY = 'od-nosto-track-allow';
 
-    public const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
+    /**
+     * Former name of NOSTO_COOKIE_KEY. Kept for backward compatibility so shoppers who
+     * already consented (and thus have this cookie) are not forced to consent again.
+     */
+    public const LEGACY_TRACK_ALLOW_COOKIE_KEY = 'nosto-integration-track-allow';
 
-    public const NOSTO_TRACK_COOKIE_KEY = 'nosto_track';
+    public const NOSTO_COOKIE_KEY = 'nosto-integration-allowed';
+
+    public const NOSTO_TRACK_COOKIE_KEY = 'nosto-track';
 
     public const NOSTO_FILTERS_KEY = 'nostoCookieFilter';
 
