@@ -151,7 +151,7 @@ Component.register('nosto-integration-features-flags', {
                 variations: true,
                 productProperties: true,
                 alternateImages: true,
-                productIdentifier: 'product-id',
+                productIdentifier: 'product-number',
                 ratingsReviews: 'shopware-ratings',
                 stockField: 'available-stock',
                 crossSellingSync: 'no-sync',
