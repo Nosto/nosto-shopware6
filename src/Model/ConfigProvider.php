@@ -139,10 +139,10 @@ class ConfigProvider
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
 
         if (!is_string($value) || $value === '') {
-            return ProductIdentifierOptions::PRODUCT_ID;
+            return ProductIdentifierOptions::PRODUCT_NUMBER;
         }
 
-        return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
+        return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_NUMBER;
     }
 
     public function getRatingReviews(?string $channelId = null, ?string $languageId = null): RatingOptions
