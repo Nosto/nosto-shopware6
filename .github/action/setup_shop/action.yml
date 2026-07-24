@@ -8,9 +8,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create shop (allow failure)
+    - name: Create shop
       shell: bash
-      run: shopware-cli project create shopware ${{ inputs.shopware-version }} || true
+      run: |
+        echo "shopware-cli version:"
+        shopware-cli --version || true
+        shopware-cli project create shopware ${{ inputs.shopware-version }}
+        if [ ! -d "shopware" ]; then
+          echo "::error::shopware-cli failed to create a project for Shopware ${{ inputs.shopware-version }} (no 'shopware' directory was produced)."
+          exit 1
+        fi
 
     - name: Clear Composer GitHub auth
       shell: bash
