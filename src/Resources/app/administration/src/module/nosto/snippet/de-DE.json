@@ -114,7 +114,7 @@
                 "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
-                "ignoreCookieConsent": "Cookie-Zustimmung ignorieren",
+                "ignoreCookieConsent": "Nosto als essentielles Cookie behandeln",
                 "timeEnableCache" : "Cache-Zeit einstellen (in Minuten)",
                 "enableCache": {
                     "label": "Cache aktivieren",
@@ -129,7 +129,7 @@
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "storeAbandonedCartDataHelpText": "Diese Konfigurationsoption steuert, ob Daten für abgebrochene Warenkörbe in der entsprechenden Datenbank Tabelle gespeichert werden sollen. Wenn diese Option aktiviert ist, ruft das System die Daten ab und erstellt neue Zeilen in der Tabelle für jeden abgebrochenen Warenkorb. Wenn sie deaktiviert ist, werden keine neuen Zeilen hinzugefügt, was möglicherweise Leistungsprobleme verhindert.",
-                "ignoreCookieConsentHelpText": "Die Zustimmung zu Cookies kann deaktiviert werden, wenn Sie bestimmen, dass sie für die rechtliche Einhaltung nicht erforderlich ist.",
+                "ignoreCookieConsentHelpText": "Standardmäßig aktiviert. Wenn aktiviert, wird Nosto als technisch notwendiges Cookie registriert und für jeden Besucher geladen (mit doNotTrack, bis eine Marketing-Zustimmung erteilt wird). Wenn deaktiviert, wird Nosto erst geladen, nachdem der Kunde die Nosto-Cookie-Gruppe im Banner akzeptiert hat – wird sie abgelehnt, wird Nosto nie geladen und es werden keine Anfragen gesendet.",
                 "enableSyncFirstAvailableVariantHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird die erste verfügbare Variante als Produkt synchronisiert, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist.",
                 "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
                 "categoryNaming": "Produktkategorienamen",

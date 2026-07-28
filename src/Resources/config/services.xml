@@ -227,6 +227,7 @@
         >
             <argument type="service"
                       id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
         </service>
 
         <service
