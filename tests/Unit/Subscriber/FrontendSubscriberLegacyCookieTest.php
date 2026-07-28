@@ -8,10 +8,10 @@ use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProv
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Subscriber\FrontendSubscriber;
 use PHPUnit\Framework\TestCase;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
