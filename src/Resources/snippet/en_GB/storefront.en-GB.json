@@ -3,6 +3,10 @@
         "cookie": {
             "value": "Nosto Cookies",
             "description": "Allow to identify the user when not logged in!",
+            "group": {
+                "title": "Nosto",
+                "description": "Cookies that allow Nosto personalization to run on this store."
+            },
             "marketing": {
                 "value": "Nosto Marketing",
                 "description": "Allow Nosto to use your data for personalized marketing and tracking."

@@ -4,7 +4,6 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
-import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
 export const NOSTO_COOKIE_KEY = 'nosto-integration-allowed'
 
@@ -124,21 +123,10 @@ export default class NostoConfiguration extends Plugin {
     }
 
     cookieSubscriber() {
-        const allPlugins = window.PluginManager.getPluginList();
-        const isPluginRegistered = Object.keys(allPlugins).includes('CookiePermission');
-        if (!isPluginRegistered) {
-            window.PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
-        }
-        const instances = window.PluginManager.getPluginInstances('CookiePermission');
-        Iterator.iterate(instances, instance => {
-            instance.$emitter.subscribe('onClickDenyButton', () => {
-                // The deny button accepts the technically required cookies, so we can set the Nosto cookie as well
-                CookieStorage.setItem(NOSTO_COOKIE_KEY, '1', '30');
-
-                this._initNosto();
-            });
-        });
-
+        // Nosto loads only once the shopper has actively consented via the cookie banner.
+        // We intentionally do NOT set the consent cookie on "Deny" — declining must mean
+        // Nosto is never initialized (no ev1 requests). Accepting fires this update event
+        // (and watchCookieConsent polls as a fallback), which then boots Nosto.
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, () => {
             this._initNosto();
         });
