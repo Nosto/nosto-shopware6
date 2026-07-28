@@ -180,7 +180,7 @@ Component.register('nosto-integration-features-flags', {
                 reloadRecommendations: false,
                 enableLabelling: false,
                 storeAbandonedCartData: false,
-                ignoreCookieConsent: false,
+                ignoreCookieConsent: true,
                 syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
                 syncBatchSize: 150,

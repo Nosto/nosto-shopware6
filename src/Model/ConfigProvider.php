@@ -285,11 +285,16 @@ class ConfigProvider
 
     public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(
+        $value = $this->configService->get(
             NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
             $channelId,
             $languageId,
         );
+
+        // Defaults to ON (Nosto treated as an essential cookie) when never configured, so that
+        // upgrading merchants keep the previous "Nosto loads for all visitors" behaviour.
+        // Merchants can opt into strict, consent-gated loading by turning this off.
+        return $value === null ? true : (bool) $value;
     }
 
     public function isEnabledSyncFirstAvailableVariant($channelId = null, $languageId = null): bool
