@@ -2,7 +2,7 @@
 * Fix: Die Artikelnummer als Standard festlegen statt ID
 * Fix: Die Art und Weise, wie sich der Scheduler am Message-Bus anmeldet, wurde optimiert, um einen Speicherengpass bei der Aktivierung von Plugins zu vermeiden.
 * Fix: Die Einstellung „enableCache“ kann pro Vertriebskanal und Sprache konfiguriert werden
-* New: Neu: Berücksichtigung der Cookie-Einwilligung – Modus „Kundendaten senden“ (basierend auf Cookie / immer / nie), doNotTrack bei fehlender Einwilligung, und die Backend-Synchronisierung berücksichtigt dies
+* Neu: Berücksichtigung der Cookie-Einwilligung – Modus „Kundendaten senden“ (basierend auf Cookie / immer / nie), doNotTrack bei fehlender Einwilligung, und die Backend-Synchronisierung berücksichtigt dies
 
 # 6.1.25
 * Fix: Routing bei der Bestellsynchronisierung bei mehreren Vertriebskanälen, die dieselbe Sprache verwenden
