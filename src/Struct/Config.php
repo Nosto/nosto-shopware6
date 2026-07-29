@@ -60,7 +60,11 @@ class Config extends Struct
 
     public ?bool $inventory = null;
 
-    public ?bool $customerDataToNosto = null;
+    public ?string $customerDataToNosto = null;
+
+    public ?bool $sendCustomerData = null;
+
+    public ?bool $doNotTrack = null;
 
     public ?bool $syncInactiveProducts = null;
 

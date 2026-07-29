@@ -3,14 +3,17 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
-import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
-export const NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
+export const NOSTO_COOKIE_KEY = 'nosto-integration-allowed';
+
+// Former cookie name; still honored so already-consented shoppers keep working.
+export const LEGACY_NOSTO_COOKIE_KEY = 'nosto-integration-track-allow';
 
 export default class NostoConfiguration extends window.PluginBaseClass {
     static options = {
         nostoInitializedStorageKey: 'nostoInitializedStorageKey',
         cookieWatchInterval: 1000,
+        doNotTrack: false,
     };
 
     init() {
@@ -19,6 +22,10 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         this._initNosto();
         this.cookieSubscriber();
         this.watchCookieConsent();
+    }
+
+    _hasConsentCookie() {
+        return CookieStorage.getItem(NOSTO_COOKIE_KEY) || CookieStorage.getItem(LEGACY_NOSTO_COOKIE_KEY);
     }
 
     _registerInitializationEvents() {
@@ -31,7 +38,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     _initNosto() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             this.storage = Storage;
 
             if (this.options.initializeAfter) {
@@ -54,6 +61,12 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         window[name] = window[name] || function (cb) {
             (window[name].q = window[name].q || []).push(cb);
         };
+
+        // Opt out of session tracking before any request is made to Nosto.
+        // Queued first so it runs before the client script issues requests.
+        if (this.options.doNotTrack) {
+            window[name](api => api.visit.setDoNotTrack(true));
+        }
 
         if (this.options.accountID) {
             const script = document.createElement('script');
@@ -109,28 +122,17 @@ export default class NostoConfiguration extends window.PluginBaseClass {
     }
 
     cookieSubscriber() {
-        const allPlugins = window.PluginManager.getPluginList();
-        const isPluginRegistered = Object.keys(allPlugins).includes('CookiePermission');
-        if (!isPluginRegistered) {
-            window.PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
-        }
-        const instances = window.PluginManager.getPluginInstances('CookiePermission');
-        Iterator.iterate(instances, instance => {
-            instance.$emitter.subscribe('onClickDenyButton', () => {
-                // The deny button accepts the technically required cookies, so we can set the Nosto cookie as well
-                CookieStorage.setItem(NOSTO_COOKIE_KEY, '1', '30');
-
-                this._initNosto();
-            });
-        });
-
+        // Nosto loads only once the shopper has actively consented via the cookie banner.
+        // We intentionally do NOT set the consent cookie on "Deny" — declining must mean
+        // Nosto is never initialized (no ev1 requests). Accepting fires this update event
+        // (and watchCookieConsent polls as a fallback), which then boots Nosto.
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, () => {
             this._initNosto();
         });
     }
 
     watchCookieConsent() {
-        if (CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+        if (this._hasConsentCookie()) {
             return;
         }
 
@@ -139,7 +141,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         }
 
         this._cookieWatcher = window.setInterval(() => {
-            if (!CookieStorage.getItem(NOSTO_COOKIE_KEY)) {
+            if (!this._hasConsentCookie()) {
                 return;
             }
 
