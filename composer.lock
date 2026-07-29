@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "648bd27167705926677f1feba651f616",
+    "content-hash": "97e8a793a3913031b37341f0081c8543",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -63,16 +63,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "3.0.7",
+            "version": "3.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "a8017d0c9ab9b8684d0376ae7ed596fe19a7640b"
+                "reference": "c6779cb7c7205368ec0d3dc87a92a9824f83d9d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/a8017d0c9ab9b8684d0376ae7ed596fe19a7640b",
-                "reference": "a8017d0c9ab9b8684d0376ae7ed596fe19a7640b",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/c6779cb7c7205368ec0d3dc87a92a9824f83d9d2",
+                "reference": "c6779cb7c7205368ec0d3dc87a92a9824f83d9d2",
                 "shasum": ""
             },
             "require": {
@@ -96,9 +96,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.7"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.8"
             },
-            "time": "2026-03-20T10:32:58+00:00"
+            "time": "2026-07-29T08:35:31+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
