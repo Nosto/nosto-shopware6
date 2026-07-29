@@ -565,7 +565,6 @@
         {% endblock %}
         {% block nosto_integration_enable_cache_flag %}
             <sw-inherit-wrapper
-                    v-if="configKey === null"
                     :value="currentConfig['enableCache']"
                     :inheritedValue="configKey === null ? null : configs['null']['enableCache']"
                     @update:value="onUpdateValue('enableCache', $event)"
@@ -586,7 +585,7 @@
 
         {% block nosto_integration_cache_period %}
             <sw-inherit-wrapper
-                    v-if="configKey === null && currentConfig['enableCache']"
+                    v-if="typeof currentConfig['enableCache'] === 'boolean' ? currentConfig['enableCache'] : configs['null']['enableCache']"
                     :value="currentConfig['cacheTtl']"
                     :inheritedValue="configKey === null ? null : configs['null']['cacheTtl']"
                     @update:value="onUpdateValue('cacheTtl', $event)"
