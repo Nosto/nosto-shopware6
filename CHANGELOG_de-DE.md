@@ -1,6 +1,3 @@
-# 6.1.27
-* Fix: Fehlende Migrationsdateien wurden hinzugefügt
-
 # 6.1.26
 * Fix: Die Artikelnummer als Standard festlegen statt ID
 * Fix: Die Art und Weise, wie sich der Scheduler am Message-Bus anmeldet, wurde optimiert, um einen Speicherengpass bei der Aktivierung von Plugins zu vermeiden.

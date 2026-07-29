@@ -1,6 +1,3 @@
-# 6.1.27
-* Fix: Added missing migration files
-
 # 6.1.26
 * Fix: Make product number default instead of ID
 * Fix: Optimized how the scheduler registers on the message bus to avoid memory exhaustion during plugin activation
