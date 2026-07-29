@@ -58,13 +58,13 @@ class Lifecycle
         if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
             $this->removeOldTags($updateContext->getContext());
         }
-        if (version_compare($updateContext->getCurrentPluginVersion(), '5.2.24', '<')) {
+        if (version_compare($updateContext->getCurrentPluginVersion(), '6.1.26', '<')) {
             $this->preserveProductIdentifierDefault();
         }
     }
 
     /**
-     * As of 5.2.24 the default product identifier changed from "product-id" to "product-number".
+     * As of 6.1.26 the default product identifier changed from "product-id" to "product-number".
      * Existing merchants relied on the previous default without having an explicit value stored,
      * so switching the default silently would re-key their catalog and create duplicate products
      * in Nosto. To keep their current behaviour, persist the previous default ("product-id")
