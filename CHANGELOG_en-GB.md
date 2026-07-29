@@ -1,3 +1,9 @@
+# 5.2.24
+* Fix: Make product number default instead of ID
+* Fix: Optimized how the scheduler registers on the message bus to avoid memory exhaustion during plugin activation
+* Fix: "enableCache" setting configurable per sales channel and language
+* New: Respect cookie consent — "Send Customer Data" mode (rely on cookie / always / never), doNotTrack when unconsented, and backend sync honors it
+
 # 5.2.23
 * Fix: Order sync routing for merchants with multiple sales channels using the same language
 * Fix: Search/listing fallback handling
