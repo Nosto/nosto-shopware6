@@ -76,6 +76,11 @@
                     "onlyActiveSync": "Sync Only Active Cross-Sellings",
                     "allSync": "Sync All Cross-Sellings"
                 },
+                "customerDataOptions": {
+                    "relyOnCookie": "Rely on nosto_track cookie",
+                    "always": "Always send customer info",
+                    "never": "Never send customer info"
+                },
                 "categoryNamingOptions": {
                     "nameWithoutId": "Category Name Without ID",
                     "nameWithId": "Category Name With ID"
@@ -98,14 +103,14 @@
                 "enableInventory": "Enable Inventory Levels",
                 "enableInventoryHelpText": "The selection enables inventory levels tagging.",
                 "enableCustomerDataToNosto": "Send Customer Data To Nosto",
-                "enableCustomerDataToNostoHelpText": "If the checkbox is checked, customer data is tagged during the order.",
+                "enableCustomerDataToNostoHelpText": "Controls whether customer data (email, name) is sent to Nosto. 'Rely on nosto_track cookie' sends it only with marketing consent (and sets doNotTrack otherwise); 'Always' always sends it; 'Never' never sends it. Backend sync jobs only send when set to 'Always'.",
                 "enableSyncInactiveProducts": "Sync Inactive Products",
                 "enableSyncInactiveProductsHelpText": "If the checkbox is checked, variants of an inactive main product will be synchronized depending on what is selected in the storefront presentation configuration.",
                 "enableProductPublishedDateTagging": "Enable Product Published Date Tagging",
                 "enableReloadRecommendations": "Reload Recommendations After Adding a recommended product",
                 "enableLabelling": "Enable Product Labelling Sync",
                 "storeAbandonedCartData": "Store data for abandoned carts",
-                "ignoreCookieConsent": "Ignore cookie consent",
+                "ignoreCookieConsent": "Treat Nosto as an essential cookie",
                 "timeEnableCache" : "Set cache time (in minutes)",
                 "enableCache": {
                     "label": "Enable Cache",
@@ -123,7 +128,7 @@
                 "enableReloadRecommendationsHelpText": "If the checkbox is checked, the recommendations will be reloaded after adding a recommended product",
                 "enableLabellingHelpText": "If the checkbox is checked, product labels will be sent to Nosto",
                 "storeAbandonedCartDataHelpText": "This configuration option controls whether data for abandoned carts should be stored in the relevant table. When this option is enabled, the system will fetch and create new rows in the table for each abandoned cart. If disabled, no new rows will be added, potentially preventing performance issues.",
-                "ignoreCookieConsentHelpText": "Cookie consent may be turned off if you determine it is not required for legal compliance.",
+                "ignoreCookieConsentHelpText": "Enabled by default. When enabled, Nosto is registered as a technically required cookie and loads for every visitor (with doNotTrack until marketing consent is given). When disabled, Nosto loads only after the shopper accepts the Nosto cookie group in the banner — declining it means Nosto is never loaded and no requests are sent.",
                 "categoryNamingHelpText": "Product category names will contain the category ID or not",
                 "categoryNaming": "Product Category Names",
                 "categoryBlocklist": "Category Exclusion",

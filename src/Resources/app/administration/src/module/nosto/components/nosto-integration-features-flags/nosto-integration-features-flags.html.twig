@@ -224,13 +224,18 @@
             <sw-inherit-wrapper
                     v-model="actualConfigData['customerDataToNosto']"
                     :inheritedValue="configKey === null ? null : allConfigs['null']['customerDataToNosto']"
+                    :label="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNosto')"
+                    :help-text="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNostoHelpText')"
             >
                 <template #content="props">
-                    <sw-switch-field
-                            :map-inheritance="props"
-                            :label="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNosto')"
-                            :help-text="$tc('nosto.configuration.featuresFlags.enableCustomerDataToNostoHelpText')"
+                    <sw-single-select
+                            name="customerDataToNosto"
+                            labelProperty="label"
+                            valueProperty="value"
+                            :options="createCustomerDataOptions"
+                            :isInherited="props.isInherited"
                             :disabled="props.isInherited"
+                            show-clearable-button
                             :value="props.currentValue"
                             @change="props.updateCurrentValue"
                     />
