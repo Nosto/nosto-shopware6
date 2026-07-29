@@ -105,7 +105,7 @@
                 "enableInventory": "Lagerbestände aktivieren",
                 "enableInventoryHelpText": "Die Auswahl aktiviert das Tagging von Inventarebenen.",
                 "enableCustomerDataToNosto": "Kundendaten an Nosto senden",
-                "enableCustomerDataToNostoHelpText": "Legt fest, ob Kundendaten (E-Mail, Name) an Nosto gesendet werden. 'Auf nosto_track-Cookie verlassen' sendet sie nur bei Marketing-Einwilligung (und setzt andernfalls doNotTrack); 'Immer' sendet sie immer; 'Nie' sendet sie nie. Backend-Synchronisierungsjobs senden nur bei 'Immer'.",
+                "enableCustomerDataToNostoHelpText": "Legt fest, ob Kundendaten (E-Mail, Name) an Nosto gesendet werden dürfen. 'Auf nosto_track-Cookie verlassen' sendet sie nur bei Marketing-Einwilligung (und setzt andernfalls doNotTrack); 'Immer' sendet sie immer; 'Nie' sendet sie nie. Backend-Synchronisierungsjobs senden die Daten nur bei 'Immer'.",
                 "enableSyncInactiveProducts": "Inaktive Produkte synchronisieren",
                 "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Varianten eines inaktiven Hauptprodukts synchronisiert, abhängig von der Auswahl in der Storefront-Präsentationskonfiguration.",
                 "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",

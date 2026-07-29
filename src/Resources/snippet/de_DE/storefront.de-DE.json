@@ -5,7 +5,7 @@
             "description": "Ermöglicht die Identifizierung des Benutzers, wenn er nicht angemeldet ist!",
             "group": {
                 "title": "Nosto",
-                "description": "Cookies, die den Betrieb der Nosto-Personalisierung in diesem Shop ermöglichen."
+                "description": "Cookies werden verwendet um die Nosto-Personalisierung in diesem Shop zu ermöglichen."
             },
             "marketing": {
                 "value": "Nosto Marketing",
