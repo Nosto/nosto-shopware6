@@ -1,3 +1,6 @@
+# 3.6.13
+* New: Respect cookie consent — "Send Customer Data" mode (rely on cookie / always / never), doNotTrack when unconsented, and backend sync honors it
+
 # 3.6.12
 * Fix: Updated the administration icon
 
