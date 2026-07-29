@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Utils;
 
 use Doctrine\DBAL\Connection;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
@@ -57,6 +58,32 @@ class Lifecycle
         if (version_compare($updateContext->getCurrentPluginVersion(), '1.0.10', '<')) {
             $this->removeOldTags($updateContext->getContext());
         }
+        if (version_compare($updateContext->getCurrentPluginVersion(), '6.1.26', '<')) {
+            $this->preserveProductIdentifierDefault();
+        }
+    }
+
+    /**
+     * As of 6.1.26 the default product identifier changed from "product-id" to "product-number".
+     * Existing merchants relied on the previous default without having an explicit value stored,
+     * so switching the default silently would re-key their catalog and create duplicate products
+     * in Nosto. To keep their current behaviour, persist the previous default ("product-id")
+     * explicitly whenever no value has been set yet.
+     */
+    private function preserveProductIdentifierDefault(): void
+    {
+        /** @var NostoConfigService $configService */
+        $configService = $this->container->get(NostoConfigService::class);
+
+        $existingValue = $configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD);
+        if (is_string($existingValue) && $existingValue !== '') {
+            return;
+        }
+
+        $configService->set(
+            NostoConfigService::PRODUCT_IDENTIFIER_FIELD,
+            ProductIdentifierOptions::PRODUCT_ID->value,
+        );
     }
 
     public function deactivate(DeactivateContext $deactivateContext): void
