@@ -13,9 +13,12 @@ runs:
       run: |
         echo "shopware-cli version:"
         shopware-cli --version || true
-        shopware-cli project create shopware ${{ inputs.shopware-version }} --no-audit
+        if ! shopware-cli project create shopware ${{ inputs.shopware-version }} --no-audit; then
+          echo "::error::shopware-cli failed to create a project for Shopware ${{ inputs.shopware-version }}."
+          exit 1
+        fi
         if [ ! -d "shopware" ]; then
-          echo "::error::shopware-cli failed to create a project for Shopware ${{ inputs.shopware-version }} (no 'shopware' directory was produced)."
+          echo "::error::shopware-cli exited successfully but produced no 'shopware' directory for Shopware ${{ inputs.shopware-version }}."
           exit 1
         fi
 
