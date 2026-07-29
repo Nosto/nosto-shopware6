@@ -38,6 +38,22 @@ Component.register('nosto-integration-features-flags', {
 
             return criteria;
         },
+        createCustomerDataOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.relyOnCookie'),
+                    value: 'rely-on-cookie',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.always'),
+                    value: 'always',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.never'),
+                    value: 'never',
+                },
+            ];
+        },
         createProductIdentifierOptions() {
             return [
                 {
@@ -167,7 +183,7 @@ Component.register('nosto-integration-features-flags', {
                 reloadRecommendations: false,
                 enableLabelling: false,
                 storeAbandonedCartData: false,
-                ignoreCookieConsent: false,
+                ignoreCookieConsent: true,
                 syncFirstAvailableVariant: false,
                 dailySynchronizationTime: false,
                 syncBatchSize: 150,
