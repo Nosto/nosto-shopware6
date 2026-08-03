@@ -37,7 +37,7 @@ class Migration1769500001ConvertCustomerDataToNostoToMode extends MigrationStep
             UPDATE `nosto_integration_config`
             SET `configuration_value` = JSON_OBJECT('_value', 'always')
             WHERE `configuration_key` = 'customerDataToNosto'
-              AND JSON_EXTRACT(`configuration_value`, '$._value') = CAST('true' AS JSON)
+              AND JSON_UNQUOTE(JSON_EXTRACT(`configuration_value`, '$._value')) IN ('true', '1')
             SQL,
         );
 
@@ -46,7 +46,7 @@ class Migration1769500001ConvertCustomerDataToNostoToMode extends MigrationStep
             UPDATE `nosto_integration_config`
             SET `configuration_value` = JSON_OBJECT('_value', 'never')
             WHERE `configuration_key` = 'customerDataToNosto'
-              AND JSON_EXTRACT(`configuration_value`, '$._value') = CAST('false' AS JSON)
+              AND JSON_UNQUOTE(JSON_EXTRACT(`configuration_value`, '$._value')) IN ('false', '0')
             SQL,
         );
     }
