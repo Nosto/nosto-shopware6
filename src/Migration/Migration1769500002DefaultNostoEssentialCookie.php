@@ -39,7 +39,7 @@ class Migration1769500002DefaultNostoEssentialCookie extends MigrationStep
             UPDATE `nosto_integration_config`
             SET `configuration_value` = JSON_OBJECT('_value', true)
             WHERE `configuration_key` = 'ignoreCookieConsent'
-              AND JSON_EXTRACT(`configuration_value`, '$._value') = CAST('false' AS JSON)
+              AND JSON_UNQUOTE(JSON_EXTRACT(`configuration_value`, '$._value')) IN ('false', '0')
             SQL,
         );
     }
