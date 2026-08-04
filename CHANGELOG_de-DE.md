@@ -1,3 +1,7 @@
+# 5.2.25
+* Fix: Cookie-Consent-Migrationen zur Unterstützung von MariaDB aktualisiert
+* Fix: Fehler beim Plugin-Update behoben, der durch einen Servicefehler beim Anwenden des Standardwerts für die Produktkennung verursacht wurde
+
 # 5.2.24
 * Fix: Die Artikelnummer als Standard festlegen statt ID
 * Fix: Die Art und Weise, wie sich der Scheduler am Message-Bus anmeldet, wurde optimiert, um einen Speicherengpass bei der Aktivierung von Plugins zu vermeiden.
