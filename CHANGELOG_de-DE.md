@@ -1,3 +1,6 @@
+# 3.6.14
+* Fix: Cookie-Consent-Migrationen zur Unterstützung von MariaDB aktualisiert
+
 # 3.6.13
 * Neu: Berücksichtigung der Cookie-Einwilligung – Modus „Kundendaten senden“ (basierend auf Cookie / immer / nie), doNotTrack bei fehlender Einwilligung, und die Backend-Synchronisierung berücksichtigt dies
 
