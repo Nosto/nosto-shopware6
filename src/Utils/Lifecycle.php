@@ -72,7 +72,8 @@ class Lifecycle
      */
     private function preserveProductIdentifierDefault(): void
     {
-        $configService = new NostoConfigService($this->connection);
+        /** @var NostoConfigService $configService */
+        $configService = $this->container->get(NostoConfigService::class);
 
         $existingValue = $configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD);
         if (is_string($existingValue) && $existingValue !== '') {

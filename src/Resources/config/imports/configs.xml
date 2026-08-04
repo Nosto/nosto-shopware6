@@ -16,7 +16,7 @@
             <tag name="shopware.entity.extension" />
         </service>
 
-        <service id="Nosto\NostoIntegration\Model\Config\NostoConfigService" autowire="true" />
+        <service id="Nosto\NostoIntegration\Model\Config\NostoConfigService" autowire="true" public="true" />
 
         <service id="Nosto\NostoIntegration\Api\Controller\NostoConfigController" autowire="true">
             <call method="setContainer">
