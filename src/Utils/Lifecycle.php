@@ -72,6 +72,10 @@ class Lifecycle
      */
     private function preserveProductIdentifierDefault(): void
     {
+        // Lifecycle is instantiated manually (see NostoIntegration), so it cannot constructor-inject
+        // services, and NostoConfigService is a private service that cannot be pulled from the
+        // container. Its only dependency is the Connection we already hold, so we build it directly
+        // rather than widening the service's visibility to public.
         $configService = new NostoConfigService($this->connection);
 
         $existingValue = $configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD);
