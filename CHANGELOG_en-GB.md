@@ -1,3 +1,7 @@
+# 5.2.25
+* Fix: Updated the cookie consent migrations to support MariaDB
+* Fix: Resolved failure during plugin update due to a service error while applying the product identifier default
+
 # 5.2.24
 * Fix: Make product number default instead of ID
 * Fix: Optimized how the scheduler registers on the message bus to avoid memory exhaustion during plugin activation
