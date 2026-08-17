@@ -153,9 +153,9 @@ class ProductTaggingHelper
     ): ?PartialProduct {
         $mainProduct = null;
         if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            )) {
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
             $mainProduct = $this->handleFirstAvailableVariant($product, $context);
         }
 
@@ -352,9 +352,9 @@ class ProductTaggingHelper
         ProductEntity|PartialProduct $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            ) === ProductIdentifierOptions::PRODUCT_NUMBER;
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        ) === ProductIdentifierOptions::PRODUCT_NUMBER;
         if ($useProductNumber) {
             return $product->getProductNumber();
         } else {
@@ -412,8 +412,8 @@ class ProductTaggingHelper
             $variantPrice = $currencyPrice->getNet();
 
             if ((is_null(
-                        $lowestPrice,
-                    ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
+                $lowestPrice,
+            ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
                 $lowestPrice = $variantPrice;
                 $cheapestVariant = $child;
             }
