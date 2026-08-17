@@ -68,8 +68,14 @@ final class ProductTaggingHelperTest extends TestCase
 
     public function testFindProductIdUsesFirstAvailableChildForClearanceParentWhenConfigured(): void
     {
-        $helper = $this->createHelper(true, true);
         $context = $this->createContext();
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->expects($this->once())
+            ->method('isEnabledSyncFirstAvailableVariant')
+            ->with($context->getSalesChannelId(), $context->getLanguageId())
+            ->willReturn(true);
+
+        $helper = $this->createHelper(true, true, $configProvider);
         $parent = $this->createProduct(
             'parent-id',
             true,
@@ -237,12 +243,15 @@ final class ProductTaggingHelperTest extends TestCase
     private function createHelper(
         bool $hideCloseoutProductsWhenOutOfStock,
         bool $syncFirstAvailableVariant,
+        ?ConfigProvider $configProvider = null,
     ): ProductTaggingHelper {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('getBool')->willReturn($hideCloseoutProductsWhenOutOfStock);
 
-        $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailableVariant);
+        if ($configProvider === null) {
+            $configProvider = $this->createMock(ConfigProvider::class);
+            $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailableVariant);
+        }
 
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('getProductStock')->willReturnCallback(
