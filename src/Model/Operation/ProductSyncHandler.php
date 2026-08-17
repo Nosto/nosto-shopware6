@@ -727,7 +727,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             return;
         }
 
-        $this->doDeleteOperation($account, $context, array_keys($queuedDeleteIds), $mapping);
+        $deleteIds = array_keys($queuedDeleteIds);
+        $mapping += $this->productHelper->loadOrderNumberMapping($deleteIds, $context->getContext());
+
+        $this->doDeleteOperation($account, $context, $deleteIds, $mapping);
         $queuedDeleteIds = [];
     }
 

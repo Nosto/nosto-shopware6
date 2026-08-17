@@ -152,7 +152,10 @@ class ProductTaggingHelper
         bool $hideProductsAfterClearance,
     ): ?PartialProduct {
         $mainProduct = null;
-        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
+        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            )) {
             $mainProduct = $this->handleFirstAvailableVariant($product, $context);
         }
 
@@ -169,7 +172,10 @@ class ProductTaggingHelper
     ): ?PartialProduct {
         $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            );
         if ($product->getActive()) {
             if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
                 $mainProduct = $this->handleFirstAvailableVariant($product, $salesChannelContext);
@@ -251,7 +257,10 @@ class ProductTaggingHelper
         $mainProduct = null;
         $children = new PartialProductCollection();
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
 
         foreach ($variants as $child) {
             if ($shouldHandleFirstAvailable) {
@@ -299,7 +308,10 @@ class ProductTaggingHelper
         $mainProduct = null;
         $variants = new PartialProductCollection([$product]);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
         $children = $this->ensureChildrenLoaded($product, $context);
 
         if (!$children) {
@@ -340,9 +352,9 @@ class ProductTaggingHelper
         ProductEntity|PartialProduct $product,
     ): string {
         $useProductNumber = $this->configProvider->getProductIdentifier(
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-        ) === ProductIdentifierOptions::PRODUCT_NUMBER;
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            ) === ProductIdentifierOptions::PRODUCT_NUMBER;
         if ($useProductNumber) {
             return $product->getProductNumber();
         } else {
@@ -400,8 +412,8 @@ class ProductTaggingHelper
             $variantPrice = $currencyPrice->getNet();
 
             if ((is_null(
-                $lowestPrice,
-            ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
+                        $lowestPrice,
+                    ) || $variantPrice < $lowestPrice) && $child->getActive() && $child->getStock() > 0) {
                 $lowestPrice = $variantPrice;
                 $cheapestVariant = $child;
             }
