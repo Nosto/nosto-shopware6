@@ -108,11 +108,14 @@ final class ProductTaggingHelperTest extends TestCase
 
     public function testReturnsFirstAvailableChildWhenDisplayParentIsEnabledAndParentIsOutOfStockCloseout(): void
     {
+        $context = $this->createContext();
         $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn(true);
+        $configProvider->expects($this->once())
+            ->method('isEnabledSyncFirstAvailableVariant')
+            ->with($context->getSalesChannelId(), $context->getLanguageId())
+            ->willReturn(true);
 
         $helper = $this->createHelper($configProvider, null, true, true);
-        $context = $this->createContext();
         $inactiveChild = $this->createProduct('inactive-child-id', 'inactive-child-number', null, false, false, 0);
         $availableChild = $this->createProduct('available-child-id', 'available-child-number', null, true, false, 0);
         $parent = $this->createProduct(
@@ -377,9 +380,11 @@ final class ProductTaggingHelperTest extends TestCase
             new \Shopware\Core\Content\Product\ProductCollection(),
         );
 
-        $configProvider ??= $this->createMock(ConfigProvider::class);
-        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
-        $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailable);
+        if ($configProvider === null) {
+            $configProvider = $this->createMock(ConfigProvider::class);
+            $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+            $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailable);
+        }
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('getBool')->willReturn($hideCloseoutProductsWhenOutOfStock);
 
