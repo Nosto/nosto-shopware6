@@ -1,3 +1,7 @@
+# 6.1.28
+* Fix: Sicherstellen, dass beim Löschen von Varianten in der Warteschlange bei der Produktsynchronisierung vollständige Produktnummernzuordnungen verwendet werden
+* Fix: Bei der Auflösung der Synchronisierungskonfiguration für die erste verfügbare Variante den Vertriebskanal und den Sprachkontext berücksichtigen
+
 # 6.1.27
 * Fix: Cookie-Consent-Migrationen zur Unterstützung von MariaDB aktualisiert
 * Fix: Fehler beim Plugin-Update behoben, der durch einen Servicefehler beim Anwenden des Standardwerts für die Produktkennung verursacht wurde
