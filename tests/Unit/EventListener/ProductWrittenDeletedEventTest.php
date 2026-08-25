@@ -14,6 +14,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 final class ProductWrittenDeletedEventTest extends TestCase
 {
@@ -119,5 +123,39 @@ final class ProductWrittenDeletedEventTest extends TestCase
         );
 
         $listener->beforeDelete($event);
+    }
+
+    public function testOnResponseVariesCachedNavigationResponsesByCookie(): void
+    {
+        $request = Request::create('/navigation/category-id');
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn('sales-channel-id');
+        $context->method('getLanguageId')->willReturn('language-id');
+        $request->attributes->set('sw-sales-channel-context', $context);
+
+        $response = new Response();
+        $response->setVary(['Accept-Language']);
+
+        $event = $this->createMock(ResponseEvent::class);
+        $event->method('getRequest')->willReturn($request);
+        $event->method('getResponse')->willReturn($response);
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isCacheEnabled')->with('sales-channel-id', 'language-id')->willReturn(true);
+        $configProvider->method('isNavigationEnabled')->with('sales-channel-id', 'language-id')->willReturn(true);
+        $configProvider->method('getCacheTtl')->with('sales-channel-id', 'language-id')->willReturn(5);
+
+        $listener = new ProductWrittenDeletedEvent(
+            $this->createMock(EventsWriter::class),
+            $this->createMock(ProductHelper::class),
+            $configProvider,
+        );
+
+        $listener->onResponse($event);
+
+        self::assertTrue($response->isPublic());
+        self::assertSame(['Accept-Language', 'Cookie'], $response->getVary());
+        self::assertSame(300, $response->getMaxAge());
+        self::assertSame(300, $response->getTtl());
     }
 }
