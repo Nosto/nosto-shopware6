@@ -1,3 +1,7 @@
+# 3.6.15
+* Neu: Unterstützung von Stichwort-Facetten
+* Neu: Plugin-Version an Nosto senden
+
 # 3.6.14
 * Fix: Updated the cookie consent migrations to support MariaDB
 
