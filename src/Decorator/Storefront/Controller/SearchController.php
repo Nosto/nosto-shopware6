@@ -96,9 +96,12 @@ class SearchController extends StorefrontController
             return $this->forwardToRoute('frontend.home.page');
         }
 
-        /** @var Redirect $redirect */
-        if ($redirect = $context->getContext()->getExtension('nostoRedirect')) {
-            return $this->redirect($redirect->getLink(), 301);
+        $redirect = $context->getContext()->getExtension('nostoRedirect');
+        if ($redirect instanceof Redirect) {
+            // Canonicalised filter URLs are temporary: a facet id changes when the merchant
+            // recreates the facet, and a cached 301 would pin the stale id. Merchant redirect
+            // rules stay permanent.
+            return $this->redirect($redirect->getLink(), $redirect->isPermanent() ? 301 : 302);
         }
 
         $this->hook(new SearchPageLoadedHook($page, $context));
