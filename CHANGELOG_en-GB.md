@@ -1,3 +1,7 @@
+# 5.2.26
+* Fix: Ensure queued variant deletes use complete product-number mappings during product sync
+* Fix: Use sales channel and language context when resolving first-available variant sync config
+
 # 5.2.25
 * Fix: Updated the cookie consent migrations to support MariaDB
 * Fix: Resolved failure during plugin update due to a service error while applying the product identifier default
