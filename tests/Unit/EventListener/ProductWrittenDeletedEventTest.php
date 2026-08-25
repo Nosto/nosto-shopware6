@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 final class ProductWrittenDeletedEventTest extends TestCase
 {
@@ -136,9 +137,12 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $response = new Response();
         $response->setVary(['Accept-Language']);
 
-        $event = $this->createMock(ResponseEvent::class);
-        $event->method('getRequest')->willReturn($request);
-        $event->method('getResponse')->willReturn($response);
+        $event = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response,
+        );
 
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('isCacheEnabled')->with('sales-channel-id', 'language-id')->willReturn(true);
