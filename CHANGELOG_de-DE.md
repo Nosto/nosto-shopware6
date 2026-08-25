@@ -1,3 +1,7 @@
+# 3.6.15
+* New: Support keyword facets
+* New: Send plugin version to Nosto
+
 # 3.6.14
 * Fix: Cookie-Consent-Migrationen zur Unterstützung von MariaDB aktualisiert
 
