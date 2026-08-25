@@ -157,7 +157,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
 
         $listener->onResponse($event);
 
-        self::assertTrue($response->isPublic());
+        self::assertTrue($response->headers->hasCacheControlDirective('public'));
         self::assertSame(['Accept-Language', 'Cookie'], $response->getVary());
         self::assertSame(300, $response->getMaxAge());
         self::assertSame(300, $response->getTtl());
