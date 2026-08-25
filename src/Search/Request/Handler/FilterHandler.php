@@ -24,9 +24,12 @@ class FilterHandler
 
     protected const MAX_PREFIX = 'max-';
 
+    private readonly NostoFieldFilterParser $fieldFilterParser;
+
     public function __construct(
         private readonly FilterPayloadService $filterPayloadService,
     ) {
+        $this->fieldFilterParser = new NostoFieldFilterParser();
     }
 
     /**
@@ -39,7 +42,15 @@ class FilterHandler
         SearchOperation $searchOperation,
         bool $newRequest = true,
     ): void {
-        $selectedFilters = $request->query->all();
+        // Keep $selectedFilters free of the PHP-mangled 'products_filter_*' keys, so a request
+        // that only carries field-path filters takes the early return below instead of running
+        // the id-keyed pass (which, on the cookie path, costs a resolveCookiePayload() lookup).
+        $selectedFilters = $this->withoutFieldPathParameters($request->query->all());
+
+        // Nosto's autocomplete and SERP links key filters by field path rather than facet id.
+        // They must be read from the raw query string: PHP rewrites '.' to '_' in parameter
+        // names, so they are not visible in $request->query at all. See ADS-5261.
+        $this->applyFieldPathFilters($request, $searchOperation);
 
         if (empty($selectedFilters)) {
             return;
@@ -49,6 +60,94 @@ class FilterHandler
             $this->handleNewRequest($selectedFilters, $criteria, $searchOperation);
         } else {
             $this->handleExistingRequest($selectedFilters, $request, $searchOperation);
+        }
+    }
+
+    // Selected-state rendering for these filters is deliberately not handled here; the panel
+    // computes it client-side from window.location.search. See ADS-5261 follow-up 3.
+    private function applyFieldPathFilters(Request $request, SearchOperation $searchOperation): void
+    {
+        $queryString = $request->server->get('QUERY_STRING');
+
+        $filters = $this->fieldFilterParser->parseQueryString(
+            is_string($queryString) ? $queryString : null,
+        );
+
+        // SearchOperation merges ranges per field, so a repeated parameter name would silently
+        // overwrite the bounds of the earlier one. Keep the first range per field, which matches
+        // how multiple ranges inside a single value are handled.
+        $rangedFields = [];
+
+        foreach ($filters as $filter) {
+            $this->applyFieldFilter($filter, $searchOperation, $rangedFields);
+        }
+    }
+
+    /**
+     * Drops the PHP-mangled counterparts of the field-path parameters (dots rewritten to
+     * underscores), so a field-path-only request leaves no id-keyed parameters behind and can
+     * skip the id-based pass entirely.
+     *
+     * @param array<string, mixed> $selectedFilters
+     * @return array<string, mixed>
+     */
+    private function withoutFieldPathParameters(array $selectedFilters): array
+    {
+        $remaining = [];
+
+        foreach ($selectedFilters as $filterId => $filterValues) {
+            if (is_string($filterId) && str_starts_with($filterId, NostoFieldFilterParser::MANGLED_FIELD_PREFIX)) {
+                continue;
+            }
+
+            $remaining[$filterId] = $filterValues;
+        }
+
+        return $remaining;
+    }
+
+    /**
+     * @param array<string, true> $rangedFields fields that already had a range applied in this
+     *                                          request, by reference so later duplicates of the
+     *                                          same parameter name can be skipped
+     */
+    private function applyFieldFilter(
+        NostoFieldFilter $filter,
+        SearchOperation $searchOperation,
+        array &$rangedFields = [],
+    ): void {
+        // Rating is a stats facet in Nosto: the pre-existing facet-id route sends it through
+        // addRangeFilter() as a lower bound, and a value filter would match nothing.
+        if (!$filter->isRange() && $this->isRatingFilter($filter->field)) {
+            foreach ($filter->values as $value) {
+                $this->handleRatingFilter($filter->field, $value, $searchOperation);
+            }
+
+            return;
+        }
+
+        if ($filter->isRange()) {
+            if (isset($rangedFields[$filter->field])) {
+                return;
+            }
+
+            $rangedFields[$filter->field] = true;
+
+            // addRangeFilter() merges into one range per field, so only the first range is
+            // representable. Applying the rest would corrupt the bounds.
+            $range = $filter->ranges[0];
+
+            $searchOperation->addRangeFilter(
+                $filter->field,
+                $range['gte'] ?? $range['gt'] ?? null,
+                $range['lte'] ?? $range['lt'] ?? null,
+            );
+
+            return;
+        }
+
+        foreach ($filter->values as $value) {
+            $searchOperation->addValueFilter($filter->field, $value);
         }
     }
 
