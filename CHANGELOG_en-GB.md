@@ -1,3 +1,7 @@
+# 5.2.27
+* New: Support keyword facets
+* New: Send plugin version to Nosto
+
 # 5.2.26
 * Fix: Ensure queued variant deletes use complete product-number mappings during product sync
 * Fix: Use sales channel and language context when resolving first-available variant sync config

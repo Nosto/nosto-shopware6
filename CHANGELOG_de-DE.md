@@ -1,3 +1,7 @@
+# 5.2.27
+* Neu: Unterstützung von Stichwort-Facetten
+* Neu: Plugin-Version an Nosto senden
+
 # 5.2.26
 * Fix: Sicherstellen, dass beim Löschen von Varianten in der Warteschlange bei der Produktsynchronisierung vollständige Produktnummernzuordnungen verwendet werden
 * Fix: Bei der Auflösung der Synchronisierungskonfiguration für die erste verfügbare Variante den Vertriebskanal und den Sprachkontext berücksichtigen
