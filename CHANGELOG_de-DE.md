@@ -1,3 +1,6 @@
+# 6.1.30
+* Fix: „Vary“ zur Anfrage hinzugefügt, um ein Caching-Problem zu beheben
+
 # 6.1.29
 * Neu: Unterstützung von Stichwort-Facetten
 * Neu: Plugin-Version an Nosto senden

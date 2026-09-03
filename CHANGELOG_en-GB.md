@@ -1,3 +1,6 @@
+# 6.1.30
+* Fix: Add vary to request to fix caching issue
+
 # 6.1.29
 * New: Support keyword facets
 * New: Send plugin version to Nosto
