@@ -114,7 +114,7 @@
                 "timeEnableCache" : "Set cache time (in minutes)",
                 "enableCache": {
                     "label": "Enable Cache",
-                    "helpText": "Set the cache time to live for Search and Category pages. To get the most of the Nosto personalisation disable the caching"
+                    "helpText": "Set the cache time to live for Search and Category pages. Cached responses vary by visitor cookies so personalisation is not shared between visitors. To get the most of Nosto personalisation, disable caching."
                 },
                 "enableSyncFirstAvailableVariant": "Sync first available variant as a product, if product is on clearance and out of stock",
                 "enableSyncFirstAvailableVariantHelpText": "If the checkbox is checked, sync first available variant as a product, if product is on clearance and out of stock.",
