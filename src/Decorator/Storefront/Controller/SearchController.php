@@ -120,6 +120,9 @@ class SearchController extends StorefrontController
             $response->setMaxAge($cacheTtlSeconds);
             $response->setSharedMaxAge($cacheTtlSeconds);
             $response->setStaleWhileRevalidate($cacheTtlSeconds);
+            // Search results can vary by Nosto's visitor and experiment cookies. Ensure that
+            // shared HTTP caches keep a separate representation for each cookie header.
+            $response->setVary(['Cookie'], false);
             $expiryTime = new \DateTimeImmutable(sprintf('+%d seconds', $cacheTtlSeconds));
             $response->setExpires($expiryTime);
         } else {

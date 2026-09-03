@@ -113,7 +113,7 @@
                 "timeEnableCache" : "Cache-Zeit einstellen (in Minuten)",
                 "enableCache": {
                     "label": "Cache aktivieren",
-                    "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden"
+                    "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Gecachte Antworten variieren je nach Besucher-Cookies, damit die Personalisierung nicht zwischen Besuchern geteilt wird. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden."
                 },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
