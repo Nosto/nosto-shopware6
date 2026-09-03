@@ -1,6 +1,9 @@
+# 3.6.16
+* Fix: Add vary to request to fix caching issue
+
 # 3.6.15
-* Neu: Unterstützung von Stichwort-Facetten
-* Neu: Plugin-Version an Nosto senden
+* New: Support keyword facets
+* New: Send plugin version to Nosto
 
 # 3.6.14
 * Fix: Updated the cookie consent migrations to support MariaDB
