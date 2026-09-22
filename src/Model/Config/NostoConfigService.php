@@ -37,6 +37,8 @@ class NostoConfigService
 
     public const ENABLE_SEARCH = 'enableSearch';
 
+    public const ENABLE_INDEXED_PRODUCT_IDENTIFIER_SEARCH = 'enableIndexedProductIdentifierSearch';
+
     public const ENABLE_NAVIGATION = 'enableNavigation';
 
     public const INITIALIZE_NOSTO_AFTER_INTERACTION = 'isInitializeNostoAfterInteraction';

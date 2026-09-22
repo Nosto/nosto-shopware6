@@ -19,6 +19,7 @@ Component.register('nosto-integration-search-general', {
         createdComponent() {
             this.setDefaultConfigs({
                 enableSearch: false,
+                enableIndexedProductIdentifierSearch: false,
                 enableNavigation: false,
             });
         },

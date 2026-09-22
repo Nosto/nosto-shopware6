@@ -181,6 +181,10 @@
                     "label": "Enable Personalized Search",
                     "helpText": "Activate this to integrate Nosto's personalized search functionality into your Shopware theme. This will apply your custom search and filter settings from Nosto Admin directly to your store's search experience."
                 },
+                "enableIndexedProductIdentifierSearch": {
+                    "label": "Use indexed product identifier lookup",
+                    "helpText": "Uses Shopware's product search keyword index when resolving an exact product number, EAN, or manufacturer number from a Nosto search result. Enable this to avoid full product-table scans."
+                },
                 "enableNavigation": {
                     "label": "Enable Category Merchandising",
                     "helpText": "Activate this to integrate Nosto's Category Merchandising functionality into your Shopware theme. This will apply your custom merchandising and filter settings from Nosto Admin directly to your store's Category navigation experience."
