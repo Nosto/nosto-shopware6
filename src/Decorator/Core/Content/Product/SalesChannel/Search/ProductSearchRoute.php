@@ -9,6 +9,7 @@ use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Search\ProductIdentifierResolver;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
@@ -52,6 +53,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly LoggerInterface $logger,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Account\Provider $accountProvider,
+        private readonly ProductIdentifierResolver $productIdentifierResolver,
     ) {
     }
 
@@ -106,7 +108,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $result = $this->fetchProductsById($criteria, $context, $query);
+            $result = $this->fetchProductsById($criteria, $context, $query, $request);
 
             $productListing = ProductListingResult::createFrom($result);
             $productListing->addCurrentFilter('search', $query);
@@ -264,11 +266,24 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query,
+        Request $request,
     ): EntitySearchResult {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
 
-        return $this->fetchProducts($criteria, $salesChannelContext, $query);
+        if ($query !== null && count($criteria->getIds()) === 1) {
+            $productId = $this->configProvider->isIndexedProductIdentifierSearchEnabled(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            )
+                ? $this->productIdentifierResolver->resolveFromKeywordIndex($query, $request, $salesChannelContext)
+                : $this->productIdentifierResolver->resolveFromProductFields($query, $salesChannelContext);
+            if ($productId !== null) {
+                $criteria->setIds([$productId]);
+            }
+        }
+
+        return $this->fetchProducts($criteria, $salesChannelContext);
     }
 }
