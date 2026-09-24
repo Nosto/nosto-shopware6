@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Operation;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\NostoIntegration\Async\EventsWriter;
@@ -11,6 +13,7 @@ use Nosto\NostoIntegration\Async\ExchangeRateSyncMessage;
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
+use Nosto\NostoIntegration\Entity\Changelog\ChangelogDefinition;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
@@ -26,7 +29,6 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -40,6 +42,7 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     public function __construct(
         private readonly EntityRepository $entityChangelogRepository,
+        private readonly Connection $connection,
         private readonly JobScheduler $jobScheduler,
         private readonly JobHelper $jobHelper,
         private readonly ConfigProvider $configProvider,
@@ -119,40 +122,49 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): int {
-        $criteria = NostoCriteriaFactory::create($metricPrefix . '.delete');
-        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
         $shouldLogExtra = $this->shouldLogExtra();
         $batchIndex = 0;
         $eventCount = 0;
         $payloadCount = 0;
         $scheduledChildCount = 0;
         $iteratorStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $previousEntityIds = null;
 
-        while (($events = $iterator->fetch()) !== null) {
+        // Each batch takes the oldest pending rows, collapses them per entity so an entity written
+        // many times is only scheduled once, and then removes every row of those entities. The next
+        // batch is therefore always at the start of the result set: paginating with an offset here
+        // would skip one batch for every batch handled.
+        while (($batch = $this->fetchOldestEventBatch($entityType, $context)) !== []) {
+            $entityIds = array_keys($batch);
+            sort($entityIds);
+
+            // Safety net: if a batch survives its delete, stop instead of looping over it forever.
+            if ($previousEntityIds === $entityIds) {
+                $this->logger->error(
+                    'Nosto: changelog batch was still present after deletion, aborting to avoid an endless loop.',
+                    [
+                        'entity_type' => $entityType,
+                        'batch_size' => count($entityIds),
+                    ],
+                );
+
+                break;
+            }
+
+            $previousEntityIds = $entityIds;
+
             ++$batchIndex;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $entityType === ProductDefinition::ENTITY_NAME || $entityType === 'order_placed' ?
-                $events->reduce(static function (array $result, ChangelogEntity $event): array {
-                    $result[$event->getEntityId()] = $event->getProductNumber();
-                    return $result;
-                }, []) :
-                $events->map(static fn (ChangelogEntity $event): string => $event->getEntityId());
+            $ids = $this->getPayloadFromBatch($entityType, $batch);
 
-            $batchEventCount = $events->count();
             $batchPayloadCount = count($ids);
-            $eventCount += $batchEventCount;
             $payloadCount += $batchPayloadCount;
 
             $scheduledChildCount += $processCallback($ids);
-            $deleteDataSet = array_map(static fn ($id): array => [
-                'id' => $id,
-            ], array_values($events->getIds()));
             $deleteStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
+            // Counts every row removed, which includes rows of these entities beyond the ones read.
+            $batchEventCount = $this->deleteEventsByEntityIds($entityType, array_keys($batch));
+            $eventCount += $batchEventCount;
 
             if ($shouldLogExtra && $deleteStartedAt !== null) {
                 $this->logDuration(
@@ -195,6 +207,76 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
 
         return $scheduledChildCount;
+    }
+
+    /**
+     * Reads the oldest pending rows and collapses them per entity, so an entity that was written
+     * many times is only scheduled once.
+     *
+     * The grouping happens here rather than in SQL on purpose. A GROUP BY whose ORDER BY is an
+     * aggregate cannot push the LIMIT down, so the database would build and sort every pending
+     * group on every batch - spilling large result sets to an on-disk temporary table - instead of
+     * reading the first rows of an index and stopping.
+     *
+     * @return array<string, string|null> entity id => product number
+     */
+    private function fetchOldestEventBatch(string $entityType, Context $context): array
+    {
+        $criteria = NostoCriteriaFactory::create('product_sync.changelog.batch');
+        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+        $criteria->setLimit(self::BATCH_SIZE);
+
+        $batch = [];
+        /** @var ChangelogEntity $event */
+        foreach ($this->entityChangelogRepository->search($criteria, $context) as $event) {
+            // Rows arrive oldest first, so the last value seen is the most recent one known.
+            $batch[$event->getEntityId()] = $event->getProductNumber();
+        }
+
+        return $batch;
+    }
+
+    /**
+     * @param array<string, string|null> $batch
+     * @return array<string, string|null>|list<string>
+     */
+    private function getPayloadFromBatch(string $entityType, array $batch): array
+    {
+        if ($entityType !== ProductDefinition::ENTITY_NAME
+            && $entityType !== EventsWriter::ORDER_ENTITY_PLACED_NAME
+        ) {
+            return array_keys($batch);
+        }
+
+        return $batch;
+    }
+
+    /**
+     * Removes every row of the given entities, including rows that were not read, so a processed
+     * entity cannot reappear in a later batch.
+     *
+     * @param list<string> $entityIds
+     * @return int number of rows removed
+     */
+    private function deleteEventsByEntityIds(string $entityType, array $entityIds): int
+    {
+        if ($entityIds === []) {
+            return 0;
+        }
+
+        return (int) $this->connection->executeStatement(
+            'DELETE FROM `' . ChangelogDefinition::ENTITY_NAME . '`
+             WHERE `entity_type` = :entityType
+             AND `entity_id` IN (:entityIds)',
+            [
+                'entityType' => $entityType,
+                'entityIds' => Uuid::fromHexToBytesList($entityIds),
+            ],
+            [
+                'entityIds' => ArrayParameterType::BINARY,
+            ],
+        );
     }
 
     private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId): int

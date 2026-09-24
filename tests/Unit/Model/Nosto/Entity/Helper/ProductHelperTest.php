@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Nosto\Entity\Helper;
 
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -530,7 +530,7 @@ final class ProductHelperTest extends TestCase
     ): ProductHelper {
         $productRepository ??= $this->createMock(EntityRepository::class);
         $configProvider ??= $this->createMock(ConfigProvider::class);
-        $productRoute = $this->createMock(AbstractProductDetailRoute::class);
+        $connection = $this->createMock(Connection::class);
         $reviewRepository ??= $this->createMock(EntityRepository::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $seoUrlReplacer = $this->createMock(\Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface::class);
@@ -539,8 +539,8 @@ final class ProductHelperTest extends TestCase
         $router->method('getContext')->willReturn(new \Symfony\Component\Routing\RequestContext());
 
         return new ProductHelper(
+            $connection,
             $productRepository,
-            $productRoute,
             $reviewRepository,
             $eventDispatcher,
             $configProvider,
