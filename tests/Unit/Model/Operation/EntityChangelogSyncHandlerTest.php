@@ -11,22 +11,21 @@ use Nosto\NostoIntegration\Entity\Changelog\ChangelogCollection;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler;
 use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 final class EntityChangelogSyncHandlerTest extends TestCase
@@ -36,104 +35,220 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
 
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('getDefinition')->willReturn($this->createDefinition('changelog_test'));
-
-        $productCalls = 0;
-        $categoryCalls = 0;
         $repository->method('search')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (
-                &$productCalls,
-                &$categoryCalls
-            ): EntitySearchResult {
-                $entityType = self::extractEntityType($criteria);
-
-                if ($entityType === 'product') {
-                    ++$productCalls;
-                    if ($productCalls > 1) {
-                        return self::emptyResult(ProductDefinition::ENTITY_NAME, $criteria, $context);
-                    }
-
-                    return self::productResult($criteria, $context, 'product-change-1', 'SW-DEMO-1');
-                }
-
-                if ($entityType === 'category') {
-                    ++$categoryCalls;
-                    if ($categoryCalls > 1) {
-                        return self::emptyResult('category', $criteria, $context);
-                    }
-
-                    return self::categoryResult($criteria, $context, 'category-change-1');
-                }
-
-                return self::emptyResult($entityType ?? 'unknown', $criteria, $context);
-            },
+            $this->batches([
+                // Three rows for one product: they collapse into a single payload entry, and the
+                // newest product number wins.
+                'product' => [[
+                    self::event($productId, 'product', 'SW-DEMO-OLD'),
+                    self::event($productId, 'product', 'SW-DEMO-MID'),
+                    self::event($productId, 'product', 'SW-DEMO-1'),
+                ]],
+                'category' => [[self::event($categoryId, 'category', null)]],
+            ]),
         );
 
         $deletedRows = [];
-        $deleteEvent = $this->createMock(EntityWrittenContainerEvent::class);
-        $repository->method('delete')->willReturnCallback(
-            static function (array $rows) use (&$deletedRows, $deleteEvent): EntityWrittenContainerEvent {
-                $deletedRows[] = $rows;
+        $repository->method('delete')->willReturnCallback($this->recordDeletes($deletedRows));
 
-                return $deleteEvent;
-            },
+        $scheduled = [];
+        $handler = $this->handler($repository, $this->recordingScheduler($scheduled), $jobHelperRecorder);
+
+        $result = $handler->execute($message);
+
+        self::assertInstanceOf(JobResult::class, $result);
+        self::assertCount(2, $scheduled);
+        self::assertInstanceOf(ProductSyncMessage::class, $scheduled[0]);
+        self::assertInstanceOf(CategorySyncMessage::class, $scheduled[1]);
+        self::assertSame([
+            $productId => 'SW-DEMO-1',
+        ], $scheduled[0]->getProductIds());
+        self::assertSame([$categoryId], array_values($scheduled[1]->getCategoryIds()));
+
+        // Exactly the rows that were read are removed, by row id, never by entity id.
+        self::assertCount(3, $deletedRows[0]);
+        self::assertSame(['id'], array_keys($deletedRows[0][0]));
+        self::assertCount(1, $deletedRows[1]);
+        self::assertSame(2, $jobHelperRecorder->marks[1][1]);
+    }
+
+    /**
+     * Guards the bug this handler was changed for: the previous implementation advanced an OFFSET
+     * past rows it had just deleted, so every second batch was skipped. Three batches in, three
+     * batches scheduled, every row removed.
+     */
+    public function testExecuteSchedulesEveryBatchWhenMoreRowsArePendingThanOneBatchHolds(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+
+        $first = [Uuid::randomHex(), Uuid::randomHex()];
+        $second = [Uuid::randomHex(), Uuid::randomHex()];
+        $third = [Uuid::randomHex()];
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            $this->batches([
+                'product' => [
+                    array_map(static fn (string $id) => self::event($id, 'product', 'SW-' . $id), $first),
+                    array_map(static fn (string $id) => self::event($id, 'product', 'SW-' . $id), $second),
+                    array_map(static fn (string $id) => self::event($id, 'product', 'SW-' . $id), $third),
+                ],
+            ]),
         );
 
-        $scheduledMessages = [];
+        $deletedRows = [];
+        $repository->method('delete')->willReturnCallback($this->recordDeletes($deletedRows));
+
+        $scheduled = [];
+        $handler = $this->handler($repository, $this->recordingScheduler($scheduled), $jobHelperRecorder);
+
+        $handler->execute($message);
+
+        // One product job per batch, none skipped.
+        self::assertCount(3, $scheduled);
+        $scheduledIds = array_merge(
+            array_keys($scheduled[0]->getProductIds()),
+            array_keys($scheduled[1]->getProductIds()),
+            array_keys($scheduled[2]->getProductIds()),
+        );
+        self::assertSame(
+            array_merge($first, $second, $third),
+            $scheduledIds,
+            'every pending entity must be scheduled exactly once, in order',
+        );
+
+        // And every batch's rows are removed, so nothing is left behind for a later run.
+        self::assertCount(3, $deletedRows);
+        self::assertSame([2, 2, 1], array_map('count', $deletedRows));
+    }
+
+    public function testExecuteStopsWhenABatchSurvivesItsDeletion(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+        $productId = Uuid::randomHex();
+        $rowId = Uuid::randomHex();
+
+        // The same row, with the same row id, comes back every time: the delete removes nothing.
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use ($productId, $rowId): EntitySearchResult {
+                if (self::extractEntityType($criteria) !== 'product') {
+                    return self::searchResult([], $criteria, $context);
+                }
+
+                return self::searchResult([self::event($productId, 'product', 'SW-1', $rowId)], $criteria, $context);
+            },
+        );
+        $repository->method('delete')->willReturn(
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []),
+        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error');
+
+        $scheduled = [];
+        $handler = $this->handler(
+            $repository,
+            $this->recordingScheduler($scheduled),
+            $jobHelperRecorder,
+            $logger,
+        );
+
+        $result = $handler->execute($message);
+
+        // Handled once, then the guard aborts instead of looping forever.
+        self::assertInstanceOf(JobResult::class, $result);
+        self::assertCount(1, $scheduled);
+        self::assertInstanceOf(ProductSyncMessage::class, $scheduled[0]);
+    }
+
+    /**
+     * Serves the given batches per entity type, in order, then empties.
+     *
+     * @param array<string, list<list<ChangelogEntity>>> $batchesByType
+     */
+    private function batches(array $batchesByType): callable
+    {
+        $calls = [];
+
+        return static function (Criteria $criteria, Context $context) use (
+            $batchesByType,
+            &$calls
+        ): EntitySearchResult {
+            $entityType = self::extractEntityType($criteria) ?? '';
+            $index = $calls[$entityType] ?? 0;
+            $calls[$entityType] = $index + 1;
+
+            return self::searchResult($batchesByType[$entityType][$index] ?? [], $criteria, $context);
+        };
+    }
+
+    /**
+     * @param list<list<array<string, string>>> $deletedRows
+     */
+    private function recordDeletes(array &$deletedRows): callable
+    {
+        return static function (array $rows) use (&$deletedRows): EntityWrittenContainerEvent {
+            $deletedRows[] = $rows;
+
+            return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
+        };
+    }
+
+    /**
+     * @param list<object> $scheduled
+     */
+    private function recordingScheduler(array &$scheduled): JobScheduler
+    {
         $jobScheduler = $this->createMock(JobScheduler::class);
         $jobScheduler->method('schedule')->willReturnCallback(
-            static function (object $job) use (&$scheduledMessages): void {
-                $scheduledMessages[] = $job;
+            static function (object $job) use (&$scheduled): void {
+                $scheduled[] = $job;
             },
         );
 
-        $jobHelperRecorder = new EntityChangelogJobHelperRecorder();
-        $jobHelper = new EntityChangelogRecordingJobHelper($jobHelperRecorder);
+        return $jobScheduler;
+    }
+
+    private function handler(
+        EntityRepository $repository,
+        JobScheduler $jobScheduler,
+        ?EntityChangelogJobHelperRecorder &$recorder = null,
+        ?LoggerInterface $logger = null,
+    ): EntityChangelogSyncHandler {
+        $recorder = new EntityChangelogJobHelperRecorder();
 
         $account = $this->createMock(Account::class);
         $account->method('getChannelId')->willReturn('channel-id');
         $account->method('getLanguageId')->willReturn('language-id');
 
-        $accountProvider = $this->createMock(\Nosto\NostoIntegration\Model\Nosto\Account\Provider::class);
+        $accountProvider = $this->createMock(AccountProvider::class);
         $accountProvider->method('all')->willReturn([$account]);
 
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('isEnabledMultiCurrency')->willReturn(false);
         $configProvider->method('isEnabledProductSyncExtraLogging')->willReturn(false);
 
-        $handler = new EntityChangelogSyncHandler(
+        return new EntityChangelogSyncHandler(
             $repository,
             $jobScheduler,
-            $jobHelper,
+            new EntityChangelogRecordingJobHelper($recorder),
             $configProvider,
             $accountProvider,
-            $this->createMock(LoggerInterface::class),
+            $logger ?? $this->createMock(LoggerInterface::class),
         );
-
-        $result = $handler->execute($message);
-
-        self::assertInstanceOf(JobResult::class, $result);
-        self::assertCount(2, $scheduledMessages);
-        self::assertInstanceOf(ProductSyncMessage::class, $scheduledMessages[0]);
-        self::assertInstanceOf(CategorySyncMessage::class, $scheduledMessages[1]);
-        self::assertSame([
-            'product-id-1' => 'SW-DEMO-1',
-        ], $scheduledMessages[0]->getProductIds());
-        self::assertSame([[
-            'id' => 'product-change-1',
-        ]], $deletedRows[0]);
-        self::assertSame([[
-            'id' => 'category-change-1',
-        ]], $deletedRows[1]);
-        self::assertSame(2, $jobHelperRecorder->marks[1][1]);
-        self::assertTrue($jobHelperRecorder->marks[1][2]);
     }
 
     private static function extractEntityType(Criteria $criteria): ?string
     {
         foreach ($criteria->getFilters() as $filter) {
-            if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter && $filter->getField() === 'entityType') {
+            if ($filter instanceof EqualsFilter && $filter->getField() === 'entityType') {
                 return (string) $filter->getValue();
             }
         }
@@ -141,80 +256,34 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         return null;
     }
 
-    private static function productResult(
-        Criteria $criteria,
-        Context $context,
-        string $id,
-        string $productNumber,
-    ): EntitySearchResult {
-        $entity = new ChangelogEntity();
-        $entity->setId($id);
-        $entity->setEntityType(ProductDefinition::ENTITY_NAME);
-        $entity->setEntityId('product-id-1');
-        $entity->setProductNumber($productNumber);
+    private static function event(
+        string $entityId,
+        string $entityType,
+        ?string $productNumber,
+        ?string $rowId = null,
+    ): ChangelogEntity {
+        $event = new ChangelogEntity();
+        $event->setId($rowId ?? Uuid::randomHex());
+        $event->setEntityType($entityType);
+        $event->setEntityId($entityId);
+        $event->setProductNumber($productNumber);
 
+        return $event;
+    }
+
+    /**
+     * @param list<ChangelogEntity> $events
+     */
+    private static function searchResult(array $events, Criteria $criteria, Context $context): EntitySearchResult
+    {
         return new EntitySearchResult(
             ChangelogEntity::class,
-            1,
-            new ChangelogCollection([$entity]),
+            count($events),
+            new ChangelogCollection($events),
             new AggregationResultCollection(),
             $criteria,
             $context,
         );
-    }
-
-    private static function categoryResult(Criteria $criteria, Context $context, string $id): EntitySearchResult
-    {
-        $entity = new ChangelogEntity();
-        $entity->setId($id);
-        $entity->setEntityType('category');
-        $entity->setEntityId('category-id-1');
-        $entity->setProductNumber(null);
-
-        return new EntitySearchResult(
-            ChangelogEntity::class,
-            1,
-            new ChangelogCollection([$entity]),
-            new AggregationResultCollection(),
-            $criteria,
-            $context,
-        );
-    }
-
-    private static function emptyResult(string $entity, Criteria $criteria, Context $context): EntitySearchResult
-    {
-        return new EntitySearchResult(
-            ChangelogEntity::class,
-            0,
-            new ChangelogCollection(),
-            new AggregationResultCollection(),
-            $criteria,
-            $context,
-        );
-    }
-
-    private function createDefinition(string $entityName): EntityDefinition
-    {
-        $definition = new class($entityName) extends EntityDefinition {
-            public function __construct(
-                private readonly string $entityName,
-            ) {
-            }
-
-            public function getEntityName(): string
-            {
-                return $this->entityName;
-            }
-
-            protected function defineFields(): FieldCollection
-            {
-                return new FieldCollection();
-            }
-        };
-
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
-
-        return $definition;
     }
 }
 

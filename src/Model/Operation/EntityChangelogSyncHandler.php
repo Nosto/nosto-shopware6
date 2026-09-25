@@ -26,7 +26,7 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -119,40 +119,50 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): int {
-        $criteria = NostoCriteriaFactory::create($metricPrefix . '.delete');
-        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
-
-        $iterator = new RepositoryIterator($this->entityChangelogRepository, $context, $criteria);
         $shouldLogExtra = $this->shouldLogExtra();
         $batchIndex = 0;
         $eventCount = 0;
         $payloadCount = 0;
         $scheduledChildCount = 0;
         $iteratorStartedAt = $shouldLogExtra ? microtime(true) : null;
+        $previousRowIds = null;
 
-        while (($events = $iterator->fetch()) !== null) {
+        // Each batch takes the oldest pending rows and removes exactly those rows once handled, so
+        // the next batch is always at the start of the result set. Paginating with an offset here
+        // would skip one batch for every batch handled. Rows are collapsed per entity for the
+        // payload, so an entity written several times within a batch is scheduled once.
+        while (($events = $this->fetchOldestEventBatch($entityType, $context))->count() > 0) {
+            $rowIds = array_values($events->getIds());
+            $sortedRowIds = $rowIds;
+            sort($sortedRowIds);
+
+            // Safety net: if a batch survives its delete, stop instead of looping over it forever.
+            if ($previousRowIds === $sortedRowIds) {
+                $this->logger->error(
+                    'Nosto: changelog batch was still present after deletion, aborting to avoid an endless loop.',
+                    [
+                        'entity_type' => $entityType,
+                        'batch_size' => count($rowIds),
+                    ],
+                );
+
+                break;
+            }
+
+            $previousRowIds = $sortedRowIds;
+
             ++$batchIndex;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $entityType === ProductDefinition::ENTITY_NAME || $entityType === 'order_placed' ?
-                $events->reduce(static function (array $result, ChangelogEntity $event): array {
-                    $result[$event->getEntityId()] = $event->getProductNumber();
-                    return $result;
-                }, []) :
-                $events->map(static fn (ChangelogEntity $event): string => $event->getEntityId());
+            $ids = $this->getPayloadFromBatch($entityType, $this->collapsePerEntity($events));
 
-            $batchEventCount = $events->count();
+            $batchEventCount = count($rowIds);
             $batchPayloadCount = count($ids);
             $eventCount += $batchEventCount;
             $payloadCount += $batchPayloadCount;
 
             $scheduledChildCount += $processCallback($ids);
-            $deleteDataSet = array_map(static fn ($id): array => [
-                'id' => $id,
-            ], array_values($events->getIds()));
             $deleteStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $this->entityChangelogRepository->delete($deleteDataSet, $context);
+            $this->deleteEvents($rowIds, $context);
 
             if ($shouldLogExtra && $deleteStartedAt !== null) {
                 $this->logDuration(
@@ -195,6 +205,82 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         }
 
         return $scheduledChildCount;
+    }
+
+    /**
+     * Reads the oldest pending rows of one entity type.
+     *
+     * Ordering is by primary key rather than by createdAt. Shopware generates UUIDv7, whose leading
+     * bits are a millisecond timestamp, so the key is already in creation order - at a finer
+     * resolution than createdAt, and without the ties a datetime column allows. InnoDB appends the
+     * primary key to every secondary index, so the existing entity_type index serves this ordering
+     * without a filesort.
+     */
+    private function fetchOldestEventBatch(string $entityType, Context $context): EntityCollection
+    {
+        $criteria = NostoCriteriaFactory::create('product_sync.changelog.batch');
+        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
+        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
+        $criteria->setLimit(self::BATCH_SIZE);
+
+        return $this->entityChangelogRepository->search($criteria, $context)->getEntities();
+    }
+
+    /**
+     * Collapses a batch so an entity written several times within it is scheduled once.
+     *
+     * @return array<string, string|null> entity id => product number
+     */
+    private function collapsePerEntity(EntityCollection $events): array
+    {
+        $batch = [];
+        /** @var ChangelogEntity $event */
+        foreach ($events as $event) {
+            // Rows arrive oldest first, so the last value seen is the most recent one in this batch.
+            $batch[$event->getEntityId()] = $event->getProductNumber();
+        }
+
+        return $batch;
+    }
+
+    /**
+     * @param array<string, string|null> $batch
+     * @return array<string, string|null>|list<string>
+     */
+    private function getPayloadFromBatch(string $entityType, array $batch): array
+    {
+        if ($entityType !== ProductDefinition::ENTITY_NAME
+            && $entityType !== EventsWriter::ORDER_ENTITY_PLACED_NAME
+        ) {
+            return array_keys($batch);
+        }
+
+        return $batch;
+    }
+
+    /**
+     * Removes exactly the rows that were read.
+     *
+     * Deleting by entity id instead would also remove rows written after the read - losing changes
+     * no later run would pick up - and would discard newer product numbers held by rows this batch
+     * did not see. Bounding that by a MAX(id) watermark is not safe either: UUIDv7 carries the
+     * writing host's clock, so a row written mid-run on a host running behind can sort below the
+     * watermark and be deleted unprocessed.
+     *
+     * @param list<string> $rowIds
+     */
+    private function deleteEvents(array $rowIds, Context $context): void
+    {
+        if ($rowIds === []) {
+            return;
+        }
+
+        $this->entityChangelogRepository->delete(
+            array_map(static fn (string $id): array => [
+                'id' => $id,
+            ], $rowIds),
+            $context,
+        );
     }
 
     private function processNewOrderEvents(Context $context, JobResult $result, string $parentJobId): int
