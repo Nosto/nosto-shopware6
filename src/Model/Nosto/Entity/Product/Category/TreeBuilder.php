@@ -6,10 +6,38 @@ namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class TreeBuilder
 {
     public const NAME_WITH_ID_TEMPLATE = '%s (ID = %s)';
+
+    /**
+     * Keeps only the categories that live under one of the sales channel's entry points
+     * (navigation, footer or service category), so paths from other channels' trees are not synced.
+     */
+    public function scopeToSalesChannel(
+        CategoryCollection $categoriesRo,
+        SalesChannelEntity $salesChannel,
+    ): CategoryCollection {
+        $entryPointIds = array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+        ]);
+
+        return $categoriesRo->filter(static function (CategoryEntity $category) use ($entryPointIds): bool {
+            foreach ($entryPointIds as $entryPointId) {
+                if ($category->getId() === $entryPointId
+                    || str_contains((string) $category->getPath(), '|' . $entryPointId . '|')
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
 
     /**
      * @return string[]

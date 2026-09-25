@@ -203,6 +203,17 @@ class ConfigProvider
         return is_array($value) ? $value : [];
     }
 
+    public function isEnabledScopeCategoriesToSalesChannel(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::SCOPE_CATEGORIES_TO_SALES_CHANNEL,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledProductSyncExtraLogging(
         ?string $channelId = null,
         ?string $languageId = null,

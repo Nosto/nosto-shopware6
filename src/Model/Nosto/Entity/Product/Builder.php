@@ -143,6 +143,12 @@ class Builder
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
+        if ($this->configProvider->isEnabledScopeCategoriesToSalesChannel($channelId, $languageId)) {
+            $productCategoriesRo = $this->treeBuilder->scopeToSalesChannel(
+                $productCategoriesRo,
+                $context->getSalesChannel(),
+            );
+        }
         $product->setCategoriesRo($productCategoriesRo);
 
         $nostoProduct->setAvailability($stockStatus);
