@@ -65,8 +65,12 @@ final class FullCatalogSyncHandlerTest extends TestCase
                     : null;
 
                 $rows = match ($productCalls) {
-                    1 => [$productId1 => 41],
-                    2 => [$productId2 => 42],
+                    1 => [
+                        $productId1 => 41,
+                    ],
+                    2 => [
+                        $productId2 => 42,
+                    ],
                     default => [],
                 };
 
