@@ -14,10 +14,8 @@ use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
 use Nosto\NostoIntegration\Async\OrderSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogDefinition;
-use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\{
     GeneratingHandlerInterface,
     JobHandlerInterface,
@@ -29,9 +27,6 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandlerInterface
@@ -41,7 +36,6 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     private const BATCH_SIZE = 100;
 
     public function __construct(
-        private readonly EntityRepository $entityChangelogRepository,
         private readonly Connection $connection,
         private readonly JobScheduler $jobScheduler,
         private readonly JobHelper $jobHelper,
@@ -122,6 +116,13 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         string $metricPrefix,
         callable $processCallback,
     ): int {
+        // Everything pending when this run starts. Rows written while it runs get a higher id and
+        // are left for the next run rather than being deleted unprocessed.
+        $watermark = $this->fetchWatermark($entityType);
+        if ($watermark === null) {
+            return 0;
+        }
+
         $shouldLogExtra = $this->shouldLogExtra();
         $batchIndex = 0;
         $eventCount = 0;
@@ -130,12 +131,8 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $iteratorStartedAt = $shouldLogExtra ? microtime(true) : null;
         $previousEntityIds = null;
 
-        // Each batch takes the oldest pending rows, collapses them per entity so an entity written
-        // many times is only scheduled once, and then removes every row of those entities. The next
-        // batch is therefore always at the start of the result set: paginating with an offset here
-        // would skip one batch for every batch handled.
-        while (($batch = $this->fetchOldestEventBatch($entityType, $context)) !== []) {
-            $entityIds = array_keys($batch);
+        while (($rows = $this->fetchOldestEventBatch($entityType, $watermark)) !== []) {
+            $entityIds = $this->collectEntityIds($rows);
             sort($entityIds);
 
             // Safety net: if a batch survives its delete, stop instead of looping over it forever.
@@ -155,16 +152,16 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
             ++$batchIndex;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getPayloadFromBatch($entityType, $batch);
+            $ids = $this->getPayloadFromBatch($entityType, $entityIds, $watermark);
 
+            $batchEventCount = count($rows);
             $batchPayloadCount = count($ids);
+            $eventCount += $batchEventCount;
             $payloadCount += $batchPayloadCount;
 
             $scheduledChildCount += $processCallback($ids);
             $deleteStartedAt = $shouldLogExtra ? microtime(true) : null;
-            // Counts every row removed, which includes rows of these entities beyond the ones read.
-            $batchEventCount = $this->deleteEventsByEntityIds($entityType, array_keys($batch));
-            $eventCount += $batchEventCount;
+            $this->deleteHandledEvents($entityType, $entityIds, $watermark);
 
             if ($shouldLogExtra && $deleteStartedAt !== null) {
                 $this->logDuration(
@@ -210,67 +207,148 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
     }
 
     /**
-     * Reads the oldest pending rows and collapses them per entity, so an entity that was written
-     * many times is only scheduled once.
+     * Highest changelog id for this entity type, captured once per run.
      *
-     * The grouping happens here rather than in SQL on purpose. A GROUP BY whose ORDER BY is an
-     * aggregate cannot push the LIMIT down, so the database would build and sort every pending
-     * group on every batch - spilling large result sets to an on-disk temporary table - instead of
-     * reading the first rows of an index and stopping.
-     *
-     * @return array<string, string|null> entity id => product number
+     * Shopware generates UUIDv7, whose leading bits are a millisecond timestamp, so the primary key
+     * is already in creation order. Everything at or below this id existed when the run started;
+     * anything written afterwards sorts above it and is left alone.
      */
-    private function fetchOldestEventBatch(string $entityType, Context $context): array
+    private function fetchWatermark(string $entityType): ?string
     {
-        $criteria = NostoCriteriaFactory::create('product_sync.changelog.batch');
-        $criteria->addFilter(new EqualsFilter('entityType', $entityType));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
-        $criteria->setLimit(self::BATCH_SIZE);
+        $watermark = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(MAX(`id`))) FROM `' . ChangelogDefinition::ENTITY_NAME . '`
+             WHERE `entity_type` = :entityType',
+            [
+                'entityType' => $entityType,
+            ],
+        );
 
-        $batch = [];
-        /** @var ChangelogEntity $event */
-        foreach ($this->entityChangelogRepository->search($criteria, $context) as $event) {
-            // Rows arrive oldest first, so the last value seen is the most recent one known.
-            $batch[$event->getEntityId()] = $event->getProductNumber();
-        }
-
-        return $batch;
+        return is_string($watermark) ? $watermark : null;
     }
 
     /**
-     * @param array<string, string|null> $batch
+     * @return list<array<string, mixed>>
+     */
+    private function fetchOldestEventBatch(string $entityType, string $watermark): array
+    {
+        return $this->connection->executeQuery(
+            'SELECT LOWER(HEX(`entity_id`)) AS entity_id
+             FROM `' . ChangelogDefinition::ENTITY_NAME . '`
+             WHERE `entity_type` = :entityType AND `id` <= :watermark
+             ORDER BY `id`
+             LIMIT ' . self::BATCH_SIZE,
+            [
+                'entityType' => $entityType,
+                'watermark' => Uuid::fromHexToBytes($watermark),
+            ],
+        )->fetchAllAssociative();
+    }
+
+    /**
+     * Collapses a batch to its distinct entities, so an entity written several times is scheduled
+     * once.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return list<string>
+     */
+    private function collectEntityIds(array $rows): array
+    {
+        $entityIds = [];
+        foreach ($rows as $row) {
+            $entityId = $row['entity_id'] ?? null;
+            if (is_string($entityId)) {
+                $entityIds[$entityId] = true;
+            }
+        }
+
+        return array_keys($entityIds);
+    }
+
+    /**
+     * @param list<string> $entityIds
      * @return array<string, string|null>|list<string>
      */
-    private function getPayloadFromBatch(string $entityType, array $batch): array
+    private function getPayloadFromBatch(string $entityType, array $entityIds, string $watermark): array
     {
         if ($entityType !== ProductDefinition::ENTITY_NAME
             && $entityType !== EventsWriter::ORDER_ENTITY_PLACED_NAME
         ) {
-            return array_keys($batch);
+            return $entityIds;
         }
 
-        return $batch;
+        return $this->fetchLatestProductNumbers($entityType, $entityIds, $watermark);
     }
 
     /**
-     * Removes every row of the given entities, including rows that were not read, so a processed
-     * entity cannot reappear in a later batch.
+     * Reads each entity's most recent product number across every pending row, not only the rows in
+     * this batch. Taking it from the batch alone would send a stale identifier whenever an entity
+     * has more pending rows than the batch size.
      *
      * @param list<string> $entityIds
-     * @return int number of rows removed
+     * @return array<string, string|null>
      */
-    private function deleteEventsByEntityIds(string $entityType, array $entityIds): int
+    private function fetchLatestProductNumbers(string $entityType, array $entityIds, string $watermark): array
     {
         if ($entityIds === []) {
-            return 0;
+            return [];
         }
 
-        return (int) $this->connection->executeStatement(
-            'DELETE FROM `' . ChangelogDefinition::ENTITY_NAME . '`
-             WHERE `entity_type` = :entityType
-             AND `entity_id` IN (:entityIds)',
+        $rows = $this->connection->executeQuery(
+            'SELECT LOWER(HEX(c.`entity_id`)) AS entity_id, c.`product_number` AS productNumber
+             FROM `' . ChangelogDefinition::ENTITY_NAME . '` c
+             INNER JOIN (
+                 SELECT `entity_id`, MAX(`id`) AS latest_id
+                 FROM `' . ChangelogDefinition::ENTITY_NAME . '`
+                 WHERE `entity_type` = :entityType
+                   AND `id` <= :watermark
+                   AND `entity_id` IN (:entityIds)
+                 GROUP BY `entity_id`
+             ) latest ON latest.`entity_id` = c.`entity_id` AND latest.`latest_id` = c.`id`',
             [
                 'entityType' => $entityType,
+                'watermark' => Uuid::fromHexToBytes($watermark),
+                'entityIds' => Uuid::fromHexToBytesList($entityIds),
+            ],
+            [
+                'entityIds' => ArrayParameterType::BINARY,
+            ],
+        )->fetchAllAssociative();
+
+        $payload = [];
+        foreach ($rows as $row) {
+            $entityId = $row['entity_id'] ?? null;
+            if (!is_string($entityId)) {
+                continue;
+            }
+
+            $productNumber = $row['productNumber'] ?? null;
+            $payload[$entityId] = is_string($productNumber) ? $productNumber : null;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Removes every pending row of the handled entities, including rows this batch did not read, so
+     * an entity written many times is scheduled once rather than once per batch it appears in. The
+     * watermark keeps rows written during the run untouched.
+     *
+     * @param list<string> $entityIds
+     */
+    private function deleteHandledEvents(string $entityType, array $entityIds, string $watermark): void
+    {
+        if ($entityIds === []) {
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'DELETE FROM `' . ChangelogDefinition::ENTITY_NAME . '`
+             WHERE `entity_type` = :entityType
+               AND `id` <= :watermark
+               AND `entity_id` IN (:entityIds)',
+            [
+                'entityType' => $entityType,
+                'watermark' => Uuid::fromHexToBytes($watermark),
                 'entityIds' => Uuid::fromHexToBytesList($entityIds),
             ],
             [

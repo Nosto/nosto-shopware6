@@ -348,18 +348,18 @@ class ProductHelper
             return [];
         }
 
-        $rows = $this->connection->createQueryBuilder()
-            ->select(
-                'LOWER(HEX(p.id)) AS id',
-                'p.product_number AS productNumber',
-            )
-            ->from('product', 'p')
-            ->where('p.id IN (:ids)')
-            ->andWhere('p.version_id = :versionId')
-            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY)
-            ->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()))
-            ->executeQuery()
-            ->fetchAllAssociative();
+        $rows = $this->connection->executeQuery(
+            'SELECT LOWER(HEX(`id`)) AS id, `product_number` AS productNumber
+             FROM `product`
+             WHERE `id` IN (:ids) AND `version_id` = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ],
+        )->fetchAllAssociative();
 
         $orderNumberMapping = [];
         foreach ($rows as $row) {

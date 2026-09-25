@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Operation;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Result as DbalResult;
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
-use Nosto\NostoIntegration\Entity\Changelog\ChangelogCollection;
-use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
@@ -20,73 +19,84 @@ use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 final class EntityChangelogSyncHandlerTest extends TestCase
 {
-    public function testExecuteSchedulesProductAndCategoryJobsAndDeletesProcessedRows(): void
+    public function testExecuteSchedulesJobsPerEntityAndDeletesUpToTheWatermark(): void
     {
         $context = Context::createDefaultContext();
         $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
 
         $productId = Uuid::randomHex();
         $categoryId = Uuid::randomHex();
-        $productCalls = 0;
-        $categoryCalls = 0;
+        $watermark = Uuid::randomHex();
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturnCallback(
-            function (Criteria $criteria, Context $context) use (
-                &$productCalls,
-                &$categoryCalls,
+        $batchCalls = [];
+        $connection = $this->createMock(Connection::class);
+
+        // Only product and category have anything pending; every other type is skipped.
+        $connection->method('fetchOne')->willReturnCallback(
+            static fn (string $sql, array $params = []): string|false => in_array(
+                $params['entityType'] ?? null,
+                ['product', 'category'],
+                true,
+            ) ? $watermark : false,
+        );
+
+        $connection->method('executeQuery')->willReturnCallback(
+            function (string $sql, array $params = [], array $types = []) use (
+                &$batchCalls,
                 $productId,
                 $categoryId
-            ): EntitySearchResult {
-                $entityType = self::extractEntityType($criteria);
+            ): DbalResult {
+                $entityType = $params['entityType'] ?? '';
+
+                // The latest-product-number lookup, not a batch read.
+                if (str_contains($sql, 'INNER JOIN')) {
+                    return $this->dbalResult([[
+                        'entity_id' => $productId,
+                        'productNumber' => 'SW-DEMO-NEWEST',
+                    ]]);
+                }
+
+                $batchCalls[$entityType] = ($batchCalls[$entityType] ?? 0) + 1;
+                if ($batchCalls[$entityType] > 1) {
+                    return $this->dbalResult([]);
+                }
 
                 if ($entityType === 'product') {
-                    ++$productCalls;
-                    if ($productCalls > 1) {
-                        return self::result([], $criteria, $context);
-                    }
-
-                    // Three rows for one product: they must collapse into a single payload entry,
-                    // and the newest product number must win.
-                    return self::result([
-                        self::event($productId, 'product', 'SW-DEMO-OLD'),
-                        self::event($productId, 'product', 'SW-DEMO-MID'),
-                        self::event($productId, 'product', 'SW-DEMO-1'),
-                    ], $criteria, $context);
+                    // Three rows for one product: they collapse into a single scheduled entity.
+                    return $this->dbalResult([
+                        [
+                            'entity_id' => $productId,
+                        ],
+                        [
+                            'entity_id' => $productId,
+                        ],
+                        [
+                            'entity_id' => $productId,
+                        ],
+                    ]);
                 }
 
                 if ($entityType === 'category') {
-                    ++$categoryCalls;
-                    if ($categoryCalls > 1) {
-                        return self::result([], $criteria, $context);
-                    }
-
-                    return self::result(
-                        [self::event($categoryId, 'category', null)],
-                        $criteria,
-                        $context,
-                    );
+                    return $this->dbalResult([[
+                        'entity_id' => $categoryId,
+                    ]]);
                 }
 
-                return self::result([], $criteria, $context);
+                return $this->dbalResult([]);
             },
         );
 
-        $connection = $this->createMock(Connection::class);
-
-        $deletedParams = [];
+        $deletes = [];
         $connection->method('executeStatement')->willReturnCallback(
-            static function (string $sql, array $params = [], array $types = []) use (&$deletedParams): int {
-                $deletedParams[] = $params;
+            static function (string $sql, array $params = [], array $types = []) use (&$deletes): int {
+                $deletes[] = [
+                    'sql' => $sql,
+                    'params' => $params,
+                ];
 
                 return 1;
             },
@@ -101,26 +111,12 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         );
 
         $jobHelperRecorder = new EntityChangelogJobHelperRecorder();
-        $jobHelper = new EntityChangelogRecordingJobHelper($jobHelperRecorder);
-
-        $account = $this->createMock(Account::class);
-        $account->method('getChannelId')->willReturn('channel-id');
-        $account->method('getLanguageId')->willReturn('language-id');
-
-        $accountProvider = $this->createMock(AccountProvider::class);
-        $accountProvider->method('all')->willReturn([$account]);
-
-        $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledMultiCurrency')->willReturn(false);
-        $configProvider->method('isEnabledProductSyncExtraLogging')->willReturn(false);
-
         $handler = new EntityChangelogSyncHandler(
-            $repository,
             $connection,
             $jobScheduler,
-            $jobHelper,
-            $configProvider,
-            $accountProvider,
+            new EntityChangelogRecordingJobHelper($jobHelperRecorder),
+            $this->configProvider(),
+            $this->accountProvider(),
             $this->createMock(LoggerInterface::class),
         );
 
@@ -130,20 +126,47 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         self::assertCount(2, $scheduledMessages);
         self::assertInstanceOf(ProductSyncMessage::class, $scheduledMessages[0]);
         self::assertInstanceOf(CategorySyncMessage::class, $scheduledMessages[1]);
-        // Three changelog rows, one scheduled product, newest product number kept.
+
+        // Three rows, one scheduled product, and the number comes from the latest pending row
+        // rather than from the newest row inside the batch.
         self::assertSame([
-            $productId => 'SW-DEMO-1',
+            $productId => 'SW-DEMO-NEWEST',
         ], $scheduledMessages[0]->getProductIds());
-        self::assertSame([
-            'entityType' => 'product',
-            'entityIds' => [Uuid::fromHexToBytes($productId)],
-        ], $deletedParams[0]);
-        self::assertSame([
-            'entityType' => 'category',
-            'entityIds' => [Uuid::fromHexToBytes($categoryId)],
-        ], $deletedParams[1]);
-        self::assertSame(2, $jobHelperRecorder->marks[1][1]);
-        self::assertTrue($jobHelperRecorder->marks[1][2]);
+        self::assertSame([$categoryId], array_values($scheduledMessages[1]->getCategoryIds()));
+
+        // Every delete is bounded by the watermark, so rows written mid-run are never removed.
+        self::assertNotEmpty($deletes);
+        foreach ($deletes as $delete) {
+            self::assertStringContainsString('`id` <= :watermark', $delete['sql']);
+            self::assertSame(Uuid::fromHexToBytes($watermark), $delete['params']['watermark']);
+        }
+        self::assertSame(
+            [Uuid::fromHexToBytes($productId)],
+            $deletes[0]['params']['entityIds'],
+        );
+    }
+
+    public function testExecuteSkipsEntityTypesWithNothingPending(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+        // Nothing pending means no batch is ever read and nothing is deleted.
+        $connection->expects(self::never())->method('executeQuery');
+        $connection->expects(self::never())->method('executeStatement');
+
+        $handler = new EntityChangelogSyncHandler(
+            $connection,
+            $this->createMock(JobScheduler::class),
+            new EntityChangelogRecordingJobHelper(new EntityChangelogJobHelperRecorder()),
+            $this->configProvider(),
+            $this->accountProvider(),
+            $this->createMock(LoggerInterface::class),
+        );
+
+        self::assertInstanceOf(JobResult::class, $handler->execute($message));
     }
 
     public function testExecuteStopsWhenABatchSurvivesItsDeletion(): void
@@ -151,25 +174,28 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
         $productId = Uuid::randomHex();
+        $watermark = Uuid::randomHex();
 
-        // The same row comes back every time: the delete never removes anything.
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use ($productId): EntitySearchResult {
-                if (self::extractEntityType($criteria) !== 'product') {
-                    return self::result([], $criteria, $context);
+        // The same entity comes back every time: the delete removes nothing.
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturnCallback(
+            static fn (string $sql, array $params = []): string|false
+                => ($params['entityType'] ?? null) === 'product' ? $watermark : false,
+        );
+        $connection->method('executeQuery')->willReturnCallback(
+            function (string $sql, array $params = [], array $types = []) use ($productId): DbalResult {
+                if (str_contains($sql, 'INNER JOIN')) {
+                    return $this->dbalResult([[
+                        'entity_id' => $productId,
+                        'productNumber' => 'SW-1',
+                    ]]);
                 }
 
-                return self::result(
-                    [self::event($productId, 'product', 'SW-DEMO-1')],
-                    $criteria,
-                    $context,
-                );
+                return $this->dbalResult([[
+                    'entity_id' => $productId,
+                ]]);
             },
         );
-
-        $connection = $this->createMock(Connection::class);
-        // Delete removes nothing, so the same batch would be returned forever.
         $connection->method('executeStatement')->willReturn(0);
 
         $scheduledMessages = [];
@@ -180,6 +206,48 @@ final class EntityChangelogSyncHandlerTest extends TestCase
             },
         );
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error');
+
+        $handler = new EntityChangelogSyncHandler(
+            $connection,
+            $jobScheduler,
+            new EntityChangelogRecordingJobHelper(new EntityChangelogJobHelperRecorder()),
+            $this->configProvider(),
+            $this->accountProvider(),
+            $logger,
+        );
+
+        $result = $handler->execute($message);
+
+        // Handled once, then the guard aborts instead of looping forever.
+        self::assertInstanceOf(JobResult::class, $result);
+        self::assertCount(1, $scheduledMessages);
+        self::assertInstanceOf(ProductSyncMessage::class, $scheduledMessages[0]);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     */
+    private function dbalResult(array $rows): DbalResult
+    {
+        $result = $this->createMock(DbalResult::class);
+        $result->method('fetchAllAssociative')->willReturn($rows);
+
+        return $result;
+    }
+
+    private function configProvider(): ConfigProvider
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledMultiCurrency')->willReturn(false);
+        $configProvider->method('isEnabledProductSyncExtraLogging')->willReturn(false);
+
+        return $configProvider;
+    }
+
+    private function accountProvider(): AccountProvider
+    {
         $account = $this->createMock(Account::class);
         $account->method('getChannelId')->willReturn('channel-id');
         $account->method('getLanguageId')->willReturn('language-id');
@@ -187,66 +255,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         $accountProvider = $this->createMock(AccountProvider::class);
         $accountProvider->method('all')->willReturn([$account]);
 
-        $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledMultiCurrency')->willReturn(false);
-        $configProvider->method('isEnabledProductSyncExtraLogging')->willReturn(false);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(self::once())->method('error');
-
-        $handler = new EntityChangelogSyncHandler(
-            $repository,
-            $connection,
-            $jobScheduler,
-            new EntityChangelogRecordingJobHelper(new EntityChangelogJobHelperRecorder()),
-            $configProvider,
-            $accountProvider,
-            $logger,
-        );
-
-        $result = $handler->execute($message);
-
-        // The batch is handled once, then the guard aborts instead of looping forever.
-        self::assertInstanceOf(JobResult::class, $result);
-        self::assertCount(1, $scheduledMessages);
-        self::assertInstanceOf(ProductSyncMessage::class, $scheduledMessages[0]);
-    }
-
-    private static function extractEntityType(Criteria $criteria): ?string
-    {
-        foreach ($criteria->getFilters() as $filter) {
-            if ($filter instanceof EqualsFilter && $filter->getField() === 'entityType') {
-                return (string) $filter->getValue();
-            }
-        }
-
-        return null;
-    }
-
-    private static function event(string $entityId, string $entityType, ?string $productNumber): ChangelogEntity
-    {
-        $event = new ChangelogEntity();
-        $event->setId(Uuid::randomHex());
-        $event->setEntityType($entityType);
-        $event->setEntityId($entityId);
-        $event->setProductNumber($productNumber);
-
-        return $event;
-    }
-
-    /**
-     * @param list<ChangelogEntity> $events
-     */
-    private static function result(array $events, Criteria $criteria, Context $context): EntitySearchResult
-    {
-        return new EntitySearchResult(
-            ChangelogEntity::class,
-            count($events),
-            new ChangelogCollection($events),
-            new AggregationResultCollection(),
-            $criteria,
-            $context,
-        );
+        return $accountProvider;
     }
 }
 
