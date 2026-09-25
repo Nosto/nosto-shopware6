@@ -20,11 +20,7 @@ class TreeBuilder
         CategoryCollection $categoriesRo,
         SalesChannelEntity $salesChannel,
     ): CategoryCollection {
-        $entryPointIds = array_filter([
-            $salesChannel->getNavigationCategoryId(),
-            $salesChannel->getFooterCategoryId(),
-            $salesChannel->getServiceCategoryId(),
-        ]);
+        $entryPointIds = $this->getSalesChannelEntryPointIds($salesChannel);
 
         return $categoriesRo->filter(static function (CategoryEntity $category) use ($entryPointIds): bool {
             foreach ($entryPointIds as $entryPointId) {
@@ -42,9 +38,23 @@ class TreeBuilder
     /**
      * @return string[]
      */
-    public function fromCategoriesRo(CategoryCollection $categoriesRo): array
+    public function getSalesChannelEntryPointIds(SalesChannelEntity $salesChannel): array
     {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
+        return array_values(array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+        ]));
+    }
+
+    /**
+     * @param string[] $entryPointIds when given, each path starts below the entry point it belongs to
+     *
+     * @return string[]
+     */
+    public function fromCategoriesRo(CategoryCollection $categoriesRo, array $entryPointIds = []): array
+    {
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $entryPointIds);
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
 
         $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
@@ -79,11 +89,13 @@ class TreeBuilder
     }
 
     /**
+     * @param string[] $entryPointIds when given, each path starts below the entry point it belongs to
+     *
      * @return string[]
      */
-    public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
+    public function fromCategoriesRoWithId(CategoryCollection $categoriesRo, array $entryPointIds = []): array
     {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $entryPointIds);
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
         $nostoCategoryNames = [];
         $nostoCategorySeoUrls = [];
@@ -120,12 +132,24 @@ class TreeBuilder
     }
 
     /**
+     * @param string[] $entryPointIds
+     *
      * @return string[][]
      */
-    private function getCategoryNameSets(CategoryCollection $categoriesRo): array
+    private function getCategoryNameSets(CategoryCollection $categoriesRo, array $entryPointIds = []): array
     {
         if ($categoriesRo->count() < 1) {
             return [];
+        }
+
+        if (!empty($entryPointIds)) {
+            return array_filter(array_map(
+                fn (CategoryEntity $category): array => $this->stripUpToEntryPoint(
+                    $category->getPlainBreadcrumb(),
+                    $entryPointIds,
+                ),
+                $categoriesRo->getElements(),
+            ));
         }
 
         $rootCategoryId = $categoriesRo
@@ -137,6 +161,29 @@ class TreeBuilder
             static fn (string $categoryId): bool => $categoryId !== $rootCategoryId,
             ARRAY_FILTER_USE_KEY,
         ), $categoriesRo->getElements()));
+    }
+
+    /**
+     * Drops the entry point and everything above it, so every tree of the sales channel
+     * (navigation, footer, service) produces paths relative to its own entry point.
+     *
+     * @param array<string, string> $breadcrumb
+     * @param string[] $entryPointIds
+     *
+     * @return array<string, string>
+     */
+    private function stripUpToEntryPoint(array $breadcrumb, array $entryPointIds): array
+    {
+        $position = 0;
+        $offset = null;
+        foreach (array_keys($breadcrumb) as $categoryId) {
+            $position++;
+            if (in_array($categoryId, $entryPointIds, true)) {
+                $offset = $position;
+            }
+        }
+
+        return $offset === null ? $breadcrumb : array_slice($breadcrumb, $offset, null, true);
     }
 
     /**

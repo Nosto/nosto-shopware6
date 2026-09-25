@@ -77,6 +77,89 @@ final class TreeBuilderTest extends TestCase
         );
     }
 
+    public function testEveryEntryPointIsStrippedWhenProductIsInNavigationAndFooterTrees(): void
+    {
+        $treeBuilder = new TreeBuilder();
+        $salesChannel = $this->createFrenchSalesChannel();
+        $categories = $treeBuilder->scopeToSalesChannel($this->createNavigationAndFooterCategories(), $salesChannel);
+        $entryPointIds = $treeBuilder->getSalesChannelEntryPointIds($salesChannel);
+
+        self::assertSame(
+            ['/Chaussures', '/Mentions'],
+            $treeBuilder->fromCategoriesRo($categories, $entryPointIds),
+        );
+        self::assertSame(
+            ['/Chaussures (ID = fr-shoes)', '/Mentions (ID = fr-legal)'],
+            $treeBuilder->fromCategoriesRoWithId($categories, $entryPointIds),
+        );
+    }
+
+    public function testNonRootEntryPointIsStrippedWithItsAncestors(): void
+    {
+        $categories = new CategoryCollection([
+            $this->createCategory('shop-root', null, null, [
+                'shop-root' => 'Root',
+            ]),
+            $this->createCategory('fr-root', 'shop-root', '|shop-root|', [
+                'shop-root' => 'Root',
+                'fr-root' => 'FR',
+            ]),
+            $this->createCategory('fr-shoes', 'fr-root', '|shop-root|fr-root|', [
+                'shop-root' => 'Root',
+                'fr-root' => 'FR',
+                'fr-shoes' => 'Chaussures',
+            ]),
+        ]);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setNavigationCategoryId('fr-root');
+
+        $treeBuilder = new TreeBuilder();
+        $scoped = $treeBuilder->scopeToSalesChannel($categories, $salesChannel);
+
+        self::assertSame(
+            ['/Chaussures'],
+            $treeBuilder->fromCategoriesRo($scoped, $treeBuilder->getSalesChannelEntryPointIds($salesChannel)),
+        );
+    }
+
+    public function testPathsAreUnchangedWithoutEntryPoints(): void
+    {
+        self::assertSame(
+            ['/Chaussures', '/Footer FR', '/Footer FR/Mentions'],
+            (new TreeBuilder())->fromCategoriesRo($this->createNavigationAndFooterCategories()),
+        );
+    }
+
+    private function createFrenchSalesChannel(): SalesChannelEntity
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setNavigationCategoryId('fr-root');
+        $salesChannel->setFooterCategoryId('fr-footer');
+
+        return $salesChannel;
+    }
+
+    private function createNavigationAndFooterCategories(): CategoryCollection
+    {
+        return new CategoryCollection([
+            $this->createCategory('fr-root', null, null, [
+                'fr-root' => 'FR',
+            ]),
+            $this->createCategory('fr-shoes', 'fr-root', '|fr-root|', [
+                'fr-root' => 'FR',
+                'fr-shoes' => 'Chaussures',
+            ]),
+            $this->createCategory('fr-footer', null, null, [
+                'fr-footer' => 'Footer FR',
+            ]),
+            $this->createCategory('fr-legal', 'fr-footer', '|fr-footer|', [
+                'fr-footer' => 'Footer FR',
+                'fr-legal' => 'Mentions',
+            ]),
+        ]);
+    }
+
     /**
      * @param array<string, string> $breadcrumb
      */
