@@ -150,6 +150,10 @@
                   "label": "Fallback-Mechanismus aktivieren",
                   "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
                 },
+                "scopeCategoriesToSalesChannel": {
+                    "label": "Nur Kategorien dieses Verkaufskanals synchronisieren",
+                    "helpText": "Überträgt nur die Kategoriepfade, die zum Navigations-, Footer- oder Service-Kategoriebaum dieses Verkaufskanals gehören. Wenn deaktiviert, werden alle dem Produkt zugewiesenen Kategoriepfade übertragen, auch die anderer Verkaufskanäle. Das Aktivieren ändert die in Nosto indexierten Kategoriepfade: Prüfen Sie Empfehlungen und Kategoriefilter, die darauf basieren, und führen Sie anschließend eine vollständige Produktsynchronisation durch."
+                },
                 "enableMultiCurrency": {
                     "label": "Mehrere Währungen aktivieren",
                     "helpText": "Bevor Sie diese Funktion aktivieren, setzen Sie den Rates-Token (API_RATES). Wenn aktiviert, werden Wechselkurssynchronisierung und währungsspezifische Suchanfragen verarbeitet. Stellen Sie sicher, dass Wechselkurse in Nosto aktiviert sind und mindestens einmal zu Nosto synchronisiert wurden."

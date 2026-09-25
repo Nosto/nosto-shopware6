@@ -143,6 +143,14 @@ class Builder
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $entryPointIds = [];
+        if ($this->configProvider->isEnabledScopeCategoriesToSalesChannel($channelId, $languageId)) {
+            $entryPointIds = $this->treeBuilder->getSalesChannelEntryPointIds($context->getSalesChannel());
+            $productCategoriesRo = $this->treeBuilder->scopeToSalesChannel(
+                $productCategoriesRo,
+                $context->getSalesChannel(),
+            );
+        }
         $product->setCategoriesRo($productCategoriesRo);
 
         $nostoProduct->setAvailability($stockStatus);
@@ -151,9 +159,12 @@ class Builder
             $channelId,
             $languageId,
         ) === CategoryNamingOptions::WITH_ID) {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId(
+                $product->getCategoriesRo(),
+                $entryPointIds,
+            );
         } else {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo(), $entryPointIds);
         }
 
         if (!empty($nostoCategoryNames)) {
