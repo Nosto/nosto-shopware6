@@ -21,8 +21,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -43,20 +45,42 @@ final class FullCatalogSyncHandlerTest extends TestCase
         // Products are paged with the DAL's own keyset iterator, one id per batch here.
         $productRepository = $this->createMock(EntityRepository::class);
         $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+        $incrementFilters = [];
+        $criteriaOffset = null;
         $productRepository->method('searchIds')->willReturnCallback(
             static function (Criteria $criteria, Context $context) use (
                 &$productCalls,
+                &$incrementFilters,
+                &$criteriaOffset,
                 $productId1,
                 $productId2
             ): IdSearchResult {
                 ++$productCalls;
-                $ids = match ($productCalls) {
-                    1 => [$productId1],
-                    2 => [$productId2],
+
+                // Record the cursor the iterator asked with, to prove it seeks rather than offsets.
+                $criteriaOffset = $criteria->getOffset();
+                $increment = $criteria->getFilters()['increment'] ?? null;
+                $incrementFilters[] = $increment instanceof RangeFilter
+                    ? ($increment->getParameter(RangeFilter::GT) ?? $increment->getParameter(RangeFilter::GTE))
+                    : null;
+
+                $rows = match ($productCalls) {
+                    1 => [$productId1 => 41],
+                    2 => [$productId2 => 42],
                     default => [],
                 };
 
-                return IdSearchResult::fromIds($ids, $criteria, $context);
+                $data = [];
+                foreach ($rows as $id => $autoIncrement) {
+                    $data[$id] = [
+                        'primaryKey' => $id,
+                        'data' => [
+                            'autoIncrement' => $autoIncrement,
+                        ],
+                    ];
+                }
+
+                return new IdSearchResult(count($data), $data, $criteria, $context);
             },
         );
 
@@ -133,6 +157,11 @@ final class FullCatalogSyncHandlerTest extends TestCase
         self::assertSame(['SW-DEMO-1'], array_values($scheduledMessages[0]->getProductIds()));
         self::assertSame(['SW-DEMO-2'], array_values($scheduledMessages[1]->getProductIds()));
         self::assertSame([$categoryId], array_values($scheduledMessages[2]->getCategoryIds()));
+        // Keyset, not offset: the first read starts at the bottom, each later read seeks past the
+        // previous batch's highest auto-increment, and the offset never moves.
+        self::assertSame([0, 41, 42], $incrementFilters);
+        self::assertNull($criteriaOffset, 'keyset paging never touches the offset');
+
         self::assertSame(3, $jobHelperRecorder->marks[1][1]);
         self::assertTrue($jobHelperRecorder->marks[1][2]);
     }
@@ -152,7 +181,9 @@ final class FullCatalogSyncHandlerTest extends TestCase
 
             protected function defineFields(): FieldCollection
             {
-                return new FieldCollection();
+                // product and category both declare this; RepositoryIterator only takes its
+                // keyset path when the definition has it.
+                return new FieldCollection([new AutoIncrementField()]);
             }
         };
 

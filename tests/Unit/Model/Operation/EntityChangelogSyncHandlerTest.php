@@ -139,10 +139,10 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         $repository->method('search')->willReturnCallback(
             static function (Criteria $criteria, Context $context) use ($productId, $rowId): EntitySearchResult {
                 if (self::extractEntityType($criteria) !== 'product') {
-                    return self::result([], $criteria, $context);
+                    return self::searchResult([], $criteria, $context);
                 }
 
-                return self::result([self::event($productId, 'product', 'SW-1', $rowId)], $criteria, $context);
+                return self::searchResult([self::event($productId, 'product', 'SW-1', $rowId)], $criteria, $context);
             },
         );
         $repository->method('delete')->willReturn(
@@ -185,7 +185,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
             $index = $calls[$entityType] ?? 0;
             $calls[$entityType] = $index + 1;
 
-            return self::result($batchesByType[$entityType][$index] ?? [], $criteria, $context);
+            return self::searchResult($batchesByType[$entityType][$index] ?? [], $criteria, $context);
         };
     }
 
@@ -274,7 +274,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
     /**
      * @param list<ChangelogEntity> $events
      */
-    private static function result(array $events, Criteria $criteria, Context $context): EntitySearchResult
+    private static function searchResult(array $events, Criteria $criteria, Context $context): EntitySearchResult
     {
         return new EntitySearchResult(
             ChangelogEntity::class,
