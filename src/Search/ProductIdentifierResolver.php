@@ -70,8 +70,16 @@ class ProductIdentifierResolver
 
     private function isExactIdentifierMatch(ProductEntity $product, string $query): bool
     {
-        return $product->getProductNumber() === $query
-            || $product->getEan() === $query
-            || $product->getManufacturerNumber() === $query;
+        $query = trim($query);
+
+        return $this->isIdentifierEqual($product->getProductNumber(), $query)
+            || $this->isIdentifierEqual($product->getEan(), $query)
+            || $this->isIdentifierEqual($product->getManufacturerNumber(), $query);
+    }
+
+    private function isIdentifierEqual(?string $identifier, string $query): bool
+    {
+        return $identifier !== null
+            && strcasecmp(trim($identifier), $query) === 0;
     }
 }
