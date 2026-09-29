@@ -4,23 +4,33 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TreeBuilder
 {
     public const NAME_WITH_ID_TEMPLATE = '%s (ID = %s)';
 
+    public function __construct(
+        private readonly ConfigProvider $configProvider,
+    ) {
+    }
+
     /**
-     * Keeps only the categories that live under one of the sales channel's entry points
-     * (navigation, footer or service category), so paths from other channels' trees are not synced.
+     * When category scoping is enabled for the sales channel, keeps only the categories that live under one of
+     * its entry points (navigation, footer or service category), so paths from other channels' trees are not
+     * synced. Returns the collection unchanged otherwise.
      */
     public function scopeToSalesChannel(
         CategoryCollection $categoriesRo,
-        SalesChannelEntity $salesChannel,
+        SalesChannelContext $context,
     ): CategoryCollection {
-        $entryPointIds = $this->getSalesChannelEntryPointIds($salesChannel);
+        $entryPointIds = $this->getScopedEntryPointIds($context);
+        if (empty($entryPointIds)) {
+            return $categoriesRo;
+        }
 
         return $categoriesRo->filter(static function (CategoryEntity $category) use ($entryPointIds): bool {
             foreach ($entryPointIds as $entryPointId) {
@@ -36,25 +46,13 @@ class TreeBuilder
     }
 
     /**
-     * @return string[]
-     */
-    public function getSalesChannelEntryPointIds(SalesChannelEntity $salesChannel): array
-    {
-        return array_values(array_filter([
-            $salesChannel->getNavigationCategoryId(),
-            $salesChannel->getFooterCategoryId(),
-            $salesChannel->getServiceCategoryId(),
-        ]));
-    }
-
-    /**
-     * @param string[] $entryPointIds when given, each path starts below the entry point it belongs to
+     * With category scoping enabled for the given context, each path starts below the entry point it belongs to.
      *
      * @return string[]
      */
-    public function fromCategoriesRo(CategoryCollection $categoriesRo, array $entryPointIds = []): array
+    public function fromCategoriesRo(CategoryCollection $categoriesRo, ?SalesChannelContext $context = null): array
     {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $entryPointIds);
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $this->getScopedEntryPointIds($context));
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
 
         $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
@@ -89,13 +87,15 @@ class TreeBuilder
     }
 
     /**
-     * @param string[] $entryPointIds when given, each path starts below the entry point it belongs to
+     * With category scoping enabled for the given context, each path starts below the entry point it belongs to.
      *
      * @return string[]
      */
-    public function fromCategoriesRoWithId(CategoryCollection $categoriesRo, array $entryPointIds = []): array
-    {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $entryPointIds);
+    public function fromCategoriesRoWithId(
+        CategoryCollection $categoriesRo,
+        ?SalesChannelContext $context = null,
+    ): array {
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $this->getScopedEntryPointIds($context));
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
         $nostoCategoryNames = [];
         $nostoCategorySeoUrls = [];
@@ -129,6 +129,27 @@ class TreeBuilder
         }
 
         return array_values($uniqueByName);
+    }
+
+    /**
+     * @return string[] empty when no context is given or category scoping is disabled
+     */
+    private function getScopedEntryPointIds(?SalesChannelContext $context): array
+    {
+        if ($context === null || !$this->configProvider->isEnabledScopeCategoriesToSalesChannel(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            return [];
+        }
+
+        $salesChannel = $context->getSalesChannel();
+
+        return array_values(array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+        ]));
     }
 
     /**
