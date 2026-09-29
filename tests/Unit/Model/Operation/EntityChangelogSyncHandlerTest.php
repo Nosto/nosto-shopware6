@@ -169,6 +169,83 @@ final class EntityChangelogSyncHandlerTest extends TestCase
     }
 
     /**
+     * The realistic shape of a stuck row: writes keep arriving, so every batch looks different,
+     * and only one row is repeated. Comparing whole batches would never spot it.
+     */
+    public function testExecuteStopsWhenOneRowSurvivesItsDeletionWhileOtherRowsChange(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+        $stuckRowId = Uuid::randomHex();
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use ($stuckRowId): EntitySearchResult {
+                if (self::extractEntityType($criteria) !== 'product') {
+                    return self::searchResult([], $criteria, $context);
+                }
+
+                return self::searchResult([
+                    self::event(Uuid::randomHex(), 'product', 'SW-STUCK', $stuckRowId),
+                    // A different row every time, as new writes land.
+                    self::event(Uuid::randomHex(), 'product', 'SW-FRESH'),
+                ], $criteria, $context);
+            },
+        );
+        $repository->method('delete')->willReturn(
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []),
+        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error');
+
+        $scheduled = [];
+        $handler = $this->handler($repository, $this->recordingScheduler($scheduled), $jobHelperRecorder, $logger);
+
+        $handler->execute($message);
+
+        // The first batch is handled, the second shows the repeat and aborts.
+        self::assertCount(1, $scheduled);
+    }
+
+    /**
+     * A run cannot be held open forever by rows arriving faster than they are handled: it stops at
+     * the batch limit and leaves the rest to the next scheduled run.
+     */
+    public function testExecuteStopsAtTheBatchLimitWhenRowsKeepArriving(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+
+        // Never empties, and never repeats a row id, so only the limit can end the loop.
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context): EntitySearchResult {
+                if (self::extractEntityType($criteria) !== 'product') {
+                    return self::searchResult([], $criteria, $context);
+                }
+
+                return self::searchResult([self::event(Uuid::randomHex(), 'product', 'SW-1')], $criteria, $context);
+            },
+        );
+        $repository->method('delete')->willReturn(
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []),
+        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning');
+        $logger->expects(self::never())->method('error');
+
+        $scheduled = [];
+        $handler = $this->handler($repository, $this->recordingScheduler($scheduled), $jobHelperRecorder, $logger);
+
+        $result = $handler->execute($message);
+
+        self::assertInstanceOf(JobResult::class, $result);
+        self::assertCount(1000, $scheduled, 'the run is bounded, and everything handled is still scheduled');
+    }
+
+    /**
      * Serves the given batches per entity type, in order, then empties.
      *
      * @param array<string, list<list<ChangelogEntity>>> $batchesByType

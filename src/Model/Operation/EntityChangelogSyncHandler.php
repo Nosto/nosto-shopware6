@@ -38,6 +38,12 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     private const BATCH_SIZE = 100;
 
+    /**
+     * Stops a run that can never finish because rows arrive faster than they are handled. Whatever
+     * is left is picked up by the next scheduled run rather than holding a worker indefinitely.
+     */
+    private const MAX_BATCHES_PER_RUN = 1000;
+
     public function __construct(
         private readonly EntityRepository $entityChangelogRepository,
         private readonly JobScheduler $jobScheduler,
@@ -132,24 +138,39 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         // would skip one batch for every batch handled. Rows are collapsed per entity for the
         // payload, so an entity written several times within a batch is scheduled once.
         while (($events = $this->fetchOldestEventBatch($entityType, $context))->count() > 0) {
-            $rowIds = array_values($events->getIds());
-            $sortedRowIds = $rowIds;
-            sort($sortedRowIds);
-
-            // Safety net: if a batch survives its delete, stop instead of looping over it forever.
-            if ($previousRowIds === $sortedRowIds) {
-                $this->logger->error(
-                    'Nosto: changelog batch was still present after deletion, aborting to avoid an endless loop.',
+            if ($batchIndex >= self::MAX_BATCHES_PER_RUN) {
+                $this->logger->warning(
+                    'Nosto: changelog run reached its batch limit, the rest is left for the next run.',
                     [
                         'entity_type' => $entityType,
-                        'batch_size' => count($rowIds),
+                        'batch_count' => $batchIndex,
+                        'event_count' => $eventCount,
                     ],
                 );
 
                 break;
             }
 
-            $previousRowIds = $sortedRowIds;
+            $rowIds = array_values($events->getIds());
+
+            // Safety net: every row read is deleted, so a row can only reappear in the next batch
+            // if its delete did not take effect. Comparing whole batches would miss a single stuck
+            // row while the rest of the batch keeps changing under concurrent writes.
+            $repeated = $previousRowIds === null ? [] : array_intersect($rowIds, $previousRowIds);
+            if ($repeated !== []) {
+                $this->logger->error(
+                    'Nosto: changelog rows were still present after deletion, aborting to avoid an endless loop.',
+                    [
+                        'entity_type' => $entityType,
+                        'batch_size' => count($rowIds),
+                        'repeated_rows' => count($repeated),
+                    ],
+                );
+
+                break;
+            }
+
+            $previousRowIds = $rowIds;
 
             ++$batchIndex;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
