@@ -24,6 +24,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_indexed_product_identifier_search %}
+            <sw-inherit-wrapper
+                :value="currentConfig['enableIndexedProductIdentifierSearch']"
+                :inheritedValue="configKey === null ? null : configs['null']['enableIndexedProductIdentifierSearch']"
+                @update:value="onUpdateValue('enableIndexedProductIdentifierSearch', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="enableIndexedProductIdentifierSearch"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.search-navigation.enableIndexedProductIdentifierSearch.label')"
+                        :help-text="$tc('nosto.configuration.search-navigation.enableIndexedProductIdentifierSearch.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('enableIndexedProductIdentifierSearch', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_navigation_active %}
             <sw-inherit-wrapper
                 :value="currentConfig['enableNavigation']"

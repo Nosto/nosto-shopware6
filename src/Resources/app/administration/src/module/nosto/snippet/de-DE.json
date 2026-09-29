@@ -181,6 +181,10 @@
                     "label": "Personalisierte Suche aktivieren",
                     "helpText": "Aktiviert die Integration der personalisierten Suchfunktion von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf die Suche in Ihrem Shop angewendet."
                 },
+                "enableIndexedProductIdentifierSearch": {
+                    "label": "Indizierte Produktsuche verwenden",
+                    "helpText": "Verwendet Shopwares Produkt-Suchindex, um eine exakte Produktnummer, EAN oder Herstellerartikelnummer aus einem Nosto-Suchergebnis aufzulösen. Aktivieren Sie diese Option, um vollständige Scans der Produkttabelle zu vermeiden."
+                },
                 "enableNavigation": {
                     "label": "Category Merchandising aktivieren",
                     "helpText": "Aktiviert die Integration des Kategorie Merchandisings von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf den Kategorieseiten in Ihrem Shop angewendet."
