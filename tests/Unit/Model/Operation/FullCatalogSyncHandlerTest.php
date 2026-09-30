@@ -113,7 +113,18 @@ final class FullCatalogSyncHandlerTest extends TestCase
             static function (Criteria $criteria, Context $context) use (&$categoryCalls, $categoryId): IdSearchResult {
                 ++$categoryCalls;
 
-                return IdSearchResult::fromIds($categoryCalls === 1 ? [$categoryId] : [], $criteria, $context);
+                // Built through the constructor rather than IdSearchResult::fromIds(), which was
+                // only added in a later 6.6 patch than the lowest version this plugin supports.
+                $data = $categoryCalls === 1
+                    ? [
+                        $categoryId => [
+                            'primaryKey' => $categoryId,
+                            'data' => [],
+                        ],
+                    ]
+                    : [];
+
+                return new IdSearchResult(count($data), $data, $criteria, $context);
             },
         );
 
