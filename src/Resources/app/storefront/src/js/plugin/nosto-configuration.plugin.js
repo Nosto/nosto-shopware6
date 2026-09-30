@@ -111,7 +111,7 @@ export default class NostoConfiguration extends window.PluginBaseClass {
         Iterator.iterate(instances, instance => {
             instance.$emitter.subscribe('addRecommendationToCart', (event) => {
                 window.nostojs(api => {
-                    api.recommendedProductAddedToCart(event.detail.productId, event.detail.elementId);
+                    api.reportAddToCart(event.detail, event.detail.elementId);
 
                     if (this.options.reloadRecommendations) {
                         api.loadRecommendations();
