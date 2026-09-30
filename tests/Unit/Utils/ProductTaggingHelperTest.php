@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests\Unit\Utils;
 
+use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -11,6 +12,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -316,6 +318,122 @@ final class ProductTaggingHelperTest extends TestCase
         )));
     }
 
+    public function testReturnsViewedVariantForProductTaggingWhenNoDisplayGroupCanBeResolved(): void
+    {
+        $groupAFirst = $this->createProduct(
+            'group-a-first-id',
+            'group-a-first-number',
+            null,
+            true,
+            false,
+            0,
+            displayGroup: 'group-a',
+        );
+        $groupBFirst = $this->createProduct(
+            'group-b-first-id',
+            'group-b-first-number',
+            null,
+            true,
+            false,
+            0,
+            displayGroup: 'group-b',
+        );
+        // The viewed variant does not carry a display group (e.g. it does not use the configured
+        // configurator-group property), so it cannot be matched to any of the groups above.
+        $viewedVariant = $this->createProduct('viewed-variant-id', 'viewed-variant-number');
+        $parent = $this->createProduct(
+            'parent-id',
+            'parent-number',
+            $this->createVariantConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            true,
+            false,
+            2,
+            new PartialProductCollection([$groupAFirst, $groupBFirst]),
+        );
+
+        // Stand in for the shopware product lookup keyed by the resolved product id so the tagging flow has
+        // a non-null result to hand to the partial product provider (a separate, pre-existing concern from
+        // the bug under test, which is that findProductId() must not throw before we even get this far).
+        $shopwareProductEntity = new \Shopware\Core\Content\Product\ProductEntity();
+        $shopwareProductEntity->setUniqueIdentifier('viewed-variant-id');
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('getProductStock')->willReturn(0);
+        $productHelper->expects(self::once())
+            ->method('getShopwareProductsPartial')
+            ->with(['viewed-variant-id'], self::anything())
+            ->willReturn(new \Shopware\Core\Content\Product\ProductCollection([$shopwareProductEntity]));
+
+        $nostoProduct = new NostoProduct();
+        $partialProductProvider = $this->createMock(PartialProvider::class);
+        $partialProductProvider->expects(self::once())->method('get')->willReturn($nostoProduct);
+
+        $helper = $this->createHelper(null, $productHelper, false, false, $partialProductProvider);
+        $context = $this->createContext();
+
+        // isProductTagging = true, isProductSync = false: this is the storefront "tag all SKUs" call
+        // (see product-tagging.html.twig) that previously crashed with
+        // "Call to undefined method PartialProductCollection::getId()".
+        $result = $helper->findProductId($context, $parent, $viewedVariant, true, false);
+
+        self::assertSame($nostoProduct, $result);
+    }
+
+    public function testReturnsViewedVariantIdentifierForOrderTaggingWhenNoDisplayGroupCanBeResolved(): void
+    {
+        $groupAFirst = $this->createProduct(
+            'group-a-first-id',
+            'group-a-first-number',
+            null,
+            true,
+            false,
+            0,
+            displayGroup: 'group-a',
+        );
+        $viewedVariant = $this->createProduct('viewed-variant-id', 'viewed-variant-number');
+        $parent = $this->createProduct(
+            'parent-id',
+            'parent-number',
+            $this->createVariantConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            true,
+            false,
+            1,
+            new PartialProductCollection([$groupAFirst]),
+        );
+
+        $helper = $this->createHelper();
+        $context = $this->createContext();
+
+        // isProductTagging = false, isProductSync = false: the order/cart tagging call
+        // (see order-tagging.html.twig, widget-cart-tagging.html.twig, Order\Item\Builder) which previously
+        // failed with a TypeError since getIdOrProductNumber() does not accept a PartialProductCollection.
+        $result = $helper->findProductId($context, $parent, $viewedVariant, false, false);
+
+        self::assertSame('viewed-variant-number', $result);
+    }
+
     public function testReturnsFirstAvailableVariantForSelectedConfiguratorGroupWhenEnabled(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
@@ -373,6 +491,7 @@ final class ProductTaggingHelperTest extends TestCase
         ?ProductHelper $productHelper = null,
         bool $syncFirstAvailable = false,
         bool $hideCloseoutProductsWhenOutOfStock = false,
+        ?PartialProvider $partialProductProvider = null,
     ): ProductTaggingHelper {
         $productHelper ??= $this->createMock(ProductHelper::class);
         $productHelper->method('getProductStock')->willReturn(0);
@@ -391,7 +510,7 @@ final class ProductTaggingHelperTest extends TestCase
         return new ProductTaggingHelper(
             $systemConfigService,
             $configProvider,
-            null,
+            $partialProductProvider,
             $productHelper,
         );
     }
