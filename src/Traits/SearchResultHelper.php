@@ -39,7 +39,32 @@ trait SearchResultHelper
             $salesChannelContext,
         );
 
-        return $this->fixResultOrder($result, $criteria);
+        return $this->applyNostoTotal($this->fixResultOrder($result, $criteria), $criteria);
+    }
+
+    /**
+     * The database lookup above is filtered to only the product ids Nosto returned for the
+     * current page, so its own total reflects just how many of those ids matched (at most the
+     * page size), not the real total for the query. The real total is stashed on the criteria
+     * by AbstractRequestHandler::setPagination(). Without this, Shopware's own pagination
+     * bounds check (PagingListingProcessor) sees a total capped at page size and treats every
+     * page beyond the first as out of range.
+     */
+    private function applyNostoTotal(EntitySearchResult $result, Criteria $criteria): EntitySearchResult
+    {
+        $pagination = $criteria->getExtension('nostoPagination');
+        if (!$pagination instanceof Pagination || $pagination->getTotal() === null) {
+            return $result;
+        }
+
+        return new EntitySearchResult(
+            $result->getEntity(),
+            $pagination->getTotal(),
+            $result->getEntities(),
+            $result->getAggregations(),
+            $result->getCriteria(),
+            $result->getContext(),
+        );
     }
 
     /**
