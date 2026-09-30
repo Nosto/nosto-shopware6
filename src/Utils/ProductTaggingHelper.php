@@ -93,6 +93,14 @@ class ProductTaggingHelper
             $productToReturn = $product;
         }
 
+        // Outside of product sync we need a single product (one storefront page, one order line item), but
+        // configurator-group handling can return a PartialProductCollection (one product per group) when the
+        // viewed/ordered variant doesn't resolve to a display group. Fall back to the variant/product we were
+        // actually asked about instead of returning an ambiguous collection.
+        if (!$isProductSync && $productToReturn instanceof PartialProductCollection) {
+            $productToReturn = $variant ?? $product;
+        }
+
         if ($isProductSync) {
             if ($productToReturn instanceof PartialProductCollection) {
                 $mainProducts = $productToReturn;
