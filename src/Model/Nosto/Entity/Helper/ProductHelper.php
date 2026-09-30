@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
@@ -22,7 +24,6 @@ use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -39,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
@@ -53,8 +55,8 @@ class ProductHelper
     private array $calculatedPriceCache = [];
 
     public function __construct(
+        private readonly Connection $connection,
         private readonly EntityRepository $productRepository,
-        private readonly AbstractProductDetailRoute $productRoute,
         private readonly EntityRepository $reviewRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ConfigProvider $configProvider,
@@ -337,17 +339,37 @@ class ProductHelper
     }
 
     /**
+     * @param array<string> $ids
      * @return array<string, string>
      */
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
-        $criteria = NostoCriteriaFactory::createWithIds($ids, 'product_sync.productHelper.loadOrderNumberMapping');
-        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        if ($ids === []) {
+            return [];
+        }
+
+        $rows = $this->connection->executeQuery(
+            'SELECT LOWER(HEX(`id`)) AS id, `product_number` AS productNumber
+             FROM `product`
+             WHERE `id` IN (:ids) AND `version_id` = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ],
+        )->fetchAllAssociative();
+
         $orderNumberMapping = [];
-        while (($result = $iterator->fetch()) !== null) {
-            foreach ($result as $product) {
-                $orderNumberMapping[$product->getId()] = $product->getProductNumber();
+        foreach ($rows as $row) {
+            $id = $row['id'] ?? null;
+            $productNumber = $row['productNumber'] ?? null;
+            if (!is_string($id) || !is_string($productNumber)) {
+                continue;
             }
+
+            $orderNumberMapping[$id] = $productNumber;
         }
 
         return $orderNumberMapping;
