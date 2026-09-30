@@ -129,6 +129,26 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block nosto_integration_scope_categories_to_sales_channel %}
+            <sw-inherit-wrapper
+                :value="currentConfig['scopeCategoriesToSalesChannel']"
+                :inheritedValue="configKey === null ? null : configs['null']['scopeCategoriesToSalesChannel']"
+                @update:value="onUpdateValue('scopeCategoriesToSalesChannel', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="scopeCategoriesToSalesChannel"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.scopeCategoriesToSalesChannel.label')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.scopeCategoriesToSalesChannel.helpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('scopeCategoriesToSalesChannel', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
         {% block nosto_integration_category_blocklist %}
             <sw-inherit-wrapper
                 :value="currentConfig['categoryBlocklist']"
