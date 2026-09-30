@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration;
 
 use Composer\Autoload\ClassLoader;
+use Nosto\Request\Http\HttpRequest;
 use Nosto\Scheduler\NostoScheduler;
 use ReflectionClass;
 use Shopware\Core\Framework\Bundle;
@@ -28,6 +29,51 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class NostoIntegration extends Plugin
 {
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->reportVersionsToNosto();
+    }
+
+    /**
+     * Makes the SDK send the plugin and Shopware versions to Nosto.
+     *
+     * The SDK puts these in the User-Agent header of every API call it makes, and Nosto stores them
+     * against the merchant's account.
+     */
+    private function reportVersionsToNosto(): void
+    {
+        self::classLoader();
+
+        $pluginVersion = $this->getPluginVersion();
+
+        // Both values end up in a header Nosto parses with a strict pattern, so send nothing at all
+        // rather than sending a placeholder it would silently discard.
+        if ($pluginVersion === null) {
+            return;
+        }
+
+        HttpRequest::buildUserAgent(
+            'Shopware',
+            (string) $this->container->getParameter('kernel.shopware_version'),
+            $pluginVersion,
+        );
+    }
+
+    private function getPluginVersion(): ?string
+    {
+        $composerPath = dirname($this->getPath()) . '/composer.json';
+
+        if (!is_file($composerPath)) {
+            return null;
+        }
+
+        $composer = json_decode((string) file_get_contents($composerPath), true);
+
+        return is_array($composer) && !empty($composer['version']) ? (string) $composer['version'] : null;
+    }
+
     public function install(InstallContext $installContext): void
     {
         (new Utils\Lifecycle($this->container, true))->install($installContext);

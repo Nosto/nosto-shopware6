@@ -1,3 +1,10 @@
+# 6.1.30
+* Fix: „Vary“ zur Anfrage hinzugefügt, um ein Caching-Problem zu beheben
+
+# 6.1.29
+* Neu: Unterstützung von Stichwort-Facetten
+* Neu: Plugin-Version an Nosto senden
+
 # 6.1.28
 * Fix: Sicherstellen, dass beim Löschen von Varianten in der Warteschlange bei der Produktsynchronisierung vollständige Produktnummernzuordnungen verwendet werden
 * Fix: Bei der Auflösung der Synchronisierungskonfiguration für die erste verfügbare Variante den Vertriebskanal und den Sprachkontext berücksichtigen

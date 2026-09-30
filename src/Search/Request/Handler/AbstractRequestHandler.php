@@ -72,6 +72,12 @@ abstract class AbstractRequestHandler
                 return;
             }
 
+            // Runs after the merchant redirect rules, which keep priority.
+            if ($canonical = $this->buildCanonicalFilterUrl($request, $criteria)) {
+                $this->handleRedirect($context, new Redirect($canonical, false));
+                return;
+            }
+
             $this->updateCriteriaWithProductIds($criteria, $responseParser);
             if (!is_null($criteria->getLimit()) && !is_null($criteria->getOffset())) {
                 $this->setPagination(
@@ -91,6 +97,22 @@ abstract class AbstractRequestHandler
                 ],
             );
         }
+    }
+
+    /**
+     * The mapping is only present once handleFiltersAndMapping() has run, which requires a
+     * non-empty product result. A zero-result filtered search therefore does not canonicalise.
+     */
+    private function buildCanonicalFilterUrl(Request $request, Criteria $criteria): ?string
+    {
+        $mapping = $criteria->getExtension('nostoFilterMapping');
+        $queryString = $request->server->get('QUERY_STRING');
+
+        return (new CanonicalFilterUrlBuilder())->build(
+            $request->getPathInfo(),
+            is_string($queryString) ? $queryString : null,
+            $mapping instanceof IdToFieldMapping ? $mapping : null,
+        );
     }
 
     private function handleFiltersAndMapping(
