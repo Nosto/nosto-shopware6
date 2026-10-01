@@ -277,7 +277,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $salesChannelContext->getSalesChannelId(),
                 $salesChannelContext->getLanguageId(),
             )
-                ? $this->productIdentifierResolver->resolveFromKeywordIndex($query, $request, $salesChannelContext)
+                ? $this->productIdentifierResolver->resolveFromKeywordIndex($query, $salesChannelContext)
                 : $this->productIdentifierResolver->resolveFromProductFields($query, $salesChannelContext);
             if ($productId !== null) {
                 $criteria->setIds([$productId]);

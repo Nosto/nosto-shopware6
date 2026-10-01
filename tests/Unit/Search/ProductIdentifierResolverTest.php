@@ -9,14 +9,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 final class ProductIdentifierResolverTest extends TestCase
 {
@@ -27,45 +27,54 @@ final class ProductIdentifierResolverTest extends TestCase
         ?string $ean,
         ?string $manufacturerNumber,
     ): void {
-        $request = new Request([
-            'search' => $query,
-        ]);
         $context = $this->createMock(SalesChannelContext::class);
-        $searchBuilder = $this->createMock(ProductSearchBuilderInterface::class);
-        $searchBuilder
-            ->expects(self::once())
-            ->method('build')
-            ->with(
-                $request,
-                self::callback(
-                    static fn (Criteria $criteria): bool => $criteria->getTitle() === 'Nosto.criteria::resolve-search-identifier'
-                        && $criteria->getLimit() === 100
-                        && $criteria->getFilters() === [],
-                ),
-                $context,
-            );
+        $context->method('getLanguageId')->willReturn('language-id');
 
-        $nonIdentifierMatch = $this->createProduct('a', 'A-1');
-        $identifierMatch = $this->createProduct('b', $productNumber, $ean, $manufacturerNumber);
         $repository = $this->createMock(SalesChannelRepository::class);
         $repository
             ->expects(self::once())
             ->method('search')
-            ->with(self::isInstanceOf(Criteria::class), $context)
-            ->willReturn($this->createSearchResult([$nonIdentifierMatch, $identifierMatch]));
+            ->with(
+                self::callback(function (Criteria $criteria) use ($query): bool {
+                    $filters = $criteria->getFilters();
 
-        $resolver = new ProductIdentifierResolver($repository, $searchBuilder);
+                    if ($criteria->getTitle() !== 'Nosto.criteria::resolve-search-identifier'
+                        || $criteria->getLimit() !== 100
+                        || count($filters) !== 1
+                        || !$filters[0] instanceof AndFilter
+                    ) {
+                        return false;
+                    }
 
-        self::assertSame('b', $resolver->resolveFromKeywordIndex($query, $request, $context));
+                    [$keywordFilter, $languageFilter] = $filters[0]->getQueries();
+
+                    return $keywordFilter instanceof EqualsFilter
+                        && $keywordFilter->getField() === 'product.searchKeywords.keyword'
+                        && $keywordFilter->getValue() === trim($query)
+                        && $languageFilter instanceof EqualsFilter
+                        && $languageFilter->getField() === 'product.searchKeywords.languageId'
+                        && $languageFilter->getValue() === 'language-id';
+                }),
+                $context,
+            )
+            ->willReturn($this->createSearchResult([
+                $this->createProduct('a', 'A-1'),
+                $this->createProduct('b', $productNumber, $ean, $manufacturerNumber),
+            ]));
+
+        self::assertSame(
+            'b',
+            (new ProductIdentifierResolver($repository))->resolveFromKeywordIndex(
+                $query,
+                $context,
+            ),
+        );
     }
 
     public function testDoesNotResolveAKeywordCandidateWithoutAnExactIdentifierMatch(): void
     {
-        $request = new Request([
-            'search' => 'shirt',
-        ]);
         $context = $this->createMock(SalesChannelContext::class);
-        $searchBuilder = $this->createMock(ProductSearchBuilderInterface::class);
+        $context->method('getLanguageId')->willReturn('language-id');
         $repository = $this->createMock(SalesChannelRepository::class);
         $repository
             ->expects(self::once())
@@ -73,11 +82,7 @@ final class ProductIdentifierResolverTest extends TestCase
             ->willReturn($this->createSearchResult([$this->createProduct('a', 'A-1')]));
 
         self::assertNull(
-            (new ProductIdentifierResolver($repository, $searchBuilder))->resolveFromKeywordIndex(
-                'shirt',
-                $request,
-                $context,
-            ),
+            (new ProductIdentifierResolver($repository))->resolveFromKeywordIndex('shirt', $context),
         );
     }
 
@@ -87,6 +92,8 @@ final class ProductIdentifierResolverTest extends TestCase
     public static function identifierMatches(): iterable
     {
         yield 'product number' => ['SW-123', 'SW-123', null, null];
+        yield 'Unicode product number, case-insensitive' => ['äbc', 'ÄBC', null, null];
+        yield 'product number with spaces' => ['ABC 123', 'ABC 123', null, null];
         yield 'EAN' => ['4012345678901', 'SW-123', '4012345678901', null];
         yield 'manufacturer number' => ['MFG-123', 'SW-123', null, 'MFG-123'];
     }
