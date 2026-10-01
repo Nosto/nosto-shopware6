@@ -9,23 +9,23 @@ use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Operation\FullCatalogSyncHandler;
 use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 final class FullCatalogSyncHandlerTest extends TestCase
@@ -35,49 +35,85 @@ final class FullCatalogSyncHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
 
-        $productRepository = $this->createMock(EntityRepository::class);
         $categoryRepository = $this->createMock(EntityRepository::class);
-        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
         $categoryRepository->method('getDefinition')->willReturn($this->createDefinition('category_test'));
 
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
         $productCalls = 0;
-        $productRepository->method('search')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$productCalls): EntitySearchResult {
+
+        // Products are paged with the DAL's own keyset iterator, one id per batch here.
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+        $incrementFilters = [];
+        $criteriaOffset = null;
+        $productRepository->method('searchIds')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (
+                &$productCalls,
+                &$incrementFilters,
+                &$criteriaOffset,
+                $productId1,
+                $productId2
+            ): IdSearchResult {
                 ++$productCalls;
-                $product = new PartialEntity([
-                    'id' => Uuid::randomHex(),
-                    'productNumber' => 'SW-DEMO-' . $productCalls,
-                ]);
 
-                $entities = $productCalls <= 2 ? [$product] : [];
+                // Record the cursor the iterator asked with, to prove it seeks rather than offsets.
+                $criteriaOffset = $criteria->getOffset();
+                $increment = $criteria->getFilters()['increment'] ?? null;
+                $incrementFilters[] = $increment instanceof RangeFilter
+                    ? ($increment->getParameter(RangeFilter::GT) ?? $increment->getParameter(RangeFilter::GTE))
+                    : null;
 
-                return new EntitySearchResult(
-                    PartialEntity::class,
-                    count($entities),
-                    new EntityCollection($entities),
-                    new AggregationResultCollection(),
-                    $criteria,
-                    $context,
-                );
+                $rows = match ($productCalls) {
+                    1 => [
+                        $productId1 => 41,
+                    ],
+                    2 => [
+                        $productId2 => 42,
+                    ],
+                    default => [],
+                };
+
+                $data = [];
+                foreach ($rows as $id => $autoIncrement) {
+                    $data[$id] = [
+                        'primaryKey' => $id,
+                        'data' => [
+                            'autoIncrement' => $autoIncrement,
+                        ],
+                    ];
+                }
+
+                return new IdSearchResult(count($data), $data, $criteria, $context);
+            },
+        );
+
+        // The id -> productNumber lookup is the ProductHelper's job, not the handler's.
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('loadOrderNumberMapping')->willReturnCallback(
+            static function (array $ids) use ($productId1, $productId2): array {
+                $numbers = [
+                    $productId1 => 'SW-DEMO-1',
+                    $productId2 => 'SW-DEMO-2',
+                ];
+                $mapping = [];
+                foreach ($ids as $id) {
+                    if (isset($numbers[$id])) {
+                        $mapping[$id] = $numbers[$id];
+                    }
+                }
+
+                return $mapping;
             },
         );
 
         $categoryCalls = 0;
-        $categoryRepository->method('search')->willReturnCallback(
-            static function (Criteria $criteria, Context $context) use (&$categoryCalls): EntitySearchResult {
+        $categoryId = Uuid::randomHex();
+        $categoryRepository->method('searchIds')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use (&$categoryCalls, $categoryId): IdSearchResult {
                 ++$categoryCalls;
-                $category = new CategoryEntity();
-                $category->setId(Uuid::randomHex());
-                $entities = $categoryCalls === 1 ? [$category] : [];
 
-                return new EntitySearchResult(
-                    CategoryEntity::class,
-                    count($entities),
-                    new EntityCollection($entities),
-                    new AggregationResultCollection(),
-                    $criteria,
-                    $context,
-                );
+                return IdSearchResult::fromIds($categoryCalls === 1 ? [$categoryId] : [], $criteria, $context);
             },
         );
 
@@ -101,7 +137,7 @@ final class FullCatalogSyncHandlerTest extends TestCase
         $account->method('getChannelId')->willReturn('channel-id');
         $account->method('getLanguageId')->willReturn('language-id');
 
-        $accountProvider = $this->createMock(\Nosto\NostoIntegration\Model\Nosto\Account\Provider::class);
+        $accountProvider = $this->createMock(AccountProvider::class);
         $accountProvider->method('all')->willReturn([$account]);
 
         $handler = new FullCatalogSyncHandler(
@@ -111,6 +147,7 @@ final class FullCatalogSyncHandlerTest extends TestCase
             $jobHelper,
             $configProvider,
             $accountProvider,
+            $productHelper,
             $this->createMock(LoggerInterface::class),
         );
 
@@ -123,6 +160,12 @@ final class FullCatalogSyncHandlerTest extends TestCase
         self::assertInstanceOf(CategorySyncMessage::class, $scheduledMessages[2]);
         self::assertSame(['SW-DEMO-1'], array_values($scheduledMessages[0]->getProductIds()));
         self::assertSame(['SW-DEMO-2'], array_values($scheduledMessages[1]->getProductIds()));
+        self::assertSame([$categoryId], array_values($scheduledMessages[2]->getCategoryIds()));
+        // Keyset, not offset: the first read starts at the bottom, each later read seeks past the
+        // previous batch's highest auto-increment, and the offset never moves.
+        self::assertSame([0, 41, 42], $incrementFilters);
+        self::assertNull($criteriaOffset, 'keyset paging never touches the offset');
+
         self::assertSame(3, $jobHelperRecorder->marks[1][1]);
         self::assertTrue($jobHelperRecorder->marks[1][2]);
     }
@@ -142,7 +185,9 @@ final class FullCatalogSyncHandlerTest extends TestCase
 
             protected function defineFields(): FieldCollection
             {
-                return new FieldCollection();
+                // product and category both declare this; RepositoryIterator only takes its
+                // keyset path when the definition has it.
+                return new FieldCollection([new AutoIncrementField()]);
             }
         };
 

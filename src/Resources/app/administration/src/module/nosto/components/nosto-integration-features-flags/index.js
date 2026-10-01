@@ -173,6 +173,7 @@ Component.register('nosto-integration-features-flags', {
                 crossSellingSync: 'no-sync',
                 categoryNaming: 'no-id',
                 categoryBlocklist: [],
+                scopeCategoriesToSalesChannel: false,
                 inventory: false,
                 customerDataToNosto: true,
                 syncInactiveProducts: false,
