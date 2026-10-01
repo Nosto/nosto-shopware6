@@ -6,12 +6,11 @@ namespace Nosto\NostoIntegration\Search;
 
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Resolves an exact product identifier through Shopware's search-keyword index.
@@ -25,21 +24,23 @@ class ProductIdentifierResolver
 
     public function __construct(
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly ProductSearchBuilderInterface $searchBuilder,
     ) {
     }
 
     public function resolveFromKeywordIndex(
         string $query,
-        Request $request,
         SalesChannelContext $salesChannelContext,
     ): ?string {
         $criteria = NostoCriteriaFactory::create('criteria::resolve-search-identifier');
         $criteria->setLimit(self::CANDIDATE_LIMIT);
+        $query = trim($query);
 
-        // ProductSearchBuilder queries product_search_keyword, which already contains
-        // inherited product number, EAN and manufacturer-number values.
-        $this->searchBuilder->build($request, $criteria, $salesChannelContext);
+        // Query the complete identifier directly. ProductSearchBuilder tokenizes terms
+        // in AND-search mode, so it cannot find identifiers containing spaces.
+        $criteria->addFilter(new AndFilter([
+            new EqualsFilter('product.searchKeywords.keyword', $query),
+            new EqualsFilter('product.searchKeywords.languageId', $salesChannelContext->getLanguageId()),
+        ]));
 
         foreach ($this->salesChannelProductRepository->search(
             $criteria,
@@ -80,6 +81,6 @@ class ProductIdentifierResolver
     private function isIdentifierEqual(?string $identifier, string $query): bool
     {
         return $identifier !== null
-            && strcasecmp(trim($identifier), $query) === 0;
+            && mb_strtolower(trim($identifier)) === mb_strtolower($query);
     }
 }
