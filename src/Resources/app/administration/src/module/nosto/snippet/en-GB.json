@@ -150,6 +150,10 @@
                   "label": "Enable fallback mechanism",
                   "helpText": "If this checkbox is selected, the system will use the default Shopware search or category when Nosto returns no results."
                 },
+                "scopeCategoriesToSalesChannel": {
+                    "label": "Only sync categories of this sales channel",
+                    "helpText": "Send only the category paths that belong to the navigation, footer or service category tree of this sales channel. When disabled, all category paths assigned to the product are sent, including those of other sales channels. Enabling this changes the category paths indexed in Nosto: review recommendations and category filters that rely on them and run a full product sync afterwards."
+                },
                 "enableMultiCurrency": {
                     "label": "Enable multi currency",
                     "helpText": "Before enabling this feature, set Rates-Token (API_RATES). When enabled, exchange-rate sync and currency-specific search requests are processed. Make sure you have exchange rates enabled on Nosto, and exchange rates have been synced at least once to Nosto."

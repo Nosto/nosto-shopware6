@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Nosto\Entity\Helper;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Result as DbalResult;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -522,15 +524,109 @@ final class ProductHelperTest extends TestCase
         return false;
     }
 
+    public function testLoadOrderNumberMappingReturnsEmptyArrayWithoutQueryingForNoIds(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::never())->method('executeQuery');
+
+        $helper = $this->createHelper(connection: $connection);
+
+        self::assertSame([], $helper->loadOrderNumberMapping([], Context::createDefaultContext()));
+    }
+
+    public function testLoadOrderNumberMappingBindsBinaryIdsAndKeysResultsByHexId(): void
+    {
+        $idA = Uuid::randomHex();
+        $idB = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $captured = [];
+        $result = $this->createMock(DbalResult::class);
+        $result->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => $idA,
+                'productNumber' => 'SW-1',
+            ],
+            [
+                'id' => $idB,
+                'productNumber' => 'SW-2',
+            ],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('executeQuery')->willReturnCallback(
+            static function (string $sql, array $params = [], array $types = []) use (&$captured, $result): DbalResult {
+                $captured = [
+                    'sql' => $sql,
+                    'params' => $params,
+                    'types' => $types,
+                ];
+
+                return $result;
+            },
+        );
+
+        $helper = $this->createHelper(connection: $connection);
+        $mapping = $helper->loadOrderNumberMapping([$idA, $idB], $context);
+
+        self::assertSame([
+            $idA => 'SW-1',
+            $idB => 'SW-2',
+        ], $mapping);
+
+        // Ids go to the database as binary, not as hex strings.
+        self::assertSame(
+            [Uuid::fromHexToBytes($idA), Uuid::fromHexToBytes($idB)],
+            $captured['params']['ids'],
+        );
+        self::assertSame(ArrayParameterType::BINARY, $captured['types']['ids']);
+
+        // The context version is respected, so a non-live context cannot pick up live rows.
+        self::assertSame(Uuid::fromHexToBytes($context->getVersionId()), $captured['params']['versionId']);
+        self::assertStringContainsString('version_id', $captured['sql']);
+    }
+
+    public function testLoadOrderNumberMappingSkipsRowsWithoutAUsableProductNumber(): void
+    {
+        $idA = Uuid::randomHex();
+        $idB = Uuid::randomHex();
+
+        $result = $this->createMock(DbalResult::class);
+        $result->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => $idA,
+                'productNumber' => 'SW-1',
+            ],
+            [
+                'id' => $idB,
+                'productNumber' => null,
+            ],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('executeQuery')->willReturn($result);
+
+        $helper = $this->createHelper(connection: $connection);
+
+        // A row without a product number is dropped rather than mapped to null.
+        self::assertSame(
+            [
+                $idA => 'SW-1',
+            ],
+            $helper->loadOrderNumberMapping([$idA, $idB], Context::createDefaultContext()),
+        );
+    }
+
     private function createHelper(
         ?EntityRepository $productRepository = null,
         ?ConfigProvider $configProvider = null,
         ?SalesChannelRepository $salesChannelRepository = null,
         ?EntityRepository $reviewRepository = null,
+        ?Connection $connection = null,
     ): ProductHelper {
         $productRepository ??= $this->createMock(EntityRepository::class);
         $configProvider ??= $this->createMock(ConfigProvider::class);
-        $productRoute = $this->createMock(AbstractProductDetailRoute::class);
+        $connection ??= $this->createMock(Connection::class);
         $reviewRepository ??= $this->createMock(EntityRepository::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $seoUrlReplacer = $this->createMock(\Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface::class);
@@ -539,8 +635,8 @@ final class ProductHelperTest extends TestCase
         $router->method('getContext')->willReturn(new \Symfony\Component\Routing\RequestContext());
 
         return new ProductHelper(
+            $connection,
             $productRepository,
-            $productRoute,
             $reviewRepository,
             $eventDispatcher,
             $configProvider,
