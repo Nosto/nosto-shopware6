@@ -64,6 +64,17 @@ class ConfigProvider
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
     }
 
+    public function isIndexedProductIdentifierSearchEnabled(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_INDEXED_PRODUCT_IDENTIFIER_SEARCH,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isNavigationEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_NAVIGATION, $channelId, $languageId);
