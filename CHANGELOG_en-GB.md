@@ -1,3 +1,11 @@
+# 6.1.31
+* Fix: Add indexed product identifier lookup
+* Fix: Fixed skipped product and category changes during sync and improved catalog sync speed and memory usage
+* Fix: "ProductHelper" and "FullCatalogSyncHandler" now take different constructor arguments, so custom code extending them needs updating
+* Fix: The search page loader is no longer overridden, so other search extensions keep working when Nosto search is not active for a request
+* Fix: Prevent pages beyond the first from redirecting back to page one on search
+* New: Optional setting to send only the categories belonging to a sales channel — this changes the category paths in Nosto, so run a full product sync after enabling it
+
 # 6.1.30
 * Fix: Add vary to request to fix caching issue
 
