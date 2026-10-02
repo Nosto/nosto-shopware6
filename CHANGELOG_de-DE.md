@@ -1,3 +1,11 @@
+# 6.1.31
+* Fix: Suche nach indizierter Produktkennung hinzufügen
+* Fix: Das Problem, dass Produkt- und Kategorieänderungen während der Synchronisierung übersprungen wurden, wurde behoben, und die Geschwindigkeit der Katalogsynchronisierung sowie die Speicherauslastung wurden verbessert.
+* Fix: „ProductHelper“ und „FullCatalogSyncHandler“ nehmen nun unterschiedliche Konstruktorargumente entgegen, sodass benutzerdefinierter Code, der diese Klassen erweitert, angepasst werden muss
+* Fix: Der Ladevorgang der Suchseite wird nicht mehr überschrieben, sodass andere Sucherweiterungen weiterhin funktionieren, wenn die Nosto-Suche für eine Anfrage nicht aktiv ist.
+* Fix: Verhindern, dass Seiten, die über die erste Seite hinausgehen, bei der Suche zurück zur ersten Seite weitergeleitet werden
+* Neu: Optionale Einstellung, um nur die zu einem Vertriebskanal gehörenden Kategorien zu senden – dies ändert die Kategoriepfade in Nosto führen Sie daher nach der Aktivierung eine vollständige Produktsynchronisierung durch
+
 # 6.1.30
 * Fix: „Vary“ zur Anfrage hinzugefügt, um ein Caching-Problem zu beheben
 
