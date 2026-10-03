@@ -127,8 +127,17 @@ class NostoConfigService
     ) {
     }
 
+    private function hasConfigTable(): bool
+    {
+        return $this->connection->createSchemaManager()->tablesExist(['nosto_integration_config']);
+    }
+
     public function get(string $key, ?string $salesChannelId = null, ?string $languageId = null): mixed
     {
+        if (!$this->hasConfigTable()) {
+            return null;
+        }
+
         $this->load($salesChannelId, $languageId);
         $configKey = $this->buildConfigKey($salesChannelId, $languageId);
 
@@ -190,6 +199,10 @@ class NostoConfigService
      */
     public function getConfig(?string $salesChannelId = null, ?string $languageId = null): array
     {
+        if (!$this->hasConfigTable()) {
+            return [];
+        }
+
         $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId);
         $databaseConfigs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
@@ -225,6 +238,10 @@ class NostoConfigService
      */
     public function set(string $key, mixed $value, ?string $salesChannelId = null, ?string $languageId = null): void
     {
+        if (!$this->hasConfigTable()) {
+            return;
+        }
+
         $this->configs = [];
         $key = trim($key);
         $this->validate($key, $salesChannelId, $languageId);
@@ -301,6 +318,10 @@ class NostoConfigService
      */
     private function getId(string $key, ?string $salesChannelId = null, ?string $languageId = null): ?string
     {
+        if (!$this->hasConfigTable()) {
+            return null;
+        }
+
         $queryBuilder = $this->fetchDefaultQueryBuilder($salesChannelId, $languageId, $key);
         $queryBuilder->addSelect('id');
 
@@ -348,6 +369,15 @@ class NostoConfigService
 
     private function load(?string $salesChannelId = null, ?string $languageId = null): void
     {
+        if (!$this->hasConfigTable()) {
+            $this->configs[self::PARENT_CONFIG_KEY] = [];
+
+            $key = $this->buildConfigKey($salesChannelId, $languageId);
+            $this->configs[$key] = [];
+
+            return;
+        }
+
         if (!isset($this->configs[self::PARENT_CONFIG_KEY])) {
             $this->configs[self::PARENT_CONFIG_KEY] = $this->getConfig();
         }
