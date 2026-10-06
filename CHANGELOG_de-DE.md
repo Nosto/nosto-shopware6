@@ -1,3 +1,6 @@
+# 5.2.30
+* Fix: frontend.cms.page.full-Route schlägt mit „controller not callable“ fehl
+
 # 5.2.29
 * Fix: Suche nach indizierter Produktkennung hinzufügen
 * Fix: Das Problem, dass Produkt- und Kategorieänderungen während der Synchronisierung übersprungen wurden, wurde behoben, und die Geschwindigkeit der Katalogsynchronisierung sowie die Speicherauslastung wurden verbessert.

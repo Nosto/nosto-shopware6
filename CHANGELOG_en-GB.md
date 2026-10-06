@@ -1,3 +1,6 @@
+# 5.2.30
+* Fix: frontend.cms.page.full route failing with "controller not callable"
+
 # 5.2.29
 * Fix: Add indexed product identifier lookup
 * Fix: Fixed skipped product and category changes during sync and improved catalog sync speed and memory usage
