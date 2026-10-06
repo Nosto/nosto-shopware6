@@ -1,3 +1,6 @@
+# 3.6.17
+* Fix: frontend.cms.page.full route failing with "controller not callable"
+
 # 3.6.16
 * Fix: Add vary to request to fix caching issue
 
