@@ -35,6 +35,11 @@ use Twig\TwigFunction;
 
 class NostoExtension extends AbstractExtension
 {
+    /**
+     * @var \WeakMap<SalesChannelContext, array<string, string|NostoProduct>>
+     */
+    private \WeakMap $mainProductIdentifierCache;
+
     public function __construct(
         private readonly ProductProviderInterface $productProvider,
         private readonly PartialProvider $partialProductProvider,
@@ -48,6 +53,7 @@ class NostoExtension extends AbstractExtension
         private readonly CategoryBuilder $nostoCategoryBuilder,
         private readonly ProductHelper $productHelper,
     ) {
+        $this->mainProductIdentifierCache = new \WeakMap();
     }
 
     /**
@@ -142,6 +148,12 @@ class NostoExtension extends AbstractExtension
         SalesChannelContext $context,
         bool $isProductTagging = false,
     ): string|NostoProduct {
+        $cacheKey = sprintf('%s-%s-%d', $id, $variantId, (int) $isProductTagging);
+        $contextCache = $this->mainProductIdentifierCache[$context] ?? [];
+        if (array_key_exists($cacheKey, $contextCache)) {
+            return $contextCache[$cacheKey];
+        }
+
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
@@ -178,16 +190,18 @@ class NostoExtension extends AbstractExtension
             $mainProduct = PartialProductConverter::toPartialProduct($mainProduct);
         }
 
-        /** @var PartialProduct $variantFromDb */
-        $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
-        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
-        $criteria->addFields(ProductFieldSets::productFields());
+        $variantFromDb = $mainProduct?->getChildren()?->get($variantId);
+        if (!$variantFromDb instanceof PartialProduct) {
+            $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
+            $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
+            $criteria->addFields(ProductFieldSets::productFields());
 
-        $variantFromDb = $this->productRepository
-            ->search($criteria, $context->getContext())
-            ->first();
-        if ($variantFromDb instanceof PartialEntity && !$variantFromDb instanceof PartialProduct) {
-            $variantFromDb = PartialProductConverter::toPartialProduct($variantFromDb);
+            $variantFromDb = $this->productRepository
+                ->search($criteria, $context->getContext())
+                ->first();
+            if ($variantFromDb instanceof PartialEntity && !$variantFromDb instanceof PartialProduct) {
+                $variantFromDb = PartialProductConverter::toPartialProduct($variantFromDb);
+            }
         }
 
         $productTaggingHelper = new ProductTaggingHelper(
@@ -197,7 +211,11 @@ class NostoExtension extends AbstractExtension
             $this->productHelper,
         );
 
-        return $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
+        $result = $productTaggingHelper->findProductId($context, $mainProduct, $variantFromDb, $isProductTagging);
+        $contextCache[$cacheKey] = $result;
+        $this->mainProductIdentifierCache[$context] = $contextCache;
+
+        return $result;
     }
 
     public function getPageType($activeRoute, $pageCmsType): string

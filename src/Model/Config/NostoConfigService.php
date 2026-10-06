@@ -121,6 +121,8 @@ class NostoConfigService
 
     private array $configs = [];
 
+    private ?bool $configTableExists = null;
+
     public function __construct(
         private readonly Connection $connection,
     ) {
@@ -128,7 +130,9 @@ class NostoConfigService
 
     private function hasConfigTable(): bool
     {
-        return $this->connection->createSchemaManager()->tableExists('nosto_integration_config');
+        return $this->configTableExists ??= $this->connection
+            ->createSchemaManager()
+            ->tableExists('nosto_integration_config');
     }
 
     public function get(string $key, ?string $salesChannelId = null, ?string $languageId = null): mixed
