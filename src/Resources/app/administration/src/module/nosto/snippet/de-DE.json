@@ -119,6 +119,8 @@
                   "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Gecachte Antworten variieren je nach Besucher-Cookies, damit die Personalisierung nicht zwischen Besuchern geteilt wird. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden."
                 },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
+                "deriveParentStockFromVariants": "Lagerbestand des Hauptprodukts aus aktiven Varianten ableiten",
+                "deriveParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, werden Bestand und Verfügbarkeit aus dem konfigurierten Lagerfeld seiner aktiven Varianten abgeleitet.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",

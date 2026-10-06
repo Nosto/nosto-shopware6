@@ -611,6 +611,38 @@ class ProductHelper
         ProductEntity|SalesChannelProductEntity|PartialProduct $product,
         SalesChannelContext $context,
     ): int {
+        $stock = $this->getDirectProductStock($product, $context);
+        if (
+            !$this->configProvider->isEnabledDeriveParentStockFromVariants(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            )
+            || $product->getParentId() !== null
+        ) {
+            return $stock;
+        }
+
+        $children = $product->getChildren();
+        if (!$children || $children->count() === 0) {
+            return $stock;
+        }
+
+        $derivedStock = 0;
+        foreach ($children as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            $derivedStock += max(0, $this->getDirectProductStock($child, $context));
+        }
+
+        return $derivedStock;
+    }
+
+    private function getDirectProductStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): int {
         return $this->configProvider->getStockField(
             $context->getSalesChannelId(),
             $context->getLanguageId(),

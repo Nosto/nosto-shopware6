@@ -178,6 +178,16 @@ class ProductTaggingHelper
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?PartialProduct {
+        if (
+            $product->getParentId() === null
+            && $this->configProvider->isEnabledDeriveParentStockFromVariants(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            )
+        ) {
+            $this->ensureChildrenLoaded($product, $salesChannelContext);
+        }
+
         $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant(
