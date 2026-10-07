@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Search\Request\Handler;
 
-use GuzzleHttp\Client;
 use Monolog\Logger;
 use Nosto\Model\Signup\Account;
 use Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Search\Request\SessionParamsProvider;
 use Nosto\NostoIntegration\Search\Response\GraphQL\GraphQLResponseParser;
 use Nosto\NostoIntegration\Service\FilterPayloadService;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
@@ -19,13 +19,14 @@ use Nosto\Operation\Search\SearchOperation;
 use Nosto\Request\Api\Token;
 use Nosto\Result\Graphql\Search\SearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractRequestHandler
 {
     protected readonly FilterHandler $filterHandler;
+
+    protected readonly SessionParamsProvider $sessionParamsProvider;
 
     public function __construct(
         protected readonly ConfigProvider $configProvider,
@@ -34,6 +35,7 @@ abstract class AbstractRequestHandler
         protected readonly FilterPayloadService $filterPayloadService,
     ) {
         $this->filterHandler = new FilterHandler($this->filterPayloadService);
+        $this->sessionParamsProvider = new SessionParamsProvider($this->logger);
     }
 
     /**
@@ -207,7 +209,7 @@ abstract class AbstractRequestHandler
         SalesChannelContext $context,
     ): void {
         $this->setPaginationParams($criteria, $searchOperation, $limit);
-        $this->setSessionParamsFromCookies(
+        $this->setSessionParams(
             $request,
             $searchOperation,
             $context->getSalesChannelId(),
@@ -298,89 +300,24 @@ abstract class AbstractRequestHandler
         }
     }
 
-    protected function setSessionParamsFromCookies(
+    protected function setSessionParams(
         Request $request,
         SearchOperation $searchOperation,
         $channelId,
         $languageId,
     ): void {
-        $cookieName = 'nosto-search-session-params';
-        $cookieValue = $request->cookies->get($cookieName);
+        // Same opt-out rule as the storefront script gets from FrontendSubscriber
+        $doNotTrack = !$this->configProvider
+            ->getCustomerDataMode($channelId, $languageId)
+            ->shouldSendCustomerData((bool) $request->cookies->get(NostoCookieProvider::NOSTO_TRACK_COOKIE_KEY));
 
-        if (!$cookieValue) {
-            try {
-                $nostoAccountId = (new Account(
-                    $this->configProvider->getAccountId($channelId, $languageId),
-                ))->getName();
-
-                $isSearch = str_contains($request->getPathInfo(), '/search');
-                $isCategory = $request->attributes->has('navigationId');
-
-                $message = [
-                    'url' => $request->getUri(),
-                    'response_mode' => 'HTML',
-                    'referrer' => $request->headers->get('referer'),
-                    'page_type' => $isSearch ? 'search' : ($isCategory ? 'category' : 'other'),
-                    'elements' => [],
-                    'cart' => [],
-                    'events' => [],
-                ];
-
-                foreach ($request->query->all() as $value) {
-                    if (!empty($value)) {
-                        $message['events'][] = ['ec', $value];
-                    }
-                }
-
-                $clientId = $request->cookies->get('2c_cId') ?? Uuid::randomHex();
-
-                $queryParams = [
-                    'c' => $clientId,
-                    'm' => $nostoAccountId,
-                    'message' => json_encode($message),
-                    'skipEvents' => 'true',
-                ];
-
-                $response = (new Client())->get('https://connect.nosto.com/ev1?' . http_build_query($queryParams), [
-                    'headers' => [
-                        'User-Agent' => $request->headers->get('User-Agent'),
-                        'Accept' => 'application/json',
-                        'Accept-Language' => $request->headers->get('Accept-Language'),
-                        'Referer' => $request->headers->get('referer'),
-                        'Cookie' => $request->headers->get('cookie'),
-                    ],
-                ]);
-
-                $responseData = json_decode($response->getBody()->getContents(), true);
-
-                $segments = array_column($responseData['se']['active_segments'] ?? [], 'id');
-
-                $categories = array_map(
-                    fn ($cat) => [
-                        'field' => 'affinities.categories',
-                        'value' => [$cat['name']],
-                        'weight' => $cat['score'],
-                    ],
-                    $responseData['af']['top_categories'] ?? [],
-                );
-
-                $sessionParams = [
-                    'segments' => $segments,
-                    'products' => [
-                        'personalizationBoost' => $categories,
-                    ],
-                ];
-
-                $searchOperation->setSessionParams($sessionParams);
-            } catch (\Throwable $e) {
-                $this->logger->error('Nosto ev1 call failed: ' . $e->getMessage());
-            }
-        }
-
-        if ($cookieValue = $request->cookies->get($cookieName)) {
-            $sessionParams = json_decode($cookieValue, true);
-            $searchOperation->setSessionParams(!empty($sessionParams) ? $sessionParams : null);
-        }
+        $searchOperation->setSessionParams(
+            $this->sessionParamsProvider->getSessionParams(
+                $request,
+                $this->configProvider->getAccountId($channelId, $languageId),
+                $doNotTrack,
+            ),
+        );
     }
 
     public function parseFiltersFromResponse(SearchResult $response): FiltersExtension

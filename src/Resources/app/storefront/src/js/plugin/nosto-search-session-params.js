@@ -1,29 +1,14 @@
-import Iterator from 'src/helper/iterator.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import { NOSTO_COOKIE_KEY, LEGACY_NOSTO_COOKIE_KEY } from './nosto-configuration.plugin';
+
+// The search session params used to be copied into this cookie. On shops with many cookies it made
+// requests fail with "400 Request Header Or Cookie Too Large" (NS-14701). The server now fetches them
+// from Nosto itself, so this plugin only removes the cookie left in shoppers' browsers.
+const LEGACY_SESSION_PARAMS_COOKIE = 'nosto-search-session-params';
 
 export default class NostoSearchSessionParams extends window.PluginBaseClass {
     init() {
-        this.nostoSubscriber();
-    }
-
-    nostoSubscriber() {
-        const instances = window.PluginManager.getPluginInstances('NostoConfiguration');
-
-        Iterator.iterate(instances, instance => {
-            instance.$emitter.subscribe('scriptLoaded', () => {
-                if (CookieStorage.getItem(NOSTO_COOKIE_KEY) || CookieStorage.getItem(LEGACY_NOSTO_COOKIE_KEY)) {
-                    window.nostojs(api => {
-                        api.getSearchSessionParams().then(function(response) {
-                            CookieStorage.setItem(
-                                'nosto-search-session-params',
-                                encodeURIComponent(JSON.stringify(response)),
-                                30
-                            );
-                        });
-                    });
-                }
-            });
-        });
+        if (CookieStorage.getItem(LEGACY_SESSION_PARAMS_COOKIE)) {
+            CookieStorage.removeItem(LEGACY_SESSION_PARAMS_COOKIE);
+        }
     }
 }
