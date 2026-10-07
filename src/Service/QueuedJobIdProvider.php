@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Service;
 
 use Doctrine\DBAL\Connection;
+use RuntimeException;
 
 class QueuedJobIdProvider
 {
@@ -26,15 +27,18 @@ class QueuedJobIdProvider
     {
         $jobIds = [];
         $bodies = $this->connection->iterateColumn(
-            'SELECT `body` FROM `messenger_messages` WHERE `body` LIKE :needle',
+            'SELECT `body` FROM `messenger_messages` WHERE `body` LIKE :needle OR `headers` LIKE :needle',
             [
-                'needle' => '%Nosto%',
+                'needle' => '%NostoIntegration%Async%',
             ],
         );
 
         foreach ($bodies as $body) {
-            preg_match_all('/[0-9a-f]{32}/i', (string) $body, $matches);
-            foreach ($matches[0] as $jobId) {
+            preg_match_all('/"jobId"\s*:\s*"([0-9a-fA-F]{32})"/', (string) $body, $matches);
+            if ($matches[1] === []) {
+                throw new RuntimeException('Unable to read the job id of a queued Nosto message.');
+            }
+            foreach ($matches[1] as $jobId) {
                 $jobIds[strtolower($jobId)] = true;
             }
         }
