@@ -161,6 +161,56 @@ final class JobRecoveryServiceTest extends TestCase
         self::assertSame(500, $service->failUnfinishedJobs('Plugin deactivated'));
     }
 
+    public function testRecoverFailsNothingWhenTheQueueCannotBeRead(): void
+    {
+        $queuedJobIdProvider = $this->createMock(QueuedJobIdProvider::class);
+        $queuedJobIdProvider->method('isAvailable')->willReturn(true);
+        $queuedJobIdProvider->method('getJobIds')->willThrowException(new RuntimeException('Unreadable message'));
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([$this->createJobRow(true)]);
+        $jobFailureHandler = $this->createMock(JobFailureHandler::class);
+        $jobFailureHandler->expects($this->never())->method('fail');
+
+        $service = new JobRecoveryService(
+            $connection,
+            $jobFailureHandler,
+            $queuedJobIdProvider,
+            $this->createMock(LoggerInterface::class),
+        );
+
+        self::assertSame(0, $service->recoverOrphanedJobs());
+    }
+
+    public function testRecoveryOnlyLooksAtNostoJobs(): void
+    {
+        $queries = [];
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturnCallback(
+            static function (string $query, array $params) use (&$queries): array {
+                $queries[] = [$query, $params];
+
+                return [];
+            },
+        );
+        $queuedJobIdProvider = $this->createMock(QueuedJobIdProvider::class);
+        $queuedJobIdProvider->method('isAvailable')->willReturn(true);
+        $service = new JobRecoveryService(
+            $connection,
+            $this->createMock(JobFailureHandler::class),
+            $queuedJobIdProvider,
+            $this->createMock(LoggerInterface::class),
+        );
+
+        $service->recoverOrphanedJobs();
+        $service->failUnfinishedJobs('Plugin deactivated');
+
+        self::assertCount(2, $queries);
+        foreach ($queries as [$query, $params]) {
+            self::assertStringContainsString('`type` LIKE :typePrefix', $query);
+            self::assertSame('nosto-integration%', $params['typePrefix']);
+        }
+    }
+
     public function testFailUnfinishedJobsNeverThrowsWhenTheCleanupFails(): void
     {
         $connection = $this->createMock(Connection::class);

@@ -20,6 +20,8 @@ class JobRecoveryService
 
     private const MAX_JOBS_PER_RUN = 500;
 
+    private const JOB_TYPE_PREFIX = 'nosto-integration%';
+
     public function __construct(
         private readonly Connection $connection,
         private readonly JobFailureHandler $jobFailureHandler,
@@ -101,9 +103,10 @@ class JobRecoveryService
     {
         $query = 'SELECT LOWER(HEX(`id`)) AS `id`, `parent_id` IS NOT NULL AS `has_parent`, '
             . '`child_generation_completed` AS `generation_completed` '
-            . 'FROM `nosto_scheduler_job` WHERE `status` IN (:statuses)';
+            . 'FROM `nosto_scheduler_job` WHERE `status` IN (:statuses) AND `type` LIKE :typePrefix';
         $params = [
             'statuses' => [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING],
+            'typePrefix' => self::JOB_TYPE_PREFIX,
         ];
         $types = [
             'statuses' => ArrayParameterType::STRING,
