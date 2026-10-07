@@ -168,6 +168,22 @@ final class SessionParamsProviderTest extends TestCase
         self::assertCount(1, $this->history);
     }
 
+    public function testReturnsNullAndCachesWhenNostoResponseHasUnexpectedShape(): void
+    {
+        $provider = $this->createProvider([
+            new Response(
+                200,
+                [],
+                '{"se":{"active_segments":"broken"},"af":{"top_brands":[{"name":"mlily","score":[1]}]}}',
+            ),
+        ]);
+        $session = new Session(new MockArraySessionStorage());
+
+        self::assertNull($provider->getSessionParams($this->createRequest(null, $session), self::ACCOUNT_ID, false));
+        self::assertNull($provider->getSessionParams($this->createRequest(null, $session), self::ACCOUNT_ID, false));
+        self::assertCount(1, $this->history);
+    }
+
     public function testReturnsNullWhenNostoHasNoData(): void
     {
         $provider = $this->createProvider([new Response(200, [], '{"af":{},"se":{"active_segments":[]}}')]);

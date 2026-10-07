@@ -141,13 +141,14 @@ class SessionParamsProvider
             ]);
 
             $responseData = json_decode($response->getBody()->getContents(), true);
+
+            // Mapping stays inside the try, so an unexpected response shape degrades to unpersonalized search
+            return is_array($responseData) ? $this->buildSessionParams($responseData) : null;
         } catch (\Throwable $e) {
             $this->logger->warning('Nosto search session params could not be fetched: ' . $e->getMessage());
 
             return null;
         }
-
-        return is_array($responseData) ? $this->buildSessionParams($responseData) : null;
     }
 
     /**
