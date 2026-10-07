@@ -64,6 +64,9 @@ class SessionParamsProvider
 
         // Same rule as the storefront script: no consent means Nosto is not loaded and no visitor exists
         if (!$nostoAccountId || !$clientId || !$this->hasNostoConsent($request)) {
+            // Don't keep the shopper's segments and affinities once consent is gone
+            $this->clearCachedParams($request);
+
             return null;
         }
 
@@ -205,6 +208,14 @@ class SessionParamsProvider
     {
         return (bool) $request->cookies->get(NostoCookieProvider::NOSTO_COOKIE_KEY)
             || (bool) $request->cookies->get(NostoCookieProvider::LEGACY_TRACK_ALLOW_COOKIE_KEY);
+    }
+
+    private function clearCachedParams(Request $request): void
+    {
+        $session = $this->getSession($request);
+        if ($session?->has(self::SESSION_KEY)) {
+            $session->remove(self::SESSION_KEY);
+        }
     }
 
     private function getSession(Request $request): ?SessionInterface

@@ -40,6 +40,23 @@ final class SessionParamsProviderTest extends TestCase
         self::assertCount(0, $this->history);
     }
 
+    public function testClearsCachedParamsWhenConsentIsWithdrawn(): void
+    {
+        $provider = $this->createProvider([new Response(200, [], (string) json_encode($this->ev1Response()))]);
+        $session = new Session(new MockArraySessionStorage());
+
+        self::assertNotNull($provider->getSessionParams($this->createRequest(null, $session), self::ACCOUNT_ID, false));
+        self::assertTrue($session->has('nosto_search_session_params'));
+
+        $withoutConsent = $this->createRequest([
+            '2c_cId' => self::CLIENT_ID,
+        ], $session);
+
+        self::assertNull($provider->getSessionParams($withoutConsent, self::ACCOUNT_ID, false));
+        self::assertFalse($session->has('nosto_search_session_params'));
+        self::assertCount(1, $this->history);
+    }
+
     public function testReturnsNullWithoutNostoVisitor(): void
     {
         $provider = $this->createProvider([]);
