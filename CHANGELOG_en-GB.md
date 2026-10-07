@@ -1,3 +1,6 @@
+# 6.1.32
+* Fix: Search session params are no longer stored in a cookie
+
 # 6.1.31
 * Fix: Add indexed product identifier lookup
 * Fix: Fixed skipped product and category changes during sync and improved catalog sync speed and memory usage

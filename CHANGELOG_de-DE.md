@@ -1,3 +1,6 @@
+# 6.1.32
+* Fix: Die Such-Sitzungsparameter werden nicht mehr in einem Cookie gespeichert
+
 # 6.1.31
 * Fix: Suche nach indizierter Produktkennung hinzufügen
 * Fix: Das Problem, dass Produkt- und Kategorieänderungen während der Synchronisierung übersprungen wurden, wurde behoben, und die Geschwindigkeit der Katalogsynchronisierung sowie die Speicherauslastung wurden verbessert.
