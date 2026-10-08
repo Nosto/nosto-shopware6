@@ -375,6 +375,39 @@ class ProductHelper
         return $orderNumberMapping;
     }
 
+    /**
+     * @param array<string> $ids
+     * @return array<string, string> child product ID => parent product ID
+     */
+    public function loadParentIdMapping(array $ids, Context $context): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $rows = $this->connection->executeQuery(
+            'SELECT LOWER(HEX(`id`)) AS id, LOWER(HEX(`parent_id`)) AS parentId
+             FROM `product`
+             WHERE `id` IN (:ids) AND `version_id` = :versionId AND `parent_id` IS NOT NULL',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ],
+        )->fetchAllAssociative();
+
+        $parentIds = [];
+        foreach ($rows as $row) {
+            if (is_string($row['id'] ?? null) && is_string($row['parentId'] ?? null)) {
+                $parentIds[$row['id']] = $row['parentId'];
+            }
+        }
+
+        return $parentIds;
+    }
+
     public function getProductUrl(
         ProductEntity|PartialEntity|PartialProduct $product,
         SalesChannelContext $context,
@@ -612,23 +645,13 @@ class ProductHelper
         SalesChannelContext $context,
     ): int {
         $stock = $this->getDirectProductStock($product, $context);
-        if (
-            !$this->configProvider->isEnabledDeriveParentStockFromVariants(
-                $context->getSalesChannelId(),
-                $context->getLanguageId(),
-            )
-            || $product->getParentId() !== null
-        ) {
+        if (!$this->isParentStockDerivedFromVariants($product, $context)) {
             return $stock;
         }
 
-        $children = $product->getChildren();
-        if (!$children || $children->count() === 0) {
-            return $stock;
-        }
-
+        // The parent is only a grouping product in this mode; its own stock must not affect the total.
         $derivedStock = 0;
-        foreach ($children as $child) {
+        foreach ($product->getChildren() ?? [] as $child) {
             if (!$child->getActive()) {
                 continue;
             }
@@ -637,6 +660,50 @@ class ProductHelper
         }
 
         return $derivedStock;
+    }
+
+    public function isProductInStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+        ?int $stock = null,
+    ): bool {
+        $stock ??= $this->getProductStock($product, $context);
+        if (!$this->isParentStockDerivedFromVariants($product, $context)) {
+            // Preserve the existing Shopware rule: zero stock is still purchasable unless the product is closeout.
+            return $stock > 0 || !$product->getIsCloseout();
+        }
+
+        // A derived parent is available when at least one active variant is purchasable by the same rule.
+        foreach ($product->getChildren() ?? [] as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            if ($this->getDirectProductStock($child, $context) > 0 || !$child->getIsCloseout()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getProductChildCount(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+    ): ?int {
+        return $product->getChildCount();
+    }
+
+    private function isParentStockDerivedFromVariants(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): bool {
+        return $product->getParentId() === null
+            && $product->getChildren() !== null
+            && ($this->getProductChildCount($product) ?? 0) > 0
+            && $this->configProvider->isEnabledDeriveParentStockFromVariants(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
     }
 
     private function getDirectProductStock(

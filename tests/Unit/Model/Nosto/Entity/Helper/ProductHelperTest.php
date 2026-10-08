@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
@@ -117,6 +118,124 @@ final class ProductHelperTest extends TestCase
 
         self::assertSame(3, $this->createHelper(configProvider: $configProvider)->getProductStock(
             $variant,
+            $this->createContext(),
+        ));
+    }
+
+    public function testGetProductStockReturnsZeroWhenAllVariantsAreFilteredOut(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
+        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+
+        $parent = $this->createStockProduct(
+            id: 'parent-id',
+            availableStock: 7,
+            children: new PartialProductCollection(),
+            childCount: 2,
+        );
+
+        self::assertSame(0, $this->createHelper(configProvider: $configProvider)->getProductStock(
+            $parent,
+            $this->createContext(),
+        ));
+    }
+
+    public function testGetProductStockUsesChildCountForFullProductWithFilteredVariants(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
+        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+
+        $parent = new ProductEntity();
+        $parent->setId(Uuid::randomHex());
+        $parent->setStock(7);
+        $parent->setAvailableStock(7);
+        $parent->setChildCount(2);
+        $parent->setChildren(new ProductCollection());
+
+        self::assertSame(0, $this->createHelper(configProvider: $configProvider)->getProductStock(
+            $parent,
+            $this->createContext(),
+        ));
+    }
+
+    public function testDerivedZeroStockMakesVariantParentUnavailable(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
+        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+
+        $parent = $this->createStockProduct(
+            id: 'parent-id',
+            availableStock: 0,
+            children: new PartialProductCollection([
+                $this->createStockProduct(
+                    id: 'child-id',
+                    availableStock: 0,
+                    active: true,
+                    parentId: 'parent-id',
+                    isCloseout: true,
+                ),
+            ]),
+        );
+
+        self::assertFalse($this->createHelper(configProvider: $configProvider)->isProductInStock(
+            $parent,
+            $this->createContext(),
+        ));
+    }
+
+    public function testDerivedParentIsAvailableWhenZeroStockVariantIsNotCloseout(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
+        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+
+        $parent = $this->createStockProduct(
+            id: 'parent-id',
+            availableStock: 0,
+            children: new PartialProductCollection([
+                $this->createStockProduct(
+                    id: 'child-id',
+                    availableStock: 0,
+                    active: true,
+                    parentId: 'parent-id',
+                    isCloseout: false,
+                ),
+            ]),
+            isCloseout: true,
+        );
+
+        self::assertTrue($this->createHelper(configProvider: $configProvider)->isProductInStock(
+            $parent,
+            $this->createContext(),
+        ));
+    }
+
+    public function testDerivationDisabledPreservesParentCloseoutAvailabilityRule(): void
+    {
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
+        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(false);
+
+        $parent = $this->createStockProduct(
+            id: 'parent-id',
+            availableStock: 0,
+            children: new PartialProductCollection([
+                $this->createStockProduct(
+                    id: 'child-id',
+                    availableStock: 0,
+                    active: true,
+                    parentId: 'parent-id',
+                    isCloseout: true,
+                ),
+            ]),
+            isCloseout: false,
+        );
+
+        self::assertTrue($this->createHelper(configProvider: $configProvider)->isProductInStock(
+            $parent,
             $this->createContext(),
         ));
     }
@@ -750,6 +869,8 @@ final class ProductHelperTest extends TestCase
         ?string $parentId = null,
         ?PartialProductCollection $children = null,
         ?int $stock = null,
+        ?int $childCount = null,
+        bool $isCloseout = false,
     ): PartialProduct {
         return new PartialProduct(new PartialEntity([
             'id' => $id,
@@ -758,6 +879,8 @@ final class ProductHelperTest extends TestCase
             'availableStock' => $availableStock,
             'active' => $active,
             'children' => $children,
+            'childCount' => $childCount,
+            'isCloseout' => $isCloseout,
         ]));
     }
 

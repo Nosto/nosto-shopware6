@@ -120,7 +120,7 @@
                 },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
                 "deriveParentStockFromVariants": "Lagerbestand des Hauptprodukts aus aktiven Varianten ableiten",
-                "deriveParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, werden Bestand und Verfügbarkeit aus dem konfigurierten Lagerfeld seiner aktiven Varianten abgeleitet.",
+                "deriveParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, wird sein Bestand aus dem konfigurierten Lagerfeld seiner aktiven Varianten abgeleitet. Es wird als verfügbar markiert, wenn mindestens eine aktive Variante gemäß ihrem Bestand und ihrer Abverkaufseinstellung kaufbar ist. Nach der Aktivierung sollte eine vollständige Produktsynchronisierung ausgeführt werden, damit bestehende Hauptprodukte aktualisiert werden.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",

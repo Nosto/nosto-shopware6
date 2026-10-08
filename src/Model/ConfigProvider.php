@@ -328,7 +328,7 @@ class ConfigProvider
         );
     }
 
-    public function isEnabledDeriveParentStockFromVariants($channelId = null, $languageId = null): bool
+    public function isEnabledDeriveParentStockFromVariants(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::DERIVE_PARENT_STOCK_FROM_VARIANTS,
