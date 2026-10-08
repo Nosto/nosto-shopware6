@@ -9,6 +9,10 @@ use RuntimeException;
 
 class QueuedJobIdProvider
 {
+    private const FAILED_QUEUE = 'failed';
+
+    private const JOB_MESSAGE_NAMESPACE = 'Nosto\\NostoIntegration\\Async\\';
+
     public function __construct(
         private readonly Connection $connection,
         private readonly string $transportDsn,
@@ -26,15 +30,21 @@ class QueuedJobIdProvider
     public function getJobIds(): array
     {
         $jobIds = [];
-        $bodies = $this->connection->iterateColumn(
-            'SELECT `body` FROM `messenger_messages` WHERE `body` LIKE :needle OR `headers` LIKE :needle',
+        $messages = $this->connection->iterateAssociative(
+            'SELECT `headers`, `body` FROM `messenger_messages` '
+            . 'WHERE `queue_name` <> :failedQueue AND `headers` LIKE :needle',
             [
-                'needle' => '%NostoIntegration%Async%',
+                'failedQueue' => self::FAILED_QUEUE,
+                'needle' => '%NostoIntegration%',
             ],
         );
 
-        foreach ($bodies as $body) {
-            preg_match_all('/"jobId"\s*:\s*"([0-9a-fA-F]{32})"/', (string) $body, $matches);
+        foreach ($messages as $message) {
+            if (!$this->isJobMessage((string) $message['headers'])) {
+                continue;
+            }
+
+            preg_match_all('/"jobId"\s*:\s*"([0-9a-fA-F]{32})"/', (string) $message['body'], $matches);
             if ($matches[1] === []) {
                 throw new RuntimeException('Unable to read the job id of a queued Nosto message.');
             }
@@ -44,5 +54,13 @@ class QueuedJobIdProvider
         }
 
         return $jobIds;
+    }
+
+    private function isJobMessage(string $headers): bool
+    {
+        $decodedHeaders = json_decode($headers, true);
+        $type = is_array($decodedHeaders) ? ($decodedHeaders['type'] ?? null) : null;
+
+        return is_string($type) && str_starts_with($type, self::JOB_MESSAGE_NAMESPACE);
     }
 }

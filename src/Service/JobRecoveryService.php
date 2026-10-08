@@ -18,9 +18,15 @@ class JobRecoveryService
 {
     private const DISPATCH_GRACE_PERIOD = '-10 minutes';
 
+    private const GENERATION_INACTIVITY_PERIOD = '-30 minutes';
+
     private const MAX_JOBS_PER_RUN = 500;
 
     private const JOB_TYPE_PREFIX = 'nosto-integration%';
+
+    private const ORPHANED_CHILD_REASON = 'The queued message of this job is missing, so the job can no longer finish.';
+
+    private const STUCK_PARENT_REASON = 'Creating the child jobs of this job stopped before it finished.';
 
     public function __construct(
         private readonly Connection $connection,
@@ -48,7 +54,14 @@ class JobRecoveryService
     public function failUnfinishedJobs(string $reason): int
     {
         try {
-            return $this->failJobs($this->findUnfinishedJobs(), $reason);
+            $totalCount = 0;
+            do {
+                $jobIds = $this->findUnfinishedJobIds();
+                $failedCount = $this->failJobs($jobIds, $reason);
+                $totalCount += $failedCount;
+            } while ($failedCount > 0 && count($jobIds) === self::MAX_JOBS_PER_RUN);
+
+            return $totalCount;
         } catch (Throwable $e) {
             $this->logger->warning(sprintf('Unable to fail unfinished Nosto jobs: %s', $e->getMessage()));
 
@@ -58,20 +71,14 @@ class JobRecoveryService
 
     private function failOrphanedJobs(): int
     {
-        $createdBefore = new DateTimeImmutable(self::DISPATCH_GRACE_PERIOD, new DateTimeZone('UTC'));
-        $jobs = $this->findUnfinishedJobs($createdBefore);
-        if ($jobs === []) {
-            return 0;
-        }
-
-        $queuedJobIds = $this->queuedJobIdProvider->getJobIds();
-        $orphanedJobs = array_filter(
-            $jobs,
-            static fn (array $job): bool => !$job['generation_completed'] && !isset($queuedJobIds[$job['id']]),
-        );
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $failedCount = $this->failJobs(
-            $orphanedJobs,
-            'The queued message of this job is missing, so the job can no longer finish.',
+            $this->findOrphanedChildJobIds($now->modify(self::DISPATCH_GRACE_PERIOD)),
+            self::ORPHANED_CHILD_REASON,
+        );
+        $failedCount += $this->failJobs(
+            $this->findStuckParentJobIds($now->modify(self::GENERATION_INACTIVITY_PERIOD)),
+            self::STUCK_PARENT_REASON,
         );
 
         if ($failedCount > 0) {
@@ -82,16 +89,13 @@ class JobRecoveryService
     }
 
     /**
-     * @param list<array{id: string, has_parent: bool, generation_completed: bool}> $jobs
+     * @param list<string> $jobIds
      */
-    private function failJobs(array $jobs, string $reason): int
+    private function failJobs(array $jobIds, string $reason): int
     {
-        $jobs = array_slice(array_values($jobs), 0, self::MAX_JOBS_PER_RUN);
-        usort($jobs, static fn (array $a, array $b): int => $b['has_parent'] <=> $a['has_parent']);
-
         $failedCount = 0;
-        foreach ($jobs as $job) {
-            if ($this->jobFailureHandler->fail($job['id'], $reason)) {
+        foreach (array_slice($jobIds, 0, self::MAX_JOBS_PER_RUN) as $jobId) {
+            if ($this->jobFailureHandler->fail($jobId, $reason)) {
                 ++$failedCount;
             }
         }
@@ -100,33 +104,82 @@ class JobRecoveryService
     }
 
     /**
-     * @return list<array{id: string, has_parent: bool, generation_completed: bool}>
+     * @return list<string>
      */
-    private function findUnfinishedJobs(?DateTimeImmutable $createdBefore = null): array
+    private function findOrphanedChildJobIds(DateTimeImmutable $createdBefore): array
     {
-        $query = 'SELECT LOWER(HEX(`id`)) AS `id`, `parent_id` IS NOT NULL AS `has_parent`, '
-            . '`child_generation_completed` AS `generation_completed` '
-            . 'FROM `nosto_scheduler_job` WHERE `status` IN (:statuses) AND `type` LIKE :typePrefix';
-        $params = [
-            'statuses' => [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING],
-            'typePrefix' => self::JOB_TYPE_PREFIX,
-        ];
-        $types = [
-            'statuses' => ArrayParameterType::STRING,
-        ];
-        if ($createdBefore !== null) {
-            $query .= ' AND `created_at` <= :createdBefore';
-            $params['createdBefore'] = $createdBefore->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        }
-        $query .= ' ORDER BY `created_at`';
-
-        return array_map(
-            static fn (array $row): array => [
-                'id' => (string) $row['id'],
-                'has_parent' => (bool) $row['has_parent'],
-                'generation_completed' => (bool) $row['generation_completed'],
+        $childJobIds = $this->fetchJobIds(
+            'SELECT LOWER(HEX(`id`)) FROM `nosto_scheduler_job` '
+            . 'WHERE `status` IN (:statuses) AND `type` LIKE :typePrefix AND `parent_id` IS NOT NULL '
+            . 'AND `created_at` <= :createdBefore ORDER BY `created_at`',
+            [
+                'createdBefore' => $createdBefore->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
-            $this->connection->fetchAllAssociative($query, $params, $types),
+        );
+        if ($childJobIds === []) {
+            return [];
+        }
+
+        $queuedJobIds = $this->queuedJobIdProvider->getJobIds();
+
+        return array_values(array_filter(
+            $childJobIds,
+            static fn (string $jobId): bool => !isset($queuedJobIds[$jobId]),
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findStuckParentJobIds(DateTimeImmutable $inactiveBefore): array
+    {
+        return $this->fetchJobIds(
+            'SELECT LOWER(HEX(parent.`id`)) FROM `nosto_scheduler_job` parent '
+            . 'WHERE parent.`status` IN (:statuses) AND parent.`type` LIKE :typePrefix '
+            . 'AND parent.`parent_id` IS NULL AND parent.`child_generation_completed` = 0 '
+            . 'AND COALESCE('
+            . '(SELECT MAX(child.`created_at`) FROM `nosto_scheduler_job` child WHERE child.`parent_id` = parent.`id`), '
+            . 'parent.`created_at`) <= :inactiveBefore '
+            . 'AND NOT EXISTS (SELECT 1 FROM `nosto_scheduler_job` child '
+            . 'WHERE child.`parent_id` = parent.`id` AND child.`status` IN (:statuses)) '
+            . 'ORDER BY parent.`created_at`',
+            [
+                'inactiveBefore' => $inactiveBefore->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findUnfinishedJobIds(): array
+    {
+        return $this->fetchJobIds(
+            'SELECT LOWER(HEX(`id`)) FROM `nosto_scheduler_job` '
+            . 'WHERE `status` IN (:statuses) AND `type` LIKE :typePrefix '
+            . 'ORDER BY (`parent_id` IS NULL), `created_at` LIMIT ' . self::MAX_JOBS_PER_RUN,
+        );
+    }
+
+    /**
+     * @param array<string, string> $params
+     *
+     * @return list<string>
+     */
+    private function fetchJobIds(string $query, array $params = []): array
+    {
+        return array_map(
+            'strval',
+            $this->connection->fetchFirstColumn(
+                $query,
+                $params + [
+                    'statuses' => [JobEntity::TYPE_PENDING, JobEntity::TYPE_RUNNING],
+                    'typePrefix' => self::JOB_TYPE_PREFIX,
+                ],
+                [
+                    'statuses' => ArrayParameterType::STRING,
+                ],
+            ),
         );
     }
 }
