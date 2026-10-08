@@ -89,11 +89,14 @@ class JobRecoveryService
         $jobs = array_slice(array_values($jobs), 0, self::MAX_JOBS_PER_RUN);
         usort($jobs, static fn (array $a, array $b): int => $b['has_parent'] <=> $a['has_parent']);
 
+        $failedCount = 0;
         foreach ($jobs as $job) {
-            $this->jobFailureHandler->fail($job['id'], $reason);
+            if ($this->jobFailureHandler->fail($job['id'], $reason)) {
+                ++$failedCount;
+            }
         }
 
-        return count($jobs);
+        return $failedCount;
     }
 
     /**

@@ -22,8 +22,10 @@ final class JobRecoveryServiceTest extends TestCase
         $failedJobIds = [];
         $jobFailureHandler = $this->createMock(JobFailureHandler::class);
         $jobFailureHandler->method('fail')->willReturnCallback(
-            static function (string $jobId) use (&$failedJobIds): void {
+            static function (string $jobId) use (&$failedJobIds): bool {
                 $failedJobIds[] = $jobId;
+
+                return true;
             },
         );
 
@@ -50,7 +52,7 @@ final class JobRecoveryServiceTest extends TestCase
     {
         $parent = $this->createJobRow(false, false);
         $jobFailureHandler = $this->createMock(JobFailureHandler::class);
-        $jobFailureHandler->expects($this->once())->method('fail')->with($parent['id']);
+        $jobFailureHandler->expects($this->once())->method('fail')->with($parent['id'])->willReturn(true);
 
         $service = $this->createService([$parent], [], $jobFailureHandler);
 
@@ -121,8 +123,10 @@ final class JobRecoveryServiceTest extends TestCase
         $failures = [];
         $jobFailureHandler = $this->createMock(JobFailureHandler::class);
         $jobFailureHandler->method('fail')->willReturnCallback(
-            static function (string $jobId, string $reason) use (&$failures): void {
+            static function (string $jobId, string $reason) use (&$failures): bool {
                 $failures[] = [$jobId, $reason];
+
+                return true;
             },
         );
 
@@ -139,11 +143,30 @@ final class JobRecoveryServiceTest extends TestCase
         );
     }
 
+    public function testOnlyJobsThatWereActuallyFailedAreCounted(): void
+    {
+        $changedJob = $this->createJobRow(true);
+        $skippedJob = $this->createJobRow(true);
+        $jobFailureHandler = $this->createMock(JobFailureHandler::class);
+        $jobFailureHandler->method('fail')->willReturnCallback(
+            static fn (string $jobId): bool => $jobId === $changedJob['id'],
+        );
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with($this->stringContains('Marked 1 orphaned'));
+
+        $service = $this->createService([$changedJob, $skippedJob], [], $jobFailureHandler, $logger);
+
+        self::assertSame(1, $service->recoverOrphanedJobs());
+        self::assertSame(1, $service->failUnfinishedJobs('Plugin deactivated'));
+    }
+
     public function testRecoverFailsOnlyAFixedNumberOfJobsPerRun(): void
     {
         $jobRows = array_map(fn (): array => $this->createJobRow(true), range(1, 501));
         $jobFailureHandler = $this->createMock(JobFailureHandler::class);
-        $jobFailureHandler->expects($this->exactly(500))->method('fail');
+        $jobFailureHandler->expects($this->exactly(500))->method('fail')->willReturn(true);
 
         $service = $this->createService($jobRows, [], $jobFailureHandler);
 
@@ -154,7 +177,7 @@ final class JobRecoveryServiceTest extends TestCase
     {
         $jobRows = array_map(fn (): array => $this->createJobRow(true), range(1, 501));
         $jobFailureHandler = $this->createMock(JobFailureHandler::class);
-        $jobFailureHandler->expects($this->exactly(500))->method('fail');
+        $jobFailureHandler->expects($this->exactly(500))->method('fail')->willReturn(true);
 
         $service = $this->createService($jobRows, [], $jobFailureHandler);
 
@@ -236,6 +259,7 @@ final class JobRecoveryServiceTest extends TestCase
         array $jobRows,
         array $queuedJobIds,
         JobFailureHandler $jobFailureHandler,
+        ?LoggerInterface $logger = null,
     ): JobRecoveryService {
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($jobRows);
@@ -247,7 +271,7 @@ final class JobRecoveryServiceTest extends TestCase
             $connection,
             $jobFailureHandler,
             $queuedJobIdProvider,
-            $this->createMock(LoggerInterface::class),
+            $logger ?? $this->createMock(LoggerInterface::class),
         );
     }
 
