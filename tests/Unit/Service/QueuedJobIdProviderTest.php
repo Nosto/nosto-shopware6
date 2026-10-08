@@ -15,14 +15,13 @@ final class QueuedJobIdProviderTest extends TestCase
 {
     private const DOCTRINE_DSN = 'doctrine://default?auto_setup=false';
 
-    public function testGetJobIdsCollectsOnlyTheOwnJobIdOfEachQueuedMessage(): void
+    public function testGetJobIdsCollectsOnlyTheOwnJobIdOfEachQueuedJobMessage(): void
     {
         $firstJobId = Uuid::randomHex();
         $secondJobId = Uuid::randomHex();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('iterateColumn')
-            ->willReturn(new ArrayIterator([
+        $connection = $this->createConnection([
+            $this->createRow(
+                'Nosto\\NostoIntegration\\Async\\ProductSyncMessage',
                 sprintf(
                     '{"jobId":"%s","parentJobId":"%s","ids":{"%s":"SKU-1"},"context":{"id":"%s"}}',
                     strtoupper($firstJobId),
@@ -30,34 +29,65 @@ final class QueuedJobIdProviderTest extends TestCase
                     Uuid::randomHex(),
                     Uuid::randomHex(),
                 ),
+            ),
+            $this->createRow(
+                'Nosto\\NostoIntegration\\Async\\CategorySyncMessage',
                 sprintf('{"parentJobId":"%s", "jobId" : "%s"}', Uuid::randomHex(), $secondJobId),
+            ),
+            $this->createRow(
+                'Nosto\\NostoIntegration\\Async\\ProductSyncMessage',
                 sprintf('{"jobId":"%s"}', $firstJobId),
-            ]));
+            ),
+        ]);
 
         $jobIds = (new QueuedJobIdProvider($connection, self::DOCTRINE_DSN))->getJobIds();
 
         self::assertSame([$firstJobId, $secondJobId], array_keys($jobIds));
     }
 
-    public function testGetJobIdsFailsInsteadOfGuessingWhenAQueuedMessageCannotBeRead(): void
+    public function testGetJobIdsIgnoresMessagesThatAreNotNostoJobMessages(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('iterateColumn')->willReturn(new ArrayIterator(['not a readable message']));
+        $jobId = Uuid::randomHex();
+        $connection = $this->createConnection([
+            $this->createRow(
+                'Nosto\\NostoIntegration\\Service\\ScheduledTask\\OrphanedJobRecoveryScheduledTask',
+                '{"taskId":"' . Uuid::randomHex() . '"}',
+            ),
+            $this->createRow('Shopware\\Core\\Framework\\MessageQueue\\Foo', '{"jobId":"' . Uuid::randomHex() . '"}'),
+            [
+                'headers' => 'not json',
+                'body' => '{}',
+            ],
+            $this->createRow('Nosto\\NostoIntegration\\Async\\ProductSyncMessage', '{"jobId":"' . $jobId . '"}'),
+        ]);
+
+        $jobIds = (new QueuedJobIdProvider($connection, self::DOCTRINE_DSN))->getJobIds();
+
+        self::assertSame([$jobId], array_keys($jobIds));
+    }
+
+    public function testGetJobIdsFailsInsteadOfGuessingWhenAJobMessageCannotBeRead(): void
+    {
+        $connection = $this->createConnection([
+            $this->createRow('Nosto\\NostoIntegration\\Async\\ProductSyncMessage', 'not a readable message'),
+        ]);
 
         $this->expectException(RuntimeException::class);
 
         (new QueuedJobIdProvider($connection, self::DOCTRINE_DSN))->getJobIds();
     }
 
-    public function testGetJobIdsAlsoLooksAtTheMessageHeaders(): void
+    public function testGetJobIdsSkipsTheFailedQueue(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
-            ->method('iterateColumn')
-            ->with($this->callback(
-                static fn (string $query): bool => str_contains($query, '`body` LIKE')
-                    && str_contains($query, '`headers` LIKE'),
-            ))
+            ->method('iterateAssociative')
+            ->with(
+                $this->callback(
+                    static fn (string $query): bool => str_contains($query, '`queue_name` <> :failedQueue'),
+                ),
+                $this->callback(static fn (array $params): bool => $params['failedQueue'] === 'failed'),
+            )
             ->willReturn(new ArrayIterator([]));
 
         (new QueuedJobIdProvider($connection, self::DOCTRINE_DSN))->getJobIds();
@@ -65,10 +95,7 @@ final class QueuedJobIdProviderTest extends TestCase
 
     public function testGetJobIdsReturnsNothingForAnEmptyQueue(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('iterateColumn')->willReturn(new ArrayIterator([]));
-
-        self::assertSame([], (new QueuedJobIdProvider($connection, self::DOCTRINE_DSN))->getJobIds());
+        self::assertSame([], (new QueuedJobIdProvider($this->createConnection([]), self::DOCTRINE_DSN))->getJobIds());
     }
 
     public function testIsAvailableOnlyForTheDoctrineTransport(): void
@@ -80,5 +107,30 @@ final class QueuedJobIdProviderTest extends TestCase
         self::assertFalse(
             (new QueuedJobIdProvider($connection, 'amqp://guest:guest@localhost:5672/%2f/messages'))->isAvailable(),
         );
+    }
+
+    /**
+     * @param list<array{headers: string, body: string}> $rows
+     */
+    private function createConnection(array $rows): Connection
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('iterateAssociative')->willReturn(new ArrayIterator($rows));
+
+        return $connection;
+    }
+
+    /**
+     * @return array{headers: string, body: string}
+     */
+    private function createRow(string $messageClass, string $body): array
+    {
+        return [
+            'headers' => (string) json_encode([
+                'type' => $messageClass,
+                'Content-Type' => 'application/json',
+            ]),
+            'body' => $body,
+        ];
     }
 }
