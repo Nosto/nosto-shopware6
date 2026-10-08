@@ -120,15 +120,21 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $newParentId = Uuid::randomHex();
         $existence = new EntityExistence(
             ProductDefinition::ENTITY_NAME,
-            ['id' => $childId],
+            [
+                'id' => $childId,
+            ],
             true,
             true,
             true,
-            ['parent_id' => Uuid::fromHexToBytes($oldParentId)],
+            [
+                'parent_id' => Uuid::fromHexToBytes($oldParentId),
+            ],
         );
         $writeResult = new EntityWriteResult(
             $childId,
-            ['parentId' => $newParentId],
+            [
+                'parentId' => $newParentId,
+            ],
             ProductDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_UPDATE,
             $existence,
@@ -139,7 +145,9 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $productHelper->expects($this->once())
             ->method('loadParentIdMapping')
             ->with([$childId], $context)
-            ->willReturn([$childId => $newParentId]);
+            ->willReturn([
+                $childId => $newParentId,
+            ]);
         $productHelper->expects($this->once())
             ->method('loadOrderNumberMapping')
             ->with([$childId, $newParentId, $oldParentId], $context)
@@ -205,10 +213,15 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('loadParentIdMapping')
             ->with([$childId], $context)
-            ->willReturn([$childId => $parentId]);
+            ->willReturn([
+                $childId => $parentId,
+            ]);
         $productHelper->method('loadOrderNumberMapping')
             ->with([$childId, $parentId], $context)
-            ->willReturn([$childId => 'CHILD', $parentId => 'PARENT']);
+            ->willReturn([
+                $childId => 'CHILD',
+                $parentId => 'PARENT',
+            ]);
 
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
