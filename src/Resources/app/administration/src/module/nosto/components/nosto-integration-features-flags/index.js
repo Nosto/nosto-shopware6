@@ -183,6 +183,7 @@ Component.register('nosto-integration-features-flags', {
                 storeAbandonedCartData: false,
                 ignoreCookieConsent: true,
                 syncFirstAvailableVariant: false,
+                calculateParentStockFromVariants: false,
                 dailySynchronizationTime: false,
                 syncBatchSize: 150,
                 domain: null,

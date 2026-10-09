@@ -611,6 +611,74 @@ class ProductHelper
         ProductEntity|SalesChannelProductEntity|PartialProduct $product,
         SalesChannelContext $context,
     ): int {
+        $stock = $this->getDirectProductStock($product, $context);
+        if (!$this->isParentStockCalculatedFromVariants($product, $context)) {
+            return $stock;
+        }
+
+        // The parent is only a grouping product in this mode; its own stock must not affect the total.
+        $calculatedStock = 0;
+        foreach ($product->getChildren() ?? [] as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            $calculatedStock += max(0, $this->getDirectProductStock($child, $context));
+        }
+
+        return $calculatedStock;
+    }
+
+    public function isProductInStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+        ?int $stock = null,
+    ): bool {
+        $stock ??= $this->getProductStock($product, $context);
+        if (!$this->isParentStockCalculatedFromVariants($product, $context)) {
+            // Preserve the existing Shopware rule: zero stock is still purchasable unless the product is closeout.
+            return $stock > 0 || !$product->getIsCloseout();
+        }
+
+        // A calculated parent is available when at least one active variant is purchasable by the same rule.
+        foreach ($product->getChildren() ?? [] as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            if ($this->getDirectProductStock($child, $context) > 0 || !$child->getIsCloseout()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getProductChildCount(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+    ): ?int {
+        return $product->getChildCount();
+    }
+
+    private function isParentStockCalculatedFromVariants(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): bool {
+        // Product sync, storefront tagging, and monitoring preload children for this feature.
+        // Keep direct parent stock for any other caller that supplies an incomplete association.
+        return $product->getParentId() === null
+            && $product->getChildren() !== null
+            && ($this->getProductChildCount($product) ?? 0) > 0
+            && $this->configProvider->isEnabledCalculateParentStockFromVariants(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+    }
+
+    private function getDirectProductStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): int {
         return $this->configProvider->getStockField(
             $context->getSalesChannelId(),
             $context->getLanguageId(),
