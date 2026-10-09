@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\Config\NostoConfigService;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
+use Nosto\NostoIntegration\Service\JobRecoveryService;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Defaults;
@@ -26,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Lifecycle
 {
+    private const DEACTIVATED_JOB_FAILURE_REASON = 'The Nosto plugin was deactivated.';
+
     private readonly Connection $connection;
 
     private readonly EntityRepository $sortingRepository;
@@ -87,6 +90,8 @@ class Lifecycle
 
     public function deactivate(DeactivateContext $deactivateContext): void
     {
+        $this->container->get(JobRecoveryService::class)->failUnfinishedJobs(self::DEACTIVATED_JOB_FAILURE_REASON);
+
         if (!$sorting = $this->getNostoSorting($deactivateContext->getContext())) {
             return;
         }

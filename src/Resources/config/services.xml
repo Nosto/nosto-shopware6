@@ -84,6 +84,13 @@
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OrphanedJobRecoveryScheduledTaskHandler">
+            <tag name="messenger.message_handler"/>
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
             <tag name="messenger.message_handler"/>
 
@@ -180,10 +187,23 @@
             <tag name="shopware.scheduled.task"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OrphanedJobRecoveryScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\NostoJobSyncService">
             <argument type="service" id="nosto_scheduler_job.repository"/>
             <argument type="service" id="nosto_scheduler_job_message.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\QueuedJobIdProvider">
+            <argument key="$transportDsn">%env(MESSENGER_TRANSPORT_DSN)%</argument>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\JobRecoveryService" public="true">
+            <argument key="$jobFailureHandler" type="service" id="Nosto\Scheduler\Model\Job\JobFailureHandler"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Async\EventsWriter" lazy="true">
