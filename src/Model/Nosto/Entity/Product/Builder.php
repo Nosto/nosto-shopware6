@@ -133,11 +133,9 @@ class Builder
             $nostoProduct->setVariationId($currencyIsoCode);
         }
         $stock = $this->productHelper->getProductStock($product, $context);
-        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
-
-        if (!$product->getIsCloseout() && $stock < 1) {
-            $stockStatus = ProductInterface::IN_STOCK;
-        }
+        $stockStatus = $this->productHelper->isProductInStock($product, $context, $stock)
+            ? ProductInterface::IN_STOCK
+            : ProductInterface::OUT_OF_STOCK;
 
         $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
