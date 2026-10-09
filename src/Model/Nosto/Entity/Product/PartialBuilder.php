@@ -72,6 +72,11 @@ class PartialBuilder
     private array $dynamicGroupCategoriesCache = [];
 
     /**
+     * @var array<string, array<string, CategoryEntity>>
+     */
+    private array $categorySeoUrlsCache = [];
+
+    /**
      * @var array<string, array<string, TagEntity>>
      */
     private array $tagCache = [];
@@ -138,16 +143,11 @@ class PartialBuilder
             $nostoProduct->setVariationId($currencyIsoCode);
         }
         $stock = $this->productHelper->getProductStock($product, $context);
-        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
+        $stockStatus = $this->productHelper->isProductInStock($product, $context, $stock)
+            ? ProductInterface::IN_STOCK
+            : ProductInterface::OUT_OF_STOCK;
 
-        if (!$product->getIsCloseout() && $stock < 1) {
-            $stockStatus = ProductInterface::IN_STOCK;
-        }
-
-        $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.loadCategorySeoUrls');
-        $criteria->addAssociation('seoUrls');
-        $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
-        $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $productCategoriesRo = $this->getCategoriesWithSeoUrls($product->getCategoriesRo(), $context);
         $product->setCategoriesRo($this->treeBuilder->scopeToSalesChannel($productCategoriesRo, $context));
 
         $nostoProduct->setAvailability($stockStatus);
@@ -407,7 +407,17 @@ class PartialBuilder
         object $product,
         SalesChannelContext $context,
     ): void {
+        $calculatedPrices = $product->getCalculatedPrices();
+        $productPrice = $calculatedPrices instanceof Collection
+            ? ($calculatedPrices->first() ?: $product->getCalculatedPrice())
+            : $product->getCalculatedPrice();
+
         if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
+            if ($productPrice instanceof CalculatedPrice) {
+                $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
+                return;
+            }
+
             $productId = $product->getId();
             $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
                 $productId,
@@ -419,10 +429,6 @@ class PartialBuilder
             }
         }
 
-        $calculatedPrices = $product->getCalculatedPrices();
-        $productPrice = $calculatedPrices instanceof Collection
-            ? ($calculatedPrices->first() ?: $product->getCalculatedPrice())
-            : $product->getCalculatedPrice();
         if ($productPrice instanceof CalculatedPrice) {
             $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
             return;
@@ -696,6 +702,42 @@ class PartialBuilder
         }
 
         return $this->dynamicGroupCategoriesCache[$cacheKey];
+    }
+
+    private function getCategoriesWithSeoUrls(
+        CategoryCollection $categories,
+        SalesChannelContext $context,
+    ): CategoryCollection {
+        $categoryIds = array_values($categories->getIds());
+        if ($categoryIds === []) {
+            return new CategoryCollection();
+        }
+
+        $cacheKey = $this->buildCacheKey($context);
+        if (!isset($this->categorySeoUrlsCache[$cacheKey])) {
+            $this->categorySeoUrlsCache[$cacheKey] = [];
+        }
+
+        $cachedCategories = &$this->categorySeoUrlsCache[$cacheKey];
+        $missingIds = array_values(array_diff($categoryIds, array_keys($cachedCategories)));
+        if ($missingIds !== []) {
+            $criteria = NostoCriteriaFactory::create('product_sync.partialBuilder.loadCategorySeoUrls');
+            $criteria->addAssociation('seoUrls');
+            $criteria->addFilter(new EqualsAnyFilter('id', $missingIds));
+
+            foreach ($this->categoryRepository->search($criteria, $context)->getEntities() as $category) {
+                $cachedCategories[$category->getId()] = $category;
+            }
+        }
+
+        $result = new CategoryCollection();
+        foreach ($categoryIds as $categoryId) {
+            if (isset($cachedCategories[$categoryId])) {
+                $result->add($cachedCategories[$categoryId]);
+            }
+        }
+
+        return $result;
     }
 
     private function addCategoriesByDynamicGroupsAssigned(

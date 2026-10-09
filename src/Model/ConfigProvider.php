@@ -328,6 +328,17 @@ class ConfigProvider
         );
     }
 
+    public function isEnabledCalculateParentStockFromVariants(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::CALCULATE_PARENT_STOCK_FROM_VARIANTS,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledProductLabellingSync(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(

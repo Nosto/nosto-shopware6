@@ -53,12 +53,7 @@ class ProductTaggingHelper
             if (!$isProductTagging) {
                 return $this->getIdOrProductNumber($context, $product);
             } elseif (!$isProductSync) {
-                $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
-                    [$product->getId()],
-                    $context,
-                )->first();
-                $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
-                return $this->partialProductProvider->get($shopwareProduct, $context);
+                return $this->buildProductForTagging($productToReturn, $context, $productToReturn, $product);
             } else {
                 return $this->productHelper->getShopwareProductsPartial([$product->getId()], $context);
             }
@@ -112,26 +107,26 @@ class ProductTaggingHelper
         } elseif (!$isProductTagging) {
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
-            $productId = $productToReturn?->getId() ?? $product->getId();
-            $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
-                [$productId],
-                $context,
-            )->first();
-            $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
-            return $this->partialProductProvider->get($shopwareProduct, $context);
+            return $this->buildProductForTagging($productToReturn, $context, $productToReturn, $product);
         }
     }
 
-    private function applyHandledChildrenForTagging(
-        object|null $shopwareProduct,
+    private function buildProductForTagging(
+        PartialProduct $product,
         SalesChannelContext $context,
         ?PartialProduct $handledProduct,
         PartialProduct $fallbackProduct,
-    ): void {
-        if (!$shopwareProduct || !method_exists($shopwareProduct, 'set')) {
-            return;
-        }
+    ): NostoProduct {
+        $this->applyHandledChildrenForTagging($product, $handledProduct, $fallbackProduct);
 
+        return $this->partialProductProvider->get($product, $context);
+    }
+
+    private function applyHandledChildrenForTagging(
+        PartialProduct $shopwareProduct,
+        ?PartialProduct $handledProduct,
+        PartialProduct $fallbackProduct,
+    ): void {
         $handledChildren = $handledProduct?->getChildren();
         if ($handledChildren === null) {
             $handledChildren = $fallbackProduct->getChildren();
@@ -142,16 +137,11 @@ class ProductTaggingHelper
         }
 
         if ($handledChildren->count() === 0) {
-            $shopwareProduct->set('children', new PartialProductCollection());
+            $shopwareProduct->setChildren(new PartialProductCollection());
             return;
         }
 
-        $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
-            $handledChildren->getIds(),
-            $context,
-            false,
-        );
-        $shopwareProduct->set('children', $childrenLoaded);
+        $shopwareProduct->setChildren($handledChildren);
     }
 
     private function handleVariant(
@@ -178,6 +168,16 @@ class ProductTaggingHelper
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?PartialProduct {
+        if (
+            $product->getParentId() === null
+            && $this->configProvider->isEnabledCalculateParentStockFromVariants(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            )
+        ) {
+            $this->ensureChildrenLoaded($product, $salesChannelContext);
+        }
+
         $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
             && $this->configProvider->isEnabledSyncFirstAvailableVariant(

@@ -274,23 +274,18 @@ final class ProductTaggingHelperTest extends TestCase
         // configurator-group property), so it cannot be matched to either group above.
         $viewedVariant = $this->createProduct('viewed-variant-id', true, false, 1, 1, null);
 
-        // Stand in for the shopware product lookup keyed by the resolved product id so the tagging flow has
-        // a non-null result to hand to the partial product provider (a separate, pre-existing concern from
-        // the bug under test, which is that findProductId() must not throw before we even get this far).
-        $shopwareProductEntity = new \Shopware\Core\Content\Product\ProductEntity();
-        $shopwareProductEntity->setUniqueIdentifier('viewed-variant-id');
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('getProductStock')->willReturnCallback(
             static fn (PartialProduct $product, SalesChannelContext $context): int => $product->getStock(),
         );
-        $productHelper->expects(self::once())
-            ->method('getShopwareProductsPartial')
-            ->with(['viewed-variant-id'], self::anything())
-            ->willReturn(new \Shopware\Core\Content\Product\ProductCollection([$shopwareProductEntity]));
+        $productHelper->expects(self::never())->method('getShopwareProductsPartial');
 
         $nostoProduct = new NostoProduct();
         $partialProductProvider = $this->createMock(PartialProvider::class);
-        $partialProductProvider->expects(self::once())->method('get')->willReturn($nostoProduct);
+        $partialProductProvider->expects(self::once())
+            ->method('get')
+            ->with($viewedVariant, self::anything())
+            ->willReturn($nostoProduct);
 
         $helper = $this->createHelper(false, false, null, $productHelper, $partialProductProvider);
         $context = $this->createContext();

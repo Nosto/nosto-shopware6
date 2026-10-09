@@ -433,7 +433,7 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
-        {% block nosto_integration_feature_ignore_cookie_consent %}
+        {% block nosto_integration_feature_sync_first_available_variant %}
             <sw-inherit-wrapper
                 :value="currentConfig['syncFirstAvailableVariant']"
                 :inheritedValue="configKey === null ? null : configs['null']['syncFirstAvailableVariant']"
@@ -448,6 +448,26 @@
                         :disabled="props.isInherited"
                         :value="props.currentValue"
                         @update:value="onUpdateValue('syncFirstAvailableVariant', $event)"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block nosto_integration_feature_calculate_parent_stock_from_variants %}
+            <sw-inherit-wrapper
+                :value="currentConfig['calculateParentStockFromVariants']"
+                :inheritedValue="configKey === null ? null : configs['null']['calculateParentStockFromVariants']"
+                @update:value="onUpdateValue('calculateParentStockFromVariants', $event)"
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        name="calculateParentStockFromVariants"
+                        :map-inheritance="props"
+                        :label="$tc('nosto.configuration.featuresFlags.calculateParentStockFromVariants')"
+                        :help-text="$tc('nosto.configuration.featuresFlags.calculateParentStockFromVariantsHelpText')"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        @update:value="onUpdateValue('calculateParentStockFromVariants', $event)"
                     />
                 </template>
             </sw-inherit-wrapper>
