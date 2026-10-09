@@ -1,3 +1,9 @@
+# 6.1.34
+* New: Added an optional admin setting to calculate parent product inventory and availability from active variants
+* Fix: Improved overall page performance by reducing unnecessary database queries and repeated product lookups
+* Fix: Sync jobs that got stuck because their queued messages were lost are now detected and marked as failed, so new syncs can start again
+* Fix: Deactivating the plugin now marks its unfinished sync jobs as failed
+
 # 6.1.32
 * Fix: Search session params are no longer stored in a cookie
 
