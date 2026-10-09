@@ -190,7 +190,7 @@ class NostoExtension extends AbstractExtension
             $mainProduct = PartialProductConverter::toPartialProduct($mainProduct);
         }
 
-        $variantFromDb = $mainProduct?->getChildren()?->get($variantId);
+        $variantFromDb = $mainProduct?->getChildren()?->firstWhere('id', $variantId);
         if (!$variantFromDb instanceof PartialProduct) {
             $criteria = NostoCriteriaFactory::createWithIds([$variantId]);
             $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
