@@ -1,3 +1,9 @@
+# 5.2.32
+* Neu: Es wurde eine optionale Admin-Einstellung hinzugefügt, um den Lagerbestand und die Verfügbarkeit des übergeordneten Produkts anhand der aktiven Varianten zu berechnen.
+* Fix: Verbesserte allgemeine Seitenperformance durch die Reduzierung unnötiger Datenbankabfragen und wiederholter Produktabfragen.
+* Fix: Synchronisierungsaufträge, die ins Stocken geraten sind, weil ihre in der Warteschlange befindlichen Nachrichten verloren gegangen sind, werden nun erkannt und als fehlgeschlagen markiert, sodass neue Synchronisierungen erneut gestartet werden können
+* Fix: Wenn das Plugin nun deaktiviert wird, werden seine noch nicht abgeschlossenen Synchronisierungsaufträge als fehlgeschlagen markiert
+
 # 5.2.31
 * Fix: Die Such-Sitzungsparameter werden nicht mehr in einem Cookie gespeichert
 
