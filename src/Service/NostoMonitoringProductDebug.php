@@ -123,7 +123,10 @@ class NostoMonitoringProductDebug extends ProductSyncHandler
                 }
 
                 if ($shopwareProduct) {
-                    $shopwareProduct->setChildren($handledProduct->getChildren());
+                    $handledChildren = $handledProduct->getChildren();
+                    if ($handledChildren !== null) {
+                        $shopwareProduct->setChildren($handledChildren);
+                    }
                     if ($nostoProduct = $this->handleProduct(
                         $shopwareProduct,
                         $context,
