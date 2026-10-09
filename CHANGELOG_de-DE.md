@@ -1,3 +1,6 @@
+# 5.2.31
+* Fix: Die Such-Sitzungsparameter werden nicht mehr in einem Cookie gespeichert
+
 # 5.2.30
 * Fix: frontend.cms.page.full-Route schlägt mit „controller not callable“ fehl
 

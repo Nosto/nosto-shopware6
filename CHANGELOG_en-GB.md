@@ -1,3 +1,6 @@
+# 5.2.31
+* Fix: Search session params are no longer stored in a cookie
+
 # 5.2.30
 * Fix: frontend.cms.page.full route failing with "controller not callable"
 
