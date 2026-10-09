@@ -219,7 +219,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
             ->method('addSuccess')
             ->willReturnCallback(static function (Closure $callback) use (&$capturedSuccessCallback): void {
                 $capturedSuccessCallback = $callback;
-        });
+            });
 
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('loadOrderNumberMapping')

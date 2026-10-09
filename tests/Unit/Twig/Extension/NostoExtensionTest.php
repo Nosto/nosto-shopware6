@@ -55,7 +55,7 @@ final class NostoExtensionTest extends TestCase
             ->with([$productId], $context, $enabled)
             ->willReturn(new EntityCollection());
 
-        $nostoProduct = new class extends NostoProduct {
+        $nostoProduct = new class() extends NostoProduct {
             public string $variationStatus;
         };
         $productProvider = $this->createMock(ProductProviderInterface::class);
