@@ -578,7 +578,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->queueDeleteProductIds($queuedDeleteIds, [$product->getParentId()]);
         }
 
-        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+        if (
+            $hideProductsAfterClearance
+            && !$this->productHelper->isProductInStock($product, $context, $stock)
+        ) {
             $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId()]);
             return null;
         }
