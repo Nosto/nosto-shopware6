@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -112,7 +113,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $capturedSuccessCallback();
     }
 
-    public function testOnProductWrittenIncludesCurrentAndPreviousParentsWhenDerivationIsEnabled(): void
+    public function testOnProductWrittenIncludesCurrentAndPreviousParentsWhenCalculationIsEnabled(): void
     {
         $context = Context::createDefaultContext();
         $childId = Uuid::randomHex();
@@ -143,12 +144,6 @@ final class ProductWrittenDeletedEventTest extends TestCase
 
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->expects($this->once())
-            ->method('loadParentIdMapping')
-            ->with([$childId], $context)
-            ->willReturn([
-                $childId => $newParentId,
-            ]);
-        $productHelper->expects($this->once())
             ->method('loadOrderNumberMapping')
             ->with([$childId, $newParentId, $oldParentId], $context)
             ->willReturn([
@@ -158,7 +153,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
             ]);
 
         $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')
             ->with('sales-channel-id', 'language-id')
             ->willReturn(true);
         $accountProvider = $this->createMock(AccountProvider::class);
@@ -194,7 +189,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
         ], $calls);
     }
 
-    public function testBeforeDeleteIncludesParentWhenDerivationIsEnabled(): void
+    public function testBeforeDeleteIncludesParentWhenCalculationIsEnabled(): void
     {
         $context = Context::createDefaultContext();
         $childId = Uuid::randomHex();
@@ -202,20 +197,31 @@ final class ProductWrittenDeletedEventTest extends TestCase
         $event = $this->createMock(EntityDeleteEvent::class);
         $event->method('getIds')->with(ProductDefinition::ENTITY_NAME)->willReturn([$childId]);
         $event->method('getContext')->willReturn($context);
+        $existence = new EntityExistence(
+            ProductDefinition::ENTITY_NAME,
+            [
+                'id' => $childId,
+            ],
+            true,
+            true,
+            true,
+            [
+                'parent_id' => Uuid::fromHexToBytes($parentId),
+            ],
+        );
+        $command = $this->createMock(WriteCommand::class);
+        $command->method('getEntityName')->willReturn(ProductDefinition::ENTITY_NAME);
+        $command->method('getEntityExistence')->willReturn($existence);
+        $event->method('getCommands')->willReturn([$command]);
 
         $capturedSuccessCallback = null;
         $event->expects($this->once())
             ->method('addSuccess')
             ->willReturnCallback(static function (Closure $callback) use (&$capturedSuccessCallback): void {
                 $capturedSuccessCallback = $callback;
-            });
+        });
 
         $productHelper = $this->createMock(ProductHelper::class);
-        $productHelper->method('loadParentIdMapping')
-            ->with([$childId], $context)
-            ->willReturn([
-                $childId => $parentId,
-            ]);
         $productHelper->method('loadOrderNumberMapping')
             ->with([$childId, $parentId], $context)
             ->willReturn([
@@ -224,7 +230,7 @@ final class ProductWrittenDeletedEventTest extends TestCase
             ]);
 
         $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
         $accountProvider = $this->createMock(AccountProvider::class);
         $accountProvider->method('all')->willReturn([
             new Account('sales-channel-id', 'language-id', 'account', new KeyChain([])),

@@ -40,11 +40,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ProductHelperTest extends TestCase
 {
-    public function testGetProductStockUsesDirectParentStockWhenDerivationIsDisabled(): void
+    public function testGetProductStockUsesDirectParentStockWhenCalculationIsDisabled(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(false);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(false);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -60,11 +60,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testGetProductStockDerivesParentStockFromActiveVariants(): void
+    public function testGetProductStockCalculatesParentStockFromActiveVariants(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -83,11 +83,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testGetProductStockDerivesConfiguredActualStockFromVariants(): void
+    public function testGetProductStockCalculatesConfiguredActualStockFromVariants(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::ACTUAL_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -103,11 +103,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testGetProductStockKeepsVariantStockDirectWhenDerivationIsEnabled(): void
+    public function testGetProductStockKeepsVariantStockDirectWhenCalculationIsEnabled(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $variant = $this->createStockProduct(
             id: 'variant-id',
@@ -126,7 +126,7 @@ final class ProductHelperTest extends TestCase
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -145,7 +145,7 @@ final class ProductHelperTest extends TestCase
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = new ProductEntity();
         $parent->setId(Uuid::randomHex());
@@ -160,11 +160,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testDerivedZeroStockMakesVariantParentUnavailable(): void
+    public function testCalculatedZeroStockMakesVariantParentUnavailable(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -186,11 +186,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testDerivedParentIsAvailableWhenZeroStockVariantIsNotCloseout(): void
+    public function testCalculatedParentIsAvailableWhenZeroStockVariantIsNotCloseout(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(true);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(true);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',
@@ -213,11 +213,11 @@ final class ProductHelperTest extends TestCase
         ));
     }
 
-    public function testDerivationDisabledPreservesParentCloseoutAvailabilityRule(): void
+    public function testCalculationDisabledPreservesParentCloseoutAvailabilityRule(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('getStockField')->willReturn(StockFieldOptions::AVAILABLE_STOCK);
-        $configProvider->method('isEnabledDeriveParentStockFromVariants')->willReturn(false);
+        $configProvider->method('isEnabledCalculateParentStockFromVariants')->willReturn(false);
 
         $parent = $this->createStockProduct(
             id: 'parent-id',

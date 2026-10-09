@@ -119,8 +119,8 @@
                   "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Gecachte Antworten variieren je nach Besucher-Cookies, damit die Personalisierung nicht zwischen Besuchern geteilt wird. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden."
                 },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
-                "deriveParentStockFromVariants": "Lagerbestand des Hauptprodukts aus aktiven Varianten ableiten",
-                "deriveParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, wird sein Bestand aus dem konfigurierten Lagerfeld seiner aktiven Varianten abgeleitet. Es wird als verfügbar markiert, wenn mindestens eine aktive Variante gemäß ihrem Bestand und ihrer Abverkaufseinstellung kaufbar ist. Nach der Aktivierung sollte eine vollständige Produktsynchronisierung ausgeführt werden, damit bestehende Hauptprodukte aktualisiert werden.",
+                "calculateParentStockFromVariants": "Lagerbestand des Hauptprodukts aus aktiven Varianten berechnen",
+                "calculateParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, wird sein Bestand aus dem konfigurierten Lagerbestand seiner aktiven Varianten berechnet. Es wird als verfügbar markiert, wenn mindestens eine aktive Variante gemäß ihrem Bestand und ihrer Abverkaufseinstellung kaufbar ist. Nach der Aktivierung sollte eine vollständige Produktsynchronisierung ausgeführt werden, damit der Lagerbestand der Produkte aktualisiert wird.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",

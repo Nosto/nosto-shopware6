@@ -93,7 +93,7 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         $ids = $this->includeParentIds(
             $event->getIds(),
             $event->getContext(),
-            $this->getPreviousParentIds($event),
+            $this->getWrittenProductParentIds($event),
         );
         $orderNumberMapping = $this->productHelper->loadOrderNumberMapping($ids, $event->getContext());
 
@@ -105,7 +105,11 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
         $ids = $event->getIds(ProductDefinition::ENTITY_NAME);
 
         if (count($ids)) {
-            $ids = $this->includeParentIds($ids, $event->getContext());
+            $ids = $this->includeParentIds(
+                $ids,
+                $event->getContext(),
+                $this->getDeletedProductParentIds($event),
+            );
             $orderNumberMapping = $this->productHelper->loadOrderNumberMapping($ids, $event->getContext());
 
             $event->addSuccess(function () use ($ids, $event, $orderNumberMapping): void {
@@ -118,49 +122,77 @@ class ProductWrittenDeletedEvent implements EventSubscriberInterface
      * @param array<string> $ids
      * @return array<string>
      */
-    private function includeParentIds(array $ids, Context $context, array $additionalParentIds = []): array
+    private function includeParentIds(array $ids, Context $context, array $parentIds): array
     {
-        if (!$this->isParentStockDerivationEnabledForAnyAccount($context)) {
+        if (!$this->isParentStockCalculationEnabledForAnyAccount($context)) {
             return $ids;
         }
 
-        // Variant changes must resync their current parent; reassignment also supplies the previous parent here.
-        $parentIds = $this->productHelper->loadParentIdMapping($ids, $context);
-
-        return array_values(array_unique([...$ids, ...array_values($parentIds), ...$additionalParentIds]));
+        // Parent IDs come from Shopware's write state, avoiding an additional product lookup per event.
+        return array_values(array_unique([...$ids, ...$parentIds]));
     }
 
     /**
      * @return array<string>
      */
-    private function getPreviousParentIds(EntityWrittenEvent $event): array
+    private function getWrittenProductParentIds(EntityWrittenEvent $event): array
     {
         $parentIds = [];
         foreach ($event->getWriteResults() as $writeResult) {
-            if (!$writeResult->hasPayload('parentId')) {
-                continue;
+            $currentParentId = $this->normalizeProductId($writeResult->getProperty('parentId'));
+            if ($currentParentId !== null) {
+                $parentIds[] = $currentParentId;
             }
 
-            // The existence state contains the database values from before the write was applied.
-            $parentId = $writeResult->getExistence()?->getState()['parent_id'] ?? null;
-            if (!is_string($parentId)) {
-                continue;
+            // The existence state supplies the unchanged or previous parent without another query.
+            $previousParentId = $this->normalizeProductId(
+                $writeResult->getExistence()?->getState()['parent_id'] ?? null,
+            );
+            if ($previousParentId !== null) {
+                $parentIds[] = $previousParentId;
             }
-
-            if (!Uuid::isValid($parentId)) {
-                $parentId = Uuid::fromBytesToHex($parentId);
-            }
-
-            $parentIds[] = $parentId;
         }
 
-        return $parentIds;
+        return array_values(array_unique($parentIds));
     }
 
-    private function isParentStockDerivationEnabledForAnyAccount(Context $context): bool
+    /**
+     * @return array<string>
+     */
+    private function getDeletedProductParentIds(EntityDeleteEvent $event): array
+    {
+        $parentIds = [];
+        foreach ($event->getCommands() as $command) {
+            if ($command->getEntityName() !== ProductDefinition::ENTITY_NAME) {
+                continue;
+            }
+
+            $parentId = $this->normalizeProductId($command->getEntityExistence()->getState()['parent_id'] ?? null);
+            if ($parentId !== null) {
+                $parentIds[] = $parentId;
+            }
+        }
+
+        return array_values(array_unique($parentIds));
+    }
+
+    private function normalizeProductId(mixed $productId): ?string
+    {
+        if (!is_string($productId) || $productId === '') {
+            return null;
+        }
+
+        if (Uuid::isValid($productId)) {
+            return $productId;
+        }
+
+        return strlen($productId) === 16 ? Uuid::fromBytesToHex($productId) : null;
+    }
+
+    private function isParentStockCalculationEnabledForAnyAccount(Context $context): bool
     {
         foreach ($this->accountProvider->all($context) as $account) {
-            if ($this->configProvider->isEnabledDeriveParentStockFromVariants(
+            if ($this->configProvider->isEnabledCalculateParentStockFromVariants(
                 $account->getChannelId(),
                 $account->getLanguageId(),
             )) {

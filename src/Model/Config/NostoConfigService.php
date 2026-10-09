@@ -89,7 +89,7 @@ class NostoConfigService
 
     public const ENABLE_SYNC_FIRST_AVAILABLE_VARIANT = 'syncFirstAvailableVariant';
 
-    public const DERIVE_PARENT_STOCK_FROM_VARIANTS = 'deriveParentStockFromVariants';
+    public const CALCULATE_PARENT_STOCK_FROM_VARIANTS = 'calculateParentStockFromVariants';
 
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
 

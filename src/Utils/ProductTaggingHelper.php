@@ -180,7 +180,7 @@ class ProductTaggingHelper
     ): ?PartialProduct {
         if (
             $product->getParentId() === null
-            && $this->configProvider->isEnabledDeriveParentStockFromVariants(
+            && $this->configProvider->isEnabledCalculateParentStockFromVariants(
                 $salesChannelContext->getSalesChannelId(),
                 $salesChannelContext->getLanguageId(),
             )

@@ -729,7 +729,7 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         if ($variantConfig->getDisplayParent()) {
-            if ($this->configProvider->isEnabledDeriveParentStockFromVariants(
+            if ($this->configProvider->isEnabledCalculateParentStockFromVariants(
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             )) {
