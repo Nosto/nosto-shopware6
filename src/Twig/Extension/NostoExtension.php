@@ -75,8 +75,15 @@ class NostoExtension extends AbstractExtension
             }
 
             if ($product instanceof SalesChannelProductEntity) {
+                // Children are loaded here only when they are needed to calculate the parent's stock and
+                // availability. Variant SKU synchronization is handled by the regular synchronization and
+                // dedicated all-SKUs product-tagging paths.
+                $includeChildren = $this->configProvider->isEnabledCalculateParentStockFromVariants(
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId(),
+                );
                 $partialProduct = $this->productHelper
-                    ->getShopwareProductsPartial([$product->getId()], $context, false)
+                    ->getShopwareProductsPartial([$product->getId()], $context, $includeChildren)
                     ->get($product->getId());
 
                 if ($partialProduct instanceof PartialEntity && !$partialProduct instanceof PartialProduct) {

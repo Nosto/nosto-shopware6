@@ -121,6 +121,8 @@
                     "helpText": "Set the cache time to live for Search and Category pages. Cached responses vary by visitor cookies so personalisation is not shared between visitors. To get the most of Nosto personalisation, disable caching."
                 },
                 "enableSyncFirstAvailableVariant": "Sync first available variant as a product, if product is on clearance and out of stock",
+                "calculateParentStockFromVariants": "Calculate parent stock from active variants",
+                "calculateParentStockFromVariantsHelpText": "When the parent is the Nosto product, calculate its inventory from the configured stock field of its active variants and mark it as available when at least one active variant is purchasable according to its stock and clearance-sale setting. After enabling this option, run a full product synchronisation so existing parent products are updated.",
                 "enableDailySynchronization": "Enable Daily Product Synchronization",
                 "enableDailySynchronizationHelp": "If the field is enabled products will be synchronized at the mentioned time each day",
                 "timeDailySynchronization": "Time for Daily Product Synchronization",
