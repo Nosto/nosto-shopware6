@@ -125,16 +125,16 @@
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "4.0.9",
+            "version": "4.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "a08d032e52e925ae4bb7e18b283c111c08295abb"
+                "reference": "77311e1478a2aa7f4dc54add7a9aa350dd42a9b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/a08d032e52e925ae4bb7e18b283c111c08295abb",
-                "reference": "a08d032e52e925ae4bb7e18b283c111c08295abb",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/77311e1478a2aa7f4dc54add7a9aa350dd42a9b7",
+                "reference": "77311e1478a2aa7f4dc54add7a9aa350dd42a9b7",
                 "shasum": ""
             },
             "require": {
@@ -158,9 +158,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.9"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/4.0.10"
             },
-            "time": "2026-07-29T08:35:20+00:00"
+            "time": "2026-10-09T13:24:11+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
