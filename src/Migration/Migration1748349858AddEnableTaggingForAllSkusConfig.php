@@ -20,6 +20,10 @@ class Migration1748349858AddEnableTaggingForAllSkusConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        if (!$connection->createSchemaManager()->tablesExist(['nosto_integration_config'])) {
+            return;
+        }
+
         $connection->insert('nosto_integration_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'enableTaggingForAllSkus',
