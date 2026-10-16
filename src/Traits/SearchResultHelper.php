@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Traits;
 
 use Nosto\NostoIntegration\Struct\Pagination;
-use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,18 +33,38 @@ trait SearchResultHelper
     protected function fetchProducts(
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
-        ?string $query = null,
     ): EntitySearchResult {
-        if ($query !== null && count($criteria->getIds()) === 1) {
-            $this->modifyCriteriaFromQuery($query, $criteria, $salesChannelContext);
-        }
-
         $result = $this->salesChannelProductRepository->search(
             $this->cleanDatabaseCriteria($criteria),
             $salesChannelContext,
         );
 
-        return $this->fixResultOrder($result, $criteria);
+        return $this->applyNostoTotal($this->fixResultOrder($result, $criteria), $criteria);
+    }
+
+    /**
+     * The database lookup above is filtered to only the product ids Nosto returned for the
+     * current page, so its own total reflects just how many of those ids matched (at most the
+     * page size), not the real total for the query. The real total is stashed on the criteria
+     * by AbstractRequestHandler::setPagination(). Without this, Shopware's own pagination
+     * bounds check (PagingListingProcessor) sees a total capped at page size and treats every
+     * page beyond the first as out of range.
+     */
+    private function applyNostoTotal(EntitySearchResult $result, Criteria $criteria): EntitySearchResult
+    {
+        $pagination = $criteria->getExtension('nostoPagination');
+        if (!$pagination instanceof Pagination || $pagination->getTotal() === null) {
+            return $result;
+        }
+
+        return new EntitySearchResult(
+            $result->getEntity(),
+            $pagination->getTotal(),
+            $result->getEntities(),
+            $result->getAggregations(),
+            $result->getCriteria(),
+            $result->getContext(),
+        );
     }
 
     /**
@@ -128,26 +145,5 @@ trait SearchResultHelper
         $page = $this->getPage($request);
 
         return ($page - 1) * $limit;
-    }
-
-    /**
-     * If a specific variant is searched by its product number, we want to modify the criteria
-     * to show that variant instead of the main product.
-     */
-    private function modifyCriteriaFromQuery(
-        string $query,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext,
-    ): void {
-        $productCriteria = NostoCriteriaFactory::create();
-        $productCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('productNumber', $query),
-            new EqualsFilter('ean', $query),
-            new EqualsFilter('manufacturerNumber', $query),
-        ]));
-        $product = $this->salesChannelProductRepository->search($productCriteria, $salesChannelContext)->first();
-        if ($product) {
-            $criteria->setIds([$product->getId()]);
-        }
     }
 }

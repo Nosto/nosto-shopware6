@@ -16,6 +16,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
         const category = document.querySelector('.nosto_category')?.querySelector('.category_string')?.textContent?.trim() || window.location.pathname;
         const resultId = document.querySelector('.nosto_result_id')?.textContent?.trim() || null;
         const searchType = document.querySelector('.nosto_search_type')?.textContent?.trim() || null;
+        const searchTypeReason = document.querySelector('.nosto_search_type_reason')?.textContent?.trim() || null;
 
         const trackingType = searchQuery ? 'search' : category ? 'category' : 'unknown';
 
@@ -32,6 +33,7 @@ export default class NostoAnalytics extends window.PluginBaseClass {
                 ? {
                     query: searchQuery,
                     ...(searchType ? {searchType} : {}),
+                    ...(searchTypeReason ? {searchTypeReason} : {}),
                 }
                 : {category}),
         };

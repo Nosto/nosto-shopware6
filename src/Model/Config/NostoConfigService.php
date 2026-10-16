@@ -38,6 +38,8 @@ class NostoConfigService
 
     public const ENABLE_SEARCH = 'enableSearch';
 
+    public const ENABLE_INDEXED_PRODUCT_IDENTIFIER_SEARCH = 'enableIndexedProductIdentifierSearch';
+
     public const ENABLE_NAVIGATION = 'enableNavigation';
 
     public const INITIALIZE_NOSTO_AFTER_INTERACTION = 'isInitializeNostoAfterInteraction';
@@ -62,6 +64,8 @@ class NostoConfigService
 
     public const CATEGORY_BLOCKLIST = 'categoryBlocklist';
 
+    public const SCOPE_CATEGORIES_TO_SALES_CHANNEL = 'scopeCategoriesToSalesChannel';
+
     public const ENABLE_VARIATIONS = 'variations';
 
     public const ENABLE_PRODUCT_PROPERTIES = 'productProperties';
@@ -85,6 +89,8 @@ class NostoConfigService
     public const ENABLE_IGNORE_COOKIE_CONSENT = 'ignoreCookieConsent';
 
     public const ENABLE_SYNC_FIRST_AVAILABLE_VARIANT = 'syncFirstAvailableVariant';
+
+    public const CALCULATE_PARENT_STOCK_FROM_VARIANTS = 'calculateParentStockFromVariants';
 
     public const DAILY_PRODUCT_SYNC_ENABLED = 'dailySynchronization';
 

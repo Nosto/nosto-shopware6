@@ -73,6 +73,9 @@ class ProductListingRoute extends AbstractProductListingRoute
             $request->server->all(),
             $request->getContent(),
         );
+        $originalContext = null;
+        $originalCriteria = null;
+
         try {
             $shouldHandleRequest = SearchHelper::shouldHandleRequest($context, $this->configProvider, true, $request);
 
@@ -137,10 +140,20 @@ class ProductListingRoute extends AbstractProductListingRoute
             return new ProductListingRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $categoryId,
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($categoryId, $originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $categoryId,
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         }
     }
 

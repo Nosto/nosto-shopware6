@@ -133,17 +133,15 @@ class Builder
             $nostoProduct->setVariationId($currencyIsoCode);
         }
         $stock = $this->productHelper->getProductStock($product, $context);
-        $stockStatus = $stock > 0 ? ProductInterface::IN_STOCK : ProductInterface::OUT_OF_STOCK;
-
-        if (!$product->getIsCloseout() && $stock < 1) {
-            $stockStatus = ProductInterface::IN_STOCK;
-        }
+        $stockStatus = $this->productHelper->isProductInStock($product, $context, $stock)
+            ? ProductInterface::IN_STOCK
+            : ProductInterface::OUT_OF_STOCK;
 
         $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
         $criteria->addAssociation('seoUrls');
         $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
         $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
-        $product->setCategoriesRo($productCategoriesRo);
+        $product->setCategoriesRo($this->treeBuilder->scopeToSalesChannel($productCategoriesRo, $context));
 
         $nostoProduct->setAvailability($stockStatus);
 
@@ -151,9 +149,9 @@ class Builder
             $channelId,
             $languageId,
         ) === CategoryNamingOptions::WITH_ID) {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo());
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo(), $context);
         } else {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo());
+            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo(), $context);
         }
 
         if (!empty($nostoCategoryNames)) {

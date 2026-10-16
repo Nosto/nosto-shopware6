@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Helper;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\Event\ProductLoadExistingCriteriaEvent;
@@ -15,13 +17,13 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\ProductFieldSets;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\LabelTextFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\RangeSliderFilter;
 use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterValue;
+use Nosto\NostoIntegration\Search\Response\GraphQL\Filter\Values\FilterVisual;
 use Nosto\NostoIntegration\Struct\FiltersExtension;
 use Nosto\NostoIntegration\Struct\IdToFieldMapping;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -38,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
@@ -52,8 +55,8 @@ class ProductHelper
     private array $calculatedPriceCache = [];
 
     public function __construct(
+        private readonly Connection $connection,
         private readonly EntityRepository $productRepository,
-        private readonly AbstractProductDetailRoute $productRoute,
         private readonly EntityRepository $reviewRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ConfigProvider $configProvider,
@@ -120,7 +123,17 @@ class ProductHelper
 
                 foreach ($facet['data'] as $item) {
                     $value = $item['value'];
-                    $filterValue = new FilterValue($value, $value);
+                    $visual = isset($item['visual']) && is_array($item['visual']) ? $item['visual'] : null;
+                    $filterValue = new FilterValue(
+                        $value,
+                        $value,
+                        isset($item['count']) ? (int) $item['count'] : null,
+                        $item['selected'] ?? null,
+                        $visual ? new FilterVisual(
+                            $visual['type'] ?? null,
+                            $visual['value'] ?? null,
+                        ) : null,
+                    );
                     $filter->addValue($filterValue);
                 }
             } else {
@@ -141,13 +154,16 @@ class ProductHelper
             $product = PartialProductConverter::toPartialProduct($product);
         }
 
+
+        $familyId = $product->getParentId() ?? $product->getId();
         $reviewCriteria = NostoCriteriaFactory::create('product_sync.productHelper.getReviewsCount');
         $reviewCriteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $product->getId()),
-                new EqualsFilter('product.parentId', $product->getId()),
+                new EqualsFilter('product.id', $familyId),
+                new EqualsFilter('product.parentId', $familyId),
             ]),
         );
+        $reviewCriteria->addFilter(new EqualsFilter('status', true));
         $reviewCriteria->addAggregation(new CountAggregation('review-count', 'id'));
         $aggregation = $this->reviewRepository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 
@@ -323,17 +339,37 @@ class ProductHelper
     }
 
     /**
+     * @param array<string> $ids
      * @return array<string, string>
      */
     public function loadOrderNumberMapping(array $ids, Context $context): array
     {
-        $criteria = NostoCriteriaFactory::createWithIds($ids, 'product_sync.productHelper.loadOrderNumberMapping');
-        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        if ($ids === []) {
+            return [];
+        }
+
+        $rows = $this->connection->executeQuery(
+            'SELECT LOWER(HEX(`id`)) AS id, `product_number` AS productNumber
+             FROM `product`
+             WHERE `id` IN (:ids) AND `version_id` = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ],
+        )->fetchAllAssociative();
+
         $orderNumberMapping = [];
-        while (($result = $iterator->fetch()) !== null) {
-            foreach ($result as $product) {
-                $orderNumberMapping[$product->getId()] = $product->getProductNumber();
+        foreach ($rows as $row) {
+            $id = $row['id'] ?? null;
+            $productNumber = $row['productNumber'] ?? null;
+            if (!is_string($id) || !is_string($productNumber)) {
+                continue;
             }
+
+            $orderNumberMapping[$id] = $productNumber;
         }
 
         return $orderNumberMapping;
@@ -572,6 +608,74 @@ class ProductHelper
     }
 
     public function getProductStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): int {
+        $stock = $this->getDirectProductStock($product, $context);
+        if (!$this->isParentStockCalculatedFromVariants($product, $context)) {
+            return $stock;
+        }
+
+        // The parent is only a grouping product in this mode; its own stock must not affect the total.
+        $calculatedStock = 0;
+        foreach ($product->getChildren() ?? [] as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            $calculatedStock += max(0, $this->getDirectProductStock($child, $context));
+        }
+
+        return $calculatedStock;
+    }
+
+    public function isProductInStock(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+        ?int $stock = null,
+    ): bool {
+        $stock ??= $this->getProductStock($product, $context);
+        if (!$this->isParentStockCalculatedFromVariants($product, $context)) {
+            // Preserve the existing Shopware rule: zero stock is still purchasable unless the product is closeout.
+            return $stock > 0 || !$product->getIsCloseout();
+        }
+
+        // A calculated parent is available when at least one active variant is purchasable by the same rule.
+        foreach ($product->getChildren() ?? [] as $child) {
+            if (!$child->getActive()) {
+                continue;
+            }
+
+            if ($this->getDirectProductStock($child, $context) > 0 || !$child->getIsCloseout()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getProductChildCount(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+    ): ?int {
+        return $product->getChildCount();
+    }
+
+    private function isParentStockCalculatedFromVariants(
+        ProductEntity|SalesChannelProductEntity|PartialProduct $product,
+        SalesChannelContext $context,
+    ): bool {
+        // Product sync, storefront tagging, and monitoring preload children for this feature.
+        // Keep direct parent stock for any other caller that supplies an incomplete association.
+        return $product->getParentId() === null
+            && $product->getChildren() !== null
+            && ($this->getProductChildCount($product) ?? 0) > 0
+            && $this->configProvider->isEnabledCalculateParentStockFromVariants(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
+    }
+
+    private function getDirectProductStock(
         ProductEntity|SalesChannelProductEntity|PartialProduct $product,
         SalesChannelContext $context,
     ): int {

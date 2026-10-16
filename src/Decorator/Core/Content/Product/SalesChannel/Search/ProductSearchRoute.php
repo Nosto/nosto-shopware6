@@ -9,6 +9,7 @@ use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Search\ProductIdentifierResolver;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
@@ -52,6 +53,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly LoggerInterface $logger,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Account\Provider $accountProvider,
+        private readonly ProductIdentifierResolver $productIdentifierResolver,
     ) {
     }
 
@@ -75,6 +77,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $request->getContent(),
         );
         $query = $request->query->get('search');
+        $originalContext = null;
+        $originalCriteria = null;
+
         try {
             if (!SearchHelper::shouldHandleRequest($context, $this->configProvider, false, $request)) {
                 $criteria->setTerm($query);
@@ -103,7 +108,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $result = $this->fetchProductsById($criteria, $context, $query);
+            $result = $this->fetchProductsById($criteria, $context, $query, $request);
 
             $productListing = ProductListingResult::createFrom($result);
             $productListing->addCurrentFilter('search', $query);
@@ -156,10 +161,18 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return new ProductSearchRouteResponse($productListing);
         } catch (RoutingException $e) {
             $this->logger->error('Routing exception occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         } catch (Exception $e) {
             $this->logger->error('An unexpected error occurred: ' . $e->getMessage());
-            return $this->decorated->load($originalRequest, $originalContext, $originalCriteria);
+            return $this->decorated->load(
+                $originalRequest,
+                $originalContext ?? $context,
+                $originalCriteria ?? $criteria,
+            );
         }
     }
 
@@ -211,6 +224,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             $page = $productListing->getPage();
             $resultId = vsprintf('%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s', str_split(Uuid::randomHex(), 2));
             $searchType = $request->attributes->get('nostoSearchType');
+            $searchTypeReason = $request->attributes->get('nostoSearchTypeReason');
             $metadata = new AnalyticsSearchMetadataForGraphql(
                 $request->get('search') ?? null,
                 $resultId,
@@ -229,6 +243,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 //refined
                 false,
                 $searchType,
+                $searchTypeReason,
             );
             //we need to know about the resultId that was used in the impression for the click analytic
             $productListing->setExtensions(array_merge(
@@ -236,6 +251,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 [
                     'nosto_result_id' => $resultId,
                     'nosto_search_type' => $searchType,
+                    'nosto_search_type_reason' => $searchTypeReason,
                 ],
             ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
@@ -250,11 +266,24 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query,
+        Request $request,
     ): EntitySearchResult {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
 
-        return $this->fetchProducts($criteria, $salesChannelContext, $query);
+        if ($query !== null && count($criteria->getIds()) === 1) {
+            $productId = $this->configProvider->isIndexedProductIdentifierSearchEnabled(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            )
+                ? $this->productIdentifierResolver->resolveFromKeywordIndex($query, $salesChannelContext)
+                : $this->productIdentifierResolver->resolveFromProductFields($query, $salesChannelContext);
+            if ($productId !== null) {
+                $criteria->setIds([$productId]);
+            }
+        }
+
+        return $this->fetchProducts($criteria, $salesChannelContext);
     }
 }

@@ -26,6 +26,21 @@ class SearchService
 {
     private const FILTER_REQUEST_LIMIT = 0;
 
+    /**
+     * Query parameters used by Shopware listings that are never Nosto filter ids.
+     */
+    private const NON_FILTER_PARAMS = [
+        'search',
+        'p',
+        'order',
+        'limit',
+        'mode',
+        'navigationId',
+        'no-aggregations',
+        'only-aggregations',
+        'reduce-aggregations',
+    ];
+
     public function __construct(
         private readonly ConfigProvider $configProvider,
         private readonly PaginationService $paginationService,
@@ -69,6 +84,17 @@ class SearchService
         }
     }
 
+    protected function hasFilterParams(Request $request): bool
+    {
+        foreach (array_keys($request->query->all()) as $param) {
+            if (!in_array((string) $param, self::NON_FILTER_PARAMS, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function allowRequest(Request $request, SalesChannelContext $context): bool
     {
         return SearchHelper::shouldHandleRequest(
@@ -100,7 +126,10 @@ class SearchService
             $request,
             NostoCookieProvider::NOSTO_FILTERS_KEY,
         );
-        if (empty($filterCookie) && count($request->query->all()) !== 1) {
+        // The separate facets-only request is only needed when filters are already selected
+        // and the full filter list cannot be restored from the cookie. Without selected
+        // filters, the results response contains the complete filter list anyway.
+        if (empty($filterCookie) && $this->hasFilterParams($request)) {
             $fetchedFilters = true;
             $this->fetchFilters($request, $criteria, $context, $requestHandler);
         }

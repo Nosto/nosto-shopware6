@@ -38,6 +38,22 @@ Component.register('nosto-integration-features-flags', {
 
             return criteria;
         },
+        createCustomerDataOptions() {
+            return [
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.relyOnCookie'),
+                    value: 'rely-on-cookie',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.always'),
+                    value: 'always',
+                },
+                {
+                    label: this.$tc('nosto.configuration.featuresFlags.customerDataOptions.never'),
+                    value: 'never',
+                },
+            ];
+        },
         createProductIdentifierOptions() {
             return [
                 {
@@ -154,12 +170,13 @@ Component.register('nosto-integration-features-flags', {
                 variations: true,
                 productProperties: true,
                 alternateImages: true,
-                productIdentifier: 'product-id',
+                productIdentifier: 'product-number',
                 ratingsReviews: 'shopware-ratings',
                 stockField: 'available-stock',
                 crossSellingSync: 'no-sync',
                 categoryNaming: 'no-id',
                 categoryBlocklist: [],
+                scopeCategoriesToSalesChannel: false,
                 inventory: false,
                 customerDataToNosto: true,
                 syncInactiveProducts: false,
@@ -167,8 +184,9 @@ Component.register('nosto-integration-features-flags', {
                 reloadRecommendations: false,
                 enableLabelling: false,
                 storeAbandonedCartData: false,
-                ignoreCookieConsent: false,
+                ignoreCookieConsent: true,
                 syncFirstAvailableVariant: false,
+                calculateParentStockFromVariants: false,
                 dailySynchronizationTime: false,
                 syncBatchSize: 150,
                 domain: null,

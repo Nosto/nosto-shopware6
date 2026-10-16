@@ -7,6 +7,9 @@
     <div class="nosto_search_type" style="display:none">
         {{ page.listing.extensions["nosto_search_type"] }}
     </div>
+    <div class="nosto_search_type_reason" style="display:none">
+        {{ page.listing.extensions["nosto_search_type_reason"] }}
+    </div>
     {% if not context.context.extensions.nostoService.enabled %}
         {{ parent() }}
     {% else %}

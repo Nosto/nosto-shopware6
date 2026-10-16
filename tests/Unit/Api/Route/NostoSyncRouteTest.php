@@ -7,6 +7,7 @@ namespace Nosto\NostoIntegration\Tests\Unit\Api\Route;
 use Exception;
 use Nosto\NostoIntegration\Api\Route\NostoSyncRoute;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
+use Nosto\NostoIntegration\Service\JobRecoveryService;
 use Nosto\NostoIntegration\Service\NostoJobSyncService;
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\JobScheduler;
@@ -39,11 +40,49 @@ final class NostoSyncRouteTest extends TestCase
             ->method('schedule')
             ->with($this->callback(static fn (object $message): bool => $message instanceof FullCatalogSyncMessage));
 
-        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger);
+        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger, $this->createMock(
+            JobRecoveryService::class,
+        ));
 
         $response = $route->fullCatalogSync(new Request(), Context::createDefaultContext());
 
         self::assertInstanceOf(JsonApiResponse::class, $response);
+    }
+
+    public function testFullCatalogSyncRecoversOrphanedJobsBeforeCheckingTheJobStatus(): void
+    {
+        $calls = [];
+        $jobScheduler = $this->createMock(JobScheduler::class);
+        $jobRepository = $this->createMock(EntityRepository::class);
+        $jobSyncService = $this->createMock(NostoJobSyncService::class);
+        $jobRecoveryService = $this->createMock(JobRecoveryService::class);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $jobRecoveryService->expects($this->once())
+            ->method('recoverOrphanedJobs')
+            ->willReturnCallback(static function () use (&$calls): int {
+                $calls[] = 'recover';
+
+                return 1;
+            });
+        $jobRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function () use (&$calls): EntitySearchResult {
+                $calls[] = 'search';
+
+                return $this->createSearchResult([]);
+            });
+        $jobScheduler->expects($this->once())
+            ->method('schedule')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'schedule';
+            });
+
+        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger, $jobRecoveryService);
+
+        $route->fullCatalogSync(new Request(), Context::createDefaultContext());
+
+        self::assertSame(['recover', 'search', 'schedule'], $calls);
     }
 
     public function testFullCatalogSyncRejectsWhenTheJobIsAlreadyScheduled(): void
@@ -63,7 +102,9 @@ final class NostoSyncRouteTest extends TestCase
         $jobScheduler->expects($this->never())
             ->method('schedule');
 
-        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger);
+        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger, $this->createMock(
+            JobRecoveryService::class,
+        ));
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Job is already scheduled.');
@@ -88,7 +129,9 @@ final class NostoSyncRouteTest extends TestCase
         $jobScheduler->expects($this->never())
             ->method('schedule');
 
-        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger);
+        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger, $this->createMock(
+            JobRecoveryService::class,
+        ));
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Job is already running.');
@@ -113,7 +156,9 @@ final class NostoSyncRouteTest extends TestCase
             ->method('error')
             ->with($this->stringStartsWith('Unable to delete running full product sync job due to:'));
 
-        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger);
+        $route = new NostoSyncRoute($jobScheduler, $jobRepository, $jobSyncService, $logger, $this->createMock(
+            JobRecoveryService::class,
+        ));
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('There are currently no jobs available for cancellation.');

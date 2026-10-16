@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests\Unit\Utils;
 
+use Nosto\Model\Product\Product as NostoProduct;
 use Nosto\NostoIntegration\Decorator\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Utils\ProductTaggingHelper;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -68,8 +71,14 @@ final class ProductTaggingHelperTest extends TestCase
 
     public function testFindProductIdUsesFirstAvailableChildForClearanceParentWhenConfigured(): void
     {
-        $helper = $this->createHelper(true, true);
         $context = $this->createContext();
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->expects($this->once())
+            ->method('isEnabledSyncFirstAvailableVariant')
+            ->with($context->getSalesChannelId(), $context->getLanguageId())
+            ->willReturn(true);
+
+        $helper = $this->createHelper(true, true, $configProvider);
         $parent = $this->createProduct(
             'parent-id',
             true,
@@ -234,25 +243,127 @@ final class ProductTaggingHelperTest extends TestCase
         self::assertSame(['group-a-first', 'group-b-first'], $result->getIds());
     }
 
-    private function createHelper(
-        bool $hideCloseoutProductsWhenOutOfStock,
-        bool $syncFirstAvailableVariant,
-    ): ProductTaggingHelper {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')->willReturn($hideCloseoutProductsWhenOutOfStock);
-
-        $configProvider = $this->createMock(ConfigProvider::class);
-        $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailableVariant);
+    public function testFindProductIdReturnsViewedVariantForProductTaggingWhenNoDisplayGroupCanBeResolved(): void
+    {
+        $parent = $this->createProduct(
+            'parent-id',
+            true,
+            false,
+            8,
+            8,
+            new VariantListingConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            [
+                $this->createProduct('group-a-first', true, false, 4, 4, null, [], null, 'group-a'),
+                $this->createProduct('group-b-first', true, false, 3, 3, null, [], null, 'group-b'),
+            ],
+        );
+        // The viewed variant does not carry a display group (e.g. it does not use the configured
+        // configurator-group property), so it cannot be matched to either group above.
+        $viewedVariant = $this->createProduct('viewed-variant-id', true, false, 1, 1, null);
 
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('getProductStock')->willReturnCallback(
             static fn (PartialProduct $product, SalesChannelContext $context): int => $product->getStock(),
         );
+        $productHelper->expects(self::never())->method('getShopwareProductsPartial');
+
+        $nostoProduct = new NostoProduct();
+        $partialProductProvider = $this->createMock(PartialProvider::class);
+        $partialProductProvider->expects(self::once())
+            ->method('get')
+            ->with($viewedVariant, self::anything())
+            ->willReturn($nostoProduct);
+
+        $helper = $this->createHelper(false, false, null, $productHelper, $partialProductProvider);
+        $context = $this->createContext();
+
+        // isProductTagging = true, isProductSync = false: this is the storefront "tag all SKUs" call
+        // (see product-tagging.html.twig) that previously crashed with
+        // "Call to undefined method PartialProductCollection::getId()".
+        $result = $helper->findProductId($context, $parent, $viewedVariant, true, false);
+
+        self::assertSame($nostoProduct, $result);
+    }
+
+    public function testFindProductIdReturnsViewedVariantIdentifierForOrderTaggingWhenNoDisplayGroupCanBeResolved(): void
+    {
+        $parent = $this->createProduct(
+            'parent-id',
+            true,
+            false,
+            4,
+            4,
+            new VariantListingConfig(
+                false,
+                null,
+                [
+                    [
+                        'expressionForListings' => true,
+                    ],
+                ],
+                false,
+                false,
+            ),
+            [
+                $this->createProduct('group-a-first', true, false, 4, 4, null, [], null, 'group-a'),
+            ],
+        );
+        $viewedVariant = $this->createProduct('viewed-variant-id', true, false, 1, 1, null);
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn(false);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+
+        $helper = $this->createHelper(false, false, $configProvider);
+        $context = $this->createContext();
+
+        // isProductTagging = false, isProductSync = false: the order/cart tagging call
+        // (see order-tagging.html.twig, widget-cart-tagging.html.twig, Order\Item\Builder) which previously
+        // failed with a TypeError since getIdOrProductNumber() does not accept a PartialProductCollection.
+        $result = $helper->findProductId($context, $parent, $viewedVariant, false, false);
+
+        self::assertSame('VIEWED-VARIANT-ID', $result);
+    }
+
+    private function createHelper(
+        bool $hideCloseoutProductsWhenOutOfStock,
+        bool $syncFirstAvailableVariant,
+        ?ConfigProvider $configProvider = null,
+        ?ProductHelper $productHelper = null,
+        ?PartialProvider $partialProductProvider = null,
+    ): ProductTaggingHelper {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('getBool')->willReturn($hideCloseoutProductsWhenOutOfStock);
+
+        if ($configProvider === null) {
+            $configProvider = $this->createMock(ConfigProvider::class);
+            $configProvider->method('isEnabledSyncFirstAvailableVariant')->willReturn($syncFirstAvailableVariant);
+        }
+
+        if ($productHelper === null) {
+            $productHelper = $this->createMock(ProductHelper::class);
+            $productHelper->method('getProductStock')->willReturnCallback(
+                static fn (PartialProduct $product, SalesChannelContext $context): int => $product->getStock(),
+            );
+        }
 
         return new ProductTaggingHelper(
             $systemConfigService,
             $configProvider,
-            null,
+            $partialProductProvider,
             $productHelper,
             null,
         );

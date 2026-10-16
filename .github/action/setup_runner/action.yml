@@ -29,3 +29,7 @@ runs:
 
     - name: Install shopware-cli
       uses: FriendsOfShopware/shopware-cli-action@v1
+      with:
+        # 0.19+ runs PHPStan/ESLint in "extension validate" by default and only supports
+        # client-ID login for uploads, which breaks the release workflow. Keep 0.18.5 until migrated.
+        version: v0.18.5

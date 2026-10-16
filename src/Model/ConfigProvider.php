@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Model;
 
 use Nosto\NostoIntegration\Enums\CategoryNamingOptions;
 use Nosto\NostoIntegration\Enums\CrossSellingSyncOptions;
+use Nosto\NostoIntegration\Enums\CustomerDataMode;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\RatingOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
@@ -61,6 +62,17 @@ class ConfigProvider
     public function isSearchEnabled(?string $channelId = null, ?string $languageId = null): bool
     {
         return $this->configService->getBool(NostoConfigService::ENABLE_SEARCH, $channelId, $languageId);
+    }
+
+    public function isIndexedProductIdentifierSearchEnabled(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::ENABLE_INDEXED_PRODUCT_IDENTIFIER_SEARCH,
+            $channelId,
+            $languageId,
+        );
     }
 
     public function isNavigationEnabled(?string $channelId = null, ?string $languageId = null): bool
@@ -139,10 +151,10 @@ class ConfigProvider
         $value = $this->configService->get(NostoConfigService::PRODUCT_IDENTIFIER_FIELD, $channelId, $languageId);
 
         if (!is_string($value) || $value === '') {
-            return ProductIdentifierOptions::PRODUCT_ID;
+            return ProductIdentifierOptions::PRODUCT_NUMBER;
         }
 
-        return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_ID;
+        return ProductIdentifierOptions::tryFrom($value) ?? ProductIdentifierOptions::PRODUCT_NUMBER;
     }
 
     public function getRatingReviews(?string $channelId = null, ?string $languageId = null): RatingOptions
@@ -202,6 +214,17 @@ class ConfigProvider
         return is_array($value) ? $value : [];
     }
 
+    public function isEnabledScopeCategoriesToSalesChannel(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::SCOPE_CATEGORIES_TO_SALES_CHANNEL,
+            $channelId,
+            $languageId,
+        );
+    }
+
     public function isEnabledProductSyncExtraLogging(
         ?string $channelId = null,
         ?string $languageId = null,
@@ -233,13 +256,24 @@ class ConfigProvider
         return $this->configService->getBool(NostoConfigService::ENABLE_INVENTORY_LEVELS, $channelId, $languageId);
     }
 
-    public function isEnabledCustomerDataToNosto(?string $channelId = null, ?string $languageId = null): bool
+    public function getCustomerDataMode(?string $channelId = null, ?string $languageId = null): CustomerDataMode
     {
-        return $this->configService->getBool(
-            NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO,
-            $channelId,
-            $languageId,
+        return CustomerDataMode::fromConfigValue(
+            $this->configService->get(NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO, $channelId, $languageId),
         );
+    }
+
+    /**
+     * Whether customer PII may be sent to Nosto from backend sync jobs.
+     *
+     * Backend jobs run without an HTTP request, so the marketing "nosto_track" cookie
+     * cannot be evaluated. Only the explicit "always" mode sends PII from the backend;
+     * "rely-on-cookie" and "never" both suppress it.
+     */
+    public function shouldSendCustomerDataFromBackend(?string $channelId = null, ?string $languageId = null): bool
+    {
+        // Backend jobs have no HTTP request, so the marketing cookie is treated as absent.
+        return $this->getCustomerDataMode($channelId, $languageId)->shouldSendCustomerData(false);
     }
 
     public function isEnabledSyncInactiveProducts(?string $channelId = null, ?string $languageId = null): bool
@@ -273,17 +307,33 @@ class ConfigProvider
 
     public function isEnabledIgnoreCookieConsent($channelId = null, $languageId = null): bool
     {
-        return $this->configService->getBool(
+        $value = $this->configService->get(
             NostoConfigService::ENABLE_IGNORE_COOKIE_CONSENT,
             $channelId,
             $languageId,
         );
+
+        // Defaults to ON (Nosto treated as an essential cookie) when never configured, so that
+        // upgrading merchants keep the previous "Nosto loads for all visitors" behaviour.
+        // Merchants can opt into strict, consent-gated loading by turning this off.
+        return $value === null ? true : (bool) $value;
     }
 
     public function isEnabledSyncFirstAvailableVariant($channelId = null, $languageId = null): bool
     {
         return $this->configService->getBool(
             NostoConfigService::ENABLE_SYNC_FIRST_AVAILABLE_VARIANT,
+            $channelId,
+            $languageId,
+        );
+    }
+
+    public function isEnabledCalculateParentStockFromVariants(
+        ?string $channelId = null,
+        ?string $languageId = null,
+    ): bool {
+        return $this->configService->getBool(
+            NostoConfigService::CALCULATE_PARENT_STOCK_FROM_VARIANTS,
             $channelId,
             $languageId,
         );
@@ -400,7 +450,16 @@ class ConfigProvider
      */
     public function toArray(?string $channelId = null, ?string $languageId = null): array
     {
-        return $this->configService->getConfigWithInheritance($channelId, $languageId);
+        $config = $this->configService->getConfigWithInheritance($channelId, $languageId);
+
+        // Normalise the customer-data setting to its mode string. Stored values may still be
+        // legacy booleans (before the select migration ran) which would break the typed
+        // Config struct property; CustomerDataMode::fromConfigValue maps them safely.
+        $config[NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO] = CustomerDataMode::fromConfigValue(
+            $config[NostoConfigService::ENABLE_CUSTOMER_DATA_TO_NOSTO] ?? null,
+        )->value;
+
+        return $config;
     }
 
     public function getBatchSize(): int

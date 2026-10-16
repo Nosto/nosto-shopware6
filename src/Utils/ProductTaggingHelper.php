@@ -53,12 +53,7 @@ class ProductTaggingHelper
             if (!$isProductTagging) {
                 return $this->getIdOrProductNumber($context, $product);
             } elseif (!$isProductSync) {
-                $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
-                    [$product->getId()],
-                    $context,
-                )->first();
-                $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
-                return $this->partialProductProvider->get($shopwareProduct, $context);
+                return $this->buildProductForTagging($productToReturn, $context, $productToReturn, $product);
             } else {
                 return $this->productHelper->getShopwareProductsPartial([$product->getId()], $context);
             }
@@ -93,6 +88,14 @@ class ProductTaggingHelper
             $productToReturn = $product;
         }
 
+        // Outside of product sync we need a single product (one storefront page, one order line item), but
+        // configurator-group handling can return a PartialProductCollection (one product per group) when the
+        // viewed/ordered variant doesn't resolve to a display group. Fall back to the variant/product we were
+        // actually asked about instead of returning an ambiguous collection.
+        if (!$isProductSync && $productToReturn instanceof PartialProductCollection) {
+            $productToReturn = $variant ?? $product;
+        }
+
         if ($isProductSync) {
             if ($productToReturn instanceof PartialProductCollection) {
                 $mainProducts = $productToReturn;
@@ -104,26 +107,26 @@ class ProductTaggingHelper
         } elseif (!$isProductTagging) {
             return $this->getIdOrProductNumber($context, $productToReturn != null ? $productToReturn : $product);
         } else {
-            $productId = $productToReturn?->getId() ?? $product->getId();
-            $shopwareProduct = $this->productHelper->getShopwareProductsPartial(
-                [$productId],
-                $context,
-            )->first();
-            $this->applyHandledChildrenForTagging($shopwareProduct, $context, $productToReturn, $product);
-            return $this->partialProductProvider->get($shopwareProduct, $context);
+            return $this->buildProductForTagging($productToReturn, $context, $productToReturn, $product);
         }
     }
 
-    private function applyHandledChildrenForTagging(
-        object|null $shopwareProduct,
+    private function buildProductForTagging(
+        PartialProduct $product,
         SalesChannelContext $context,
         ?PartialProduct $handledProduct,
         PartialProduct $fallbackProduct,
-    ): void {
-        if (!$shopwareProduct || !method_exists($shopwareProduct, 'set')) {
-            return;
-        }
+    ): NostoProduct {
+        $this->applyHandledChildrenForTagging($product, $handledProduct, $fallbackProduct);
 
+        return $this->partialProductProvider->get($product, $context);
+    }
+
+    private function applyHandledChildrenForTagging(
+        PartialProduct $shopwareProduct,
+        ?PartialProduct $handledProduct,
+        PartialProduct $fallbackProduct,
+    ): void {
         $handledChildren = $handledProduct?->getChildren();
         if ($handledChildren === null) {
             $handledChildren = $fallbackProduct->getChildren();
@@ -134,16 +137,11 @@ class ProductTaggingHelper
         }
 
         if ($handledChildren->count() === 0) {
-            $shopwareProduct->set('children', new PartialProductCollection());
+            $shopwareProduct->setChildren(new PartialProductCollection());
             return;
         }
 
-        $childrenLoaded = $this->productHelper->getShopwareProductsPartial(
-            $handledChildren->getIds(),
-            $context,
-            false,
-        );
-        $shopwareProduct->set('children', $childrenLoaded);
+        $shopwareProduct->setChildren($handledChildren);
     }
 
     private function handleVariant(
@@ -152,7 +150,10 @@ class ProductTaggingHelper
         bool $hideProductsAfterClearance,
     ): ?PartialProduct {
         $mainProduct = null;
-        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant()) {
+        if ($hideProductsAfterClearance && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
             $mainProduct = $this->handleFirstAvailableVariant($product, $context);
         }
 
@@ -167,9 +168,22 @@ class ProductTaggingHelper
         SalesChannelContext $salesChannelContext,
         bool $hideProductsAfterClearance,
     ): ?PartialProduct {
+        if (
+            $product->getParentId() === null
+            && $this->configProvider->isEnabledCalculateParentStockFromVariants(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            )
+        ) {
+            $this->ensureChildrenLoaded($product, $salesChannelContext);
+        }
+
         $stock = $this->productHelper->getProductStock($product, $salesChannelContext);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $salesChannelContext->getSalesChannelId(),
+                $salesChannelContext->getLanguageId(),
+            );
         if ($product->getActive()) {
             if ($shouldHandleFirstAvailable && ($stock < 1 && $product->getIsCloseout())) {
                 $mainProduct = $this->handleFirstAvailableVariant($product, $salesChannelContext);
@@ -251,7 +265,10 @@ class ProductTaggingHelper
         $mainProduct = null;
         $children = new PartialProductCollection();
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
 
         foreach ($variants as $child) {
             if ($shouldHandleFirstAvailable) {
@@ -299,7 +316,10 @@ class ProductTaggingHelper
         $mainProduct = null;
         $variants = new PartialProductCollection([$product]);
         $shouldHandleFirstAvailable = $hideProductsAfterClearance
-            && $this->configProvider->isEnabledSyncFirstAvailableVariant();
+            && $this->configProvider->isEnabledSyncFirstAvailableVariant(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            );
         $children = $this->ensureChildrenLoaded($product, $context);
 
         if (!$children) {

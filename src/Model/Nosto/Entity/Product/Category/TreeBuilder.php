@@ -4,19 +4,55 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Model\Nosto\Entity\Product\Category;
 
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TreeBuilder
 {
     public const NAME_WITH_ID_TEMPLATE = '%s (ID = %s)';
 
+    public function __construct(
+        private readonly ConfigProvider $configProvider,
+    ) {
+    }
+
     /**
+     * When category scoping is enabled for the sales channel, keeps only the categories that live under one of
+     * its entry points (navigation, footer or service category), so paths from other channels' trees are not
+     * synced. Returns the collection unchanged otherwise.
+     */
+    public function scopeToSalesChannel(
+        CategoryCollection $categoriesRo,
+        SalesChannelContext $context,
+    ): CategoryCollection {
+        $entryPointIds = $this->getScopedEntryPointIds($context);
+        if (empty($entryPointIds)) {
+            return $categoriesRo;
+        }
+
+        return $categoriesRo->filter(static function (CategoryEntity $category) use ($entryPointIds): bool {
+            foreach ($entryPointIds as $entryPointId) {
+                if ($category->getId() === $entryPointId
+                    || str_contains((string) $category->getPath(), '|' . $entryPointId . '|')
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * With category scoping enabled for the given context, each path starts below the entry point it belongs to.
+     *
      * @return string[]
      */
-    public function fromCategoriesRo(CategoryCollection $categoriesRo): array
+    public function fromCategoriesRo(CategoryCollection $categoriesRo, ?SalesChannelContext $context = null): array
     {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $this->getScopedEntryPointIds($context));
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
 
         $nostoCategoryNames = array_map(static fn (array $nameSet): mixed => array_reduce(
@@ -51,11 +87,15 @@ class TreeBuilder
     }
 
     /**
+     * With category scoping enabled for the given context, each path starts below the entry point it belongs to.
+     *
      * @return string[]
      */
-    public function fromCategoriesRoWithId(CategoryCollection $categoriesRo): array
-    {
-        $categoryNameSets = $this->getCategoryNameSets($categoriesRo);
+    public function fromCategoriesRoWithId(
+        CategoryCollection $categoriesRo,
+        ?SalesChannelContext $context = null,
+    ): array {
+        $categoryNameSets = $this->getCategoryNameSets($categoriesRo, $this->getScopedEntryPointIds($context));
         $categorySeoUrlsSets = $this->getCategorySeoUrlsSets($categoriesRo);
         $nostoCategoryNames = [];
         $nostoCategorySeoUrls = [];
@@ -92,12 +132,45 @@ class TreeBuilder
     }
 
     /**
+     * @return string[] empty when no context is given or category scoping is disabled
+     */
+    private function getScopedEntryPointIds(?SalesChannelContext $context): array
+    {
+        if ($context === null || !$this->configProvider->isEnabledScopeCategoriesToSalesChannel(
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+        )) {
+            return [];
+        }
+
+        $salesChannel = $context->getSalesChannel();
+
+        return array_values(array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+        ]));
+    }
+
+    /**
+     * @param string[] $entryPointIds
+     *
      * @return string[][]
      */
-    private function getCategoryNameSets(CategoryCollection $categoriesRo): array
+    private function getCategoryNameSets(CategoryCollection $categoriesRo, array $entryPointIds = []): array
     {
         if ($categoriesRo->count() < 1) {
             return [];
+        }
+
+        if (!empty($entryPointIds)) {
+            return array_filter(array_map(
+                fn (CategoryEntity $category): array => $this->stripUpToEntryPoint(
+                    $category->getPlainBreadcrumb(),
+                    $entryPointIds,
+                ),
+                $categoriesRo->getElements(),
+            ));
         }
 
         $rootCategoryId = $categoriesRo
@@ -109,6 +182,29 @@ class TreeBuilder
             static fn (string $categoryId): bool => $categoryId !== $rootCategoryId,
             ARRAY_FILTER_USE_KEY,
         ), $categoriesRo->getElements()));
+    }
+
+    /**
+     * Drops the entry point and everything above it, so every tree of the sales channel
+     * (navigation, footer, service) produces paths relative to its own entry point.
+     *
+     * @param array<string, string> $breadcrumb
+     * @param string[] $entryPointIds
+     *
+     * @return array<string, string>
+     */
+    private function stripUpToEntryPoint(array $breadcrumb, array $entryPointIds): array
+    {
+        $position = 0;
+        $offset = null;
+        foreach (array_keys($breadcrumb) as $categoryId) {
+            $position++;
+            if (in_array($categoryId, $entryPointIds, true)) {
+                $offset = $position;
+            }
+        }
+
+        return $offset === null ? $breadcrumb : array_slice($breadcrumb, $offset, null, true);
     }
 
     /**

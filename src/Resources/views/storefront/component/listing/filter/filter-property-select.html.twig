@@ -1,0 +1,127 @@
+{% sw_extends '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' %}
+
+{% set nostoFilterId = name %}
+
+{% if dataPluginSelectorOptions is not defined %}
+    {% set dataPluginSelectorOptions = {
+        name: name,
+        propertyName: propertyName,
+        snippets: {
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+        }
+    } %}
+{% endif %}
+
+{% block component_filter_multi_select_list_item %}
+    <li class="filter-multi-select-list-item filter-property-select-list-item">
+        {% set previewOptions = elements|filter(option =>
+            (option.media is defined and option.media and option.media.url)
+            or (option.colorHexCode is defined and option.colorHexCode)
+            or (option.visual is defined and option.visual and option.visual.value)
+        ) %}
+        {% set hasPreviewVisual = previewOptions|length > 0 %}
+
+        {% set count = element.count is defined ? element.count : null %}
+        {% set hasCount = count is not null %}
+        {% set displayName = element.translated.name %}
+        {% set visual = element.visual is defined ? element.visual : null %}
+        {% set hasVisual = visual and visual.value %}
+        {% set isColorVisual = hasVisual and visual.type == 'color' %}
+        {% set isImageVisual = hasVisual and visual.type != 'color' %}
+
+        {% set color = null %}
+        {% set media = null %}
+        {% if displayType == 'color' %}
+            {% set color = element.colorHexCode %}
+        {% elseif displayType == 'media' %}
+            {% set media = element.media.url %}
+        {% endif %}
+        {% if isColorVisual %}
+            {% set color = visual.value %}
+        {% elseif isImageVisual %}
+            {% set media = visual.value %}
+        {% endif %}
+        {% set name = displayName %}
+        {% set id = element.id %}
+        {# Option values can repeat across facets (e.g. "Black" in colour and material),
+           so the DOM id is prefixed with the facet id to stay unique. The raw value lives
+           in the value attribute, which the JS plugin uses for URL params and matching. #}
+        {% set domId = nostoFilterId ~ '-' ~ element.id %}
+
+        {% if hasPreviewVisual %}
+            {% block component_filter_property_select_preview %}
+                <span class="filter-property-select-preview"
+                      title="{{ name }}"
+                      {% if color %}
+                      style="background: {{ color|e('html_attr') }}"
+                      {% elseif media %}
+                      style="background-image: url('{{ media|e('html_attr') }}')"
+                      {% endif %}>
+
+                    {% block component_filter_property_select_checkox_input %}
+                        <input type="checkbox"
+                               class="filter-property-select-checkbox filter-multi-select-checkbox"
+                               id="{{ domId }}"
+                               value="{{ id }}"
+                               data-label="{{ name }}"
+                               data-filter-name="{{ element.translated.name }}"
+                               {% if color %}
+                               data-preview-hex="{{ color|e('html_attr') }}"
+                               {% endif %}
+                               {% if media %}
+                               data-preview-image-url="{{ media|e('html_attr') }}"
+                               {% endif %}>
+                    {% endblock %}
+
+                    {% block component_filter_property_select_preview_checkmark %}
+                        <span class="filter-property-select-preview-checkmark">
+                            {% block component_filter_property_select_preview_checkmark_icon %}
+                                {% sw_icon 'checkmark' style {'pack': 'solid', 'size': 'xs'} %}
+                            {% endblock %}
+                        </span>
+                    {% endblock %}
+                </span>
+            {% endblock %}
+
+            {% if not hideTitle %}
+                {% block component_filter_property_select_preview_list_item_label_element %}
+                    <label class="filter-multi-select-item-label" for="{{ domId }}">
+                        {% block component_filter_property_select_preview_list_item_label %}
+                            {{ name }}
+                            {% if hasCount %}
+                                <span class="filter-option-count">({{ count }})</span>
+                            {% endif %}
+                        {% endblock %}
+                    </label>
+                {% endblock %}
+            {% endif %}
+        {% else %}
+            {% set id = element.id %}
+            {% set name = displayName %}
+
+            {% block component_filter_property_select_preview_list_item %}
+                <div class="form-check">
+                    {% block component_filter_multi_select_list_item_checkbox_input %}
+                        <input type="checkbox"
+                               class="form-check-input filter-multi-select-checkbox"
+                               data-label="{{ name }}"
+                               data-filter-name="{{ element.translated.name }}"
+                               value="{{ id }}"
+                               id="{{ domId }}">
+                    {% endblock %}
+
+                    {% block component_filter_multi_select_list_item_label_element %}
+                        <label class="filter-multi-select-item-label form-check-label" for="{{ domId }}">
+                            {% block component_multi_select_list_item_label %}
+                                {{ name }}
+                                {% if hasCount %}
+                                    <span class="filter-option-count">({{ count }})</span>
+                                {% endif %}
+                            {% endblock %}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    </li>
+{% endblock %}

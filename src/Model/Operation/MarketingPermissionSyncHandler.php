@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Model\Operation;
 
 use Nosto\NostoIntegration\Async\MarketingPermissionSyncMessage;
+use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Operation\Event\BeforeMarketingOperationEvent;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
@@ -26,6 +27,7 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
         private readonly EntityRepository $newsletterRecipientRepository,
         private readonly Account\Provider $accountProvider,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ConfigProvider $configProvider,
     ) {
     }
 
@@ -36,6 +38,12 @@ class MarketingPermissionSyncHandler implements JobHandlerInterface
     {
         $operationResult = new JobResult();
         foreach ($this->accountProvider->all($message->getContext()) as $account) {
+            if (!$this->configProvider->shouldSendCustomerDataFromBackend(
+                $account->getChannelId(),
+                $account->getLanguageId(),
+            )) {
+                continue;
+            }
             $nostoAccount = $account->getNostoAccount();
             $accountOperationResult = $this->doOperation(
                 $nostoAccount,

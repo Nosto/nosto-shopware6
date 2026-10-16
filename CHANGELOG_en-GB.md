@@ -1,3 +1,62 @@
+# 5.2.32
+* New: Added an optional admin setting to calculate parent product inventory and availability from active variants
+* Fix: Improved overall page performance by reducing unnecessary database queries and repeated product lookups
+* Fix: Sync jobs that got stuck because their queued messages were lost are now detected and marked as failed, so new syncs can start again
+* Fix: Deactivating the plugin now marks its unfinished sync jobs as failed
+
+# 5.2.31
+* Fix: Search session params are no longer stored in a cookie
+
+# 5.2.30
+* Fix: frontend.cms.page.full route failing with "controller not callable"
+
+# 5.2.29
+* Fix: Add indexed product identifier lookup
+* Fix: Fixed skipped product and category changes during sync and improved catalog sync speed and memory usage
+* Fix: "ProductHelper" and "FullCatalogSyncHandler" now take different constructor arguments, so custom code extending them needs updating
+* Fix: The search page loader is no longer overridden, so other search extensions keep working when Nosto search is not active for a request
+* Fix: Prevent pages beyond the first from redirecting back to page one on search
+* New: Optional setting to send only the categories belonging to a sales channel — this changes the category paths in Nosto, so run a full product sync after enabling it
+
+# 5.2.28
+* Fix: Add vary to request to fix caching issue
+
+# 5.2.27
+* New: Support keyword facets
+* New: Send plugin version to Nosto
+
+# 5.2.26
+* Fix: Ensure queued variant deletes use complete product-number mappings during product sync
+* Fix: Use sales channel and language context when resolving first-available variant sync config
+
+# 5.2.25
+* Fix: Updated the cookie consent migrations to support MariaDB
+* Fix: Resolved failure during plugin update due to a service error while applying the product identifier default
+
+# 5.2.24
+* Fix: Make product number default instead of ID
+* Fix: Optimized how the scheduler registers on the message bus to avoid memory exhaustion during plugin activation
+* Fix: "enableCache" setting configurable per sales channel and language
+* New: Respect cookie consent — "Send Customer Data" mode (rely on cookie / always / never), doNotTrack when unconsented, and backend sync honors it
+
+# 5.2.23
+* Fix: Order sync routing for merchants with multiple sales channels using the same language
+* Fix: Search/listing fallback handling
+* Fix: Made "CachedCategoryRoute" decoration optional when the service is unavailable
+
+# 5.2.22
+* Fix: Only export categories if url and urlPath are present
+
+# 5.2.21
+* Fix: Updated the administration icon
+
+# 5.2.20
+* New: Added support for filter value frequencies and media
+
+# 5.2.19
+* New: Improved search analytics by sending the search type reason with requests
+* Fix: Improvement for review counts
+
 # 5.2.18
 * Fix: Use the correct currency for product sync when multi-currency is disabled
 * Fix: Respect sales channel visibility so only assigned products are synced to Nosto

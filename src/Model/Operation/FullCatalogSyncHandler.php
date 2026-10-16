@@ -10,8 +10,7 @@ use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
-use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductConverter;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Nosto\Scheduler\Model\Job\JobHandlerInterface;
@@ -22,7 +21,6 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsFilter, NotFilter};
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,6 +38,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         private readonly JobHelper $jobHelper,
         private readonly ConfigProvider $configProvider,
         private readonly AccountProvider $accountProvider,
+        private readonly ProductHelper $productHelper,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -51,6 +50,7 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
     {
         $context = $message->getContext();
         $size = $this->configProvider->getBatchSize();
+        $size = ($size < 1) ? self::BATCH_SIZE : $size;
         $shouldLogExtra = $this->shouldLogExtra();
         $syncStartedAt = $shouldLogExtra ? microtime(true) : null;
         $result = new JobResult();
@@ -58,26 +58,31 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
 
         $this->jobHelper->markChildGenerationState($message->getJobId(), 0, false);
 
+        $result->addMessage(new InfoMessage('Child job generation started.'));
+
         $criteriaProduct = NostoCriteriaFactory::create('product_sync.full_catalog.products');
-        $criteriaProduct->setLimit($size ? $size : self::BATCH_SIZE);
-        $criteriaProduct->addFields(['id', 'productNumber']);
+        $criteriaProduct->setLimit($size);
         $productRepositoryIterator = new RepositoryIterator(
             $this->productRepository,
-            $message->getContext(),
+            $context,
             $criteriaProduct,
         );
-        $result->addMessage(new InfoMessage('Child job generation started.'));
 
         $productBatchCount = 0;
         $productCount = 0;
         $productsStartedAt = $shouldLogExtra ? microtime(true) : null;
         $accounts = $this->accountProvider->all($context);
 
-        while (($products = $productRepositoryIterator->fetch()) !== null) {
+        // fetchIds() seeks on the auto-increment column instead of using an offset, so the cost of a
+        // batch does not grow with how far into the catalog it is.
+        while (($productIds = $productRepositoryIterator->fetchIds()) !== null) {
+            $ids = $this->productHelper->loadOrderNumberMapping($productIds, $context);
+            if ($ids === []) {
+                continue;
+            }
+
             ++$productBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $partialProducts = PartialProductConverter::toPartialProductCollection($products->getEntities());
-            $ids = $this->getProductIdsForMessage($partialProducts);
             $batchSize = count($ids);
             $productCount += $batchSize;
             foreach ($accounts as $account) {
@@ -140,10 +145,9 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         $categoryBatchCount = 0;
         $categoryCount = 0;
         $categoriesStartedAt = $shouldLogExtra ? microtime(true) : null;
-        while (($categories = $categoryRepositoryIterator->fetch()) !== null) {
+        while (($ids = $categoryRepositoryIterator->fetchIds()) !== null) {
             ++$categoryBatchCount;
             $batchStartedAt = $shouldLogExtra ? microtime(true) : null;
-            $ids = $this->getCategoryIdsForMessage($categories->getEntities());
             $batchSize = count($ids);
             $categoryCount += $batchSize;
             $this->jobScheduler->schedule(
@@ -215,30 +219,6 @@ class FullCatalogSyncHandler implements JobHandlerInterface, GeneratingHandlerIn
         );
 
         $result->addMessage(new InfoMessage('Exchange rate sync job has been scheduled.'));
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getProductIdsForMessage(PartialProductCollection $products): array
-    {
-        $data = [];
-        foreach ($products as $product) {
-            $data[$product->getId()] = $product->getProductNumber();
-        }
-        return $data;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getCategoryIdsForMessage(EntityCollection $categories): array
-    {
-        $data = [];
-        foreach ($categories as $category) {
-            $data[$category->getId()] = $category->getId();
-        }
-        return $data;
     }
 
     private function shouldLogExtra(): bool

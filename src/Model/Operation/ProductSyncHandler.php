@@ -49,6 +49,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 {
     public const HANDLER_CODE = 'nosto-integration-product-sync';
 
+    private const PRODUCT_LOAD_BATCH_SIZE = 50;
+
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $channelContextFactory,
         private readonly PartialProvider $partialProductProvider,
@@ -397,12 +399,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             );
         }
 
-        // === Pass 2: Single batched DB query ===
+        // === Pass 2: Batched DB queries ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
         $allShopwareProducts = !empty($allUniqueIds)
-            ? (PartialProductConverter::toPartialProductCollection(
-                $this->productHelper->getShopwareProductsPartial(array_keys($allUniqueIds), $context),
-            ))
+            ? $this->getShopwareProductsPartialBatched(array_keys($allUniqueIds), $context)
             : new PartialProductCollection();
         /** @var array<string, PartialProduct> $allShopwareProductsById */
         $allShopwareProductsById = [];
@@ -578,7 +578,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             $this->queueDeleteProductIds($queuedDeleteIds, [$product->getParentId()]);
         }
 
-        if ($hideProductsAfterClearance && $product->getIsCloseout() && $stock < 1) {
+        if (
+            $hideProductsAfterClearance
+            && !$this->productHelper->isProductInStock($product, $context, $stock)
+        ) {
             $this->queueDeleteProductIds($queuedDeleteIds, [$product->getId()]);
             return null;
         }
@@ -645,8 +648,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         $startedAt = $shouldLogExtra ? microtime(true) : null;
-        $productsWithLoadedChildren = PartialProductConverter::toPartialProductCollection(
-            $this->productHelper->getShopwareProductsPartial(array_keys($parentIdsNeedingChildren), $context),
+        $productsWithLoadedChildren = $this->getShopwareProductsPartialBatched(
+            array_keys($parentIdsNeedingChildren),
+            $context,
         );
         $productsWithLoadedChildrenById = [];
         /** @var PartialProduct $productWithLoadedChildren */
@@ -678,6 +682,34 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
     }
 
+    /**
+     * Loading SalesChannelProductEntity graphs in bulk is expensive in both memory and database
+     * temporary-table space; large child sets push those temporary tables onto disk. Smaller
+     * batches keep them in memory.
+     *
+     * Children are always included. They are not merely convenient here: the child field set is
+     * requested through the parent criteria, so skipping it leaves the SKU builder without the
+     * child data it reads, and products sync to Nosto with no SKUs at all.
+     *
+     * @param list<string> $productIds
+     */
+    private function getShopwareProductsPartialBatched(
+        array $productIds,
+        SalesChannelContext $context,
+    ): PartialProductCollection {
+        $products = new PartialProductCollection();
+        foreach (array_chunk($productIds, self::PRODUCT_LOAD_BATCH_SIZE) as $productIdBatch) {
+            $batch = PartialProductConverter::toPartialProductCollection(
+                $this->productHelper->getShopwareProductsPartial($productIdBatch, $context),
+            );
+            foreach ($batch as $product) {
+                $products->add($product);
+            }
+        }
+
+        return $products;
+    }
+
     private function requiresChildrenForVariantSelection(
         PartialProduct $product,
         VariantListingConfig $variantConfig,
@@ -700,6 +732,13 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         if ($variantConfig->getDisplayParent()) {
+            if ($this->configProvider->isEnabledCalculateParentStockFromVariants(
+                $context->getSalesChannelId(),
+                $context->getLanguageId(),
+            )) {
+                return true;
+            }
+
             if (!$product->getActive()) {
                 return true;
             }
@@ -727,7 +766,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
             return;
         }
 
-        $this->doDeleteOperation($account, $context, array_keys($queuedDeleteIds), $mapping);
+        $deleteIds = array_keys($queuedDeleteIds);
+        $mapping += $this->productHelper->loadOrderNumberMapping($deleteIds, $context->getContext());
+
+        $this->doDeleteOperation($account, $context, $deleteIds, $mapping);
         $queuedDeleteIds = [];
     }
 

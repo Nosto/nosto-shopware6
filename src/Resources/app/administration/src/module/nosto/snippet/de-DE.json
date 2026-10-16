@@ -78,6 +78,11 @@
                     "onlyActiveSync": "Nur aktives Cross-Selling synchronisieren",
                     "allSync": "Alle Cross-Sellings synchronisieren"
                 },
+                "customerDataOptions": {
+                    "relyOnCookie": "Auf nosto_track-Cookie verlassen",
+                    "always": "Kundendaten immer senden",
+                    "never": "Kundendaten nie senden"
+                },
                 "categoryNamingOptions": {
                     "nameWithoutId": "Kategoriename ohne ID",
                     "nameWithId": "Kategoriename mit ID"
@@ -100,7 +105,7 @@
                 "enableInventory": "Lagerbestände aktivieren",
                 "enableInventoryHelpText": "Die Auswahl aktiviert das Tagging von Inventarebenen.",
                 "enableCustomerDataToNosto": "Kundendaten an Nosto senden",
-                "enableCustomerDataToNostoHelpText": "Bei aktivierter Checkbox werden Kundendaten während der Bestellung getaggt.",
+                "enableCustomerDataToNostoHelpText": "Legt fest, ob Kundendaten (E-Mail, Name) an Nosto gesendet werden dürfen. 'Auf nosto_track-Cookie verlassen' sendet sie nur bei Marketing-Einwilligung (und setzt andernfalls doNotTrack); 'Immer' sendet sie immer; 'Nie' sendet sie nie. Backend-Synchronisierungsjobs senden die Daten nur bei 'Immer'.",
                 "enableSyncInactiveProducts": "Inaktive Produkte synchronisieren",
                 "enableSyncInactiveProductsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Varianten eines inaktiven Hauptprodukts synchronisiert, abhängig von der Auswahl in der Storefront-Präsentationskonfiguration.",
                 "enableProductPublishedDateTagging": "Kennzeichnung des Veröffentlichungsdatums von Produkten",
@@ -109,13 +114,15 @@
                 "enableReloadRecommendations": "Empfehlungen neu laden, nachdem ein empfohlenes Produkt hinzugefügt wurde",
                 "enableLabelling": "Synchronisierung der Produktkennzeichnung aktivieren",
                 "storeAbandonedCartData": "Datenspeicherung für abgebrochene Warenkörbe",
-                "ignoreCookieConsent": "Cookie-Zustimmung ignorieren",
+                "ignoreCookieConsent": "Nosto als essentielles Cookie behandeln",
                 "timeEnableCache" : "Cache-Zeit einstellen (in Minuten)",
                 "enableCache": {
                     "label": "Cache aktivieren",
-                    "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden"
+                    "helpText": "Legt die Cache-Lebensdauer für Such- und Kategorieseiten fest. Gecachte Antworten variieren je nach Besucher-Cookies, damit die Personalisierung nicht zwischen Besuchern geteilt wird. Um die Nosto-Personalisierung optimal zu nutzen, sollte das Caching deaktiviert werden."
                 },
                 "enableSyncFirstAvailableVariant": "Synchronisiere die erste verfügbare Variante als Produkt, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist",
+                "calculateParentStockFromVariants": "Lagerbestand des Hauptprodukts aus aktiven Varianten berechnen",
+                "calculateParentStockFromVariantsHelpText": "Wenn das Hauptprodukt als Nosto-Produkt verwendet wird, wird sein Bestand aus dem konfigurierten Lagerbestand seiner aktiven Varianten berechnet. Es wird als verfügbar markiert, wenn mindestens eine aktive Variante gemäß ihrem Bestand und ihrer Abverkaufseinstellung kaufbar ist. Nach der Aktivierung sollte eine vollständige Produktsynchronisierung ausgeführt werden, damit der Lagerbestand der Produkte aktualisiert wird.",
                 "enableDailySynchronization": "Tägliche Produktsynchronisierung aktivieren",
                 "enableDailySynchronizationHelp": "Wenn das Feld aktiviert ist, werden die Produkte jeden Tag zur angegebenen Zeit synchronisiert",
                 "timeDailySynchronization": "Zeit für die tägliche Produktsynchronisierung",
@@ -124,7 +131,7 @@
                 "enableReloadRecommendationsHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Empfehlungen nach dem Hinzufügen eines empfohlenen Produkts neu geladen",
                 "enableLabellingHelpText": "Wenn das Kontrollkästchen aktiviert ist, werden die Produktetiketten an Nosto gesendet.",
                 "storeAbandonedCartDataHelpText": "Diese Konfigurationsoption steuert, ob Daten für abgebrochene Warenkörbe in der entsprechenden Datenbank Tabelle gespeichert werden sollen. Wenn diese Option aktiviert ist, ruft das System die Daten ab und erstellt neue Zeilen in der Tabelle für jeden abgebrochenen Warenkorb. Wenn sie deaktiviert ist, werden keine neuen Zeilen hinzugefügt, was möglicherweise Leistungsprobleme verhindert.",
-                "ignoreCookieConsentHelpText": "Die Zustimmung zu Cookies kann deaktiviert werden, wenn Sie bestimmen, dass sie für die rechtliche Einhaltung nicht erforderlich ist.",
+                "ignoreCookieConsentHelpText": "Standardmäßig aktiviert. Wenn aktiviert, wird Nosto als technisch notwendiges Cookie registriert und für jeden Besucher geladen (mit doNotTrack, bis eine Marketing-Zustimmung erteilt wird). Wenn deaktiviert, wird Nosto erst geladen, nachdem der Kunde die Nosto-Cookie-Gruppe im Banner akzeptiert hat – wird sie abgelehnt, wird Nosto nie geladen und es werden keine Anfragen gesendet.",
                 "enableSyncFirstAvailableVariantHelpText": "Wenn das Kontrollkästchen aktiviert ist, wird die erste verfügbare Variante als Produkt synchronisiert, wenn das Produkt im Ausverkauf ist und nicht auf Lager ist.",
                 "categoryNamingHelpText": "Produktkategorienamen enthalten die Kategorie-ID oder nicht",
                 "categoryNaming": "Produktkategorienamen",
@@ -144,6 +151,10 @@
                 "enableFallbackMechanism": {
                   "label": "Fallback-Mechanismus aktivieren",
                   "helpText": "Wenn dieses Kontrollkästchen aktiviert ist, wird auf die standardmäßige Shopware-Suche bzw. -Kategorie zurückgegriffen, falls Nosto keine Ergebnisse liefert."
+                },
+                "scopeCategoriesToSalesChannel": {
+                    "label": "Nur Kategorien dieses Verkaufskanals synchronisieren",
+                    "helpText": "Überträgt nur die Kategoriepfade, die zum Navigations-, Footer- oder Service-Kategoriebaum dieses Verkaufskanals gehören. Wenn deaktiviert, werden alle dem Produkt zugewiesenen Kategoriepfade übertragen, auch die anderer Verkaufskanäle. Das Aktivieren ändert die in Nosto indexierten Kategoriepfade: Prüfen Sie Empfehlungen und Kategoriefilter, die darauf basieren, und führen Sie anschließend eine vollständige Produktsynchronisation durch."
                 },
                 "enableMultiCurrency": {
                     "label": "Mehrere Währungen aktivieren",
@@ -175,6 +186,10 @@
                 "enableSearch": {
                     "label": "Personalisierte Suche aktivieren",
                     "helpText": "Aktiviert die Integration der personalisierten Suchfunktion von Nosto in Ihr Shopware-Theme. Dadurch werden Ihre benutzerdefinierten Such- und Filtereinstellungen vom Nosto Admin direkt auf die Suche in Ihrem Shop angewendet."
+                },
+                "enableIndexedProductIdentifierSearch": {
+                    "label": "Indizierte Produktsuche verwenden",
+                    "helpText": "Verwendet Shopwares Produkt-Suchindex, um eine exakte Produktnummer, EAN oder Herstellerartikelnummer aus einem Nosto-Suchergebnis aufzulösen. Aktivieren Sie diese Option, um vollständige Scans der Produkttabelle zu vermeiden."
                 },
                 "enableNavigation": {
                     "label": "Category Merchandising aktivieren",

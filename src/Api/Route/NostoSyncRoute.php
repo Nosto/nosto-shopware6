@@ -6,6 +6,7 @@ namespace Nosto\NostoIntegration\Api\Route;
 
 use Exception;
 use Nosto\NostoIntegration\Async\FullCatalogSyncMessage;
+use Nosto\NostoIntegration\Service\JobRecoveryService;
 use Nosto\NostoIntegration\Service\NostoJobSyncService;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Entity\Job\JobEntity;
@@ -33,6 +34,7 @@ class NostoSyncRoute
         private readonly EntityRepository $jobRepository,
         private readonly NostoJobSyncService $jobSyncService,
         private readonly LoggerInterface $logger,
+        private readonly JobRecoveryService $jobRecoveryService,
     ) {
     }
 
@@ -44,6 +46,7 @@ class NostoSyncRoute
     public function fullCatalogSync(Request $request, Context $context): JsonApiResponse
     {
         $job = new FullCatalogSyncMessage(Uuid::randomHex(), $context);
+        $this->jobRecoveryService->recoverOrphanedJobs();
         $this->checkJobStatus($context, $job->getHandlerCode());
         $this->jobScheduler->schedule($job);
         return new JsonApiResponse();

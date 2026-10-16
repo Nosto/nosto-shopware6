@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9966d534dbdd05ce280d421eb4024342",
+    "content-hash": "d4d6d51ae637440f77e5685cbc0e5e44",
     "packages": [
         {
             "name": "nosto/php-sdk",
-            "version": "7.7.4",
+            "version": "7.7.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/nosto-php-sdk.git",
-                "reference": "cf3a482be6cc2ceca9413df264c5e402aae5a682"
+                "reference": "bfede8a44b11a74a484199bf0982f79bf9da8d12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/cf3a482be6cc2ceca9413df264c5e402aae5a682",
-                "reference": "cf3a482be6cc2ceca9413df264c5e402aae5a682",
+                "url": "https://api.github.com/repos/Nosto/nosto-php-sdk/zipball/bfede8a44b11a74a484199bf0982f79bf9da8d12",
+                "reference": "bfede8a44b11a74a484199bf0982f79bf9da8d12",
                 "shasum": ""
             },
             "require": {
@@ -32,7 +32,6 @@
                 "codeception/codeception": "4.1.*",
                 "codeception/module-asserts": "1.3.*",
                 "codeception/specify": "^0.4.6",
-                "mridang/pmd-annotations": "^0.0.2",
                 "phan/phan": "2.6",
                 "phing/phing": "2.*",
                 "phpmd/phpmd": "^2.6",
@@ -58,22 +57,22 @@
             "description": "PHP SDK for developing Nosto modules for e-commerce platforms",
             "support": {
                 "issues": "https://github.com/Nosto/nosto-php-sdk/issues",
-                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.7.4"
+                "source": "https://github.com/Nosto/nosto-php-sdk/tree/7.7.7"
             },
-            "time": "2026-04-20T11:04:11+00:00"
+            "time": "2026-06-22T10:48:58+00:00"
         },
         {
             "name": "nosto/shopware6-job-scheduler",
-            "version": "3.0.7",
+            "version": "3.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nosto/shopware6-job-scheduler.git",
-                "reference": "a8017d0c9ab9b8684d0376ae7ed596fe19a7640b"
+                "reference": "7e462cf21adef9be603dce3a13b83ee7f57a65ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/a8017d0c9ab9b8684d0376ae7ed596fe19a7640b",
-                "reference": "a8017d0c9ab9b8684d0376ae7ed596fe19a7640b",
+                "url": "https://api.github.com/repos/Nosto/shopware6-job-scheduler/zipball/7e462cf21adef9be603dce3a13b83ee7f57a65ad",
+                "reference": "7e462cf21adef9be603dce3a13b83ee7f57a65ad",
                 "shasum": ""
             },
             "require": {
@@ -97,9 +96,9 @@
             "description": "System library for async job scheduling for Shopware 6",
             "support": {
                 "issues": "https://github.com/Nosto/shopware6-job-scheduler/issues",
-                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.7"
+                "source": "https://github.com/Nosto/shopware6-job-scheduler/tree/3.0.9"
             },
-            "time": "2026-03-20T10:32:58+00:00"
+            "time": "2026-10-09T13:30:04+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -2820,12 +2819,12 @@
             "version": "12.5.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/easy-coding-standard/ecs.git",
+                "url": "https://github.com/ecsphp/ecs.git",
                 "reference": "2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/easy-coding-standard/ecs/zipball/2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
+                "url": "https://api.github.com/repos/ecsphp/ecs/zipball/2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
                 "reference": "2bf0e468dc9679f3835c835cd3fd4a25ff6e4e14",
                 "shasum": ""
             },

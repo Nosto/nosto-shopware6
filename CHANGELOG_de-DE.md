@@ -1,3 +1,62 @@
+# 5.2.32
+* Neu: Es wurde eine optionale Admin-Einstellung hinzugefügt, um den Lagerbestand und die Verfügbarkeit des übergeordneten Produkts anhand der aktiven Varianten zu berechnen.
+* Fix: Verbesserte allgemeine Seitenperformance durch die Reduzierung unnötiger Datenbankabfragen und wiederholter Produktabfragen.
+* Fix: Synchronisierungsaufträge, die ins Stocken geraten sind, weil ihre in der Warteschlange befindlichen Nachrichten verloren gegangen sind, werden nun erkannt und als fehlgeschlagen markiert, sodass neue Synchronisierungen erneut gestartet werden können
+* Fix: Wenn das Plugin nun deaktiviert wird, werden seine noch nicht abgeschlossenen Synchronisierungsaufträge als fehlgeschlagen markiert
+
+# 5.2.31
+* Fix: Die Such-Sitzungsparameter werden nicht mehr in einem Cookie gespeichert
+
+# 5.2.30
+* Fix: frontend.cms.page.full-Route schlägt mit „controller not callable“ fehl
+
+# 5.2.29
+* Fix: Suche nach indizierter Produktkennung hinzufügen
+* Fix: Das Problem, dass Produkt- und Kategorieänderungen während der Synchronisierung übersprungen wurden, wurde behoben, und die Geschwindigkeit der Katalogsynchronisierung sowie die Speicherauslastung wurden verbessert.
+* Fix: „ProductHelper“ und „FullCatalogSyncHandler“ nehmen nun unterschiedliche Konstruktorargumente entgegen, sodass benutzerdefinierter Code, der diese Klassen erweitert, angepasst werden muss
+* Fix: Der Ladevorgang der Suchseite wird nicht mehr überschrieben, sodass andere Sucherweiterungen weiterhin funktionieren, wenn die Nosto-Suche für eine Anfrage nicht aktiv ist.
+* Fix: Verhindern, dass Seiten, die über die erste Seite hinausgehen, bei der Suche zurück zur ersten Seite weitergeleitet werden
+* Neu: Optionale Einstellung, um nur die zu einem Vertriebskanal gehörenden Kategorien zu senden – dies ändert die Kategoriepfade in Nosto führen Sie daher nach der Aktivierung eine vollständige Produktsynchronisierung durch
+
+# 5.2.28
+* Fix: „Vary“ zur Anfrage hinzugefügt, um ein Caching-Problem zu beheben
+
+# 5.2.27
+* Neu: Unterstützung von Stichwort-Facetten
+* Neu: Plugin-Version an Nosto senden
+
+# 5.2.26
+* Fix: Sicherstellen, dass beim Löschen von Varianten in der Warteschlange bei der Produktsynchronisierung vollständige Produktnummernzuordnungen verwendet werden
+* Fix: Bei der Auflösung der Synchronisierungskonfiguration für die erste verfügbare Variante den Vertriebskanal und den Sprachkontext berücksichtigen
+
+# 5.2.25
+* Fix: Cookie-Consent-Migrationen zur Unterstützung von MariaDB aktualisiert
+* Fix: Fehler beim Plugin-Update behoben, der durch einen Servicefehler beim Anwenden des Standardwerts für die Produktkennung verursacht wurde
+
+# 5.2.24
+* Fix: Die Artikelnummer als Standard festlegen statt ID
+* Fix: Die Art und Weise, wie sich der Scheduler am Message-Bus anmeldet, wurde optimiert, um einen Speicherengpass bei der Aktivierung von Plugins zu vermeiden.
+* Fix: Die Einstellung „enableCache“ kann pro Vertriebskanal und Sprache konfiguriert werden
+* New: Neu: Berücksichtigung der Cookie-Einwilligung – Modus „Kundendaten senden“ (basierend auf Cookie / immer / nie), doNotTrack bei fehlender Einwilligung, und die Backend-Synchronisierung berücksichtigt dies
+
+# 5.2.23
+* Fix: Routing bei der Bestellsynchronisierung bei mehreren Vertriebskanälen, die dieselbe Sprache verwenden
+* Fix: Fallback bei Suche/Angebotsanzeige
+* Fix: "CachedCategoryRoute" optional, wenn der Dienst nicht verfügbar ist
+
+# 5.2.22
+* Fix: Kategorien werden nur exportiert wenn url und urlPath existieren
+
+# 5.2.21
+* Fix: Administrations-Icon aktualisiert
+
+# 5.2.20
+* Neu: Anzahl der Filterwerte und Medien für Filter hinzugefügt
+
+# 5.2.19
+* Neu: Verbesserte Suchanalysen durch Übermittlung des Grundes für die Suchart mit den Anfragen
+* Fix: Verbesserung der Anzahl der Bewertungen
+
 # 5.2.18
 * Fix: Die richtige Währung für den Produkt-Sync verwenden, wenn Multi-Währung deaktiviert ist
 * Fix: Die Sichtbarkeit im Sales Channel berücksichtigen, damit nur zugewiesene Produkte an Nosto synchronisiert werden

@@ -19,6 +19,8 @@
             <argument key="$productRepository" type="service" id="product.repository"/>
             <argument key="$categoryRepository" type="service" id="category.repository"/>
             <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument key="$productHelper" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
@@ -82,6 +84,13 @@
             <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OrphanedJobRecoveryScheduledTaskHandler">
+            <tag name="messenger.message_handler"/>
+
+            <argument key="$scheduledTaskRepository" type="service" id="scheduled_task.repository"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\ScheduledTask\DailyProductSyncScheduledTaskHandler" lazy="true">
             <tag name="messenger.message_handler"/>
 
@@ -118,9 +127,8 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
+            <argument key="$connection" type="service" id="Doctrine\DBAL\Connection"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
-            <argument key="$productRoute" type="service"
-                      id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument key="$reviewRepository" type="service" id="product_review.repository"/>
             <argument key="$eventDispatcher" type="service" id="event_dispatcher"/>
             <argument key="$configProvider" type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
@@ -179,10 +187,23 @@
             <tag name="shopware.scheduled.task"/>
         </service>
 
+        <service id="Nosto\NostoIntegration\Service\ScheduledTask\OrphanedJobRecoveryScheduledTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
         <service id="Nosto\NostoIntegration\Service\NostoJobSyncService">
             <argument type="service" id="nosto_scheduler_job.repository"/>
             <argument type="service" id="nosto_scheduler_job_message.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\QueuedJobIdProvider">
+            <argument key="$transportDsn">%env(MESSENGER_TRANSPORT_DSN)%</argument>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Service\JobRecoveryService" public="true">
+            <argument key="$jobFailureHandler" type="service" id="Nosto\Scheduler\Model\Job\JobFailureHandler"/>
+            <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
         <service id="Nosto\NostoIntegration\Async\EventsWriter" lazy="true">
@@ -227,6 +248,7 @@
         >
             <argument type="service"
                       id="Nosto\NostoIntegration\Decorator\Storefront\Framework\Cookie\NostoCookieProvider.inner"/>
+            <argument type="service" id="Nosto\NostoIntegration\Model\ConfigProvider"/>
         </service>
 
         <service

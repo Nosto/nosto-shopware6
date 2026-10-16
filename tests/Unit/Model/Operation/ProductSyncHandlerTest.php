@@ -5,20 +5,24 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Account\KeyChain;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionMethod;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -130,6 +134,94 @@ final class ProductSyncHandlerTest extends TestCase
         self::assertSame($salesChannelContext, $handler->createAccountContextPublic($account, $context));
     }
 
+    public function testFlushDeleteOperationLoadsMissingProductNumberMappingsForQueuedDeletes(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn($context);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
+        $salesChannelContext->method('getLanguageId')->willReturn('language-id');
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->expects($this->once())
+            ->method('loadOrderNumberMapping')
+            ->with(['existing-product-id', 'queued-product-id'], $context)
+            ->willReturn([
+                'queued-product-id' => 'SW10001.2',
+            ]);
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+
+        $handler = $this->createHandler(
+            configProvider: $configProvider,
+            productHelper: $productHelper,
+        );
+
+        $queuedDeleteIds = [
+            'existing-product-id' => true,
+            'queued-product-id' => true,
+        ];
+        $mapping = [
+            'existing-product-id' => 'SW10001.1',
+        ];
+
+        $method = new ReflectionMethod(ProductSyncHandler::class, 'flushDeleteOperation');
+        $method->invokeArgs($handler, [
+            &$queuedDeleteIds,
+            new Account('sales-channel-id', 'language-id', 'account', new KeyChain([])),
+            $salesChannelContext,
+            $mapping,
+        ]);
+
+        self::assertSame([], $queuedDeleteIds);
+        self::assertSame(['existing-product-id', 'queued-product-id'], $handler->deletedProductIds);
+        self::assertSame([
+            'existing-product-id' => 'SW10001.1',
+            'queued-product-id' => 'SW10001.2',
+        ], $handler->deleteMapping);
+        self::assertSame(['SW10001.1', 'SW10001.2'], $handler->deletedIdentifiers);
+    }
+
+    public function testHandleProductKeepsParentWhenCalculatedVariantAvailabilityIsInStock(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $product = new PartialProduct(new PartialEntity([
+            'id' => 'parent-product-id',
+            'parentId' => null,
+            'children' => null,
+        ]));
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->expects(self::once())
+            ->method('getProductStock')
+            ->with($product, $context)
+            ->willReturn(0);
+        $productHelper->expects(self::once())
+            ->method('isProductInStock')
+            ->with($product, $context, 0)
+            ->willReturn(true);
+
+        $nostoProduct = new NostoProduct();
+        $partialProductProvider = $this->createMock(PartialProvider::class);
+        $partialProductProvider->expects(self::once())
+            ->method('get')
+            ->with($product, $context)
+            ->willReturn($nostoProduct);
+
+        $handler = $this->createHandler(
+            productHelper: $productHelper,
+            partialProductProvider: $partialProductProvider,
+        );
+        $queuedDeleteIds = [];
+
+        self::assertSame(
+            $nostoProduct,
+            $handler->handleProductPublic($product, $context, true, $queuedDeleteIds),
+        );
+        self::assertSame([], $queuedDeleteIds);
+    }
+
     /**
      * @return iterable<string, array{0: string|null, 1: string|null, 2: string|null, 3: string}>
      */
@@ -168,15 +260,17 @@ final class ProductSyncHandlerTest extends TestCase
         ?AbstractSalesChannelContextFactory $contextFactory = null,
         ?EntityRepository $domainRepository = null,
         ?ConfigProvider $configProvider = null,
+        ?ProductHelper $productHelper = null,
+        ?PartialProvider $partialProductProvider = null,
     ): TestableProductSyncHandler {
         return new TestableProductSyncHandler(
             $contextFactory ?? $this->createMock(AbstractSalesChannelContextFactory::class),
-            $this->createMock(PartialProvider::class),
+            $partialProductProvider ?? $this->createMock(PartialProvider::class),
             $this->createMock(AccountProvider::class),
             $domainRepository ?? $this->createMock(EntityRepository::class),
             $configProvider ?? $this->createMock(ConfigProvider::class),
             $this->createMock(AbstractRuleLoader::class),
-            $this->createMock(ProductHelper::class),
+            $productHelper ?? $this->createMock(ProductHelper::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
             $this->createMock(LoggerInterface::class),
@@ -186,6 +280,21 @@ final class ProductSyncHandlerTest extends TestCase
 
 final class TestableProductSyncHandler extends ProductSyncHandler
 {
+    /**
+     * @var string[]
+     */
+    public array $deletedProductIds = [];
+
+    /**
+     * @var array<string, string>
+     */
+    public array $deleteMapping = [];
+
+    /**
+     * @var string[]
+     */
+    public array $deletedIdentifiers = [];
+
     public function validateProductPublic(string $productNumber, NostoProduct $product): ?WarningMessage
     {
         return $this->validateProduct($productNumber, $product);
@@ -194,5 +303,28 @@ final class TestableProductSyncHandler extends ProductSyncHandler
     public function createAccountContextPublic(Account $account, Context $context): SalesChannelContext
     {
         return $this->createAccountContext($account, $context);
+    }
+
+    /**
+     * @param array<string, bool> $queuedDeleteIds
+     */
+    public function handleProductPublic(
+        PartialProduct $product,
+        SalesChannelContext $context,
+        bool $hideProductsAfterClearance,
+        array &$queuedDeleteIds,
+    ): ?NostoProduct {
+        return $this->handleProduct($product, $context, $hideProductsAfterClearance, $queuedDeleteIds);
+    }
+
+    protected function doDeleteOperation(
+        Account $account,
+        SalesChannelContext $context,
+        array $productIds,
+        array $mapping,
+    ): void {
+        $this->deletedProductIds = $productIds;
+        $this->deleteMapping = $mapping;
+        $this->deletedIdentifiers = $this->getIdentifiers($context, $productIds, $mapping);
     }
 }

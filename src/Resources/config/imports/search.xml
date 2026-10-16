@@ -36,31 +36,16 @@
         </service>
 
         <service
-                id="Shopware\Storefront\Page\Search\SearchPageLoader"
-                public="true"
-                autowire="true"
-        >
-            <argument
-                    type="service"
-                    key="$genericLoader"
-                    id="Shopware\Storefront\Page\GenericPageLoader"
-                    on-invalid="null"
-            />
-            <argument
-                    type="service"
-                    key="$productSearchRoute"
-                    id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
-                    on-invalid="null"
-            />
-        </service>
-
-        <service
             id="Nosto\NostoIntegration\Decorator\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"
             decoration-priority="-1000"
             decoration-on-invalid="ignore"
             autowire="true"
         >
+            <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository"/>
+        </service>
+
+        <service id="Nosto\NostoIntegration\Search\ProductIdentifierResolver" autowire="true">
             <argument type="service" key="$salesChannelProductRepository" id="sales_channel.product.repository"/>
         </service>
 
@@ -83,6 +68,7 @@
                 id="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
                 class="Nosto\NostoIntegration\Decorator\Core\Content\Category\SalesChannel\NoCacheCategoryRoute"
                 decorates="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute"
+                decoration-on-invalid="ignore"
                 decoration-priority="1000"
                 autowire="true"
                 autoconfigure="true"
