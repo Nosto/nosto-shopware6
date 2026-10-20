@@ -1,3 +1,7 @@
+# 5.2.33
+* Fix: Compatibility with third-party plugins using the legacy OD scheduler tables
+* Fix: Prevented product detail pages of variant products from crashing due to incorrect collection handling in storefront product tagging
+
 # 5.2.32
 * New: Added an optional admin setting to calculate parent product inventory and availability from active variants
 * Fix: Improved overall page performance by reducing unnecessary database queries and repeated product lookups
