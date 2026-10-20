@@ -1,3 +1,7 @@
+# 6.1.35
+* Fix: Kompatibilität mit Plugins von Drittanbietern, die die veralteten OD-Scheduler-Tabellen verwenden
+* Fix: Es wird nun verhindert, dass Produktdetailseiten von Variantenprodukten aufgrund einer fehlerhaften Handhabung von Kollektionen bei der Produktkennzeichnung im Shop abstürzen
+
 # 6.1.34
 * Neu: Es wurde eine optionale Admin-Einstellung hinzugefügt, um den Lagerbestand und die Verfügbarkeit des übergeordneten Produkts anhand der aktiven Varianten zu berechnen.
 * Fix: Verbesserte allgemeine Seitenperformance durch die Reduzierung unnötiger Datenbankabfragen und wiederholter Produktabfragen.
