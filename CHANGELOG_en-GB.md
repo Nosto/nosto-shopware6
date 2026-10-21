@@ -1,3 +1,6 @@
+# 5.2.34
+* Fix: autocomplete product suggestion should match search results for productNumber search
+
 # 5.2.33
 * Fix: Compatibility with third-party plugins using the legacy OD scheduler tables
 * Fix: Prevented product detail pages of variant products from crashing due to incorrect collection handling in storefront product tagging
