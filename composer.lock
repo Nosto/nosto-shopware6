@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f536fe1d08ac06808134121e9607ed22",
+    "content-hash": "eecd6ec98077204735c11e1661a9c73d",
     "packages": [
         {
             "name": "nosto/php-sdk",
@@ -2938,5 +2938,5 @@
     "platform-overrides": {
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
