@@ -1,3 +1,6 @@
+# 6.1.36
+* Fix: Die Produktvorschläge der Autovervollständigung sollten mit den Suchergebnissen für die Suche nach der Produktnummer übereinstimmen
+
 # 6.1.35
 * Fix: Kompatibilität mit Plugins von Drittanbietern, die die veralteten OD-Scheduler-Tabellen verwenden
 * Fix: Es wird nun verhindert, dass Produktdetailseiten von Variantenprodukten aufgrund einer fehlerhaften Handhabung von Kollektionen bei der Produktkennzeichnung im Shop abstürzen
