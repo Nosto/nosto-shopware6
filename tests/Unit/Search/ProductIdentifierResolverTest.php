@@ -86,6 +86,44 @@ final class ProductIdentifierResolverTest extends TestCase
         );
     }
 
+    public function testKeywordLookupPrefersProductNumberOverEanAndManufacturerNumber(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getLanguageId')->willReturn('language-id');
+        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('search')
+            ->willReturn($this->createSearchResult([
+                $this->createProduct('manufacturer', 'other', null, 'IDENTIFIER'),
+                $this->createProduct('ean', 'other', 'IDENTIFIER'),
+                $this->createProduct('product-number', 'IDENTIFIER'),
+            ]));
+
+        self::assertSame(
+            'product-number',
+            (new ProductIdentifierResolver($repository))->resolveFromKeywordIndex('IDENTIFIER', $context),
+        );
+    }
+
+    public function testLegacyLookupPrefersEanOverManufacturerNumber(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('search')
+            ->willReturn($this->createSearchResult([
+                $this->createProduct('manufacturer', 'other', null, 'IDENTIFIER'),
+                $this->createProduct('ean', 'other', 'IDENTIFIER'),
+            ]));
+
+        self::assertSame(
+            'ean',
+            (new ProductIdentifierResolver($repository))->resolveFromProductFields('IDENTIFIER', $context),
+        );
+    }
+
     /**
      * @return iterable<string, array{string, string, ?string, ?string}>
      */
