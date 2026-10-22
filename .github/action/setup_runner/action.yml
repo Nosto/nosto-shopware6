@@ -11,6 +11,8 @@ runs:
   steps:
     - name: Setup PHP with Composer 2
       uses: shivammathur/setup-php@v2
+      env:
+        update: true
       with:
         php-version: ${{ inputs.php-version }}
         extensions: dom, gd, mbstring, pdo_mysql, zip
