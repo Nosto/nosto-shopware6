@@ -43,7 +43,11 @@ jobs:
 
       - name: Set minimum requirement
         working-directory: nosto-shopware6
-        run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
+        run: |
+          composer require \
+            shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" \
+            shopware/storefront "${{ env.PLUGIN_MIN_REQUIREMENT }}" \
+            --no-update
 
       - name: Remove .gitignore files from vendor
         run: find nosto-shopware6/vendor -type f -name ".gitignore" -delete
