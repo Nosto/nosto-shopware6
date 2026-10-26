@@ -80,8 +80,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Prepare validation directory
+        run: |
+          mkdir validation
+          rsync -a clean/ validation/ --exclude vendor
+
       - name: Validate plugin files
-        working-directory: clean
+        working-directory: validation
         run: shopware-cli extension validate .
 
       - name: Build plugin release zip file
