@@ -104,7 +104,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
             $this->listingProcessor->prepare($request, $criteria, $context);
 
-            $result = $this->fetchProductsById($criteria, $context, $query, $request);
+            $result = $this->fetchProductsById($criteria, $context, $query);
 
             $productListing = ProductListingResult::createFrom($result);
             $productListing->addCurrentFilter('search', $query);
@@ -251,16 +251,14 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         Criteria $criteria,
         SalesChannelContext $salesChannelContext,
         ?string $query,
-        Request $request,
     ): EntitySearchResult {
         if (empty($criteria->getIds())) {
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
 
         if ($query !== null && count($criteria->getIds()) === 1) {
-            $productId = $this->productIdentifierResolver->resolveFromKeywordIndex(
+            $productId = $this->productIdentifierResolver->resolveFromProductFields(
                 $query,
-                $request,
                 $salesChannelContext,
             );
             if ($productId !== null) {

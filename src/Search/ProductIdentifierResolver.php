@@ -6,59 +6,70 @@ namespace Nosto\NostoIntegration\Search;
 
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Resolves an exact product identifier through Shopware's search-keyword index.
- *
- * This makes the product selected for a Nosto search result match Shopware's
- * autocomplete lookup, including inherited product numbers.
+ * Resolves an exact product identifier from the product fields used by Shopware search.
  */
 class ProductIdentifierResolver
 {
-    private const CANDIDATE_LIMIT = 100;
-
     public function __construct(
         private readonly SalesChannelRepository $salesChannelProductRepository,
-        private readonly ProductSearchBuilderInterface $searchBuilder,
     ) {
     }
 
-    public function resolveFromKeywordIndex(
-        string $query,
-        Request $request,
-        SalesChannelContext $salesChannelContext,
-    ): ?string {
-        $criteria = NostoCriteriaFactory::create('criteria::resolve-search-identifier');
-        $criteria->setLimit(self::CANDIDATE_LIMIT);
+    public function resolveFromProductFields(string $query, SalesChannelContext $salesChannelContext): ?string
+    {
+        $query = trim($query);
+        $criteria = NostoCriteriaFactory::create();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('productNumber', $query),
+            new EqualsFilter('ean', $query),
+            new EqualsFilter('manufacturerNumber', $query),
+        ]));
 
-        $this->searchBuilder->build($request, $criteria, $salesChannelContext);
+        return $this->resolveExactIdentifierFromCandidates(
+            $this->salesChannelProductRepository->search($criteria, $salesChannelContext)->getEntities(),
+            $query,
+        );
+    }
 
-        foreach ($this->salesChannelProductRepository->search(
-            $criteria,
-            $salesChannelContext,
-        )->getEntities() as $product) {
-            if ($this->isExactIdentifierMatch($product, $query)) {
+    /**
+     * @param iterable<ProductEntity> $products
+     */
+    private function resolveExactIdentifierFromCandidates(iterable $products, string $query): ?string
+    {
+        $query = trim($query);
+        $eanMatch = null;
+        $manufacturerNumberMatch = null;
+
+        foreach ($products as $product) {
+            // Product numbers are the primary identifier. Check every candidate before
+            // falling back, so repository ordering cannot make a manufacturer number win.
+            if ($this->isIdentifierEqual($product->getProductNumber(), $query)) {
                 return $product->getId();
+            }
+
+            if ($eanMatch === null && $this->isIdentifierEqual($product->getEan(), $query)) {
+                $eanMatch = $product->getId();
+            }
+
+            if ($manufacturerNumberMatch === null
+                && $this->isIdentifierEqual($product->getManufacturerNumber(), $query)
+            ) {
+                $manufacturerNumberMatch = $product->getId();
             }
         }
 
-        return null;
-    }
-
-    private function isExactIdentifierMatch(ProductEntity $product, string $query): bool
-    {
-        return $this->isIdentifierEqual($product->getProductNumber(), $query)
-            || $this->isIdentifierEqual($product->getEan(), $query)
-            || $this->isIdentifierEqual($product->getManufacturerNumber(), $query);
+        return $eanMatch ?? $manufacturerNumberMatch;
     }
 
     private function isIdentifierEqual(?string $identifier, string $query): bool
     {
         return $identifier !== null
-            && strcasecmp(trim($identifier), trim($query)) === 0;
+            && mb_strtolower(trim($identifier)) === mb_strtolower($query);
     }
 }
