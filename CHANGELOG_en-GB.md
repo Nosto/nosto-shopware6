@@ -1,3 +1,6 @@
+# 3.6.19
+* Fix: Updated GitHub Actions release workflow. No runtime or behavior changes.
+
 # 3.6.18
 * Fix: autocomplete product suggestion should match search results for productNumber search
 

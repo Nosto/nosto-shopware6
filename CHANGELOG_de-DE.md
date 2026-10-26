@@ -1,3 +1,6 @@
+# 3.6.19
+* Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
+
 # 3.6.18
 * Fix: Die Produktvorschläge der Autovervollständigung sollten mit den Suchergebnissen für die Suche nach der Produktnummer übereinstimmen
 
