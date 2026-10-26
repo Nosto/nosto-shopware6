@@ -1,3 +1,6 @@
+# 3.6.18
+* Fix: Die Produktvorschläge der Autovervollständigung sollten mit den Suchergebnissen für die Suche nach der Produktnummer übereinstimmen
+
 # 3.6.17
 * Fix: frontend.cms.page.full-Route schlägt mit „controller not callable“ fehl
 

@@ -1,3 +1,6 @@
+# 3.6.18
+* Fix: autocomplete product suggestion should match search results for productNumber search
+
 # 3.6.17
 * Fix: frontend.cms.page.full route failing with "controller not callable"
 
