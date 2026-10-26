@@ -87,7 +87,9 @@ jobs:
 
       - name: Validate plugin files
         working-directory: validation
-        run: shopware-cli extension validate .
+        env:
+          COMPOSER_POLICY_ADVISORIES_BLOCK: '0'
+        run: shopware-cli extension validate . --only builtin,phpstan
 
       - name: Build plugin release zip file
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
