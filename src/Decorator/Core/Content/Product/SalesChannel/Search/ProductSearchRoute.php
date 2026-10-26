@@ -9,6 +9,7 @@ use Nosto\Model\Analytics\AnalyticsSearchMetadataForGraphql;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
+use Nosto\NostoIntegration\Search\ProductIdentifierResolver;
 use Nosto\NostoIntegration\Search\Request\Handler\SortHandlers\RecommendationSortingHandler;
 use Nosto\NostoIntegration\Search\Request\Handler\SortingHandlerService;
 use Nosto\NostoIntegration\Traits\SearchResultHelper;
@@ -52,6 +53,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         private readonly LoggerInterface $logger,
         private readonly SortingHandlerService $sortingHandlerService,
         private readonly Account\Provider $accountProvider,
+        private readonly ProductIdentifierResolver $productIdentifierResolver,
     ) {
     }
 
@@ -254,6 +256,16 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             return $this->createEmptySearchResult($criteria, $salesChannelContext->getContext());
         }
 
-        return $this->fetchProducts($criteria, $salesChannelContext, $query);
+        if ($query !== null && count($criteria->getIds()) === 1) {
+            $productId = $this->productIdentifierResolver->resolveFromProductFields(
+                $query,
+                $salesChannelContext,
+            );
+            if ($productId !== null) {
+                $criteria->setIds([$productId]);
+            }
+        }
+
+        return $this->fetchProducts($criteria, $salesChannelContext);
     }
 }
