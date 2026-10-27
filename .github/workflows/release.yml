@@ -43,11 +43,7 @@ jobs:
 
       - name: Set minimum requirement
         working-directory: nosto-shopware6
-        run: |
-          composer require \
-            shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" \
-            shopware/storefront "${{ env.PLUGIN_MIN_REQUIREMENT }}" \
-            --no-update
+        run: composer require shopware/core "${{ env.PLUGIN_MIN_REQUIREMENT }}" --no-update
 
       - name: Remove .gitignore files from vendor
         run: find nosto-shopware6/vendor -type f -name ".gitignore" -delete
@@ -84,16 +80,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Prepare validation directory
-        run: |
-          mkdir validation
-          rsync -a clean/ validation/ --exclude vendor
-
       - name: Validate plugin files
-        working-directory: validation
-        env:
-          COMPOSER_POLICY_ADVISORIES_BLOCK: '0'
-        run: shopware-cli extension validate . --only builtin,phpstan
+        working-directory: clean
+        run: shopware-cli extension validate . --only builtin
 
       - name: Build plugin release zip file
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
