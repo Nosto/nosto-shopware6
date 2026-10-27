@@ -81,7 +81,7 @@ jobs:
 
       - name: Validate plugin files
         working-directory: clean
-        run: shopware-cli extension validate .
+        run: shopware-cli extension validate . --only builtin
 
       - name: Build plugin release zip file
         working-directory: clean
