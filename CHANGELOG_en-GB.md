@@ -1,3 +1,6 @@
+# 3.6.21
+* Fix: Updated GitHub Actions release workflow. No runtime or behavior changes.
+
 # 3.6.20
 * Fix: Updated GitHub Actions release workflow. No runtime or behavior changes.
 
