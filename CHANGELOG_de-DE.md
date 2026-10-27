@@ -1,3 +1,6 @@
+# 3.6.21
+* Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
+
 # 3.6.20
 * Fix: Aktualisierung des GitHub-Actions-Release-Workflows. Keine Laufzeit- oder Verhaltensänderungen.
 
