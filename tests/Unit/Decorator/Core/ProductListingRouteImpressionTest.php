@@ -16,13 +16,13 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ProductListingRouteImpressionTest extends TestCase
@@ -64,13 +64,19 @@ final class ProductListingRouteImpressionTest extends TestCase
             Context::createDefaultContext(),
         ));
 
-        $accountProvider = new Account\Provider($configProvider, $channelRepo, $this->createMock(LoggerInterface::class));
+        $accountProvider = new Account\Provider($configProvider, $channelRepo, $this->createMock(
+            LoggerInterface::class,
+        ));
         self::assertNull($accountProvider->get(Context::createDefaultContext(), 'sales-channel-id', 'language-id'));
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('error')->with(self::stringContains('No Nosto account found'));
 
-        $this->sendImpression(str_repeat('a', 64), $accountProvider->get(Context::createDefaultContext(), 'sales-channel-id', 'language-id'), $logger);
+        $this->sendImpression(
+            str_repeat('a', 64),
+            $accountProvider->get(Context::createDefaultContext(), 'sales-channel-id', 'language-id'),
+            $logger,
+        );
     }
 
     public function testMissingAppTokenDoesNotBreakCategoryPage(): void
@@ -94,7 +100,11 @@ final class ProductListingRouteImpressionTest extends TestCase
         // Only these three dependencies are used by sendImpressionAnalytics.
         $reflection = new \ReflectionClass(ProductListingRoute::class);
         $route = $reflection->newInstanceWithoutConstructor();
-        foreach (['configProvider' => $configProvider, 'logger' => $logger, 'accountProvider' => $accountProvider] as $name => $dependency) {
+        foreach ([
+            'configProvider' => $configProvider,
+            'logger' => $logger,
+            'accountProvider' => $accountProvider,
+        ] as $name => $dependency) {
             $reflection->getProperty($name)->setValue($route, $dependency);
         }
 
@@ -106,7 +116,14 @@ final class ProductListingRouteImpressionTest extends TestCase
         $request = Request::create('/category');
         $request->cookies->set('2c_cId', 'session-id');
 
-        $listing = new ProductListingResult('product', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
+        $listing = new ProductListingResult(
+            'product',
+            0,
+            new ProductCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
 
         $category = new CategoryEntity();
         $category->setSeoUrls(new SeoUrlCollection());
