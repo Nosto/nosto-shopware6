@@ -827,9 +827,18 @@ class PartialBuilder
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
+            $calculatedPrices = $this->productHelper->getSalesChannelCalculatedPrices(
+                $product->getChildren()->getIds(),
+                $context,
+            );
+
             //children are already loaded so we only append them to $skuCollection
             foreach ($product->getChildren() as $variationProduct) {
-                $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                $skuCollection->append($this->skuBuilder->build(
+                    $variationProduct,
+                    $context,
+                    $calculatedPrices[$variationProduct->getId()] ?? null,
+                ));
             }
         }
 

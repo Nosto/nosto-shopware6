@@ -184,30 +184,73 @@ class ProductHelper
 
     public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
     {
-        $cacheKey = implode('|', [
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-            $context->getCurrencyId(),
-            $productId,
-        ]);
+        $cacheKey = $this->getCalculatedPriceCacheKey($productId, $context);
 
         if (array_key_exists($cacheKey, $this->calculatedPriceCache)) {
             return $this->calculatedPriceCache[$cacheKey];
         }
 
-        $criteria = NostoCriteriaFactory::createWithIds(
-            [$productId],
-            'product_sync.productHelper.getSalesChannelCalculatedPrice',
-        );
+        $this->getSalesChannelCalculatedPrices([$productId], $context);
 
-        $product = $this->salesChannelProductRepository->search($criteria, $context)->get($productId);
-        if (!$product instanceof SalesChannelProductEntity) {
-            return $this->calculatedPriceCache[$cacheKey] = null;
+        return $this->calculatedPriceCache[$cacheKey] ?? null;
+    }
+
+    /**
+     * @param string[] $productIds
+     * @return array<string, CalculatedPrice|null>
+     */
+    public function getSalesChannelCalculatedPrices(array $productIds, SalesChannelContext $context): array
+    {
+        $productIds = array_values(array_unique(array_filter($productIds)));
+        $missingProductIds = array_values(array_filter(
+            $productIds,
+            fn (string $productId): bool => !array_key_exists(
+                $this->getCalculatedPriceCacheKey($productId, $context),
+                $this->calculatedPriceCache,
+            ),
+        ));
+
+        if ($missingProductIds !== []) {
+            $criteria = NostoCriteriaFactory::createWithIds(
+                $missingProductIds,
+                'product_sync.productHelper.getSalesChannelCalculatedPrices',
+            );
+
+            $products = $this->salesChannelProductRepository->search($criteria, $context)->getEntities();
+
+            foreach ($missingProductIds as $productId) {
+                $this->calculatedPriceCache[$this->getCalculatedPriceCacheKey($productId, $context)] = null;
+            }
+
+            foreach ($products as $product) {
+                if (!$product instanceof SalesChannelProductEntity) {
+                    continue;
+                }
+
+                $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+                $this->calculatedPriceCache[$this->getCalculatedPriceCacheKey($product->getId(), $context)] =
+                    $price instanceof CalculatedPrice ? $price : null;
+            }
         }
 
-        $price = $product->getCalculatedPrices()->first() ?: $product->getCalculatedPrice();
+        $prices = [];
+        foreach ($productIds as $productId) {
+            $prices[$productId] = $this->calculatedPriceCache[
+                $this->getCalculatedPriceCacheKey($productId, $context)
+            ] ?? null;
+        }
 
-        return $this->calculatedPriceCache[$cacheKey] = $price instanceof CalculatedPrice ? $price : null;
+        return $prices;
+    }
+
+    private function getCalculatedPriceCacheKey(string $productId, SalesChannelContext $context): string
+    {
+        return implode('|', [
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+            $context->getCurrencyId(),
+            $productId,
+        ]);
     }
 
     private function getCommonCriteria(?string $title = null): Criteria

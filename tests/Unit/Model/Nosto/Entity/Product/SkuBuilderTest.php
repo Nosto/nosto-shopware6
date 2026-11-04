@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -181,10 +182,113 @@ final class SkuBuilderTest extends TestCase
         $productHelper = $this->createMock(ProductHelper::class);
         $productHelper->method('getProductUrl')->willReturn('https://shop.example.test/product/calculated');
         $productHelper->method('getFallbackImageUrl')->willReturn('https://cdn.example.test/placeholder.svg');
-        $productHelper->expects($this->once())
-            ->method('getSalesChannelCalculatedPrice')
-            ->with('product-id', $context)
-            ->willReturn($calculatedPrice);
+        $productHelper->expects($this->never())->method('getSalesChannelCalculatedPrice');
+
+        $crossSellingBuilder = $this->createMock(CrossSellingBuilder::class);
+        $crossSellingBuilder->method('build')->willReturn([]);
+
+        $builder = new SkuBuilder(
+            $configProvider,
+            $productHelper,
+            $this->createMock(NetPriceCalculator::class),
+            new CashRounding(),
+            $crossSellingBuilder,
+            $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository::class),
+        );
+
+        $sku = $builder->build($product, $context, $calculatedPrice);
+
+        self::assertSame(25.0, $sku->getPrice());
+        self::assertSame(30.0, $sku->getListPrice());
+    }
+
+    public function testBuildPrefersCalculatedPriceWhenMultiCurrencyIsEnabled(): void
+    {
+        $context = $this->createContext();
+        $product = $this->createProduct(
+            id: 'product-id',
+            productNumber: 'SWDEMO10005',
+            name: 'Multi-currency calculated product',
+            stock: 1,
+            availableStock: 1,
+            priceCollection: $this->createPriceCollection('eur-id', 10.0, 12.0, 9.0, 11.0),
+        );
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::ACTUAL_STOCK);
+        $configProvider->method('isEnabledProductProperties')->willReturn(false);
+        $configProvider->method('isEnabledInventoryLevels')->willReturn(false);
+        $configProvider->method('isEnabledProductLabellingSync')->willReturn(false);
+        $configProvider->method('isEnabledMultiCurrency')->willReturn(true);
+
+        $calculatedPrice = new CalculatedPrice(
+            25.0,
+            25.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(25.0, 30.0),
+        );
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('getProductUrl')->willReturn('https://shop.example.test/product/calculated');
+        $productHelper->method('getFallbackImageUrl')->willReturn('https://cdn.example.test/placeholder.svg');
+        $productHelper->expects($this->never())->method('getSalesChannelCalculatedPrice');
+
+        $crossSellingBuilder = $this->createMock(CrossSellingBuilder::class);
+        $crossSellingBuilder->method('build')->willReturn([]);
+
+        $builder = new SkuBuilder(
+            $configProvider,
+            $productHelper,
+            $this->createMock(NetPriceCalculator::class),
+            new CashRounding(),
+            $crossSellingBuilder,
+            $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository::class),
+        );
+
+        $sku = $builder->build($product, $context, $calculatedPrice);
+
+        self::assertSame(25.0, $sku->getPrice());
+        self::assertSame(30.0, $sku->getListPrice());
+    }
+
+    public function testBuildUsesAlreadyLoadedCalculatedPriceBeforeRepositoryLookup(): void
+    {
+        $context = $this->createContext();
+        $calculatedPrice = new CalculatedPrice(
+            25.0,
+            25.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(25.0, 30.0),
+        );
+        $product = $this->createProduct(
+            id: 'product-id',
+            productNumber: 'SWDEMO10007',
+            name: 'Pre-calculated product',
+            stock: 1,
+            availableStock: 1,
+            priceCollection: $this->createPriceCollection('eur-id', 10.0, 12.0, 9.0, 11.0),
+            calculatedPrice: $calculatedPrice,
+        );
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::ACTUAL_STOCK);
+        $configProvider->method('isEnabledProductProperties')->willReturn(false);
+        $configProvider->method('isEnabledInventoryLevels')->willReturn(false);
+        $configProvider->method('isEnabledProductLabellingSync')->willReturn(false);
+        $configProvider->method('isEnabledMultiCurrency')->willReturn(true);
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('getProductUrl')->willReturn('https://shop.example.test/product/pre-calculated');
+        $productHelper->method('getFallbackImageUrl')->willReturn('https://cdn.example.test/placeholder.svg');
+        $productHelper->expects($this->never())->method('getSalesChannelCalculatedPrice');
 
         $crossSellingBuilder = $this->createMock(CrossSellingBuilder::class);
         $crossSellingBuilder->method('build')->willReturn([]);
@@ -204,13 +308,56 @@ final class SkuBuilderTest extends TestCase
         self::assertSame(30.0, $sku->getListPrice());
     }
 
-    private function createContext(): SalesChannelContext
+    public function testBuildFallsBackToRoundedRawCurrencyPriceWhenCalculatedPriceIsUnavailable(): void
+    {
+        $context = $this->createContext(new CashRoundingConfig(2, 0.05, true));
+        $product = $this->createProduct(
+            id: 'product-id',
+            productNumber: 'SWDEMO10006',
+            name: 'Raw-price fallback product',
+            stock: 1,
+            availableStock: 1,
+            priceCollection: $this->createPriceCollection('eur-id', 10.01, 12.03, 9.01, 11.02),
+        );
+
+        $configProvider = $this->createMock(ConfigProvider::class);
+        $configProvider->method('getProductIdentifier')->willReturn(ProductIdentifierOptions::PRODUCT_NUMBER);
+        $configProvider->method('getStockField')->willReturn(StockFieldOptions::ACTUAL_STOCK);
+        $configProvider->method('isEnabledProductProperties')->willReturn(false);
+        $configProvider->method('isEnabledInventoryLevels')->willReturn(false);
+        $configProvider->method('isEnabledProductLabellingSync')->willReturn(false);
+        $configProvider->method('isEnabledMultiCurrency')->willReturn(true);
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('getProductUrl')->willReturn('https://shop.example.test/product/fallback');
+        $productHelper->method('getFallbackImageUrl')->willReturn('https://cdn.example.test/placeholder.svg');
+        $productHelper->expects($this->never())->method('getSalesChannelCalculatedPrice');
+
+        $crossSellingBuilder = $this->createMock(CrossSellingBuilder::class);
+        $crossSellingBuilder->method('build')->willReturn([]);
+
+        $builder = new SkuBuilder(
+            $configProvider,
+            $productHelper,
+            $this->createMock(NetPriceCalculator::class),
+            new CashRounding(),
+            $crossSellingBuilder,
+            $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository::class),
+        );
+
+        $sku = $builder->build($product, $context);
+
+        self::assertSame(12.05, $sku->getPrice());
+        self::assertSame(11.0, $sku->getListPrice());
+    }
+
+    private function createContext(?CashRoundingConfig $itemRounding = null): SalesChannelContext
     {
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getLanguageId')->willReturn('language-id');
         $context->method('getCurrencyId')->willReturn('eur-id');
-        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getItemRounding')->willReturn($itemRounding ?? new CashRoundingConfig(2, 0.01, true));
 
         return $context;
     }
@@ -225,6 +372,7 @@ final class SkuBuilderTest extends TestCase
         ?string $coverUrl = null,
         ?string $manufacturerUrl = null,
         array $customFields = [],
+        ?CalculatedPrice $calculatedPrice = null,
     ): PartialProduct {
         $manufacturer = null;
         if ($manufacturerUrl !== null) {
@@ -244,7 +392,7 @@ final class SkuBuilderTest extends TestCase
             ];
         }
 
-        return PartialProductConverter::toPartialProduct(new PartialEntity([
+        $fields = [
             'id' => $id,
             'productNumber' => $productNumber,
             'translated' => [
@@ -257,7 +405,14 @@ final class SkuBuilderTest extends TestCase
             'manufacturer' => $manufacturer,
             'customFields' => $customFields,
             'shippingFree' => true,
-        ]));
+        ];
+
+        if ($calculatedPrice instanceof CalculatedPrice) {
+            $fields['calculatedPrice'] = $calculatedPrice;
+            $fields['calculatedPrices'] = new CalculatedPriceCollection();
+        }
+
+        return PartialProductConverter::toPartialProduct(new PartialEntity($fields));
     }
 
     private function createPriceCollection(
