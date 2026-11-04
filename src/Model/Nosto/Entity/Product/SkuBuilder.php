@@ -27,6 +27,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SkuBuilder
@@ -46,8 +47,11 @@ class SkuBuilder
      */
     private array $propertyOptionsCache = [];
 
-    public function build(ProductEntity|PartialEntity|PartialProduct $product, SalesChannelContext $context): NostoSku
-    {
+    public function build(
+        ProductEntity|PartialEntity|PartialProduct $product,
+        SalesChannelContext $context,
+        ?CalculatedPrice $salesChannelCalculatedPrice = null,
+    ): NostoSku {
         $nostoSku = new NostoSku();
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
@@ -126,7 +130,7 @@ class SkuBuilder
             $nostoSku->setImageUrl($placeholderImageUrl);
         }
 
-        $this->setPrices($nostoSku, $product, $context);
+        $this->setPrices($nostoSku, $product, $context, $salesChannelCalculatedPrice);
 
         if ($this->configProvider->isEnabledInventoryLevels($channelId, $languageId)) {
             $nostoSku->setInventoryLevel($stock);
@@ -238,17 +242,16 @@ class SkuBuilder
         NostoSku $nostoSku,
         ProductEntity|PartialEntity|PartialProduct $product,
         SalesChannelContext $context,
+        ?CalculatedPrice $salesChannelCalculatedPrice,
     ): void {
-        if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
-            $productId = $product->getId();
-            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
-                $productId,
-                $context,
-            ) : null;
-            if ($productPrice instanceof CalculatedPrice) {
-                $this->setCalculatedPrice($nostoSku, $productPrice, $context);
-                return;
-            }
+        $calculatedPrices = $this->getValue($product, 'calculatedPrices');
+        $productPrice = $salesChannelCalculatedPrice ?? ($calculatedPrices instanceof Collection
+            ? ($calculatedPrices->first() ?: $this->getValue($product, 'calculatedPrice'))
+            : $this->getValue($product, 'calculatedPrice'));
+
+        if ($productPrice instanceof CalculatedPrice) {
+            $this->setCalculatedPrice($nostoSku, $productPrice, $context);
+            return;
         }
 
         $price = $product->getCurrencyPrice($context->getCurrencyId());
@@ -256,10 +259,12 @@ class SkuBuilder
             return;
         }
 
-        $nostoSku->setPrice($price->getGross());
+        $nostoSku->setPrice($this->priceRounding->cashRound($price->getGross(), $context->getItemRounding()));
 
         if ($price->getListPrice() !== null) {
-            $nostoSku->setListPrice($price->getListPrice()->getGross());
+            $nostoSku->setListPrice(
+                $this->priceRounding->cashRound($price->getListPrice()->getGross(), $context->getItemRounding()),
+            );
         }
     }
 

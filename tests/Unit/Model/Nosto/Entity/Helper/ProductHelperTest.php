@@ -14,8 +14,13 @@ use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -40,6 +45,69 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ProductHelperTest extends TestCase
 {
+    public function testGetSalesChannelCalculatedPricesLoadsMissingProductsInOneQueryAndCachesThem(): void
+    {
+        $firstPrice = new CalculatedPrice(
+            10.0,
+            10.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+        );
+        $secondPrice = new CalculatedPrice(
+            20.0,
+            20.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+        );
+
+        $firstProduct = new SalesChannelProductEntity();
+        $firstProduct->setId('first-product-id');
+        $firstProduct->setCalculatedPrice($firstPrice);
+        $firstProduct->setCalculatedPrices(new CalculatedPriceCollection());
+
+        $secondProduct = new SalesChannelProductEntity();
+        $secondProduct->setId('second-product-id');
+        $secondProduct->setCalculatedPrice($secondPrice);
+        $secondProduct->setCalculatedPrices(new CalculatedPriceCollection());
+
+        $salesChannelRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelRepository->expects(self::once())
+            ->method('search')
+            ->willReturnCallback(
+                static function (Criteria $criteria, SalesChannelContext $context) use (
+                    $firstProduct,
+                    $secondProduct,
+                ): EntitySearchResult {
+                    self::assertSame(['first-product-id', 'second-product-id'], $criteria->getIds());
+
+                    return new EntitySearchResult(
+                        SalesChannelProductEntity::class,
+                        2,
+                        new SalesChannelProductCollection([$firstProduct, $secondProduct]),
+                        new AggregationResultCollection(),
+                        $criteria,
+                        $context->getContext(),
+                    );
+                },
+            );
+
+        $helper = $this->createHelper(salesChannelRepository: $salesChannelRepository);
+        $context = $this->createContext();
+
+        self::assertSame(
+            [
+                'first-product-id' => $firstPrice,
+                'second-product-id' => $secondPrice,
+            ],
+            $helper->getSalesChannelCalculatedPrices(
+                ['first-product-id', 'second-product-id'],
+                $context,
+            ),
+        );
+        self::assertSame($firstPrice, $helper->getSalesChannelCalculatedPrice('first-product-id', $context));
+        self::assertSame($secondPrice, $helper->getSalesChannelCalculatedPrice('second-product-id', $context));
+    }
+
     public function testGetProductStockUsesDirectParentStockWhenCalculationIsDisabled(): void
     {
         $configProvider = $this->createMock(ConfigProvider::class);
@@ -857,6 +925,7 @@ final class ProductHelperTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getLanguageId')->willReturn('language-id');
+        $context->method('getCurrencyId')->willReturn('currency-id');
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         return $context;
