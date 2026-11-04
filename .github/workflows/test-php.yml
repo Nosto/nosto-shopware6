@@ -10,7 +10,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL: mysql://root:root@127.0.0.1/shopware_test
     strategy:
