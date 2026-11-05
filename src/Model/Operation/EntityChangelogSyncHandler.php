@@ -14,6 +14,7 @@ use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Nosto\Scheduler\Model\Job\{
     GeneratingHandlerInterface,
@@ -26,9 +27,10 @@ use Nosto\Scheduler\Model\JobScheduler;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -46,10 +48,12 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
     public function __construct(
         private readonly EntityRepository $entityChangelogRepository,
+        private readonly EntityRepository $productRepository,
         private readonly JobScheduler $jobScheduler,
         private readonly JobHelper $jobHelper,
         private readonly ConfigProvider $configProvider,
         private readonly AccountProvider $accountProvider,
+        private readonly ProductHelper $productHelper,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -75,6 +79,11 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         $scheduledChildCount += $this->processUpdatedOrderEvents($message->getContext(), $result, $message->getJobId());
         $scheduledChildCount += $this->processProductEvents($message->getContext(), $result, $message->getJobId());
         $scheduledChildCount += $this->processCategoryEvents($message->getContext(), $result, $message->getJobId());
+        $scheduledChildCount += $this->processDynamicCategoryProductStreamEvents(
+            $message->getContext(),
+            $result,
+            $message->getJobId(),
+        );
         if ($this->configProvider->isEnabledMultiCurrency()) {
             $scheduledChildCount += $this->processExchangeRateEvents(
                 $message->getContext(),
@@ -413,6 +422,103 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
 
             return 1;
         });
+    }
+
+    private function processDynamicCategoryProductStreamEvents(
+        Context $context,
+        JobResult $result,
+        string $parentJobId,
+    ): int {
+        $accounts = null;
+        $processedProductStreamIds = [];
+        $streamCount = 0;
+        $productCount = 0;
+        $scheduledJobCount = 0;
+        $batchSize = $this->configProvider->getBatchSize();
+        $batchSize = $batchSize < 1 ? self::BATCH_SIZE : $batchSize;
+        $type = EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME;
+        $this->processEventBatches(
+            $context,
+            $type,
+            'product_sync.changelog.dynamic_category_product_stream',
+            function (array $productStreamIds) use (
+                $batchSize,
+                $context,
+                $parentJobId,
+                &$accounts,
+                &$processedProductStreamIds,
+                &$productCount,
+                &$scheduledJobCount,
+                &$streamCount,
+            ): int {
+                $newProductStreamIds = [];
+                foreach ($productStreamIds as $productStreamId) {
+                    if (isset($processedProductStreamIds[$productStreamId])) {
+                        continue;
+                    }
+
+                    $processedProductStreamIds[$productStreamId] = true;
+                    $newProductStreamIds[] = $productStreamId;
+                }
+
+                $streamCount += count($newProductStreamIds);
+                if ($newProductStreamIds === []) {
+                    return 0;
+                }
+
+                $accounts ??= $this->accountProvider->all($context);
+                if ($accounts === []) {
+                    return 0;
+                }
+
+                $criteria = NostoCriteriaFactory::create('product_sync.changelog.dynamic_category_products');
+                $criteria->addFilter(new EqualsAnyFilter('streams.id', $newProductStreamIds));
+                $criteria->setLimit($batchSize);
+                $productIterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+
+                $batchJobCount = 0;
+                while (($productIds = $productIterator->fetchIds()) !== null) {
+                    $productNumberMapping = $this->productHelper->loadOrderNumberMapping($productIds, $context);
+                    if ($productNumberMapping === []) {
+                        continue;
+                    }
+
+                    $productCount += count($productNumberMapping);
+                    foreach ($accounts as $account) {
+                        $this->jobScheduler->schedule(new ProductSyncMessage(
+                            Uuid::randomHex(),
+                            $parentJobId,
+                            $productNumberMapping,
+                            $context,
+                            null,
+                            $account->getChannelId(),
+                            $account->getLanguageId(),
+                        ));
+                        ++$batchJobCount;
+                        ++$scheduledJobCount;
+                    }
+                }
+
+                return $batchJobCount;
+            },
+        );
+
+        if ($streamCount > 0) {
+            $accountCount = count($accounts ?? []);
+            $result->addMessage(new InfoMessage(sprintf(
+                'Scheduled product synchronization for %s product%s from %s dynamic category stream%s: %s child job%s across %s account%s.',
+                $productCount,
+                $productCount === 1 ? '' : 's',
+                $streamCount,
+                $streamCount === 1 ? '' : 's',
+                $scheduledJobCount,
+                $scheduledJobCount === 1 ? '' : 's',
+                $accountCount,
+                $accountCount === 1 ? '' : 's',
+            )));
+        }
+
+        return $scheduledJobCount;
     }
 
     private function processExchangeRateEvents(Context $context, JobResult $result, string $parentJobId): int
