@@ -44,6 +44,7 @@ class CategorySyncHandler implements JobHandlerInterface
     public function execute(object $message): JobResult
     {
         $operationResult = new JobResult();
+        $warnings = [];
         foreach ($this->accountProvider->all($message->getContext()) as $account) {
             $channelContext = $this->channelContextFactory->create(
                 Uuid::randomHex(),
@@ -53,9 +54,26 @@ class CategorySyncHandler implements JobHandlerInterface
                 ],
             );
             $accountOperationResult = $this->doOperation($account, $channelContext, $message);
-            foreach ($accountOperationResult->getMessages() as $error) {
-                $operationResult->addMessage($error);
+            foreach ($accountOperationResult->getMessages() as $runtimeMessage) {
+                if ($runtimeMessage instanceof WarningMessage) {
+                    $warnings[$runtimeMessage->getMessage()][] = sprintf(
+                        '%s/%s',
+                        $account->getChannelId(),
+                        $account->getLanguageId(),
+                    );
+                    continue;
+                }
+
+                $operationResult->addMessage($runtimeMessage);
             }
+        }
+
+        foreach ($warnings as $warning => $accountContexts) {
+            $operationResult->addMessage(new WarningMessage(sprintf(
+                '%s Account contexts: %s.',
+                $warning,
+                implode(', ', array_unique($accountContexts)),
+            )));
         }
 
         return $operationResult;

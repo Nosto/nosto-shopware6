@@ -21,6 +21,8 @@ class EventsWriter
 
     public const CATEGORY_ENTITY_NAME = 'category';
 
+    public const DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME = 'dynamic_category_product_stream';
+
     public const EXCHANGE_RATE_ENTITY_NAME = 'exchange_rate';
 
     public function __construct(
