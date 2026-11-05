@@ -228,10 +228,13 @@ class SkuBuilder
         SalesChannelContext $context,
         ?CalculatedPrice $salesChannelCalculatedPrice,
     ): void {
-        $calculatedPrices = $this->getValue($product, 'calculatedPrices');
-        $productPrice = $salesChannelCalculatedPrice ?? ($calculatedPrices instanceof Collection
-            ? ($calculatedPrices->first() ?: $this->getValue($product, 'calculatedPrice'))
-            : $this->getValue($product, 'calculatedPrice'));
+        $productPrice = $salesChannelCalculatedPrice;
+        if (!$productPrice instanceof CalculatedPrice) {
+            $calculatedPrices = $this->getValue($product, 'calculatedPrices');
+            $productPrice = $calculatedPrices instanceof Collection
+                ? ($calculatedPrices->first() ?: $this->getValue($product, 'calculatedPrice'))
+                : $this->getValue($product, 'calculatedPrice');
+        }
 
         if ($productPrice instanceof CalculatedPrice) {
             $this->setCalculatedPrice($nostoSku, $productPrice, $context);
@@ -302,6 +305,10 @@ class SkuBuilder
             return $entity->$method();
         }
         if (method_exists($entity, 'get')) {
+            if (method_exists($entity, 'has') && !$entity->has($field)) {
+                return null;
+            }
+
             return $entity->get($field);
         }
         if (property_exists($entity, $field)) {

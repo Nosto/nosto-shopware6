@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Nosto\Entity\Product;
 
+use Nosto\Model\Product\Sku as NostoSku;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Enums\StockFieldOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
@@ -20,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -349,6 +351,63 @@ final class SkuBuilderTest extends TestCase
 
         self::assertSame(12.05, $sku->getPrice());
         self::assertSame(11.0, $sku->getListPrice());
+    }
+
+    public function testSetPricesUsesSuppliedCalculatedPriceForPlainProductEntity(): void
+    {
+        $context = $this->createContext();
+        $product = new ProductEntity();
+        $product->setId('product-id');
+        $product->setPrice($this->createPriceCollection('eur-id', 10.0, 12.0));
+        $calculatedPrice = new CalculatedPrice(
+            25.0,
+            25.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(25.0, 30.0),
+        );
+
+        $builder = new SkuBuilder(
+            $this->createMock(ConfigProvider::class),
+            $this->createMock(ProductHelper::class),
+            $this->createMock(NetPriceCalculator::class),
+            new CashRounding(),
+            $this->createMock(CrossSellingBuilder::class),
+            $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository::class),
+        );
+        $nostoSku = new NostoSku();
+
+        $method = new \ReflectionMethod($builder, 'setPrices');
+        $method->invoke($builder, $nostoSku, $product, $context, $calculatedPrice);
+
+        self::assertSame(25.0, $nostoSku->getPrice());
+        self::assertSame(30.0, $nostoSku->getListPrice());
+    }
+
+    public function testSetPricesFallsBackToRawPriceForPlainProductEntity(): void
+    {
+        $context = $this->createContext();
+        $product = new ProductEntity();
+        $product->setId('product-id');
+        $product->setPrice($this->createPriceCollection('eur-id', 10.0, 12.0, 9.0, 11.0));
+
+        $builder = new SkuBuilder(
+            $this->createMock(ConfigProvider::class),
+            $this->createMock(ProductHelper::class),
+            $this->createMock(NetPriceCalculator::class),
+            new CashRounding(),
+            $this->createMock(CrossSellingBuilder::class),
+            $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository::class),
+        );
+        $nostoSku = new NostoSku();
+
+        $method = new \ReflectionMethod($builder, 'setPrices');
+        $method->invoke($builder, $nostoSku, $product, $context, null);
+
+        self::assertSame(12.0, $nostoSku->getPrice());
+        self::assertSame(11.0, $nostoSku->getListPrice());
     }
 
     private function createContext(?CashRoundingConfig $itemRounding = null): SalesChannelContext

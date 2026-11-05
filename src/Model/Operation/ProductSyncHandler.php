@@ -401,8 +401,10 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         // === Pass 2: Batched DB queries ===
         $shopwareProductsFetchStartedAt = $shouldLogExtra ? microtime(true) : null;
-        $allShopwareProducts = !empty($allUniqueIds)
-            ? $this->getShopwareProductsPartialBatched(array_keys($allUniqueIds), $context)
+        $allUniqueProductIds = array_keys($allUniqueIds);
+        $this->preloadSalesChannelCalculatedPricesBatched($allUniqueProductIds, $context);
+        $allShopwareProducts = $allUniqueProductIds !== []
+            ? $this->getShopwareProductsPartialBatched($allUniqueProductIds, $context)
             : new PartialProductCollection();
         /** @var array<string, PartialProduct> $allShopwareProductsById */
         $allShopwareProductsById = [];
@@ -708,6 +710,18 @@ class ProductSyncHandler implements Job\JobHandlerInterface
         }
 
         return $products;
+    }
+
+    /**
+     * @param list<string> $productIds
+     */
+    private function preloadSalesChannelCalculatedPricesBatched(
+        array $productIds,
+        SalesChannelContext $context,
+    ): void {
+        foreach (array_chunk($productIds, self::PRODUCT_LOAD_BATCH_SIZE) as $productIdBatch) {
+            $this->productHelper->getSalesChannelCalculatedPrices($productIdBatch, $context);
+        }
     }
 
     private function requiresChildrenForVariantSelection(
