@@ -86,6 +86,12 @@ class PartialBuilder
      */
     private array $propertyOptionsCache = [];
 
+    public function resetCategoryCaches(): void
+    {
+        $this->dynamicGroupCategoriesCache = [];
+        $this->categorySeoUrlsCache = [];
+    }
+
     /**
      * @throws NostoException
      * @throws Exception
