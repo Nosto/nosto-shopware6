@@ -705,7 +705,7 @@ class PartialBuilder
     }
 
     private function getCategoriesWithSeoUrls(
-        CategoryCollection $categories,
+        EntityCollection $categories,
         SalesChannelContext $context,
     ): CategoryCollection {
         $categoryIds = array_values($categories->getIds());

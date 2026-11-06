@@ -42,16 +42,13 @@ class ProductIdentifierResolver
             new EqualsFilter('product.searchKeywords.languageId', $salesChannelContext->getLanguageId()),
         ]));
 
-        foreach ($this->salesChannelProductRepository->search(
-            $criteria,
-            $salesChannelContext,
-        )->getEntities() as $product) {
-            if ($this->isExactIdentifierMatch($product, $query)) {
-                return $product->getId();
-            }
-        }
-
-        return null;
+        return $this->resolveExactIdentifierFromCandidates(
+            $this->salesChannelProductRepository->search(
+                $criteria,
+                $salesChannelContext,
+            )->getEntities(),
+            $query,
+        );
     }
 
     /**
@@ -59,6 +56,7 @@ class ProductIdentifierResolver
      */
     public function resolveFromProductFields(string $query, SalesChannelContext $salesChannelContext): ?string
     {
+        $query = trim($query);
         $criteria = NostoCriteriaFactory::create();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('productNumber', $query),
@@ -66,16 +64,40 @@ class ProductIdentifierResolver
             new EqualsFilter('manufacturerNumber', $query),
         ]));
 
-        return $this->salesChannelProductRepository->search($criteria, $salesChannelContext)->first()?->getId();
+        return $this->resolveExactIdentifierFromCandidates(
+            $this->salesChannelProductRepository->search($criteria, $salesChannelContext)->getEntities(),
+            $query,
+        );
     }
 
-    private function isExactIdentifierMatch(ProductEntity $product, string $query): bool
+    /**
+     * @param iterable<ProductEntity> $products
+     */
+    private function resolveExactIdentifierFromCandidates(iterable $products, string $query): ?string
     {
         $query = trim($query);
+        $eanMatch = null;
+        $manufacturerNumberMatch = null;
 
-        return $this->isIdentifierEqual($product->getProductNumber(), $query)
-            || $this->isIdentifierEqual($product->getEan(), $query)
-            || $this->isIdentifierEqual($product->getManufacturerNumber(), $query);
+        foreach ($products as $product) {
+            // Product numbers are the primary identifier. Check every candidate before
+            // falling back, so repository ordering cannot make a manufacturer number win.
+            if ($this->isIdentifierEqual($product->getProductNumber(), $query)) {
+                return $product->getId();
+            }
+
+            if ($eanMatch === null && $this->isIdentifierEqual($product->getEan(), $query)) {
+                $eanMatch = $product->getId();
+            }
+
+            if ($manufacturerNumberMatch === null
+                && $this->isIdentifierEqual($product->getManufacturerNumber(), $query)
+            ) {
+                $manufacturerNumberMatch = $product->getId();
+            }
+        }
+
+        return $eanMatch ?? $manufacturerNumberMatch;
     }
 
     private function isIdentifierEqual(?string $identifier, string $query): bool
