@@ -71,7 +71,7 @@
                 {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
             {% endif %}
 
-            {% set totalPages = (paginationTotal / paginationLimit)|round(0, 'ceil') %}
+            {% set totalPages = paginationLimit > 0 ? (paginationTotal / paginationLimit)|round(0, 'ceil') : 0 %}
             {% if totalPages > 1 %}
                 {% block element_product_listing_pagination_nav_bottom %}
                     {{ parent() }}
