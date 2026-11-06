@@ -195,7 +195,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
             $secondProductId => 'SW-2',
         ], $scheduled[1]->getProductIds());
         self::assertSame(
-            'Scheduled product synchronization for 2 products from 2 dynamic category streams: 2 child jobs across 1 account.',
+            'Job with payload of 2 updated products from 2 dynamic product groups has been scheduled for 1 accounts.',
             $result->getMessages()[0]->getMessage(),
         );
         self::assertSame(2, $jobHelperRecorder->marks[1][1]);
@@ -239,7 +239,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
 
         self::assertSame([], $scheduled);
         self::assertSame(
-            'Scheduled product synchronization for 0 products from 1 dynamic category stream: 0 child jobs across 0 accounts.',
+            'Job with payload of 0 updated products from 1 dynamic product groups has been scheduled for 0 accounts.',
             $result->getMessages()[0]->getMessage(),
         );
         self::assertSame(0, $jobHelperRecorder->marks[1][1]);
