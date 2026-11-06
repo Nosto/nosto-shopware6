@@ -213,6 +213,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 $context->getSalesChannelId(),
                 $context->getLanguageId(),
             );
+            if (!$account) {
+                throw new Exception('No Nosto account found for the current sales channel and language.');
+            }
             $tracker = new AnalyticsSearchTrackingGraphql(
                 $merchantId,
                 $sessionId,
@@ -255,7 +258,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
                 ],
             ));
             $tracker->impression($metadata, $productIds, $page, SearchHelper::getABTestsFromCookie($request));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //@ToDo maybe send the the error to the nosto
             //Just log the error and proceed
             $this->logger->error('Unable to send search impression analytics due to:' . $e->getMessage());
