@@ -412,23 +412,16 @@ class PartialBuilder
             ? ($calculatedPrices->first() ?: $product->getCalculatedPrice())
             : $product->getCalculatedPrice();
 
-        if (!$this->configProvider->isEnabledMultiCurrency($context->getSalesChannelId(), $context->getLanguageId())) {
-            if ($productPrice instanceof CalculatedPrice) {
-                $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
-                return;
-            }
-
-            $productId = $product->getId();
-            $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
-                $productId,
-                $context,
-            ) : null;
-            if ($productPrice instanceof CalculatedPrice) {
-                $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
-                return;
-            }
+        if ($productPrice instanceof CalculatedPrice) {
+            $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
+            return;
         }
 
+        $productId = $product->getId();
+        $productPrice = $productId ? $this->productHelper->getSalesChannelCalculatedPrice(
+            $productId,
+            $context,
+        ) : null;
         if ($productPrice instanceof CalculatedPrice) {
             $this->setCalculatedPrice($nostoProdcut, $productPrice, $context);
             return;
@@ -827,9 +820,24 @@ class PartialBuilder
         $skuCollection = new SkuCollection();
 
         if ($product->getChildren()->count()) {
+            $productIds = $product->getChildren()->getIds();
+            $productId = $product->getId();
+            if ($productId !== null) {
+                $productIds[] = $productId;
+            }
+
+            $calculatedPrices = $this->productHelper->getSalesChannelCalculatedPrices(
+                $productIds,
+                $context,
+            );
+
             //children are already loaded so we only append them to $skuCollection
             foreach ($product->getChildren() as $variationProduct) {
-                $skuCollection->append($this->skuBuilder->build($variationProduct, $context));
+                $skuCollection->append($this->skuBuilder->build(
+                    $variationProduct,
+                    $context,
+                    $calculatedPrices[$variationProduct->getId()] ?? null,
+                ));
             }
         }
 
