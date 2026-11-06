@@ -506,15 +506,10 @@ class EntityChangelogSyncHandler implements JobHandlerInterface, GeneratingHandl
         if ($streamCount > 0) {
             $accountCount = count($accounts ?? []);
             $result->addMessage(new InfoMessage(sprintf(
-                'Scheduled product synchronization for %s product%s from %s dynamic category stream%s: %s child job%s across %s account%s.',
+                'Job with payload of %s updated products from %s dynamic product groups has been scheduled for %s accounts.',
                 $productCount,
-                $productCount === 1 ? '' : 's',
                 $streamCount,
-                $streamCount === 1 ? '' : 's',
-                $scheduledJobCount,
-                $scheduledJobCount === 1 ? '' : 's',
                 $accountCount,
-                $accountCount === 1 ? '' : 's',
             )));
         }
 
