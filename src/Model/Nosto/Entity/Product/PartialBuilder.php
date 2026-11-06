@@ -111,6 +111,9 @@ class PartialBuilder
 
         if ($product->getCategoriesRo() === null) {
             $product = $this->productHelper->reloadProduct($product->getId(), $context);
+            if ($product === null) {
+                return $nostoProduct;
+            }
         }
 
         // Removes categories from products in which the product is included through manual addition,

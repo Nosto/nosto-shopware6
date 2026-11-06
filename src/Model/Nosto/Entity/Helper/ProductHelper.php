@@ -169,18 +169,17 @@ class ProductHelper
         return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
-    public function reloadProduct(string $productId, SalesChannelContext $context): ?PartialEntity
+    public function reloadProduct(string $productId, SalesChannelContext $context): ?PartialProduct
     {
-        //todo ADS-5334: it should use getShopwareProductsPartial instead of getShopwareProducts
-        // https://nostosolutions.atlassian.net/browse/ADS-5334
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
-        $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
+        // TODO ADS-5610: Apply the event criteria to the partial reload query after BFCM 2026.
+        $shopwareProduct = $this->getShopwareProductsPartial([$productId], $context, false);
 
         $product = $shopwareProduct->get($productId);
 
-        return $product instanceof PartialEntity ? $product : null;
+        return $product instanceof PartialEntity ? PartialProductConverter::toPartialProduct($product) : null;
     }
 
     public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
