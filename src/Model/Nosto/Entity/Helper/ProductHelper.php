@@ -24,7 +24,6 @@ use Nosto\NostoIntegration\Utils\NostoCriteriaFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -170,16 +169,17 @@ class ProductHelper
         return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
-    public function reloadProduct(string $productId, SalesChannelContext $context): ?SalesChannelProductEntity
+    public function reloadProduct(string $productId, SalesChannelContext $context): ?PartialProduct
     {
-        //todo ADS-5334: it should use getShopwareProductsPartial instead of getShopwareProducts
-        // https://nostosolutions.atlassian.net/browse/ADS-5334
         $criteria = $this->getCommonCriteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $this->eventDispatcher->dispatch(new ProductReloadCriteriaEvent($criteria, $context));
-        $shopwareProduct = $this->getShopwareProducts([$productId], $context, true);
+        // TODO ADS-5610: Apply the event criteria to the partial reload query after BFCM 2026.
+        $shopwareProduct = $this->getShopwareProductsPartial([$productId], $context, false);
 
-        return $shopwareProduct->get($productId) ?? null;
+        $product = $shopwareProduct->get($productId);
+
+        return $product instanceof PartialEntity ? PartialProductConverter::toPartialProduct($product) : null;
     }
 
     public function getSalesChannelCalculatedPrice(string $productId, SalesChannelContext $context): ?CalculatedPrice
@@ -433,11 +433,14 @@ class ProductHelper
         ));
     }
 
+    /**
+     * @return EntityCollection<PartialEntity>
+     */
     public function getShopwareProducts(
         array $productIds,
         SalesChannelContext $context,
         bool $isProductTagging = false,
-    ): SalesChannelProductCollection {
+    ): EntityCollection {
         $shouldLog = $this->shouldLogExtra($context);
         $startedAt = $shouldLog ? microtime(true) : null;
         $criteria = $this->getSyncPartialCriteria('product_sync.productHelper.getShopwareProducts', $context);
