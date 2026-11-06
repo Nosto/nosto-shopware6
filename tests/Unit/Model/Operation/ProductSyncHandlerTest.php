@@ -222,6 +222,35 @@ final class ProductSyncHandlerTest extends TestCase
         self::assertSame([], $queuedDeleteIds);
     }
 
+    public function testPreloadsSalesChannelCalculatedPricesInProductLoadBatches(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $productIds = array_map(
+            static fn (int $index): string => 'product-' . $index,
+            range(1, 51),
+        );
+        $loadedBatches = [];
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->expects(self::exactly(2))
+            ->method('getSalesChannelCalculatedPrices')
+            ->willReturnCallback(static function (array $batch, SalesChannelContext $actualContext) use (
+                &$loadedBatches,
+                $context,
+            ): array {
+                self::assertSame($context, $actualContext);
+                $loadedBatches[] = $batch;
+
+                return [];
+            });
+
+        $handler = $this->createHandler(productHelper: $productHelper);
+        $method = new ReflectionMethod(ProductSyncHandler::class, 'preloadSalesChannelCalculatedPricesBatched');
+        $method->invoke($handler, $productIds, $context);
+
+        self::assertSame([array_slice($productIds, 0, 50), array_slice($productIds, 50)], $loadedBatches);
+    }
+
     /**
      * @return iterable<string, array{0: string|null, 1: string|null, 2: string|null, 3: string}>
      */
