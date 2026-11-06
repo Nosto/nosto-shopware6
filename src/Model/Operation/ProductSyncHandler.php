@@ -75,6 +75,8 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      */
     public function execute(object $message): Job\JobResult
     {
+        $this->partialProductProvider->resetCategoryCaches();
+
         $operationResult = new Job\JobResult();
         $shouldLogExtra = null;
         $jobStartedAt = null;
