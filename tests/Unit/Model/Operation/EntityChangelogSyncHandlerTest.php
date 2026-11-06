@@ -6,12 +6,14 @@ namespace Nosto\NostoIntegration\Tests\Unit\Model\Operation;
 
 use Nosto\NostoIntegration\Async\CategorySyncMessage;
 use Nosto\NostoIntegration\Async\EntityChangelogSyncMessage;
+use Nosto\NostoIntegration\Async\EventsWriter;
 use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogCollection;
 use Nosto\NostoIntegration\Entity\Changelog\ChangelogEntity;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Operation\EntityChangelogSyncHandler;
 use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobResult;
@@ -19,12 +21,16 @@ use Nosto\Scheduler\Model\JobScheduler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\{EntitySearchResult, IdSearchResult};
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -74,6 +80,169 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         self::assertSame(['id'], array_keys($deletedRows[0][0]));
         self::assertCount(1, $deletedRows[1]);
         self::assertSame(2, $jobHelperRecorder->marks[1][1]);
+    }
+
+    public function testExecuteSchedulesDynamicCategoryProductsAsDirectChangelogChildren(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+        $firstProductStreamId = Uuid::randomHex();
+        $secondProductStreamId = Uuid::randomHex();
+        $firstProductId = Uuid::randomHex();
+        $secondProductId = Uuid::randomHex();
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            $this->batches([
+                EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME => [[
+                    self::event(
+                        $firstProductStreamId,
+                        EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME,
+                        null,
+                    ),
+                    self::event(
+                        $secondProductStreamId,
+                        EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME,
+                        null,
+                    ),
+                ], [
+                    // A repeated stream in a later changelog batch must not schedule its products twice.
+                    self::event(
+                        $firstProductStreamId,
+                        EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME,
+                        null,
+                    ),
+                ]],
+            ]),
+        );
+        $repository->method('delete')->willReturnCallback(static fn (): EntityWrittenContainerEvent =>
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []));
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+        $productSearchCall = 0;
+        $productRepository->method('searchIds')->willReturnCallback(
+            static function (Criteria $criteria, Context $callContext) use (
+                &$productSearchCall,
+                $context,
+                $firstProductId,
+                $firstProductStreamId,
+                $secondProductId,
+                $secondProductStreamId,
+            ): IdSearchResult {
+                self::assertSame($context->getVersionId(), $callContext->getVersionId());
+                $streamFilter = null;
+                foreach ($criteria->getFilters() as $filter) {
+                    if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'streams.id') {
+                        $streamFilter = $filter;
+                    }
+                }
+                self::assertNotNull($streamFilter);
+                self::assertSame([$firstProductStreamId, $secondProductStreamId], $streamFilter->getValue());
+
+                ++$productSearchCall;
+                $rows = match ($productSearchCall) {
+                    1 => [
+                        $firstProductId => [
+                            'primaryKey' => $firstProductId,
+                            'data' => [
+                                'autoIncrement' => 1,
+                            ],
+                        ],
+                    ],
+                    2 => [
+                        $secondProductId => [
+                            'primaryKey' => $secondProductId,
+                            'data' => [
+                                'autoIncrement' => 2,
+                            ],
+                        ],
+                    ],
+                    default => [],
+                };
+
+                return new IdSearchResult(count($rows), $rows, $criteria, $callContext);
+            },
+        );
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->expects(self::exactly(2))
+            ->method('loadOrderNumberMapping')
+            ->willReturnCallback(static fn (array $productIds): array => [
+                $productIds[0] => $productIds[0] === $firstProductId ? 'SW-1' : 'SW-2',
+            ]);
+
+        $scheduled = [];
+        $handler = $this->handler(
+            $repository,
+            $this->recordingScheduler($scheduled),
+            $jobHelperRecorder,
+            productRepository: $productRepository,
+            productHelper: $productHelper,
+        );
+
+        $result = $handler->execute($message);
+
+        self::assertCount(2, $scheduled);
+        self::assertInstanceOf(ProductSyncMessage::class, $scheduled[0]);
+        self::assertInstanceOf(ProductSyncMessage::class, $scheduled[1]);
+        self::assertSame($message->getJobId(), $scheduled[0]->getParentJobId());
+        self::assertSame($message->getJobId(), $scheduled[1]->getParentJobId());
+        self::assertSame([
+            $firstProductId => 'SW-1',
+        ], $scheduled[0]->getProductIds());
+        self::assertSame([
+            $secondProductId => 'SW-2',
+        ], $scheduled[1]->getProductIds());
+        self::assertSame(
+            'Job with payload of 2 updated products from 2 dynamic product groups has been scheduled for 1 accounts.',
+            $result->getMessages()[0]->getMessage(),
+        );
+        self::assertSame(2, $jobHelperRecorder->marks[1][1]);
+    }
+
+    public function testExecuteDoesNotQueryDynamicCategoryProductsWithoutAccounts(): void
+    {
+        $context = Context::createDefaultContext();
+        $message = new EntityChangelogSyncMessage(Uuid::randomHex(), $context);
+        $productStreamId = Uuid::randomHex();
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            $this->batches([
+                EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME => [[
+                    self::event(
+                        $productStreamId,
+                        EventsWriter::DYNAMIC_CATEGORY_PRODUCT_STREAM_ENTITY_NAME,
+                        null,
+                    ),
+                ]],
+            ]),
+        );
+        $repository->method('delete')->willReturnCallback(static fn (): EntityWrittenContainerEvent =>
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []));
+
+        $productRepository = $this->createMock(EntityRepository::class);
+        $productRepository->expects(self::never())->method('getDefinition');
+        $productRepository->expects(self::never())->method('searchIds');
+
+        $scheduled = [];
+        $handler = $this->handler(
+            $repository,
+            $this->recordingScheduler($scheduled),
+            $jobHelperRecorder,
+            productRepository: $productRepository,
+            accounts: [],
+        );
+
+        $result = $handler->execute($message);
+
+        self::assertSame([], $scheduled);
+        self::assertSame(
+            'Job with payload of 0 updated products from 1 dynamic product groups has been scheduled for 0 accounts.',
+            $result->getMessages()[0]->getMessage(),
+        );
+        self::assertSame(0, $jobHelperRecorder->marks[1][1]);
     }
 
     /**
@@ -298,15 +467,21 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         JobScheduler $jobScheduler,
         ?EntityChangelogJobHelperRecorder &$recorder = null,
         ?LoggerInterface $logger = null,
+        ?EntityRepository $productRepository = null,
+        ?ProductHelper $productHelper = null,
+        ?array $accounts = null,
     ): EntityChangelogSyncHandler {
         $recorder = new EntityChangelogJobHelperRecorder();
 
-        $account = $this->createMock(Account::class);
-        $account->method('getChannelId')->willReturn('channel-id');
-        $account->method('getLanguageId')->willReturn('language-id');
+        if ($accounts === null) {
+            $account = $this->createMock(Account::class);
+            $account->method('getChannelId')->willReturn('channel-id');
+            $account->method('getLanguageId')->willReturn('language-id');
+            $accounts = [$account];
+        }
 
         $accountProvider = $this->createMock(AccountProvider::class);
-        $accountProvider->method('all')->willReturn([$account]);
+        $accountProvider->method('all')->willReturn($accounts);
 
         $configProvider = $this->createMock(ConfigProvider::class);
         $configProvider->method('isEnabledMultiCurrency')->willReturn(false);
@@ -314,10 +489,12 @@ final class EntityChangelogSyncHandlerTest extends TestCase
 
         return new EntityChangelogSyncHandler(
             $repository,
+            $productRepository ?? $this->createMock(EntityRepository::class),
             $jobScheduler,
             new EntityChangelogRecordingJobHelper($recorder),
             $configProvider,
             $accountProvider,
+            $productHelper ?? $this->createMock(ProductHelper::class),
             $logger ?? $this->createMock(LoggerInterface::class),
         );
     }
@@ -361,6 +538,30 @@ final class EntityChangelogSyncHandlerTest extends TestCase
             $criteria,
             $context,
         );
+    }
+
+    private function createDefinition(string $entityName): EntityDefinition
+    {
+        $definition = new class($entityName) extends EntityDefinition {
+            public function __construct(
+                private readonly string $entityName,
+            ) {
+            }
+
+            public function getEntityName(): string
+            {
+                return $this->entityName;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([new AutoIncrementField()]);
+            }
+        };
+
+        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+
+        return $definition;
     }
 }
 
