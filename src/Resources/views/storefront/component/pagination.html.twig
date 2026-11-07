@@ -8,8 +8,9 @@
             {% set currentPage = entities.page %}
             {% set totalPages = (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
         {% else %}
-            {% set currentPage = ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') %}
-            {% set totalPages = (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') %}
+            {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
+            {% set currentPage = paginationLimit > 0 ? ((searchResult.criteria.extensions.nostoPagination.offset + 1) / paginationLimit)|round(0, 'ceil') : 1 %}
+            {% set totalPages = paginationLimit > 0 ? (searchResult.criteria.extensions.nostoPagination.total / paginationLimit)|round(0, 'ceil') : 0 %}
         {% endif %}
 
         {% set paginationSuffix = '' %}
