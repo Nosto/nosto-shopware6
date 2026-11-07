@@ -58,7 +58,10 @@
 
             <argument key="$entityChangelogRepository" type="service"
                       id="nosto_integration_entity_changelog.repository"/>
+            <argument key="$productRepository" type="service" id="product.repository"/>
             <argument key="$accountProvider" type="service" id="Nosto\NostoIntegration\Model\Nosto\Account\Provider"/>
+            <argument key="$productHelper" type="service"
+                      id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper"/>
             <argument key="$logger" type="service" id="monolog.logger.nosto_integration"/>
         </service>
 
@@ -272,6 +275,8 @@
         <!-- Event Listeners -->
         <service id="Nosto\NostoIntegration\EventListener\CategoryWrittenEvent">
             <tag name="kernel.event_subscriber"/>
+
+            <argument key="$categoryRepository" type="service" id="category.repository"/>
         </service>
 
         <service id="Nosto\NostoIntegration\EventListener\ProductWrittenDeletedEvent">
