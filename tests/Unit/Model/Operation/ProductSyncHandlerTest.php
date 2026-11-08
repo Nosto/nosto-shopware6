@@ -33,11 +33,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ProductSyncHandlerTest extends TestCase
 {
-    public function testExecuteResetsCategoryCachesBeforeResolvingAccounts(): void
+    public function testExecuteResetsPartialBuilderCachesBeforeResolvingAccounts(): void
     {
         $context = Context::createDefaultContext();
         $partialProductProvider = $this->createMock(PartialProvider::class);
-        $partialProductProvider->expects(self::once())->method('resetCategoryCaches');
+        $partialProductProvider->expects(self::once())->method('reset');
         $accountProvider = $this->createMock(AccountProvider::class);
         $accountProvider->expects(self::once())->method('all')->with($context)->willReturn([]);
         $handler = $this->createHandler(

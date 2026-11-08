@@ -155,6 +155,8 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialBuilder">
+            <tag name="kernel.reset" method="reset"/>
+
             <argument key="$tagRepository" type="service" id="tag.repository"/>
             <argument key="$categoryRepository" type="service" id="sales_channel.category.repository"/>
             <argument key="$propertyGroupOptionRepository" type="service" id="property_group_option.repository"/>

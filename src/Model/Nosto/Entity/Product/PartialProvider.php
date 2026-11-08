@@ -26,8 +26,8 @@ class PartialProvider
         return $nostoProduct;
     }
 
-    public function resetCategoryCaches(): void
+    public function reset(): void
     {
-        $this->builder->resetCategoryCaches();
+        $this->builder->reset();
     }
 }

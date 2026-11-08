@@ -42,8 +42,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class PartialBuilder
+class PartialBuilder implements ResetInterface
 {
     public function __construct(
         private readonly ConfigProvider $configProvider,
@@ -86,10 +87,13 @@ class PartialBuilder
      */
     private array $propertyOptionsCache = [];
 
-    public function resetCategoryCaches(): void
+    public function reset(): void
     {
+        $this->loggingCache = [];
         $this->dynamicGroupCategoriesCache = [];
         $this->categorySeoUrlsCache = [];
+        $this->tagCache = [];
+        $this->propertyOptionsCache = [];
     }
 
     /**
