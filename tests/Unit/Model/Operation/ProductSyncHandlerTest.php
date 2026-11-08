@@ -12,17 +12,23 @@ use Nosto\NostoIntegration\Model\Nosto\Account\KeyChain;
 use Nosto\NostoIntegration\Model\Nosto\Account\Provider as AccountProvider;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProduct;
+use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProductCollection;
 use Nosto\NostoIntegration\Model\Nosto\Entity\Product\PartialProvider;
 use Nosto\NostoIntegration\Model\Operation\ProductSyncHandler;
+use Nosto\Scheduler\Model\Job\JobResult;
 use Nosto\Scheduler\Model\Job\Message\WarningMessage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -251,6 +257,55 @@ final class ProductSyncHandlerTest extends TestCase
         self::assertSame([array_slice($productIds, 0, 50), array_slice($productIds, 50)], $loadedBatches);
     }
 
+    public function testClearsCalculatedPriceCacheAfterEveryUpsertBatch(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $existingProduct = new ProductEntity();
+        $existingProduct->setId('product-id');
+        $existingProducts = $this->createMock(EntitySearchResult::class);
+        $existingProducts->method('getElements')->willReturn([
+            'product-id' => $existingProduct,
+        ]);
+
+        $existingProductsIterator = $this->createMock(RepositoryIterator::class);
+        $existingProductsIterator->method('fetch')->willReturnOnConsecutiveCalls($existingProducts, null);
+
+        $firstBatch = $this->createMock(EntitySearchResult::class);
+        $firstBatch->method('getEntities')->willReturn(new EntityCollection([
+            new PartialEntity([
+                'id' => 'product-id',
+            ]),
+        ]));
+        $secondBatch = $this->createMock(EntitySearchResult::class);
+        $secondBatch->method('getEntities')->willReturn(new EntityCollection([
+            new PartialEntity([
+                'id' => 'second-product-id',
+            ]),
+        ]));
+
+        $parentProductsIterator = $this->createMock(RepositoryIterator::class);
+        $parentProductsIterator->method('fetch')->willReturnOnConsecutiveCalls($firstBatch, $secondBatch, null);
+
+        $productHelper = $this->createMock(ProductHelper::class);
+        $productHelper->method('getProductsIterator')->willReturn($existingProductsIterator);
+        $productHelper->method('loadExistingParentProducts')->willReturn($parentProductsIterator);
+        $productHelper->expects(self::exactly(2))->method('clearCalculatedPriceCache');
+
+        $handler = $this->createHandler(productHelper: $productHelper);
+        $handler->skipUpsertOperation = true;
+
+        $handler->doOperationPublic(
+            new Account('sales-channel-id', 'language-id', 'account', new KeyChain([])),
+            $context,
+            [
+                'product-id' => 'SW10001',
+            ],
+        );
+
+        self::assertSame(2, $handler->upsertOperationCount);
+    }
+
     /**
      * @return iterable<string, array{0: string|null, 1: string|null, 2: string|null, 3: string}>
      */
@@ -302,6 +357,10 @@ final class ProductSyncHandlerTest extends TestCase
 
 final class TestableProductSyncHandler extends ProductSyncHandler
 {
+    public bool $skipUpsertOperation = false;
+
+    public int $upsertOperationCount = 0;
+
     /**
      * @var string[]
      */
@@ -337,6 +396,29 @@ final class TestableProductSyncHandler extends ProductSyncHandler
         array &$queuedDeleteIds,
     ): ?NostoProduct {
         return $this->handleProduct($product, $context, $hideProductsAfterClearance, $queuedDeleteIds);
+    }
+
+    /**
+     * @param array<string, string> $ids
+     */
+    public function doOperationPublic(Account $account, SalesChannelContext $context, array $ids): JobResult
+    {
+        return $this->doOperation($account, $context, $ids);
+    }
+
+    protected function doUpsertOperation(
+        Account $account,
+        SalesChannelContext $context,
+        PartialProductCollection $productCollection,
+        JobResult $result,
+        array $ids,
+    ): void {
+        if (!$this->skipUpsertOperation) {
+            parent::doUpsertOperation($account, $context, $productCollection, $result, $ids);
+            return;
+        }
+
+        ++$this->upsertOperationCount;
     }
 
     protected function doDeleteOperation(
