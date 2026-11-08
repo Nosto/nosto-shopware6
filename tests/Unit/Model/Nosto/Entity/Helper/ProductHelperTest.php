@@ -70,15 +70,17 @@ final class ProductHelperTest extends TestCase
         $secondProduct->setCalculatedPrice($secondPrice);
         $secondProduct->setCalculatedPrices(new CalculatedPriceCollection());
 
+        $requestedProductIds = [];
         $salesChannelRepository = $this->createMock(SalesChannelRepository::class);
-        $salesChannelRepository->expects(self::once())
+        $salesChannelRepository->expects(self::exactly(2))
             ->method('search')
             ->willReturnCallback(
                 static function (Criteria $criteria, SalesChannelContext $context) use (
                     $firstProduct,
                     $secondProduct,
+                    &$requestedProductIds,
                 ): EntitySearchResult {
-                    self::assertSame(['first-product-id', 'second-product-id'], $criteria->getIds());
+                    $requestedProductIds[] = $criteria->getIds();
 
                     return new EntitySearchResult(
                         SalesChannelProductEntity::class,
@@ -106,6 +108,14 @@ final class ProductHelperTest extends TestCase
         );
         self::assertSame($firstPrice, $helper->getSalesChannelCalculatedPrice('first-product-id', $context));
         self::assertSame($secondPrice, $helper->getSalesChannelCalculatedPrice('second-product-id', $context));
+
+        $helper->clearCalculatedPriceCache();
+
+        self::assertSame($firstPrice, $helper->getSalesChannelCalculatedPrice('first-product-id', $context));
+        self::assertSame(
+            [['first-product-id', 'second-product-id'], ['first-product-id']],
+            $requestedProductIds,
+        );
     }
 
     public function testGetProductStockUsesDirectParentStockWhenCalculationIsDisabled(): void

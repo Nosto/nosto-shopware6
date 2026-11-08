@@ -46,8 +46,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class ProductHelper
+class ProductHelper implements ResetInterface
 {
     /**
      * @var array<string, CalculatedPrice|null>
@@ -241,6 +242,17 @@ class ProductHelper
         }
 
         return $prices;
+    }
+
+    public function clearCalculatedPriceCache(): void
+    {
+        $this->calculatedPriceCache = [];
+    }
+
+    public function reset(): void
+    {
+        $this->clearCalculatedPriceCache();
+        $this->loggingCache = [];
     }
 
     private function getCalculatedPriceCacheKey(string $productId, SalesChannelContext $context): string

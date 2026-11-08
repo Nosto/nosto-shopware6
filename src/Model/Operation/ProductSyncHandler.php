@@ -226,7 +226,11 @@ class ProductSyncHandler implements Job\JobHandlerInterface
 
         while (($products = $parentProductIterator->fetch()) !== null) {
             $partialProductsCollection = PartialProductConverter::toPartialProductCollection($products->getEntities());
-            $this->doUpsertOperation($account, $context, $partialProductsCollection, $result, $ids);
+            try {
+                $this->doUpsertOperation($account, $context, $partialProductsCollection, $result, $ids);
+            } finally {
+                $this->productHelper->clearCalculatedPriceCache();
+            }
             $processedParentCount += $partialProductsCollection->count();
         }
 
