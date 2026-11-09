@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\NostoIntegration\Tests\Unit\Model\Operation;
 
 use Nosto\Model\Product\Product as NostoProduct;
+use Nosto\NostoIntegration\Async\ProductSyncMessage;
 use Nosto\NostoIntegration\Enums\ProductIdentifierOptions;
 use Nosto\NostoIntegration\Model\ConfigProvider;
 use Nosto\NostoIntegration\Model\Nosto\Account;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,6 +39,26 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ProductSyncHandlerTest extends TestCase
 {
+    public function testExecuteResetsPartialBuilderCachesBeforeResolvingAccounts(): void
+    {
+        $context = Context::createDefaultContext();
+        $partialProductProvider = $this->createMock(PartialProvider::class);
+        $partialProductProvider->expects(self::once())->method('reset');
+        $accountProvider = $this->createMock(AccountProvider::class);
+        $accountProvider->expects(self::once())->method('all')->with($context)->willReturn([]);
+        $handler = $this->createHandler(
+            partialProductProvider: $partialProductProvider,
+            accountProvider: $accountProvider,
+        );
+
+        $handler->execute(new ProductSyncMessage(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            [],
+            $context,
+        ));
+    }
+
     #[DataProvider('provideValidateProductWarnings')]
     public function testValidateProductReturnsWarningsForMissingMandatoryFields(
         ?string $name,
@@ -346,11 +368,12 @@ final class ProductSyncHandlerTest extends TestCase
         ?ConfigProvider $configProvider = null,
         ?ProductHelper $productHelper = null,
         ?PartialProvider $partialProductProvider = null,
+        ?AccountProvider $accountProvider = null,
     ): TestableProductSyncHandler {
         return new TestableProductSyncHandler(
             $contextFactory ?? $this->createMock(AbstractSalesChannelContextFactory::class),
             $partialProductProvider ?? $this->createMock(PartialProvider::class),
-            $this->createMock(AccountProvider::class),
+            $accountProvider ?? $this->createMock(AccountProvider::class),
             $domainRepository ?? $this->createMock(EntityRepository::class),
             $configProvider ?? $this->createMock(ConfigProvider::class),
             $this->createMock(AbstractRuleLoader::class),

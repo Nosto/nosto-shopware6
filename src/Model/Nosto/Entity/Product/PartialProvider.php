@@ -25,4 +25,9 @@ class PartialProvider
 
         return $nostoProduct;
     }
+
+    public function reset(): void
+    {
+        $this->builder->reset();
+    }
 }

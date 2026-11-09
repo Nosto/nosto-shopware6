@@ -75,6 +75,9 @@ class ProductSyncHandler implements Job\JobHandlerInterface
      */
     public function execute(object $message): Job\JobResult
     {
+        // Reset job-scoped caches even when the worker's kernel reset is disabled or unavailable.
+        $this->partialProductProvider->reset();
+
         $operationResult = new Job\JobResult();
         $shouldLogExtra = null;
         $jobStartedAt = null;
