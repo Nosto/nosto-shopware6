@@ -5,11 +5,21 @@
         {{ parent() }}
     {% else %}
         {% if not (searchResult.criteria.extensions.nostoPagination) %}
-            {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-            {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
+            {% set paginationOffset = criteria.offset %}
+            {% set paginationLimit = criteria.limit %}
+            {% set paginationTotal = entities.total %}
         {% else %}
-            {% set currentPage = ((searchResult.criteria.extensions.nostoPagination.offset + 1) / searchResult.criteria.extensions.nostoPagination.limit )|round(0, 'ceil') %}
-            {% set totalPages = (searchResult.criteria.extensions.nostoPagination.total / searchResult.criteria.extensions.nostoPagination.limit)|round(0, 'ceil') %}
+            {% set paginationOffset = searchResult.criteria.extensions.nostoPagination.offset %}
+            {% set paginationLimit = searchResult.criteria.extensions.nostoPagination.limit %}
+            {% set paginationTotal = searchResult.criteria.extensions.nostoPagination.total %}
+        {% endif %}
+
+        {% if paginationLimit > 0 %}
+            {% set currentPage = ((paginationOffset + 1) / paginationLimit)|round(0, 'ceil') %}
+            {% set totalPages = (paginationTotal / paginationLimit)|round(0, 'ceil') %}
+        {% else %}
+            {% set currentPage = 1 %}
+            {% set totalPages = 0 %}
         {% endif %}
 
         {% set paginationSuffix = '' %}
