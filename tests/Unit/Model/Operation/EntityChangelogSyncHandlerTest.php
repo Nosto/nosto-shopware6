@@ -29,8 +29,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\{EntitySearchResult, IdSearchResult};
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter};
+use Shopware\Core\Framework\DataAbstractionLayer\Search\{EntitySearchResult, IdSearchResult};
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -119,7 +119,7 @@ final class EntityChangelogSyncHandlerTest extends TestCase
             new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []));
 
         $productRepository = $this->createMock(EntityRepository::class);
-        $productRepository->method('getDefinition')->willReturn($this->createDefinition('product_test'));
+        $productRepository->method('getDefinition')->willReturn($this->createDefinition());
         $productSearchCall = 0;
         $productRepository->method('searchIds')->willReturnCallback(
             static function (Criteria $criteria, Context $callContext) use (
@@ -540,17 +540,12 @@ final class EntityChangelogSyncHandlerTest extends TestCase
         );
     }
 
-    private function createDefinition(string $entityName): EntityDefinition
+    private function createDefinition(): EntityDefinition
     {
-        $definition = new class($entityName) extends EntityDefinition {
-            public function __construct(
-                private readonly string $entityName,
-            ) {
-            }
-
+        $definition = new class() extends EntityDefinition {
             public function getEntityName(): string
             {
-                return $this->entityName;
+                return 'product_test';
             }
 
             protected function defineFields(): FieldCollection
