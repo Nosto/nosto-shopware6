@@ -1,3 +1,10 @@
+# 5.2.35
+* Fix: Betroffene Produkte synchronisieren, wenn sich dynamische Produktgruppenkategorien ändern
+* Fix: Fehler auf Kategorie- und Suchseiten behoben, der bei Besuchern mit Tracking-Einwilligung auftrat, wenn für die Shop-Sprache kein Nosto-Konto verknüpft war
+* Fix: Von Shopware angepasste Preise für Produkte und SKUs verwenden, wenn mehrere Währungen aktiviert sind
+* Fix: Division-durch-null-Fehler verhindern, wenn das Limit der Storefront-Paginierung null ist oder fehlt
+* Fix: Produktbild-URLs beim partiellen Laden beibehalten und Fehler durch falsche Collection-Rückgabetypen verhindern
+
 # 5.2.34
 * Fix: Die Produktvorschläge der Autovervollständigung sollten mit den Suchergebnissen für die Suche nach der Produktnummer übereinstimmen
 
