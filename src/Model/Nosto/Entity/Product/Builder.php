@@ -99,13 +99,11 @@ class Builder
         $channelId = $context->getSalesChannelId();
         $languageId = $context->getLanguageId();
 
-        if ($product->getCategoriesRo() === null) {
-            $product = $this->productHelper->reloadProduct($product->getId(), $context);
+        if ($product->getCategoriesRo() !== null) {
+            // Removes categories from products in which the product is included through manual addition,
+            // but a dynamic group of products is currently selected there
+            $this->makeActualProductCategories($product, $context);
         }
-
-        // Removes categories from products in which the product is included through manual addition,
-        // but a dynamic group of products is currently selected there
-        $this->makeActualProductCategories($product, $context);
 
         $url = $this->productHelper->getProductUrl($product, $context);
         if (!empty($url)) {
@@ -137,35 +135,37 @@ class Builder
             ? ProductInterface::IN_STOCK
             : ProductInterface::OUT_OF_STOCK;
 
-        $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
-        $criteria->addAssociation('seoUrls');
-        $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
-        $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
-        $product->setCategoriesRo($this->treeBuilder->scopeToSalesChannel($productCategoriesRo, $context));
-
         $nostoProduct->setAvailability($stockStatus);
 
-        if ($this->configProvider->getCategoryNamingOption(
-            $channelId,
-            $languageId,
-        ) === CategoryNamingOptions::WITH_ID) {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo(), $context);
-        } else {
-            $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo(), $context);
-        }
+        if ($product->getCategoriesRo() !== null) {
+            $criteria = NostoCriteriaFactory::create('product_sync.builder.loadCategorySeoUrls');
+            $criteria->addAssociation('seoUrls');
+            $criteria->addFilter(new EqualsAnyFilter('id', array_values($product->getCategoriesRo()->getIds())));
+            $productCategoriesRo = $this->categoryRepository->search($criteria, $context)->getEntities();
+            $product->setCategoriesRo($this->treeBuilder->scopeToSalesChannel($productCategoriesRo, $context));
 
-        if (!empty($nostoCategoryNames)) {
-            $nostoProduct->setCategories($nostoCategoryNames);
-        }
+            if ($this->configProvider->getCategoryNamingOption(
+                $channelId,
+                $languageId,
+            ) === CategoryNamingOptions::WITH_ID) {
+                $nostoCategoryNames = $this->treeBuilder->fromCategoriesRoWithId($product->getCategoriesRo(), $context);
+            } else {
+                $nostoCategoryNames = $this->treeBuilder->fromCategoriesRo($product->getCategoriesRo(), $context);
+            }
 
-        $categoryIds = $this->getCategoryIds($product->getCategoriesRo());
-        if (!empty($categoryIds)) {
-            $nostoProduct->setCategoryIds($categoryIds);
-        }
+            if (!empty($nostoCategoryNames)) {
+                $nostoProduct->setCategories($nostoCategoryNames);
+            }
 
-        $parentCategoryIds = $this->getParentCategoryIds($product->getCategoriesRo());
-        if (!empty($parentCategoryIds)) {
-            $nostoProduct->setParentCategoryIds($parentCategoryIds);
+            $categoryIds = $this->getCategoryIds($product->getCategoriesRo());
+            if (!empty($categoryIds)) {
+                $nostoProduct->setCategoryIds($categoryIds);
+            }
+
+            $parentCategoryIds = $this->getParentCategoryIds($product->getCategoriesRo());
+            if (!empty($parentCategoryIds)) {
+                $nostoProduct->setParentCategoryIds($parentCategoryIds);
+            }
         }
 
         $ratingAvg = $product->getRatingAverage();
@@ -741,10 +741,18 @@ class Builder
             $iterator = $this->productHelper->createRepositoryIterator($criteria, $context->getContext());
 
             while (($children = $iterator->fetch()) !== null) {
+                $calculatedPrices = $this->productHelper->getSalesChannelCalculatedPrices(
+                    $children->getIds(),
+                    $context,
+                );
                 $shopwareProducts = $this->productHelper->getShopwareProducts($children->getIds(), $context);
                 foreach ($children as $variationProduct) {
                     $shopwareProduct = $shopwareProducts->get($variationProduct->getId());
-                    $skuCollection->append($this->skuBuilder->build($shopwareProduct ?: $variationProduct, $context));
+                    $skuCollection->append($this->skuBuilder->build(
+                        $shopwareProduct ?: $variationProduct,
+                        $context,
+                        $calculatedPrices[$variationProduct->getId()] ?? null,
+                    ));
                 }
             }
         }
