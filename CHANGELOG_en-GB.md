@@ -1,3 +1,10 @@
+# 5.2.35
+* Fix: Synchronize affected products when dynamic product group categories change
+* Fix: Fixed an error on category and search pages for visitors who accepted tracking when the store language had no Nosto account connected
+* Fix: Use Shopware’s decorated prices for products and SKUs when multi-currency is enabled
+* Fix: Prevent division-by-zero errors when storefront pagination has a zero or missing limit
+* Fix: Preserve product image URLs during partial loading and prevent collection return-type errors
+
 # 5.2.34
 * Fix: autocomplete product suggestion should match search results for productNumber search
 
