@@ -127,6 +127,8 @@
         </service>
 
         <service id="Nosto\NostoIntegration\Model\Nosto\Entity\Helper\ProductHelper">
+            <tag name="kernel.reset" method="reset"/>
+
             <argument key="$connection" type="service" id="Doctrine\DBAL\Connection"/>
             <argument key="$productRepository" type="service" id="product.repository"/>
             <argument key="$reviewRepository" type="service" id="product_review.repository"/>
