@@ -1,6 +1,7 @@
 import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
+import resetInfiniteScrollingState from '../../helper/infinite-scrolling-compat.helper';
 
 /**
  * The DOM id of each checkbox is prefixed with the facet id to stay unique across
@@ -86,6 +87,11 @@ export default class NostoFilterPropertySelectPlugin extends FilterPropertySelec
         this._updateCount();
 
         return stateChanged;
+    }
+
+    _onChangeFilter() {
+        resetInfiniteScrollingState(this.listing);
+        super._onChangeFilter();
     }
 
     reset(value) {
