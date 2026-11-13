@@ -1,5 +1,5 @@
 # 6.1.38
-* Fix: Die Produktliste wird nun unmittelbar nach dem Anwenden eines Filters auf Kategorieseiten mit unendlichem Bildlauf aktualisiert
+* Fix: Die Produktliste wird nun unmittelbar nach dem Anwenden eines Filters auf Kategorie- und Suchseiten mit Infinite Scrolling aktualisiert
 
 # 6.1.37
 * Fix: Betroffene Produkte synchronisieren, wenn sich dynamische Produktgruppenkategorien ändern
