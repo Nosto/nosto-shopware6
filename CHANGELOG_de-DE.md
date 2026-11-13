@@ -1,3 +1,6 @@
+# 6.1.38
+* Fix: Die Produktliste wird nun unmittelbar nach dem Anwenden eines Filters auf Kategorieseiten mit unendlichem Bildlauf aktualisiert
+
 # 6.1.37
 * Fix: Betroffene Produkte synchronisieren, wenn sich dynamische Produktgruppenkategorien ändern
 * Fix: Fehler auf Kategorie- und Suchseiten behoben, der bei Besuchern mit Tracking-Einwilligung auftrat, wenn für die Shop-Sprache kein Nosto-Konto verknüpft war
