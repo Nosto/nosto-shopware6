@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import DomAccess from 'src/helper/dom-access.helper';
 import FilterRange from 'src/plugin/listing/filter-range.plugin';
+import resetInfiniteScrollingState from '../../helper/infinite-scrolling-compat.helper';
 
 export default class NostoFilterSliderRange extends FilterRange {
     static options = deepmerge(FilterRange.options, {
@@ -310,7 +311,16 @@ export default class NostoFilterSliderRange extends FilterRange {
     }
 
     _onChangeKnob() {
+        resetInfiniteScrollingState(this.listing);
         this.listing.changeListing(true, { p: 1 });
+    }
+
+    /**
+     * @private
+     */
+    _onChangeInput() {
+        resetInfiniteScrollingState(this.listing);
+        super._onChangeInput();
     }
 
     hasMinValueSet() {
