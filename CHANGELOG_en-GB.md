@@ -1,5 +1,5 @@
 # 5.2.36
-* Fix: Product listing now updates immediately after applying a filter on infinite-scrolling category pages
+* Fix: Product listing now updates immediately after applying a filter on category and search pages with infinite scrolling
 
 # 5.2.35
 * Fix: Synchronize affected products when dynamic product group categories change
