@@ -1,3 +1,6 @@
+# 5.2.36
+* Fix: Product listing now updates immediately after applying a filter on category and search pages with infinite scrolling
+
 # 5.2.35
 * Fix: Synchronize affected products when dynamic product group categories change
 * Fix: Fixed an error on category and search pages for visitors who accepted tracking when the store language had no Nosto account connected

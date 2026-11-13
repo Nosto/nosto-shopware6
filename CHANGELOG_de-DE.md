@@ -1,3 +1,6 @@
+# 5.2.36
+* Fix: Die Produktliste wird nun unmittelbar nach dem Anwenden eines Filters auf Kategorie- und Suchseiten mit Infinite Scrolling aktualisiert
+
 # 5.2.35
 * Fix: Betroffene Produkte synchronisieren, wenn sich dynamische Produktgruppenkategorien ändern
 * Fix: Fehler auf Kategorie- und Suchseiten behoben, der bei Besuchern mit Tracking-Einwilligung auftrat, wenn für die Shop-Sprache kein Nosto-Konto verknüpft war
