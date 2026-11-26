@@ -73,6 +73,9 @@ final class SearchControllerTest extends TestCase
         ));
     }
 
+    /**
+     * @return iterable<string, array{int}>
+     */
     public static function redirectSettings(): iterable
     {
         yield 'PDP redirect enabled' => [1];
