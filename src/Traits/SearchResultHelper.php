@@ -53,16 +53,28 @@ trait SearchResultHelper
     private function applyNostoTotal(EntitySearchResult $result, Criteria $criteria): EntitySearchResult
     {
         $pagination = $criteria->getExtension('nostoPagination');
-        if (!$pagination instanceof Pagination || $pagination->getTotal() === null) {
+        if (!$pagination instanceof Pagination || ($total = $pagination->getTotal()) === null) {
             return $result;
+        }
+
+        $resultCriteria = $result->getCriteria();
+        // An empty first page exhausts the query when Nosto returned just one hit.
+        if ($total === 1 && $pagination->getOffset() === 0 && $result->count() === 0) {
+            $total = 0;
+            $resultCriteria = clone $resultCriteria;
+            $resultCriteria->addExtension('nostoPagination', new Pagination(
+                $pagination->getLimit(),
+                $pagination->getOffset(),
+                $total,
+            ));
         }
 
         return new EntitySearchResult(
             $result->getEntity(),
-            $pagination->getTotal(),
+            $total,
             $result->getEntities(),
             $result->getAggregations(),
-            $result->getCriteria(),
+            $resultCriteria,
             $result->getContext(),
         );
     }
