@@ -68,6 +68,9 @@ final class SearchResultHelperTest extends TestCase
         self::assertSame(24, $pagination->getLimit());
     }
 
+    /**
+     * @return iterable<string, array{int, int, bool, int}>
+     */
     public static function searchResults(): iterable
     {
         yield 'sole hit filtered out' => [1, 0, false, 0];
