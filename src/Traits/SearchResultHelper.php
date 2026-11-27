@@ -53,16 +53,30 @@ trait SearchResultHelper
     private function applyNostoTotal(EntitySearchResult $result, Criteria $criteria): EntitySearchResult
     {
         $pagination = $criteria->getExtension('nostoPagination');
-        if (!$pagination instanceof Pagination || $pagination->getTotal() === null) {
+        if (!$pagination instanceof Pagination || ($total = $pagination->getTotal()) === null) {
             return $result;
+        }
+
+        $resultCriteria = $result->getCriteria();
+        $limit = $pagination->getLimit();
+        $visibleCount = $result->count();
+        // The Shopware count is complete when all Nosto hits fit on the first page.
+        if ($pagination->getOffset() === 0 && $limit !== null && $total <= $limit && $total !== $visibleCount) {
+            $total = $visibleCount;
+            $resultCriteria = clone $resultCriteria;
+            $resultCriteria->addExtension('nostoPagination', new Pagination(
+                $limit,
+                $pagination->getOffset(),
+                $total,
+            ));
         }
 
         return new EntitySearchResult(
             $result->getEntity(),
-            $pagination->getTotal(),
+            $total,
             $result->getEntities(),
             $result->getAggregations(),
-            $result->getCriteria(),
+            $resultCriteria,
             $result->getContext(),
         );
     }
