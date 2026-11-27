@@ -58,12 +58,14 @@ trait SearchResultHelper
         }
 
         $resultCriteria = $result->getCriteria();
-        // An empty first page exhausts the query when Nosto returned just one hit.
-        if ($total === 1 && $pagination->getOffset() === 0 && $result->count() === 0) {
-            $total = 0;
+        $limit = $pagination->getLimit();
+        $visibleCount = $result->count();
+        // The Shopware count is complete when all Nosto hits fit on the first page.
+        if ($pagination->getOffset() === 0 && $limit !== null && $total <= $limit && $total !== $visibleCount) {
+            $total = $visibleCount;
             $resultCriteria = clone $resultCriteria;
             $resultCriteria->addExtension('nostoPagination', new Pagination(
-                $pagination->getLimit(),
+                $limit,
                 $pagination->getOffset(),
                 $total,
             ));

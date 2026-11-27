@@ -26,8 +26,9 @@ final class SearchResultHelperTest extends TestCase
         int $expectedTotal,
     ): void {
         $productId = 'product-id';
-        $criteria = new Criteria([$productId]);
-        $criteria->addExtension('nostoPagination', new Pagination(24, $offset, $nostoTotal));
+        $limit = 2;
+        $criteria = new Criteria(array_slice([$productId, 'other-product-id'], 0, $nostoTotal));
+        $criteria->addExtension('nostoPagination', new Pagination($limit, $offset, $nostoTotal));
         $products = new ProductCollection();
         if ($productIsVisible) {
             $product = new ProductEntity();
@@ -65,7 +66,7 @@ final class SearchResultHelperTest extends TestCase
         self::assertInstanceOf(Pagination::class, $pagination);
         self::assertSame($expectedTotal, $pagination->getTotal());
         self::assertSame($offset, $pagination->getOffset());
-        self::assertSame(24, $pagination->getLimit());
+        self::assertSame($limit, $pagination->getLimit());
     }
 
     /**
@@ -75,7 +76,9 @@ final class SearchResultHelperTest extends TestCase
     {
         yield 'sole hit filtered out' => [1, 0, false, 0];
         yield 'sole hit visible' => [1, 0, true, 1];
-        yield 'more hits may exist on later pages' => [25, 0, false, 25];
-        yield 'empty page beyond the last hit' => [1, 24, false, 1];
+        yield 'both hits filtered out' => [2, 0, false, 0];
+        yield 'one of two hits remains' => [2, 0, true, 1];
+        yield 'more hits may exist on later pages' => [3, 0, false, 3];
+        yield 'empty page beyond the last hit' => [1, 2, false, 1];
     }
 }
